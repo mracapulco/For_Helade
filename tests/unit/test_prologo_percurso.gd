@@ -71,3 +71,29 @@ func test_mira_no_brilho_encontra_o_alvo() -> void:
 	cena.camera.rotation.x = deg_to_rad(-60) # olhando para o chão
 	await wait_physics_frames(2)
 	assert_null(cena._alvo_na_mira())
+
+
+func test_shift_corre_mais_rapido_que_andar() -> void:
+	var inicio := cena.corpo.global_position
+	Input.action_press("mover_frente")
+	await wait_physics_frames(20)
+	var andando := cena.corpo.global_position.distance_to(inicio)
+	inicio = cena.corpo.global_position
+	Input.action_press("correr")
+	await wait_physics_frames(20)
+	var correndo := cena.corpo.global_position.distance_to(inicio)
+	Input.action_release("correr")
+	Input.action_release("mover_frente")
+	assert_gt(correndo, andando * 1.5)
+
+
+func test_espaco_pula_e_volta_ao_chao() -> void:
+	await wait_physics_frames(5)
+	var chao := cena.corpo.global_position.y
+	Input.action_press("pular")
+	await wait_physics_frames(1)
+	Input.action_release("pular")
+	await wait_physics_frames(10)
+	assert_gt(cena.corpo.global_position.y, chao + 0.1)
+	await wait_seconds(1.2)
+	assert_almost_eq(cena.corpo.global_position.y, chao, 0.02)

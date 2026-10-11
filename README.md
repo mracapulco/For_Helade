@@ -30,7 +30,7 @@ Sintaxe completa: [documentação do Dialogue Manager](https://github.com/nathan
 ~ nome_da_cena
 
 Nicholas: [#retrato=neutro] Texto da fala. [ID:CAP1_001]
-- Texto da opção [ID:CAP1_OPCAO_A]
+- Texto da opção (sem dois-pontos, senão vira nome de personagem) [ID:CAP1_OPCAO_A]
 	$> Relacoes.ajustar("id_do_personagem", 1)
 	$> Influencia.ajustar("id_da_casa", 1)
 	Nicholas: Resposta. [ID:CAP1_002]

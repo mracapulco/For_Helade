@@ -30,6 +30,8 @@ func _escolher_ate(indice: int, static_id: String) -> DialogueLine:
 func test_tem_tres_escolhas() -> void:
 	var fala: DialogueLine = await _ate_as_escolhas()
 	assert_eq(fala.responses.size(), 3)
+	for opcao: DialogueResponse in fala.responses:
+		assert_eq(opcao.character, "", "dois-pontos na opção vira nome de personagem: %s" % opcao.text)
 
 
 func test_opcao_a_aumenta_relacao() -> void:

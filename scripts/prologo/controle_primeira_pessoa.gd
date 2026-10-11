@@ -19,6 +19,10 @@ signal chegou(ponto: PontoDeVista)
 @export var mira: Control
 ## Olhos abrindo no começo da cena. Sem ela, a cena começa com os olhos abertos.
 @export var abertura: AberturaOlhos
+## Roteiro do prólogo (texto do livro). Sem ele, a cena não mostra texto.
+@export var roteiro: DialogueResource
+## Trecho do roteiro mostrado na tela preta, antes de os olhos abrirem.
+@export var cena_inicial := "abertura"
 ## Passo de criança, em metros por segundo.
 @export var velocidade := 1.6
 ## Velocidade segurando Shift.
@@ -34,8 +38,12 @@ signal chegou(ponto: PontoDeVista)
 var ponto_atual: PontoDeVista
 ## Deslizando até um ponto depois de um toque.
 var em_movimento := false
-## Nada responde ao jogador (olhos abrindo, e mais tarde as cenas do quarto da mãe).
+## Nada responde ao jogador (olhos abrindo, texto na tela, cenas do quarto da mãe).
 var travado := false
+## Trecho do roteiro na tela agora; vazio quando não há texto.
+var cena_tocando := ""
+
+var _cenas_vistas: Array[String] = []
 
 var _gravidade: float = ProjectSettings.get_setting("physics/3d/default_gravity")
 
@@ -48,13 +56,14 @@ func _ready() -> void:
 	if ponto_inicial == null:
 		return
 	_colocar_em(ponto_inicial)
+	travado = true
+	if dica:
+		dica.text = ""
+	await tocar_cena(cena_inicial)
 	if abertura:
 		# Nicholas acorda: nada responde até os olhos abrirem.
-		travado = true
-		if dica:
-			dica.text = ""
 		await abertura.abrir()
-		travado = false
+	travado = false
 	_chegar_em(ponto_inicial)
 
 
@@ -141,17 +150,50 @@ func _verificar_chegada() -> void:
 			return
 
 
+## Mostra um trecho do roteiro e trava Nicholas até o jogador terminar de ler.
+## Cada trecho só aparece uma vez.
+func tocar_cena(titulo: String) -> void:
+	if roteiro == null or titulo.is_empty() or titulo in _cenas_vistas:
+		return
+	_cenas_vistas.append(titulo)
+	var estava_travado := travado
+	var mouse_estava_preso := Input.mouse_mode == Input.MOUSE_MODE_CAPTURED
+	travado = true
+	cena_tocando = titulo
+	# O mouse fica livre para clicar na caixa de diálogo.
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	var texto_dica := dica.text if dica else ""
+	if dica:
+		dica.text = ""
+	var gerente := Engine.get_singleton("DialogueManager")
+	gerente.show_dialogue_balloon(roteiro, titulo)
+	await gerente.dialogue_ended
+	cena_tocando = ""
+	if dica:
+		dica.text = texto_dica
+	if mouse_estava_preso:
+		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	travado = estava_travado
+
+
 func _chegar_em(ponto: PontoDeVista) -> void:
 	ponto_atual = ponto
+	_atualizar_dica(ponto)
+	await tocar_cena(ponto.cena_ao_chegar)
+	if ponto != ponto_atual:
+		return
 	_ativar_alvos(ponto, true)
+	chegou.emit(ponto)
+
+
+func _atualizar_dica(ponto: PontoDeVista) -> void:
 	if dica:
-		# Sem mais lugares para ir, este passo acabou. O texto final é provisório
-		# até o sequenciador de batidas (passo 2) assumir a cena.
+		# Sem mais lugares para ir, o trecho jogável acabou. Aviso provisório até
+		# a cena nos aposentos da duquesa (passo 3).
 		if ponto.alvos().is_empty():
-			dica.text = tr("PROLOGO_PROVISORIO_FIM_PASSO1")
+			dica.text = tr("PROLOGO_PROVISORIO_FIM")
 		else:
 			dica.text = tr("PROLOGO_DICA_TOQUE") if OS.has_feature("mobile") else tr("PROLOGO_DICA_TECLADO")
-	chegou.emit(ponto)
 
 
 func _alvo_na_mira() -> AlvoToque:

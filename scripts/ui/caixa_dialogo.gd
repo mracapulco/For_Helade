@@ -163,6 +163,8 @@ func _mostrar_retrato() -> void:
 	var expressao: String = expressao_atual()
 	var textura: Texture2D = personagem.retrato(expressao) if personagem else null
 
+	# Falas sem nome (narração, pensamentos de Nicholas) não reservam espaço de retrato.
+	retrato.get_parent().visible = tem_personagem
 	retrato.visible = textura != null
 	retrato.texture = textura
 	retrato_provisorio.visible = tem_personagem and textura == null

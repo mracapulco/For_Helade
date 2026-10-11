@@ -9,6 +9,7 @@ var cena: ControlePrimeiraPessoa
 func before_each() -> void:
 	cena = CENA.instantiate()
 	cena.abertura = null # sem a animação dos olhos, para o teste ser rápido
+	cena.roteiro = null # sem texto; o roteiro tem testes próprios abaixo
 	cena.duracao_movimento = 0.2
 	add_child_autofree(cena)
 	await wait_physics_frames(2)
@@ -97,3 +98,44 @@ func test_espaco_pula_e_volta_ao_chao() -> void:
 	assert_gt(cena.corpo.global_position.y, chao + 0.1)
 	await wait_seconds(1.2)
 	assert_almost_eq(cena.corpo.global_position.y, chao, 0.02)
+
+
+func _todos_os_pontos() -> Array:
+	return cena.get_node("Pontos").get_children()
+
+
+func test_roteiro_tem_todos_os_trechos_usados_na_cena() -> void:
+	var roteiro: DialogueResource = load("res://data/dialogos/prologo/prologo.dialogue")
+	assert_has(roteiro.get_cues(), "abertura")
+	for ponto: PontoDeVista in _todos_os_pontos():
+		if not ponto.cena_ao_chegar.is_empty():
+			assert_has(roteiro.get_cues(), ponto.cena_ao_chegar, "trecho de " + ponto.name)
+
+
+func test_texto_trava_nicholas_e_cada_trecho_aparece_uma_vez() -> void:
+	var gerente := Engine.get_singleton("DialogueManager")
+	var outra: ControlePrimeiraPessoa = CENA.instantiate()
+	outra.abertura = null
+	add_child_autofree(outra)
+	await wait_physics_frames(2)
+	assert_eq(outra.cena_tocando, "abertura")
+	assert_true(outra.travado)
+	gerente.dialogue_ended.emit(outra.roteiro)
+	await wait_physics_frames(2)
+	assert_eq(outra.cena_tocando, "acordar", "ao abrir os olhos, na cama")
+	assert_true(outra.travado)
+	assert_false(_ponto_de(outra, "Cama").alvos()[0].ativo, "brilho só depois do texto")
+	gerente.dialogue_ended.emit(outra.roteiro)
+	await wait_physics_frames(2)
+	assert_eq(outra.cena_tocando, "")
+	assert_false(outra.travado)
+	assert_true(_ponto_de(outra, "Cama").alvos()[0].ativo)
+	outra.tocar_cena("acordar")
+	assert_eq(outra.cena_tocando, "", "trecho já visto não repete")
+	for caixa in get_tree().root.find_children("*", "CanvasLayer", true, false):
+		if caixa is CaixaDialogo:
+			caixa.queue_free()
+
+
+func _ponto_de(no: Node, nome: String) -> PontoDeVista:
+	return no.get_node("Pontos/" + nome)

@@ -8,18 +8,20 @@ Jogo baseado no livro *Pelos Olhos Dele*, de Shara M. Schwartz. Contexto e decis
 
 ## Rodar
 
-Abra a pasta no Godot e aperte F5. Por enquanto a cena principal é a tela de teste do diálogo (`cenas/teste_dialogo.tscn`).
+Para testar o diálogo: abra `scenes/testes/teste_dialogo.tscn` no Godot e aperte F6 (rodar a cena atual).
 
 ## Pastas
 
 | Pasta | O que tem |
 | --- | --- |
-| `dialogos/` | Cenas de roteiro em `.dialogue`, uma pasta por capítulo |
-| `dados/personagens/` | Um `.tres` por personagem (nome no roteiro e retratos por expressão) |
-| `scripts/estado/` | `Relacoes`, `Influencia` e `Elenco` (autoloads) |
-| `ui/dialogo/` | Caixa de diálogo com retrato e escolhas |
-| `cenas/` | Cenas do jogo |
-| `tests/` | Testes GUT |
+| `data/dialogos/` | Cenas de roteiro em `.dialogue`, uma pasta por capítulo |
+| `data/personagens/` | Um `.tres` por personagem (nome no roteiro e retratos por expressão) |
+| `scripts/autoload/` | `Relacoes`, `Influencia` e `Elenco` |
+| `scripts/systems/` | `Medidor` (base de relações e influência) e `Personagem` |
+| `scenes/ui/` + `scripts/ui/` | Caixa de diálogo com retrato e escolhas |
+| `scenes/testes/` + `scripts/testes/` | Telas provisórias de teste |
+| `i18n/strings.csv` | Textos de interface por chave |
+| `tests/` | Testes GUT (`unit/`, `integration/`) |
 | `addons/` | Plugins de terceiros sem modificação: Dialogue Manager 4.1.0 e GUT 9.7.1 |
 
 ## Escrevendo diálogo
@@ -40,9 +42,9 @@ Nicholas: Toda escolha volta para a linha principal. [ID:CAP1_003]
 ```
 
 - **Retrato:** `[#retrato=expressao]`. Sem a etiqueta, usa `neutro`. Sem arte, aparece um quadro provisório com nome e expressão.
-- **Quem fala** precisa estar no `Elenco` (`scripts/estado/elenco.gd`), senão o quadro aparece em vermelho com "FORA DO ELENCO".
+- **Quem fala** precisa estar no `Elenco` (`scripts/autoload/elenco.gd`), senão o quadro aparece em vermelho com "FORA DO ELENCO".
 - **Escolhas não mudam o rumo:** toda opção volta para a mesma fala principal.
-- **Tradução:** o texto em pt-BR fica no `.dialogue`; `[ID:...]` é a chave fixa de cada fala. O editor de diálogo tem um comando para gerar IDs. Para exportar, use *Projeto > Configurações > Localização > Modelo POT*.
+- **Tradução:** o texto em pt-BR fica no próprio `.dialogue` e é a base. `[ID:...]` é a chave fixa de cada fala (o editor de diálogo tem um comando para gerar IDs) e vira o contexto no POT. Para exportar, use *Projeto > Configurações > Localização > Modelo POT*. Textos de interface ficam em `i18n/strings.csv`.
 - `##` antes de uma fala vira nota para quem for traduzir.
 
 ## Testes

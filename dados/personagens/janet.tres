@@ -1,8 +1,0 @@
-[gd_resource type="Resource" script_class="Personagem" format=3]
-
-[ext_resource type="Script" path="res://scripts/dados/personagem.gd" id="1_personagem"]
-
-[resource]
-script = ExtResource("1_personagem")
-nome_no_roteiro = "Janet"
-cor_provisoria = Color(0.25, 0.35, 0.5, 1)

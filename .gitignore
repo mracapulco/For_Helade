@@ -1,8 +1,15 @@
-# Godot 4
+# Cache e arquivos gerados pelo Godot
 .godot/
-/android/
 *.translation
-export_presets.cfg
 
-# GUT
-.gut_editor_*
+# Exportações
+builds/
+
+# Assinatura Android (nunca versionar chaves nem senhas)
+*.keystore
+*.jks
+export_credentials.cfg
+
+# Sistema operacional
+.DS_Store
+Thumbs.db

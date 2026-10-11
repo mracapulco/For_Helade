@@ -1,0 +1,11 @@
+keys,pt_BR
+JOGO_TITULO,Por Hélade
+PROLOGO_DICA_TOQUE,Toque no brilho dourado para se mover
+PROLOGO_PROVISORIO_FIM_PASSO1,[Provisório] Fim do passo 1. A cena nos aposentos da duquesa entra no passo 3.
+RETRATO_PROVISORIO,PROVISÓRIO
+RETRATO_FORA_DO_ELENCO,FORA DO ELENCO
+TESTE_DIALOGO_TITULO,Teste do sistema de diálogo (provisório)
+TESTE_DIALOGO_VALORES,"Relação com Janet: %d
+Influência com Olympia: %d"
+TESTE_DIALOGO_INICIAR,Iniciar diálogo de teste
+TESTE_DIALOGO_ZERAR,Zerar valores

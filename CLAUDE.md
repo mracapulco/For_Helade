@@ -38,6 +38,7 @@ O jogo é uma **segunda forma de percorrer a história**: começa e termina como
 - Controle por **clique para mover**, para funcionar igual no toque. A interface deve ser pensada para toque desde o início (botões grandes, sem depender de hover ou teclado).
 - Testes de lógica com **GUT** ou **gdUnit4** (influência, save/load, progressão).
 - Versionamento com **git**, com commits pequenos.
+- **Roteiro e diálogo:** arquivos `.dialogue` do plugin **Dialogue Manager** em `data/dialogos/`, com pt-BR no próprio arquivo e `[ID:...]` fixo por fala para tradução (POT/PO). Retrato por etiqueta `[#retrato=expressao]`; escolhas chamam `Relacoes.ajustar(...)` e `Influencia.ajustar(...)` e sempre voltam para a linha principal. Detalhes no README.
 
 ### Visual
 - Mesmo estilo da capa do livro: fantasia clássica, tons noturnos com dourado, castelos à beira-mar, lua.
@@ -84,6 +85,5 @@ Ao receber o livro completo, acrescentar aqui o **mapa de capítulos** (o que ca
 ## Itens em aberto
 
 - Receber o livro completo (.txt) e montar o mapa de capítulos
-- Definir o formato dos arquivos de roteiro/diálogo
 - Definir a origem da arte e o estilo final dos retratos
 - Validar o conceito com a autora (incluindo o que pode aparecer sem spoilers)

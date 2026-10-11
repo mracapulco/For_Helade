@@ -1,0 +1,18 @@
+## Cena de teste do sistema de diálogo.
+## Nenhuma fala daqui é do livro: são só marcadores para testar retrato, escolhas, relações e influência.
+
+~ inicio
+
+Nicholas: [#retrato=neutro] Fala de teste 1. Nicholas fala com o retrato neutro. [ID:TESTE_001]
+Janet: [#retrato=surpresa] Fala de teste 2. Janet fala com a expressão "surpresa". [ID:TESTE_002]
+Janet: Fala de teste 3. Escolha uma opção. [ID:TESTE_003]
+- Opção A, aumenta a relação com Janet. [ID:TESTE_OPCAO_A]
+	$> Relacoes.ajustar("janet", 1)
+	Nicholas: Fala de teste da opção A. [ID:TESTE_004]
+- Opção B, aumenta a influência com a Casa Olympia. [ID:TESTE_OPCAO_B]
+	$> Influencia.ajustar("olympia", 1)
+	Nicholas: Fala de teste da opção B. [ID:TESTE_005]
+- Opção C, não muda nada. [ID:TESTE_OPCAO_C]
+Janet: Fala de teste 4. Todas as opções voltam para esta mesma fala. [ID:TESTE_006]
+
+=> END

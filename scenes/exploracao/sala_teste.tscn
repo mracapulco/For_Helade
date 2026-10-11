@@ -2,6 +2,9 @@
 
 [ext_resource type="TileSet" path="res://scenes/exploracao/tileset_sala_teste.tres" id="1_hwg6f"]
 [ext_resource type="Script" path="res://scripts/exploracao/camera_exploracao.gd" id="2_blak7"]
+[ext_resource type="Script" path="res://scripts/exploracao/navegacao_sala.gd" id="3_nav"]
+[ext_resource type="Script" path="res://scripts/exploracao/personagem_exploracao.gd" id="4_pers"]
+[ext_resource type="Script" path="res://scripts/exploracao/marcador_destino.gd" id="5_marc"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_pn2jv"]
 radius = 14.0
@@ -19,9 +22,20 @@ y_sort_enabled = true
 tile_map_data = PackedByteArray("AAAAAAAAAQAAAAAAAAAAAAEAAQAAAAAAAAAAAAIAAQAAAAAAAAAAAAMAAQAAAAAAAAAAAAQAAQAAAAAAAAAAAAUAAQAAAAAAAAAAAAYAAQAAAAAAAAAAAAcAAQAAAAAAAAAAAAgAAQAAAAAAAAAAAAkAAQAAAAAAAAAAAAoAAQAAAAAAAAAAAAsAAQAAAAAAAAAAAAwAAQAAAAAAAAAAAA0AAQAAAAAAAAAAAA4AAQAAAAAAAAAAAA8AAQAAAAAAAAABAAAAAQAAAAAAAAACAAAAAQAAAAAAAAADAAAAAQAAAAAAAAAEAAAAAQAAAAAAAAAFAAAAAQAAAAAAAAAGAAAAAQAAAAAAAAAHAAAAAQAAAAAAAAAIAAAAAQAAAAAAAAAJAAAAAQAAAAAAAAAKAAAAAQAAAAAAAAALAAAAAQAAAAAAAAAMAAAAAQAAAAAAAAANAAAAAQAAAAAAAAAOAAAAAQAAAAAAAAAPAAAAAQAAAAAAAAAEAAQAAQAAAAAAAAAFAAQAAQAAAAAAAAAEAAUAAQAAAAAAAAAKAAcAAQAAAAAAAAAKAAgAAQAAAAAAAAAKAAkAAQAAAAAAAAAHAAsAAQAAAAAAAAA=")
 tile_set = ExtResource("1_hwg6f")
 
+[node name="Navegacao" type="NavigationRegion2D" parent="." node_paths=PackedStringArray("chao", "obstaculos")]
+script = ExtResource("3_nav")
+chao = NodePath("../Chao")
+obstaculos = NodePath("../Obstaculos")
+
+[node name="MarcadorDestino" type="Node2D" parent="." node_paths=PackedStringArray("personagem")]
+z_index = -1
+script = ExtResource("5_marc")
+personagem = NodePath("../Personagem")
+
 [node name="Personagem" type="CharacterBody2D" parent="." unique_id=997458425]
 position = Vector2(-256, 384)
 motion_mode = 1
+script = ExtResource("4_pers")
 
 [node name="Sombra" type="Polygon2D" parent="Personagem" unique_id=615637889]
 color = Color(0, 0, 0, 0.35)
@@ -37,3 +51,8 @@ shape = SubResource("CircleShape2D_pn2jv")
 [node name="Camera" type="Camera2D" parent="Personagem" unique_id=43459017 node_paths=PackedStringArray("mapa")]
 script = ExtResource("2_blak7")
 mapa = NodePath("../../Chao")
+
+[node name="Agente" type="NavigationAgent2D" parent="Personagem"]
+path_desired_distance = 8.0
+target_desired_distance = 8.0
+radius = 14.0

@@ -1,0 +1,15 @@
+# Cache e arquivos gerados pelo Godot
+.godot/
+*.translation
+
+# Exportações
+builds/
+
+# Assinatura Android (nunca versionar chaves nem senhas)
+*.keystore
+*.jks
+export_credentials.cfg
+
+# Sistema operacional
+.DS_Store
+Thumbs.db

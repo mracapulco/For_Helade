@@ -1,0 +1,267 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/prologo/controle_primeira_pessoa.gd" id="1_xyw2i"]
+[ext_resource type="Script" path="res://scripts/prologo/ponto_de_vista.gd" id="2_4md6l"]
+[ext_resource type="Script" path="res://scripts/prologo/alvo_toque.gd" id="3_uiloo"]
+
+[sub_resource type="Environment" id="Environment_iryju"]
+background_mode = 1
+background_color = Color(0.02, 0.03, 0.07, 1)
+ambient_light_source = 2
+ambient_light_color = Color(0.25, 0.3, 0.5, 1)
+ambient_light_energy = 0.35
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ab1bn"]
+albedo_color = Color(0.16, 0.13, 0.12, 1)
+roughness = 0.9
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_viiba"]
+albedo_color = Color(0.2, 0.22, 0.3, 1)
+roughness = 0.9
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_h34uw"]
+albedo_color = Color(0.35, 0.22, 0.12, 1)
+roughness = 0.9
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_nnoio"]
+albedo_color = Color(0.12, 0.16, 0.35, 1)
+roughness = 0.9
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_73s4l"]
+albedo_color = Color(0.85, 0.65, 0.25, 1)
+roughness = 0.9
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_0f3j4"]
+size = Vector3(0.9, 0.9, 0.9)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_uawdr"]
+albedo_color = Color(0.95, 0.68, 0.2, 1)
+roughness = 0.9
+emission_enabled = true
+emission = Color(0.95, 0.68, 0.2, 1)
+emission_energy_multiplier = 0.9
+
+[sub_resource type="SphereMesh" id="SphereMesh_rnfgu"]
+material = SubResource("StandardMaterial3D_uawdr")
+radius = 0.12
+height = 0.24
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_q2utl"]
+size = Vector3(0.9, 0.9, 0.9)
+
+[sub_resource type="SphereMesh" id="SphereMesh_383km"]
+material = SubResource("StandardMaterial3D_uawdr")
+radius = 0.12
+height = 0.24
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_n33pe"]
+size = Vector3(0.9, 0.9, 0.9)
+
+[sub_resource type="SphereMesh" id="SphereMesh_gnccc"]
+material = SubResource("StandardMaterial3D_uawdr")
+radius = 0.12
+height = 0.24
+
+[node name="Prologo" type="Node3D" unique_id=22704539 node_paths=PackedStringArray("camera", "ponto_inicial", "dica")]
+script = ExtResource("1_xyw2i")
+camera = NodePath("Camera")
+ponto_inicial = NodePath("Pontos/Cama")
+dica = NodePath("Hud/Dica")
+
+[node name="Ambiente" type="WorldEnvironment" parent="." unique_id=186154613]
+environment = SubResource("Environment_iryju")
+
+[node name="Lua" type="DirectionalLight3D" parent="." unique_id=1116428225]
+transform = Transform3D(0.8660254, -0.38302222, 0.32139382, 0, 0.64278764, 0.76604444, -0.5, -0.66341394, 0.5566704, 0, 0, 0)
+light_color = Color(0.6, 0.7, 1, 1)
+light_energy = 0.25
+
+[node name="Cenario" type="Node3D" parent="." unique_id=909049675]
+
+[node name="QuartoNicholas" type="Node3D" parent="Cenario" unique_id=2106915997]
+
+[node name="Chao" type="CSGBox3D" parent="Cenario/QuartoNicholas" unique_id=1878697497]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, -0.05, 2)
+size = Vector3(4, 0.1, 4)
+material = SubResource("StandardMaterial3D_ab1bn")
+
+[node name="Teto" type="CSGBox3D" parent="Cenario/QuartoNicholas" unique_id=583251620]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 3.05, 2)
+size = Vector3(4, 0.1, 4)
+material = SubResource("StandardMaterial3D_viiba")
+
+[node name="ParedeOeste" type="CSGBox3D" parent="Cenario/QuartoNicholas" unique_id=1558266275]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.05, 1.5, 2)
+size = Vector3(0.1, 3, 4)
+material = SubResource("StandardMaterial3D_viiba")
+
+[node name="ParedeNorte" type="CSGBox3D" parent="Cenario/QuartoNicholas" unique_id=1560712209]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 1.5, -0.05)
+size = Vector3(4, 3, 0.1)
+material = SubResource("StandardMaterial3D_viiba")
+
+[node name="ParedeSul" type="CSGBox3D" parent="Cenario/QuartoNicholas" unique_id=1086861075]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 1.5, 4.05)
+size = Vector3(4, 3, 0.1)
+material = SubResource("StandardMaterial3D_viiba")
+
+[node name="ParedeLesteA" type="CSGBox3D" parent="Cenario/QuartoNicholas" unique_id=526581486]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.05, 1.5, 0.7)
+size = Vector3(0.1, 3, 1.4)
+material = SubResource("StandardMaterial3D_viiba")
+
+[node name="ParedeLesteB" type="CSGBox3D" parent="Cenario/QuartoNicholas" unique_id=1545136987]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.05, 1.5, 3.3)
+size = Vector3(0.1, 3, 1.4)
+material = SubResource("StandardMaterial3D_viiba")
+
+[node name="VergaPorta" type="CSGBox3D" parent="Cenario/QuartoNicholas" unique_id=1328955160]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.05, 2.6, 2)
+size = Vector3(0.1, 0.8, 1.2)
+material = SubResource("StandardMaterial3D_viiba")
+
+[node name="Cama" type="CSGBox3D" parent="Cenario/QuartoNicholas" unique_id=455671854]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.2, 0.25, 2.3)
+size = Vector3(1.2, 0.5, 2)
+material = SubResource("StandardMaterial3D_h34uw")
+
+[node name="Coberta" type="CSGBox3D" parent="Cenario/QuartoNicholas" unique_id=674267800]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.2, 0.52, 2.5)
+size = Vector3(1.15, 0.06, 1.6)
+material = SubResource("StandardMaterial3D_nnoio")
+
+[node name="Travesseiro" type="CSGBox3D" parent="Cenario/QuartoNicholas" unique_id=1590263994]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.2, 0.58, 1.5)
+size = Vector3(0.9, 0.15, 0.4)
+material = SubResource("StandardMaterial3D_nnoio")
+
+[node name="Vela" type="OmniLight3D" parent="Cenario/QuartoNicholas" unique_id=1651029721]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.6, 1, 0.6)
+light_color = Color(1, 0.7, 0.4, 1)
+light_energy = 1.2
+omni_range = 4.0
+
+[node name="Corredor" type="Node3D" parent="Cenario" unique_id=716843768]
+
+[node name="Chao" type="CSGBox3D" parent="Cenario/Corredor" unique_id=1449693973]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, -0.05, 2)
+size = Vector3(10, 0.1, 2)
+material = SubResource("StandardMaterial3D_ab1bn")
+
+[node name="Teto" type="CSGBox3D" parent="Cenario/Corredor" unique_id=1549369285]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 3.05, 2)
+size = Vector3(10, 0.1, 2)
+material = SubResource("StandardMaterial3D_viiba")
+
+[node name="ParedeNorte" type="CSGBox3D" parent="Cenario/Corredor" unique_id=708494287]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 1.5, 0.95)
+size = Vector3(10, 3, 0.1)
+material = SubResource("StandardMaterial3D_viiba")
+
+[node name="ParedeSul" type="CSGBox3D" parent="Cenario/Corredor" unique_id=2038679985]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 1.5, 3.05)
+size = Vector3(10, 3, 0.1)
+material = SubResource("StandardMaterial3D_viiba")
+
+[node name="ParedeFim" type="CSGBox3D" parent="Cenario/Corredor" unique_id=911636897]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.05, 1.5, 2)
+size = Vector3(0.1, 3, 2)
+material = SubResource("StandardMaterial3D_viiba")
+
+[node name="PortaAposentos" type="CSGBox3D" parent="Cenario/Corredor" unique_id=1676258661]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.97, 1.15, 2)
+size = Vector3(0.06, 2.3, 1.3)
+material = SubResource("StandardMaterial3D_h34uw")
+
+[node name="MolduraPorta" type="CSGBox3D" parent="Cenario/Corredor" unique_id=1820230242]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.99, 2.35, 2)
+size = Vector3(0.05, 0.1, 1.4)
+material = SubResource("StandardMaterial3D_73s4l")
+
+[node name="Tocha1" type="OmniLight3D" parent="Cenario/Corredor" unique_id=2052316505]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 2, 1.2)
+light_color = Color(1, 0.6, 0.3, 1)
+omni_range = 4.5
+
+[node name="Tocha2" type="OmniLight3D" parent="Cenario/Corredor" unique_id=1855380580]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.5, 2, 2.8)
+light_color = Color(1, 0.6, 0.3, 1)
+omni_range = 4.5
+
+[node name="LuzPorta" type="OmniLight3D" parent="Cenario/Corredor" unique_id=910911301]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.4, 1.8, 2)
+light_color = Color(1, 0.75, 0.45, 1)
+light_energy = 0.8
+omni_range = 2.5
+
+[node name="Pontos" type="Node3D" parent="." unique_id=300209102]
+
+[node name="Cama" type="Marker3D" parent="Pontos" unique_id=1152388138]
+transform = Transform3D(0.1842885, -0.015092563, -0.9827563, 0, 0.9998821, -0.01535557, 0.9828722, 0.002829855, 0.18426678, -3.2, 0.95, 2.6)
+script = ExtResource("2_4md6l")
+
+[node name="AlvoPortaQuarto" type="Area3D" parent="Pontos/Cama" unique_id=223914630 node_paths=PackedStringArray("destino")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.036857724, -0.0030184984, -3.4526992)
+script = ExtResource("3_uiloo")
+destino = NodePath("../../PortaQuarto")
+
+[node name="Colisao" type="CollisionShape3D" parent="Pontos/Cama/AlvoPortaQuarto" unique_id=883465213]
+shape = SubResource("BoxShape3D_0f3j4")
+
+[node name="Brilho" type="MeshInstance3D" parent="Pontos/Cama/AlvoPortaQuarto" unique_id=1138099211]
+mesh = SubResource("SphereMesh_rnfgu")
+
+[node name="PortaQuarto" type="Marker3D" parent="Pontos" unique_id=926915425]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, -0.3, 1.05, 2)
+script = ExtResource("2_4md6l")
+
+[node name="AlvoCorredor" type="Area3D" parent="Pontos/PortaQuarto" unique_id=1741820931 node_paths=PackedStringArray("destino")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.14999998, -5.3)
+script = ExtResource("3_uiloo")
+destino = NodePath("../../Corredor")
+
+[node name="Colisao" type="CollisionShape3D" parent="Pontos/PortaQuarto/AlvoCorredor" unique_id=622109941]
+shape = SubResource("BoxShape3D_q2utl")
+
+[node name="Brilho" type="MeshInstance3D" parent="Pontos/PortaQuarto/AlvoCorredor" unique_id=1117869730]
+mesh = SubResource("SphereMesh_383km")
+
+[node name="Corredor" type="Marker3D" parent="Pontos" unique_id=1343348683]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 5, 1.05, 2)
+script = ExtResource("2_4md6l")
+
+[node name="AlvoPortaAposentos" type="Area3D" parent="Pontos/Corredor" unique_id=791262552 node_paths=PackedStringArray("destino")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.049999952, -4.8)
+script = ExtResource("3_uiloo")
+destino = NodePath("../../PortaAposentos")
+
+[node name="Colisao" type="CollisionShape3D" parent="Pontos/Corredor/AlvoPortaAposentos" unique_id=1556682615]
+shape = SubResource("BoxShape3D_n33pe")
+
+[node name="Brilho" type="MeshInstance3D" parent="Pontos/Corredor/AlvoPortaAposentos" unique_id=547708264]
+mesh = SubResource("SphereMesh_gnccc")
+
+[node name="PortaAposentos" type="Marker3D" parent="Pontos" unique_id=1422221080]
+transform = Transform3D(0, -0.15437685, -0.988012, 0, 0.988012, -0.15437685, 1, 0, 0, 8.4, 1.05, 2)
+script = ExtResource("2_4md6l")
+
+[node name="Camera" type="Camera3D" parent="." unique_id=511765926]
+current = true
+fov = 70.0
+
+[node name="Hud" type="CanvasLayer" parent="." unique_id=754761565]
+
+[node name="Dica" type="Label" parent="Hud" unique_id=261694660]
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -120.0
+offset_bottom = -40.0
+theme_override_font_sizes/font_size = 32
+theme_override_colors/font_color = Color(0.95, 0.85, 0.6, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 8
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3

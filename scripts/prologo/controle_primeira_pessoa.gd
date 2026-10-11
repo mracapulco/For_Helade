@@ -10,6 +10,8 @@ signal chegou(ponto: PontoDeVista)
 @export var duracao_movimento := 1.4
 ## Texto de ajuda na parte de baixo da tela.
 @export var dica: Label
+## Olhos abrindo no começo da cena. Sem ela, a cena começa com os olhos abertos.
+@export var abertura: AberturaOlhos
 
 var ponto_atual: PontoDeVista
 var em_movimento := false
@@ -22,6 +24,13 @@ func _ready() -> void:
 		alvo.tocado.connect(_ao_tocar)
 	if ponto_inicial:
 		camera.global_transform = ponto_inicial.global_transform
+		if abertura:
+			# Nicholas acorda: nada responde ao toque até os olhos abrirem.
+			em_movimento = true
+			if dica:
+				dica.text = ""
+			await abertura.abrir()
+			em_movimento = false
 		_chegar_em(ponto_inicial)
 
 

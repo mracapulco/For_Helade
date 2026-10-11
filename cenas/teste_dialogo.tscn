@@ -1,0 +1,65 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://cenas/teste_dialogo.gd" id="1_teste"]
+
+[sub_resource type="Theme" id="Theme_teste"]
+default_font_size = 26
+
+[node name="TesteDialogo" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = SubResource("Theme_teste")
+script = ExtResource("1_teste")
+
+[node name="Fundo" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.05, 0.07, 0.14, 1)
+
+[node name="Centro" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 420.0
+grow_horizontal = 2
+
+[node name="Itens" type="VBoxContainer" parent="Centro"]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="Titulo" type="Label" parent="Centro/Itens"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.86, 0.72, 0.38, 1)
+text = "Teste do sistema de diálogo (provisório)"
+horizontal_alignment = 1
+
+[node name="Valores" type="Label" parent="Centro/Itens"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Relação com Janet: 0
+Influência com Olympia: 0"
+horizontal_alignment = 1
+
+[node name="Iniciar" type="Button" parent="Centro/Itens"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(360, 80)
+layout_mode = 2
+size_flags_horizontal = 4
+text = "Iniciar diálogo de teste"
+
+[node name="Zerar" type="Button" parent="Centro/Itens"]
+custom_minimum_size = Vector2(360, 80)
+layout_mode = 2
+size_flags_horizontal = 4
+text = "Zerar valores"
+
+[connection signal="pressed" from="Centro/Itens/Iniciar" to="." method="_on_iniciar_pressed"]
+[connection signal="pressed" from="Centro/Itens/Zerar" to="." method="_on_zerar_pressed"]

@@ -1,0 +1,203 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://ui/dialogo/caixa_dialogo.gd" id="1_caixa"]
+[ext_resource type="PackedScene" path="res://addons/dialogue_manager/nodes/dialogue_label/dialogue_label.tscn" id="2_label"]
+[ext_resource type="Script" path="res://addons/dialogue_manager/nodes/responses_menu/dialogue_responses_menu.gd" id="3_menu"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBox_painel"]
+content_margin_left = 16.0
+content_margin_top = 16.0
+content_margin_right = 16.0
+content_margin_bottom = 16.0
+bg_color = Color(0.04, 0.06, 0.12, 0.95)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.86, 0.72, 0.38, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBox_botao"]
+content_margin_left = 24.0
+content_margin_top = 12.0
+content_margin_right = 24.0
+content_margin_bottom = 12.0
+bg_color = Color(0.04, 0.06, 0.12, 0.95)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.55, 0.47, 0.28, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBox_botao_foco"]
+content_margin_left = 24.0
+content_margin_top = 12.0
+content_margin_right = 24.0
+content_margin_bottom = 12.0
+bg_color = Color(0.12, 0.14, 0.24, 1)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.86, 0.72, 0.38, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="Theme" id="Theme_caixa"]
+default_font_size = 24
+Button/styles/disabled = SubResource("StyleBox_botao")
+Button/styles/focus = SubResource("StyleBox_botao_foco")
+Button/styles/hover = SubResource("StyleBox_botao_foco")
+Button/styles/normal = SubResource("StyleBox_botao")
+Button/styles/pressed = SubResource("StyleBox_botao_foco")
+PanelContainer/styles/panel = SubResource("StyleBox_painel")
+
+[node name="CaixaDialogo" type="CanvasLayer"]
+layer = 100
+script = ExtResource("1_caixa")
+
+[node name="Balloon" type="Control" parent="."]
+unique_name_in_owner = true
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = SubResource("Theme_caixa")
+
+[node name="Margem" type="MarginContainer" parent="Balloon"]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -260.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 24
+
+[node name="Painel" type="PanelContainer" parent="Balloon/Margem"]
+layout_mode = 2
+mouse_filter = 1
+
+[node name="Linha" type="HBoxContainer" parent="Balloon/Margem/Painel"]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="AreaRetrato" type="Control" parent="Balloon/Margem/Painel/Linha"]
+custom_minimum_size = Vector2(190, 190)
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+
+[node name="Retrato" type="TextureRect" parent="Balloon/Margem/Painel/Linha/AreaRetrato"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="RetratoProvisorio" type="ColorRect" parent="Balloon/Margem/Painel/Linha/AreaRetrato"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.3, 0.3, 0.35, 1)
+
+[node name="RetratoProvisorioTexto" type="Label" parent="Balloon/Margem/Painel/Linha/AreaRetrato/RetratoProvisorio"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_font_sizes/font_size = 20
+text = "Nome
+(neutro)
+PROVISÓRIO"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+auto_translate_mode = 2
+
+[node name="Textos" type="VBoxContainer" parent="Balloon/Margem/Painel/Linha"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="CharacterLabel" type="RichTextLabel" parent="Balloon/Margem/Painel/Linha/Textos"]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 1
+theme_override_colors/default_color = Color(0.86, 0.72, 0.38, 1)
+bbcode_enabled = true
+text = "Personagem"
+fit_content = true
+scroll_active = false
+auto_translate_mode = 2
+
+[node name="DialogueLabel" parent="Balloon/Margem/Painel/Linha/Textos" instance=ExtResource("2_label")]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+text = "Fala..."
+
+[node name="AreaProgresso" type="Control" parent="Balloon/Margem/Painel/Linha"]
+custom_minimum_size = Vector2(20, 10)
+layout_mode = 2
+size_flags_vertical = 8
+mouse_filter = 2
+
+[node name="Progress" type="Polygon2D" parent="Balloon/Margem/Painel/Linha/AreaProgresso"]
+unique_name_in_owner = true
+color = Color(0.86, 0.72, 0.38, 1)
+polygon = PackedVector2Array(0, 0, 10, 10, 20, 0)
+
+[node name="AreaEscolhas" type="CenterContainer" parent="Balloon"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_bottom = -260.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="ResponsesMenu" type="VBoxContainer" parent="Balloon/AreaEscolhas" node_paths=PackedStringArray("response_template")]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 12
+alignment = 1
+script = ExtResource("3_menu")
+response_template = NodePath("ModeloDeOpcao")
+
+[node name="ModeloDeOpcao" type="Button" parent="Balloon/AreaEscolhas/ResponsesMenu"]
+custom_minimum_size = Vector2(560, 72)
+layout_mode = 2
+text = "Opção"
+autowrap_mode = 3
+
+[connection signal="gui_input" from="Balloon" to="." method="_on_balloon_gui_input"]
+[connection signal="response_selected" from="Balloon/AreaEscolhas/ResponsesMenu" to="." method="_on_responses_menu_response_selected"]

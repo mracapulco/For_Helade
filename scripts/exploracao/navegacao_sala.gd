@@ -2,6 +2,8 @@ class_name NavegacaoSala
 extends NavigationRegion2D
 ## Gera a área andável da sala ao abrir a cena: o losango do `chao` inteiro,
 ## menos a colisão dos tiles de `obstaculos` (com folga do raio do personagem).
+## Também cria bordas invisíveis no contorno do chão, para quem anda pelo
+## teclado não sair da sala.
 
 const GRUPO_OBSTACULOS := &"navegacao_obstaculos"
 
@@ -22,6 +24,20 @@ func _ready() -> void:
 		obstaculos.add_to_group(GRUPO_OBSTACULOS)
 	navigation_polygon = poligono
 	bake_navigation_polygon(false)
+	_criar_bordas(poligono.get_outline(0))
+
+
+func _criar_bordas(contorno: PackedVector2Array) -> void:
+	var bordas := StaticBody2D.new()
+	bordas.name = "Bordas"
+	for i in contorno.size():
+		var forma := CollisionShape2D.new()
+		var segmento := SegmentShape2D.new()
+		segmento.a = chao.to_global(contorno[i])
+		segmento.b = chao.to_global(contorno[(i + 1) % contorno.size()])
+		forma.shape = segmento
+		bordas.add_child(forma)
+	add_child(bordas)
 
 
 ## Os quatro cantos do losango formado pelos tiles usados de uma camada

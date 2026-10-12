@@ -4,7 +4,8 @@ extends CharacterBody2D
 ## Toque ou clique: anda até o ponto, desviando dos obstáculos; segurar e
 ## arrastar atualiza o destino. Mouse e toque passam pelo mesmo caminho (o
 ## projeto emula toque com o mouse).
-## Teclado (PC): WASD ou setas para andar, Shift para correr, Espaço para pular.
+## Teclado (PC): WASD ou setas para andar, Shift para correr, Espaço para pular,
+## Enter para interagir com o interagível mais próximo ao alcance.
 ## Tocar num Interagivel: anda até ele e interage ao chegar.
 
 signal destino_definido(destino: Vector2)
@@ -44,6 +45,11 @@ func _unhandled_input(event: InputEvent) -> void:
 	elif event.is_action_pressed("pular"):
 		pular()
 		get_viewport().set_input_as_handled()
+	elif event.is_action_pressed("interagir"):
+		var alvo := interagivel_ao_alcance()
+		if alvo:
+			interagir_com(alvo)
+			get_viewport().set_input_as_handled()
 
 
 ## Converte uma posição na tela para a posição no mundo, levando a câmera em conta.
@@ -73,6 +79,19 @@ func interagivel_em(posicao_mundo: Vector2) -> Interagivel:
 		if resultado.collider is Interagivel:
 			return resultado.collider
 	return null
+
+
+## O interagível mais próximo que está ao alcance, ou null.
+func interagivel_ao_alcance() -> Interagivel:
+	var melhor: Interagivel = null
+	var menor := INF
+	for no in get_tree().get_nodes_in_group(Interagivel.GRUPO_INTERAGIVEIS):
+		var alvo := no as Interagivel
+		var distancia := global_position.distance_to(alvo.global_position)
+		if alvo.ao_alcance(global_position) and distancia < menor:
+			melhor = alvo
+			menor = distancia
+	return melhor
 
 
 ## Interage na hora se estiver ao alcance; senão anda até perto e interage ao chegar.

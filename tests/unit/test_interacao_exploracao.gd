@@ -57,3 +57,25 @@ func test_destaque_aparece_so_ao_alcance() -> void:
 func test_texto_vem_da_traducao() -> void:
 	TranslationServer.set_locale("pt_BR")
 	assert_string_starts_with(tr(objeto.chave_texto), "[Provisório]")
+
+
+func _apertar_enter() -> void:
+	var tecla := InputEventAction.new()
+	tecla.action = "interagir"
+	tecla.pressed = true
+	Input.parse_input_event(tecla)
+	await wait_frames(2)
+
+
+func test_enter_interage_com_o_que_esta_perto() -> void:
+	personagem.global_position = objeto.get_parent().global_position + Vector2(0, 50)
+	watch_signals(objeto)
+	await _apertar_enter()
+	assert_signal_emitted(objeto, "interagido")
+
+
+func test_enter_longe_de_tudo_nao_faz_nada() -> void:
+	watch_signals(objeto)
+	await _apertar_enter()
+	assert_signal_not_emitted(objeto, "interagido")
+	assert_null(personagem.interagivel_ao_alcance())

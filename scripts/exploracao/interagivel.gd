@@ -8,6 +8,7 @@ signal interagido
 
 const CAMADA_INTERAGIVEIS := 4 # camada 3 de física
 const GRUPO_JOGADOR := &"jogador"
+const GRUPO_INTERAGIVEIS := &"interagiveis"
 
 ## Chave de tradução do texto mostrado ao interagir (provisório até o passo 5).
 @export var chave_texto := ""
@@ -23,6 +24,7 @@ var _texto: Label
 
 
 func _ready() -> void:
+	add_to_group(GRUPO_INTERAGIVEIS)
 	collision_layer = CAMADA_INTERAGIVEIS
 	collision_mask = 0
 	monitoring = false

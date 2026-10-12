@@ -125,14 +125,15 @@ func pular() -> void:
 
 
 ## Converte a direção das teclas para as linhas do quadriculado isométrico:
-## W sobe para a direita, S desce para a esquerda, D desce para a direita e
-## A sobe para a esquerda. Duas teclas juntas fazem as diagonais da tela
-## (W+D anda reto para a direita, W+A reto para cima). O resultado tem
-## tamanho 1, então a velocidade é a mesma em qualquer direção.
+## W sobe para a esquerda, S desce para a direita, D sobe para a direita e
+## A desce para a esquerda. Duas teclas juntas fazem as direções retas da
+## tela (W+D para cima, S+A para baixo, W+A para a esquerda, S+D para a
+## direita). O resultado tem tamanho 1, então a velocidade é a mesma em
+## qualquer direção.
 static func direcao_isometrica(direcao_teclas: Vector2) -> Vector2:
-	var eixo_d := Vector2(2, 1).normalized()
-	var eixo_w := Vector2(2, -1).normalized()
-	var direcao := eixo_d * direcao_teclas.x - eixo_w * direcao_teclas.y
+	var eixo_s := Vector2(2, 1).normalized()
+	var eixo_d := Vector2(2, -1).normalized()
+	var direcao := eixo_d * direcao_teclas.x + eixo_s * direcao_teclas.y
 	return direcao.normalized()
 
 

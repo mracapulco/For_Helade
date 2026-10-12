@@ -1,0 +1,16 @@
+[remap]
+
+importer="dialogue_manager"
+importer_version=18
+type="Resource"
+uid="uid://68s77v7sinx5"
+path="res://.godot/imported/exploracao.dialogue-452899d717a6a6ca1b822b0ea6d83733.tres"
+
+[deps]
+
+source_file="res://data/dialogos/teste/exploracao.dialogue"
+dest_files=["res://.godot/imported/exploracao.dialogue-452899d717a6a6ca1b822b0ea6d83733.tres"]
+
+[params]
+
+defaults=true

@@ -13,6 +13,23 @@ func before_each() -> void:
 	await wait_physics_frames(3)
 
 
+func after_each() -> void:
+	for caixa in _caixas_abertas():
+		caixa.free()
+	Input.action_release(&"mover_frente")
+
+
+func _caixas_abertas() -> Array[Node]:
+	var caixas: Array[Node] = []
+	var pendentes: Array[Node] = [get_tree().root]
+	while not pendentes.is_empty():
+		var no: Node = pendentes.pop_back()
+		if no is CaixaDialogo:
+			caixas.append(no)
+		pendentes.append_array(no.get_children())
+	return caixas
+
+
 func test_toque_no_objeto_encontra_o_interagivel() -> void:
 	assert_eq(personagem.interagivel_em(objeto.global_position), objeto)
 
@@ -54,9 +71,48 @@ func test_destaque_aparece_so_ao_alcance() -> void:
 	assert_true(objeto.destacado)
 
 
-func test_texto_vem_da_traducao() -> void:
+func test_interagir_abre_a_caixa_de_dialogo() -> void:
 	TranslationServer.set_locale("pt_BR")
-	assert_string_starts_with(tr(objeto.chave_texto), "[Provisório]")
+	objeto.interagir()
+	await wait_frames(3)
+	var caixas := _caixas_abertas()
+	assert_eq(caixas.size(), 1)
+	var caixa := caixas[0] as CaixaDialogo
+	assert_eq(caixa.dialogue_line.static_id, "EXPLORACAO_TESTE_001")
+	assert_string_starts_with(caixa.dialogue_line.text, "[Provisório]")
+
+
+func test_personagem_de_teste_tem_nome_e_retrato_provisorio() -> void:
+	var outro: Interagivel = sala.get_node("PersonagemTeste/Interagivel")
+	var fala: DialogueLine = await outro.dialogo.get_next_dialogue_line(outro.marcador)
+	assert_eq(fala.character, "Personagem de teste")
+	assert_not_null(Elenco.buscar(fala.character), "o personagem precisa estar no Elenco")
+
+
+func test_personagem_fica_parado_durante_a_conversa() -> void:
+	objeto.interagir()
+	await wait_frames(3)
+	assert_true(personagem.em_dialogo)
+	var antes := personagem.global_position
+	Input.action_press(&"mover_frente")
+	await wait_physics_frames(5)
+	Input.action_release(&"mover_frente")
+	assert_eq(personagem.global_position, antes)
+	personagem.tocar(antes) # chamada direta ainda funciona; o bloqueio é na entrada
+	var toque := InputEventScreenTouch.new()
+	toque.pressed = true
+	toque.position = Vector2(100, 100)
+	personagem.andando = false
+	personagem._unhandled_input(toque)
+	assert_false(personagem.andando, "toque não deve mover o personagem com a caixa aberta")
+
+
+func test_personagem_volta_a_andar_quando_a_conversa_acaba() -> void:
+	objeto.interagir()
+	await wait_frames(3)
+	DialogueManager.dialogue_ended.emit(objeto.dialogo)
+	await wait_seconds(0.3)
+	assert_false(personagem.em_dialogo)
 
 
 func _apertar_enter() -> void:

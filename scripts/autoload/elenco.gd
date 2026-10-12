@@ -6,6 +6,8 @@ extends Node
 var personagens: Array[Personagem] = [
 	preload("res://data/personagens/nicholas.tres"),
 	preload("res://data/personagens/janet.tres"),
+	# Provisório: só para a sala de teste da exploração.
+	preload("res://data/personagens/personagem_teste.tres"),
 ]
 
 

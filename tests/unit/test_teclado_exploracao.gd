@@ -26,9 +26,22 @@ func _andar(acoes: Array, quadros: int) -> float:
 	return personagem.global_position.distance_to(inicio)
 
 
-func test_direcao_isometrica_achata_o_vertical() -> void:
-	assert_eq(PersonagemExploracao.direcao_isometrica(Vector2(0, -1)), Vector2(0, -0.5))
-	assert_eq(PersonagemExploracao.direcao_isometrica(Vector2(1, 0)), Vector2(1, 0))
+func test_cada_tecla_segue_uma_linha_do_quadriculado() -> void:
+	var chao: TileMapLayer = sala.get_node("Chao")
+	var eixo_x := (chao.map_to_local(Vector2i(1, 0)) - chao.map_to_local(Vector2i(0, 0))).normalized()
+	var eixo_y := (chao.map_to_local(Vector2i(0, 1)) - chao.map_to_local(Vector2i(0, 0))).normalized()
+	var erro := Vector2(0.001, 0.001)
+	assert_almost_eq(PersonagemExploracao.direcao_isometrica(Vector2(0, -1)), -eixo_x, erro, "W sobe à esquerda")
+	assert_almost_eq(PersonagemExploracao.direcao_isometrica(Vector2(0, 1)), eixo_x, erro, "S desce à direita")
+	assert_almost_eq(PersonagemExploracao.direcao_isometrica(Vector2(1, 0)), -eixo_y, erro, "D sobe à direita")
+	assert_almost_eq(PersonagemExploracao.direcao_isometrica(Vector2(-1, 0)), eixo_y, erro, "A desce à esquerda")
+
+
+func test_duas_teclas_fazem_as_direcoes_retas_da_tela() -> void:
+	var erro := Vector2(0.001, 0.001)
+	assert_almost_eq(PersonagemExploracao.direcao_isometrica(Vector2(1, -1).normalized()), Vector2.UP, erro, "W+D")
+	assert_almost_eq(PersonagemExploracao.direcao_isometrica(Vector2(-1, -1).normalized()), Vector2.LEFT, erro, "W+A")
+	assert_almost_eq(PersonagemExploracao.direcao_isometrica(Vector2(1, 1).normalized()), Vector2.RIGHT, erro, "S+D")
 
 
 func test_d_anda_para_a_direita() -> void:

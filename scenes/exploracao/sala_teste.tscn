@@ -5,9 +5,22 @@
 [ext_resource type="Script" path="res://scripts/exploracao/navegacao_sala.gd" id="3_nav"]
 [ext_resource type="Script" path="res://scripts/exploracao/personagem_exploracao.gd" id="4_pers"]
 [ext_resource type="Script" path="res://scripts/exploracao/marcador_destino.gd" id="5_marc"]
+[ext_resource type="Script" path="res://scripts/exploracao/interagivel.gd" id="6_mcson"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_pn2jv"]
 radius = 14.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_42mlo"]
+radius = 18.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_vy6ro"]
+radius = 56.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_mm362"]
+radius = 18.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_jfhrn"]
+radius = 56.0
 
 [node name="SalaTeste" type="Node2D" unique_id=749893232]
 y_sort_enabled = true
@@ -22,12 +35,12 @@ y_sort_enabled = true
 tile_map_data = PackedByteArray("AAAAAAAAAQAAAAAAAAAAAAEAAQAAAAAAAAAAAAIAAQAAAAAAAAAAAAMAAQAAAAAAAAAAAAQAAQAAAAAAAAAAAAUAAQAAAAAAAAAAAAYAAQAAAAAAAAAAAAcAAQAAAAAAAAAAAAgAAQAAAAAAAAAAAAkAAQAAAAAAAAAAAAoAAQAAAAAAAAAAAAsAAQAAAAAAAAAAAAwAAQAAAAAAAAAAAA0AAQAAAAAAAAAAAA4AAQAAAAAAAAAAAA8AAQAAAAAAAAABAAAAAQAAAAAAAAACAAAAAQAAAAAAAAADAAAAAQAAAAAAAAAEAAAAAQAAAAAAAAAFAAAAAQAAAAAAAAAGAAAAAQAAAAAAAAAHAAAAAQAAAAAAAAAIAAAAAQAAAAAAAAAJAAAAAQAAAAAAAAAKAAAAAQAAAAAAAAALAAAAAQAAAAAAAAAMAAAAAQAAAAAAAAANAAAAAQAAAAAAAAAOAAAAAQAAAAAAAAAPAAAAAQAAAAAAAAAEAAQAAQAAAAAAAAAFAAQAAQAAAAAAAAAEAAUAAQAAAAAAAAAKAAcAAQAAAAAAAAAKAAgAAQAAAAAAAAAKAAkAAQAAAAAAAAAHAAsAAQAAAAAAAAA=")
 tile_set = ExtResource("1_hwg6f")
 
-[node name="Navegacao" type="NavigationRegion2D" parent="." node_paths=PackedStringArray("chao", "obstaculos")]
+[node name="Navegacao" type="NavigationRegion2D" parent="." unique_id=1603202086 node_paths=PackedStringArray("chao", "obstaculos")]
 script = ExtResource("3_nav")
 chao = NodePath("../Chao")
 obstaculos = NodePath("../Obstaculos")
 
-[node name="MarcadorDestino" type="Node2D" parent="." node_paths=PackedStringArray("personagem")]
+[node name="MarcadorDestino" type="Node2D" parent="." unique_id=317200477 node_paths=PackedStringArray("personagem")]
 z_index = -1
 script = ExtResource("5_marc")
 personagem = NodePath("../Personagem")
@@ -52,7 +65,43 @@ shape = SubResource("CircleShape2D_pn2jv")
 script = ExtResource("2_blak7")
 mapa = NodePath("../../Chao")
 
-[node name="Agente" type="NavigationAgent2D" parent="Personagem"]
+[node name="Agente" type="NavigationAgent2D" parent="Personagem" unique_id=100217193]
 path_desired_distance = 8.0
 target_desired_distance = 8.0
 radius = 14.0
+
+[node name="ObjetoTeste" type="StaticBody2D" parent="." unique_id=247210171 groups=["navegacao_obstaculos"]]
+position = Vector2(256, 384)
+
+[node name="Desenho" type="Polygon2D" parent="ObjetoTeste" unique_id=1565415405]
+color = Color(0.95, 0.8, 0.2, 1)
+polygon = PackedVector2Array(-22, -40, 22, -40, 22, 0, -22, 0)
+
+[node name="Colisao" type="CollisionShape2D" parent="ObjetoTeste" unique_id=981607017]
+shape = SubResource("CircleShape2D_42mlo")
+
+[node name="Interagivel" type="Area2D" parent="ObjetoTeste" unique_id=1844123862]
+script = ExtResource("6_mcson")
+chave_texto = "EXPLORACAO_OBJETO_TESTE"
+
+[node name="AreaDeToque" type="CollisionShape2D" parent="ObjetoTeste/Interagivel" unique_id=1848310895]
+position = Vector2(0, -24)
+shape = SubResource("CircleShape2D_vy6ro")
+
+[node name="PersonagemTeste" type="StaticBody2D" parent="." unique_id=148811563 groups=["navegacao_obstaculos"]]
+position = Vector2(64, 800)
+
+[node name="Desenho" type="Polygon2D" parent="PersonagemTeste" unique_id=542798467]
+color = Color(0.3, 0.8, 0.45, 1)
+polygon = PackedVector2Array(16, -36, 15.454813, -26.682514, 13.856406, -18, 11.313708, -10.544156, 8, -4.8230853, 4.1411047, -1.2266703, 9.797175e-16, 0, -4.1411047, -1.2266703, -8, -4.8230853, -11.313708, -10.544156, -13.856406, -18, -15.454813, -26.682514, -16, -36, -15.454813, -45.317486, -13.856406, -54, -11.313708, -61.455845, -8, -67.17692, -4.1411047, -70.77333, -2.9391522e-15, -72, 4.1411047, -70.77333, 8, -67.17692, 11.313708, -61.455845, 13.856406, -54, 15.454813, -45.317486)
+
+[node name="Colisao" type="CollisionShape2D" parent="PersonagemTeste" unique_id=1782629014]
+shape = SubResource("CircleShape2D_mm362")
+
+[node name="Interagivel" type="Area2D" parent="PersonagemTeste" unique_id=2087466709]
+script = ExtResource("6_mcson")
+chave_texto = "EXPLORACAO_PERSONAGEM_TESTE"
+
+[node name="AreaDeToque" type="CollisionShape2D" parent="PersonagemTeste/Interagivel" unique_id=1558270094]
+position = Vector2(0, -24)
+shape = SubResource("CircleShape2D_jfhrn")

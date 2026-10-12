@@ -4,7 +4,9 @@ extends CharacterBody2D
 ## Toque ou clique: anda até o ponto, desviando dos obstáculos; segurar e
 ## arrastar atualiza o destino. Mouse e toque passam pelo mesmo caminho (o
 ## projeto emula toque com o mouse).
-## Teclado (PC): WASD ou setas para andar, Shift para correr, Espaço para pular.
+## Teclado (PC): WASD ou setas para andar, Shift para correr, Espaço para pular,
+## Enter para interagir com o interagível mais próximo ao alcance.
+## Tocar num Interagivel: anda até ele e interage ao chegar.
 
 signal destino_definido(destino: Vector2)
 signal chegou
@@ -17,6 +19,8 @@ signal chegou
 
 var andando := false
 var pulando := false
+## Interagível para onde o personagem está indo, se houver.
+var alvo_interacao: Interagivel
 
 var _tempo_pulo := 0.0
 
@@ -25,19 +29,80 @@ var _tempo_pulo := 0.0
 @onready var sombra: Node2D = $Sombra
 
 
+func _ready() -> void:
+	add_to_group(Interagivel.GRUPO_JOGADOR)
+
+
 func _unhandled_input(event: InputEvent) -> void:
 	var toque: bool = event is InputEventScreenTouch and event.pressed
-	if toque or event is InputEventScreenDrag:
+	if toque:
+		tocar(tela_para_mundo(event.position))
+		get_viewport().set_input_as_handled()
+	elif event is InputEventScreenDrag:
+		alvo_interacao = null
 		ir_para(tela_para_mundo(event.position))
 		get_viewport().set_input_as_handled()
 	elif event.is_action_pressed("pular"):
 		pular()
 		get_viewport().set_input_as_handled()
+	elif event.is_action_pressed("interagir"):
+		var alvo := interagivel_ao_alcance()
+		if alvo:
+			interagir_com(alvo)
+			get_viewport().set_input_as_handled()
 
 
 ## Converte uma posição na tela para a posição no mundo, levando a câmera em conta.
 func tela_para_mundo(posicao_tela: Vector2) -> Vector2:
 	return get_canvas_transform().affine_inverse() * posicao_tela
+
+
+## O jogador tocou neste ponto do mundo: interage se for um Interagivel,
+## senão anda até lá.
+func tocar(posicao_mundo: Vector2) -> void:
+	var alvo := interagivel_em(posicao_mundo)
+	if alvo:
+		interagir_com(alvo)
+	else:
+		alvo_interacao = null
+		ir_para(posicao_mundo)
+
+
+## O Interagivel cuja área de toque cobre esse ponto, ou null.
+func interagivel_em(posicao_mundo: Vector2) -> Interagivel:
+	var consulta := PhysicsPointQueryParameters2D.new()
+	consulta.position = posicao_mundo
+	consulta.collide_with_areas = true
+	consulta.collide_with_bodies = false
+	consulta.collision_mask = Interagivel.CAMADA_INTERAGIVEIS
+	for resultado in get_world_2d().direct_space_state.intersect_point(consulta):
+		if resultado.collider is Interagivel:
+			return resultado.collider
+	return null
+
+
+## O interagível mais próximo que está ao alcance, ou null.
+func interagivel_ao_alcance() -> Interagivel:
+	var melhor: Interagivel = null
+	var menor := INF
+	for no in get_tree().get_nodes_in_group(Interagivel.GRUPO_INTERAGIVEIS):
+		var alvo := no as Interagivel
+		var distancia := global_position.distance_to(alvo.global_position)
+		if alvo.ao_alcance(global_position) and distancia < menor:
+			melhor = alvo
+			menor = distancia
+	return melhor
+
+
+## Interage na hora se estiver ao alcance; senão anda até perto e interage ao chegar.
+func interagir_com(alvo: Interagivel) -> void:
+	if alvo.ao_alcance(global_position):
+		alvo_interacao = null
+		andando = false
+		alvo.interagir()
+		return
+	alvo_interacao = alvo
+	ir_para(alvo.global_position)
 
 
 ## Leva o personagem ao ponto andável mais próximo de `destino`.
@@ -59,10 +124,17 @@ func pular() -> void:
 	_tempo_pulo = 0.0
 
 
-## Converte a direção das teclas (cima = para cima na tela) para o chão
-## isométrico, onde a distância vertical na tela vale metade.
+## Converte a direção das teclas para as linhas do quadriculado isométrico:
+## W sobe para a esquerda, S desce para a direita, D sobe para a direita e
+## A desce para a esquerda. Duas teclas juntas fazem as direções retas da
+## tela (W+D para cima, S+A para baixo, W+A para a esquerda, S+D para a
+## direita). O resultado tem tamanho 1, então a velocidade é a mesma em
+## qualquer direção.
 static func direcao_isometrica(direcao_teclas: Vector2) -> Vector2:
-	return Vector2(direcao_teclas.x, direcao_teclas.y * 0.5)
+	var eixo_s := Vector2(2, 1).normalized()
+	var eixo_d := Vector2(2, -1).normalized()
+	var direcao := eixo_d * direcao_teclas.x + eixo_s * direcao_teclas.y
+	return direcao.normalized()
 
 
 func _physics_process(delta: float) -> void:
@@ -73,6 +145,7 @@ func _physics_process(delta: float) -> void:
 
 	var teclas := Input.get_vector("mover_esquerda", "mover_direita", "mover_frente", "mover_tras")
 	if teclas != Vector2.ZERO:
+		alvo_interacao = null
 		if andando:
 			andando = false
 			chegou.emit()
@@ -87,6 +160,9 @@ func _physics_process(delta: float) -> void:
 		andando = false
 		velocity = Vector2.ZERO
 		chegou.emit()
+		if alvo_interacao and alvo_interacao.ao_alcance(global_position):
+			alvo_interacao.interagir()
+		alvo_interacao = null
 		return
 	velocity = global_position.direction_to(agente.get_next_path_position()) * rapidez
 	move_and_slide()

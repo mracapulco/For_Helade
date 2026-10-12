@@ -135,3 +135,15 @@ func test_frases_nao_travam_nicholas_e_cada_trecho_aparece_uma_vez() -> void:
 
 func _ponto_de(no: Node, nome: String) -> PontoDeVista:
 	return no.get_node("Pontos/" + nome)
+
+
+func test_enter_com_a_mira_no_brilho_vai_ate_ele() -> void:
+	var alvo: AlvoToque = _ponto("Cama").alvos()[0]
+	cena.camera.look_at(alvo.global_position)
+	await wait_physics_frames(2)
+	var enter := InputEventAction.new()
+	enter.action = "interagir"
+	enter.pressed = true
+	cena._unhandled_input(enter)
+	await wait_seconds(0.4)
+	assert_eq(cena.ponto_atual, _ponto("PortaQuarto"))

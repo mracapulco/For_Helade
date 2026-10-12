@@ -9,4 +9,4 @@ TESTE_DIALOGO_VALORES,"Relação com Janet: %d
 Influência com Olympia: %d"
 TESTE_DIALOGO_INICIAR,Iniciar diálogo de teste
 TESTE_DIALOGO_ZERAR,Zerar valores
-PROLOGO_DICA_TECLADO,"WASD para andar, Shift para correr, espaço para pular, mouse para olhar. Clique para prender o mouse, Esc para soltar."
+PROLOGO_DICA_TECLADO,"WASD para andar, Shift para correr, espaço para pular, mouse para olhar, Enter para ir até o brilho. Clique para prender o mouse, Esc para soltar."

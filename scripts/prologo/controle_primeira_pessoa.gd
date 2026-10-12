@@ -19,8 +19,10 @@ signal chegou(ponto: PontoDeVista)
 @export var mira: Control
 ## Olhos abrindo no começo da cena. Sem ela, a cena começa com os olhos abertos.
 @export var abertura: AberturaOlhos
-## Roteiro do prólogo (texto do livro). Sem ele, a cena não mostra texto.
+## Roteiro do prólogo (frases do livro). Sem ele, a cena não mostra texto.
 @export var roteiro: DialogueResource
+## Onde as frases aparecem e somem.
+@export var texto_solto: TextoSolto
 ## Trecho do roteiro mostrado na tela preta, antes de os olhos abrirem.
 @export var cena_inicial := "abertura"
 ## Passo de criança, em metros por segundo.
@@ -38,7 +40,7 @@ signal chegou(ponto: PontoDeVista)
 var ponto_atual: PontoDeVista
 ## Deslizando até um ponto depois de um toque.
 var em_movimento := false
-## Nada responde ao jogador (olhos abrindo, texto na tela, cenas do quarto da mãe).
+## Nada responde ao jogador (tela preta, olhos abrindo, cenas do quarto da mãe).
 var travado := false
 ## Trecho do roteiro na tela agora; vazio quando não há texto.
 var cena_tocando := ""
@@ -150,38 +152,27 @@ func _verificar_chegada() -> void:
 			return
 
 
-## Mostra um trecho do roteiro e trava Nicholas até o jogador terminar de ler.
-## Cada trecho só aparece uma vez.
+## Mostra as frases de um trecho do roteiro, que aparecem e somem sozinhas.
+## Nicholas continua andando. Cada trecho só aparece uma vez.
 func tocar_cena(titulo: String) -> void:
-	if roteiro == null or titulo.is_empty() or titulo in _cenas_vistas:
+	if roteiro == null or texto_solto == null or titulo.is_empty() or titulo in _cenas_vistas:
 		return
 	_cenas_vistas.append(titulo)
-	var estava_travado := travado
-	var mouse_estava_preso := Input.mouse_mode == Input.MOUSE_MODE_CAPTURED
-	travado = true
 	cena_tocando = titulo
-	# O mouse fica livre para clicar na caixa de diálogo.
-	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
-	var texto_dica := dica.text if dica else ""
-	if dica:
-		dica.text = ""
-	var gerente := Engine.get_singleton("DialogueManager")
-	gerente.show_dialogue_balloon(roteiro, titulo)
-	await gerente.dialogue_ended
-	cena_tocando = ""
-	if dica:
-		dica.text = texto_dica
-	if mouse_estava_preso:
-		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
-	travado = estava_travado
+	var frases: Array[String] = []
+	var linha: DialogueLine = await roteiro.get_next_dialogue_line(titulo)
+	while linha:
+		frases.append(linha.text)
+		linha = await roteiro.get_next_dialogue_line(linha.next_id)
+	await texto_solto.mostrar(frases)
+	if cena_tocando == titulo:
+		cena_tocando = ""
 
 
 func _chegar_em(ponto: PontoDeVista) -> void:
 	ponto_atual = ponto
 	_atualizar_dica(ponto)
-	await tocar_cena(ponto.cena_ao_chegar)
-	if ponto != ponto_atual:
-		return
+	tocar_cena(ponto.cena_ao_chegar)
 	_ativar_alvos(ponto, true)
 	chegou.emit(ponto)
 

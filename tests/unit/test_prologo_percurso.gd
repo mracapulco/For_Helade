@@ -112,29 +112,25 @@ func test_roteiro_tem_todos_os_trechos_usados_na_cena() -> void:
 			assert_has(roteiro.get_cues(), ponto.cena_ao_chegar, "trecho de " + ponto.name)
 
 
-func test_texto_trava_nicholas_e_cada_trecho_aparece_uma_vez() -> void:
-	var gerente := Engine.get_singleton("DialogueManager")
+func test_frases_nao_travam_nicholas_e_cada_trecho_aparece_uma_vez() -> void:
 	var outra: ControlePrimeiraPessoa = CENA.instantiate()
 	outra.abertura = null
+	var frases: TextoSolto = outra.texto_solto
+	frases.tempo_fade = 0.05
+	frases.tempo_minimo = 0.1
+	frases.tempo_por_letra = 0.0
 	add_child_autofree(outra)
 	await wait_physics_frames(2)
 	assert_eq(outra.cena_tocando, "abertura")
-	assert_true(outra.travado)
-	gerente.dialogue_ended.emit(outra.roteiro)
-	await wait_physics_frames(2)
+	assert_true(outra.travado, "na tela preta, antes de abrir os olhos")
+	await wait_until(func() -> bool: return outra.cena_tocando != "abertura", 3.0)
 	assert_eq(outra.cena_tocando, "acordar", "ao abrir os olhos, na cama")
-	assert_true(outra.travado)
-	assert_false(_ponto_de(outra, "Cama").alvos()[0].ativo, "brilho só depois do texto")
-	gerente.dialogue_ended.emit(outra.roteiro)
-	await wait_physics_frames(2)
-	assert_eq(outra.cena_tocando, "")
-	assert_false(outra.travado)
+	assert_false(outra.travado, "as frases não travam Nicholas")
 	assert_true(_ponto_de(outra, "Cama").alvos()[0].ativo)
+	await wait_until(func() -> bool: return outra.cena_tocando.is_empty(), 3.0)
+	assert_eq(outra.cena_tocando, "")
 	outra.tocar_cena("acordar")
 	assert_eq(outra.cena_tocando, "", "trecho já visto não repete")
-	for caixa in get_tree().root.find_children("*", "CanvasLayer", true, false):
-		if caixa is CaixaDialogo:
-			caixa.queue_free()
 
 
 func _ponto_de(no: Node, nome: String) -> PontoDeVista:

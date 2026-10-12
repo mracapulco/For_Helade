@@ -4,6 +4,10 @@ extends Marker3D
 ## A posição e a rotação deste nó são exatamente as da câmera quando ela chega aqui.
 ## Os AlvoToque filhos são os lugares para onde dá para ir a partir deste ponto.
 
+## Trecho do roteiro (título no .dialogue) mostrado na primeira vez que
+## Nicholas chega aqui. Vazio: nenhum texto.
+@export var cena_ao_chegar := ""
+
 
 func alvos() -> Array[AlvoToque]:
 	var lista: Array[AlvoToque] = []

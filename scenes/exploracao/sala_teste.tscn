@@ -8,7 +8,8 @@
 [ext_resource type="Script" path="res://scripts/exploracao/interagivel.gd" id="6_mcson"]
 [ext_resource type="Resource" path="res://data/dialogos/teste/exploracao.dialogue" id="dlg_exploracao"]
 [ext_resource type="PackedScene" path="res://scenes/ui/botoes_toque.tscn" id="7_botoes"]
-[ext_resource type="Texture2D" path="res://assets/art/placeholders/exploracao/nicholas_provisorio.png" id="8_nicholas"]
+[ext_resource type="SpriteFrames" path="res://assets/art/personagens/nicholas/nicholas_exploracao.tres" id="8_nicholas"]
+[ext_resource type="Script" path="res://scripts/exploracao/animacao_personagem.gd" id="11_anim"]
 [ext_resource type="Texture2D" path="res://assets/art/placeholders/exploracao/caixa_provisoria.png" id="9_caixa"]
 [ext_resource type="Texture2D" path="res://assets/art/placeholders/exploracao/personagem_provisorio.png" id="10_personagem"]
 
@@ -62,9 +63,11 @@ polygon = PackedVector2Array(10, 0, 9.6593, 1.2941, 8.6603, 2.5, 7.0711, 3.5355,
 
 [node name="Corpo" type="Node2D" parent="Personagem" unique_id=337995875]
 
-[node name="Visual" type="Sprite2D" parent="Personagem/Corpo"]
-texture = ExtResource("8_nicholas")
-offset = Vector2(0, -20)
+[node name="Visual" type="AnimatedSprite2D" parent="Personagem/Corpo"]
+sprite_frames = ExtResource("8_nicholas")
+animation = &"parado_frente"
+offset = Vector2(0, -22)
+script = ExtResource("11_anim")
 
 [node name="Colisao" type="CollisionShape2D" parent="Personagem" unique_id=2084710673]
 shape = SubResource("CircleShape2D_pn2jv")

@@ -39,7 +39,9 @@ func test_exploracao_usa_pixel_art_ampliado() -> void:
 func test_personagens_e_objetos_tem_no_visual() -> void:
 	var sala: Node2D = add_child_autofree(load("res://scenes/exploracao/sala_teste.tscn").instantiate())
 	for caminho in ["Personagem/Corpo/Visual", "ObjetoTeste/Visual", "PersonagemTeste/Visual"]:
-		var visual := sala.get_node_or_null(caminho) as Sprite2D
+		var visual := sala.get_node_or_null(caminho) as Node2D
 		assert_not_null(visual, caminho)
-		if visual:
+		if visual is Sprite2D:
 			assert_not_null(visual.texture, caminho)
+		elif visual is AnimatedSprite2D:
+			assert_not_null(visual.sprite_frames, caminho)

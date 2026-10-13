@@ -27,11 +27,14 @@ func deve_aparecer() -> bool:
 	return sempre_mostrar or DisplayServer.is_touchscreen_available() or OS.has_feature("mobile")
 
 
+## Aperta e solta "pular", como um toque rápido em Espaço. Sem soltar, a ação
+## ficaria presa e o próximo toque não contaria como pulo novo.
 func pular() -> void:
-	var evento := InputEventAction.new()
-	evento.action = &"pular"
-	evento.pressed = true
-	Input.parse_input_event(evento)
+	for apertado in [true, false]:
+		var evento := InputEventAction.new()
+		evento.action = &"pular"
+		evento.pressed = apertado
+		Input.parse_input_event(evento)
 
 
 func _ao_alternar_corrida(ligado: bool) -> void:

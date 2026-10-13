@@ -3,7 +3,8 @@ JOGO_TITULO,Por Hélade
 EXPLORACAO_BOTAO_CORRER,Correr
 EXPLORACAO_BOTAO_PULAR,Pular
 PROLOGO_DICA_TOQUE,Toque no brilho dourado para se mover
-PROLOGO_PROVISORIO_FIM,[Provisório] Fim do trecho jogável. A cena nos aposentos da duquesa entra no passo 3.
+PROLOGO_DICA_SEGURAR_TOQUE,Toque no brilho para segurar Althea
+PROLOGO_DICA_SEGURAR_TECLADO,Clique no brilho ou aperte Enter para segurar Althea
 RETRATO_PROVISORIO,PROVISÓRIO
 RETRATO_FORA_DO_ELENCO,FORA DO ELENCO
 TESTE_DIALOGO_TITULO,Teste do sistema de diálogo (provisório)
@@ -12,3 +13,23 @@ Influência com Olympia: %d"
 TESTE_DIALOGO_INICIAR,Iniciar diálogo de teste
 TESTE_DIALOGO_ZERAR,Zerar valores
 PROLOGO_DICA_TECLADO,"WASD para andar, Shift para correr, espaço para pular, mouse para olhar, Enter para ir até o brilho. Clique para prender o mouse, Esc para soltar."
+MENU_CONTINUAR,Continuar
+MENU_NOVO_JOGO,Novo jogo
+MENU_OPCOES,Opções
+MENU_SAIR,Sair
+MENU_VOLTAR,Voltar
+MENU_AVISO_SEM_CAPITULO,"[Provisório] O capítulo 1 ainda não existe. Por enquanto, o jogo termina no prólogo."
+OPCOES_TITULO,Opções
+OPCOES_SECAO_IDIOMA,Idioma
+OPCOES_IDIOMA,Idioma do jogo
+IDIOMA_pt_BR,Português (Brasil)
+OPCOES_SECAO_CONTROLES,Controles
+OPCOES_SENSIBILIDADE,Sensibilidade do mouse
+OPCOES_TECLAS,"W A S D ou setas: andar · Shift: correr · Espaço: pular · Enter: interagir · Esc: soltar o mouse"
+OPCOES_SECAO_GRAFICOS,Gráficos
+OPCOES_TELA_CHEIA,Tela cheia
+OPCOES_VSYNC,Sincronização vertical (VSync)
+OPCOES_SECAO_SOM,Som
+OPCOES_VOLUME_GERAL,Volume geral
+OPCOES_VOLUME_MUSICA,Música
+OPCOES_VOLUME_EFEITOS,Efeitos sonoros

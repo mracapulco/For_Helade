@@ -89,6 +89,7 @@ func test_shift_corre_mais_rapido_que_andar() -> void:
 
 
 func test_espaco_pula_e_volta_ao_chao() -> void:
+	Input.action_release("pular") # outro teste pode ter deixado a tecla "apertada"
 	await wait_physics_frames(5)
 	var chao := cena.corpo.global_position.y
 	Input.action_press("pular")
@@ -147,3 +148,39 @@ func test_enter_com_a_mira_no_brilho_vai_ate_ele() -> void:
 	cena._unhandled_input(enter)
 	await wait_seconds(0.4)
 	assert_eq(cena.ponto_atual, _ponto("PortaQuarto"))
+
+
+func _de_frente_para_a_cama() -> void:
+	# No chão, ao lado da cama (x -3,8..-2,6), olhando para ela.
+	cena.corpo.global_position = Vector3(-2.1, 0.0, 2.3)
+	cena.corpo.rotation.y = PI / 2.0
+	Input.action_release("pular")
+	await wait_physics_frames(5)
+
+
+func test_cama_e_solida() -> void:
+	await _de_frente_para_a_cama()
+	Input.action_press("mover_frente")
+	await wait_physics_frames(60)
+	Input.action_release("mover_frente")
+	assert_gt(cena.corpo.global_position.x, -2.65, "não entra na cama")
+	assert_lt(cena.corpo.global_position.y, 0.05)
+
+
+func test_pula_em_cima_da_cama() -> void:
+	await _de_frente_para_a_cama()
+	Input.action_press("mover_frente")
+	await wait_physics_frames(10)
+	Input.action_press("pular")
+	await wait_physics_frames(1)
+	Input.action_release("pular")
+	await wait_physics_frames(50)
+	Input.action_release("mover_frente")
+	await wait_physics_frames(20)
+	assert_lt(cena.corpo.global_position.x, -2.65, "subiu na cama")
+	assert_almost_eq(cena.corpo.global_position.y, 0.36, 0.03, "em cima do colchão")
+
+
+func test_acorda_em_pe_sobre_a_cama() -> void:
+	await wait_physics_frames(10)
+	assert_almost_eq(cena.corpo.global_position.y, 0.36, 0.03)

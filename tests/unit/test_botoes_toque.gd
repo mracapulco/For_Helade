@@ -40,8 +40,14 @@ func test_textos_vem_da_traducao() -> void:
 
 func test_pular_faz_o_personagem_pular() -> void:
 	botoes.botao_pular.pressed.emit()
-	await wait_frames(2)
+	await wait_process_frames(2)
 	assert_true(personagem.pulando)
+
+
+func test_pular_nao_deixa_a_tecla_presa() -> void:
+	botoes.botao_pular.pressed.emit()
+	await wait_process_frames(2)
+	assert_false(Input.is_action_pressed(&"pular"))
 
 
 func test_correr_liga_e_desliga() -> void:

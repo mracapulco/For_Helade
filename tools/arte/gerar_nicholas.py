@@ -1,5 +1,7 @@
 # Gera a folha de animação de Nicholas na exploração (pixel art, base: capa do livro).
 # Uso: python3 tools/arte/gerar_nicholas.py assets/art/personagens/nicholas/nicholas_exploracao.png
+# Também grava, ao lado, nicholas_maos.tres: onde fica a mão da frente em cada
+# quadro, para desenhar o item equipado (a espada) na mão dele.
 import sys
 from PIL import Image
 H = lambda h: tuple(int(h[i:i+2], 16) for i in (1, 3, 5)) + (255,)
@@ -186,5 +188,31 @@ def folha():
             linha += 1
     return im
 
+def mao(dir, f_esq=0, f_dir=0, lift_esq=0, lift_dir=0, dy=0, inclina=0,
+        braco_esq=0, braco_dir=0, alcance=0, manto_voa=0, curvo=False):
+    # Canto de cima à esquerda da mão 2×2 do braço da frente (o da direita
+    # na tela), com as mesmas contas de nicholas().
+    x = CX + inclina
+    yt = 19 + dy
+    if alcance:
+        return (x + 6 + alcance, yt + (3 if dir == 'frente' else 2))
+    comprimento = 6 if curvo else 8
+    return (x + 5, yt + 1 + braco_dir + comprimento + 1)
+
+def maos_tres():
+    linhas = []
+    for d in DIRS:
+        for a in ORDEM:
+            pontos = ', '.join('%d, %d' % mao(d, **k) for k in ANIM[a])
+            linhas.append('&"%s_%s": PackedVector2Array(%s)' % (a, d, pontos))
+    return ('[gd_resource type="Resource" script_class="MaosPersonagem" format=3]\n\n'
+            '[ext_resource type="Script" path="res://scripts/systems/maos_personagem.gd" id="1_maos"]\n\n'
+            '[resource]\nscript = ExtResource("1_maos")\n'
+            'tamanho_quadro = Vector2i(%d, %d)\n'
+            'pontos = {\n%s\n}\n' % (W, HH, ',\n'.join(linhas)))
+
 if __name__ == '__main__':
     folha().save(sys.argv[1])
+    import os
+    with open(os.path.join(os.path.dirname(sys.argv[1]), 'nicholas_maos.tres'), 'w') as f:
+        f.write(maos_tres())

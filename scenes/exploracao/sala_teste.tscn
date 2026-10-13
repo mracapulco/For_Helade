@@ -13,6 +13,8 @@
 [ext_resource type="Script" path="res://scripts/exploracao/recompensa.gd" id="14_recompensa"]
 [ext_resource type="SpriteFrames" path="res://assets/art/personagens/nicholas/nicholas_exploracao.tres" id="8_nicholas"]
 [ext_resource type="Script" path="res://scripts/exploracao/animacao_personagem.gd" id="11_anim"]
+[ext_resource type="Script" path="res://scripts/exploracao/item_na_mao.gd" id="23_item_mao"]
+[ext_resource type="Resource" path="res://assets/art/personagens/nicholas/nicholas_maos.tres" id="24_maos"]
 [ext_resource type="Texture2D" path="res://assets/art/placeholders/exploracao/caixa_provisoria.png" id="9_caixa"]
 [ext_resource type="Texture2D" path="res://assets/art/placeholders/exploracao/personagem_provisorio.png" id="10_personagem"]
 [ext_resource type="Texture2D" path="res://assets/art/placeholders/exploracao/bau_fechado.png" id="15_bau_fechado"]
@@ -97,6 +99,11 @@ sprite_frames = ExtResource("8_nicholas")
 animation = &"parado_frente"
 offset = Vector2(0, -22)
 script = ExtResource("11_anim")
+
+[node name="ItemNaMao" type="Sprite2D" parent="Personagem/Corpo/Visual"]
+centered = false
+script = ExtResource("23_item_mao")
+maos = ExtResource("24_maos")
 
 [node name="Colisao" type="CollisionShape2D" parent="Personagem" unique_id=2084710673]
 shape = SubResource("CircleShape2D_pn2jv")

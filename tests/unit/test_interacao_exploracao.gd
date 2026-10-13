@@ -11,9 +11,19 @@ func before_each() -> void:
 	personagem = sala.get_node("Personagem")
 	objeto = sala.get_node("ObjetoTeste/Interagivel")
 	await wait_physics_frames(3)
+	# O mapa de navegação atualiza em segundo plano; espera a sala nova entrar
+	# nele (antes disso o ponto andável mais próximo de tudo é a origem).
+	var mapa := personagem.agente.get_navigation_map()
+	var centro_objeto := objeto.get_parent().global_position as Vector2
+	await wait_until(func() -> bool:
+		return NavigationServer2D.map_get_closest_point(mapa, centro_objeto).distance_to(centro_objeto) < 64.0, 2.0)
 
 
 func after_each() -> void:
+	# A caixa entra na cena um quadro depois (call_deferred). Tira a sala antes
+	# de esperar, para ela não seguir rodando junto com a sala do próximo teste.
+	sala.free()
+	await wait_process_frames(2)
 	for caixa in _caixas_abertas():
 		caixa.free()
 	Input.action_release(&"mover_frente")
@@ -28,6 +38,11 @@ func _caixas_abertas() -> Array[Node]:
 			caixas.append(no)
 		pendentes.append_array(no.get_children())
 	return caixas
+
+
+# Um ponto ao alcance do objeto, logo abaixo dele (vale em qualquer escala).
+func _perto_do_objeto() -> Vector2:
+	return objeto.get_parent().global_position + Vector2(0, objeto.alcance * 0.55)
 
 
 func test_toque_no_objeto_encontra_o_interagivel() -> void:
@@ -56,7 +71,7 @@ func test_tocar_de_longe_anda_e_interage_ao_chegar() -> void:
 
 
 func test_tocar_de_perto_interage_na_hora() -> void:
-	personagem.global_position = objeto.get_parent().global_position + Vector2(0, 50)
+	personagem.global_position = _perto_do_objeto()
 	watch_signals(objeto)
 	personagem.tocar(objeto.global_position)
 	assert_signal_emitted(objeto, "interagido")
@@ -64,17 +79,17 @@ func test_tocar_de_perto_interage_na_hora() -> void:
 
 
 func test_destaque_aparece_so_ao_alcance() -> void:
-	await wait_frames(2)
+	await wait_process_frames(2)
 	assert_false(objeto.destacado)
-	personagem.global_position = objeto.get_parent().global_position + Vector2(0, 50)
-	await wait_frames(2)
+	personagem.global_position = _perto_do_objeto()
+	await wait_process_frames(2)
 	assert_true(objeto.destacado)
 
 
 func test_interagir_abre_a_caixa_de_dialogo() -> void:
 	TranslationServer.set_locale("pt_BR")
 	objeto.interagir()
-	await wait_frames(3)
+	await wait_process_frames(3)
 	var caixas := _caixas_abertas()
 	assert_eq(caixas.size(), 1)
 	var caixa := caixas[0] as CaixaDialogo
@@ -91,7 +106,7 @@ func test_personagem_de_teste_tem_nome_e_retrato_provisorio() -> void:
 
 func test_personagem_fica_parado_durante_a_conversa() -> void:
 	objeto.interagir()
-	await wait_frames(3)
+	await wait_process_frames(3)
 	assert_true(personagem.em_dialogo)
 	var antes := personagem.global_position
 	Input.action_press(&"mover_frente")
@@ -109,7 +124,7 @@ func test_personagem_fica_parado_durante_a_conversa() -> void:
 
 func test_personagem_volta_a_andar_quando_a_conversa_acaba() -> void:
 	objeto.interagir()
-	await wait_frames(3)
+	await wait_process_frames(3)
 	DialogueManager.dialogue_ended.emit(objeto.dialogo)
 	await wait_seconds(0.3)
 	assert_false(personagem.em_dialogo)
@@ -120,11 +135,11 @@ func _apertar_enter() -> void:
 	tecla.action = "interagir"
 	tecla.pressed = true
 	Input.parse_input_event(tecla)
-	await wait_frames(2)
+	await wait_process_frames(2)
 
 
 func test_enter_interage_com_o_que_esta_perto() -> void:
-	personagem.global_position = objeto.get_parent().global_position + Vector2(0, 50)
+	personagem.global_position = _perto_do_objeto()
 	watch_signals(objeto)
 	await _apertar_enter()
 	assert_signal_emitted(objeto, "interagido")

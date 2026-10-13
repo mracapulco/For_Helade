@@ -3,7 +3,8 @@ JOGO_TITULO,Por Hélade
 EXPLORACAO_BOTAO_CORRER,Correr
 EXPLORACAO_BOTAO_PULAR,Pular
 PROLOGO_DICA_TOQUE,Toque no brilho dourado para se mover
-PROLOGO_PROVISORIO_FIM,[Provisório] Fim do trecho jogável. A cena nos aposentos da duquesa entra no passo 3.
+PROLOGO_DICA_SEGURAR_TOQUE,Toque no brilho para segurar Althea
+PROLOGO_DICA_SEGURAR_TECLADO,Clique no brilho ou aperte Enter para segurar Althea
 RETRATO_PROVISORIO,PROVISÓRIO
 RETRATO_FORA_DO_ELENCO,FORA DO ELENCO
 TESTE_DIALOGO_TITULO,Teste do sistema de diálogo (provisório)

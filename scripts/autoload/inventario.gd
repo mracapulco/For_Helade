@@ -10,6 +10,10 @@ signal mudou(id: String, quantidade: int)
 signal dinheiro_mudou(valor: int)
 signal equipamento_mudou(personagem: String, encaixe: Item.Encaixe, id: String)
 signal item_usado(id: String, personagem: String)
+## Item ganho (baú, roteiro, inimigo). Só em [method adicionar], para o
+## aviso "+ item" não aparecer ao carregar um jogo salvo.
+signal recebeu(id: String, quantidade: int)
+signal dinheiro_recebido(valor: int)
 
 const PASTA_ITENS := "res://data/itens/"
 
@@ -18,6 +22,8 @@ var _quantidades: Dictionary[String, int] = {}
 var _dinheiro: int = 0
 ## personagem -> { Item.Encaixe -> id do item }
 var _equipado: Dictionary[String, Dictionary] = {}
+## Baús e outras recompensas já pegas, para não darem itens de novo.
+var _coletados: Dictionary[String, bool] = {}
 
 
 func _init() -> void:
@@ -78,6 +84,7 @@ func adicionar(id: String, qtd: int = 1) -> bool:
 		return false
 	_quantidades[id] = quantidade(id) + qtd
 	mudou.emit(id, _quantidades[id])
+	recebeu.emit(id, qtd)
 	return true
 
 
@@ -125,6 +132,7 @@ func ganhar_dinheiro(valor: int) -> void:
 		return
 	_dinheiro += valor
 	dinheiro_mudou.emit(_dinheiro)
+	dinheiro_recebido.emit(valor)
 
 
 ## Gasta se houver o suficiente; senão não muda nada e devolve false.
@@ -165,10 +173,19 @@ func desequipar(personagem: String, encaixe: Item.Encaixe) -> void:
 	equipamento_mudou.emit(personagem, encaixe, "")
 
 
+func ja_coletado(id_coleta: String) -> bool:
+	return _coletados.has(id_coleta)
+
+
+func marcar_coletado(id_coleta: String) -> void:
+	_coletados[id_coleta] = true
+
+
 ## Apaga tudo (novo jogo, testes). O catálogo continua.
 func limpar() -> void:
 	_quantidades.clear()
 	_equipado.clear()
+	_coletados.clear()
 	_dinheiro = 0
 
 
@@ -184,6 +201,7 @@ func para_dados() -> Dictionary:
 		"itens": _quantidades.duplicate(),
 		"dinheiro": _dinheiro,
 		"equipado": equipado_dados,
+		"coletados": _coletados.keys(),
 	}
 
 
@@ -196,6 +214,8 @@ func de_dados(dados: Dictionary) -> void:
 		if item(str(id)) != null and int(itens[id]) > 0:
 			_quantidades[str(id)] = int(itens[id])
 	_dinheiro = maxi(0, int(dados.get("dinheiro", 0)))
+	for id_coleta: Variant in dados.get("coletados", []):
+		_coletados[str(id_coleta)] = true
 	var equipado_dados: Dictionary = dados.get("equipado", {})
 	for personagem: Variant in equipado_dados:
 		var encaixes: Dictionary = equipado_dados[personagem]

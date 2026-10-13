@@ -56,3 +56,4 @@ BOLSA_EQUIPAR,Equipar
 BOLSA_DESEQUIPAR,Desequipar
 BOLSA_LARGAR,Largar
 BOLSA_EQUIPADO,(equipado)
+AVISO_MOEDAS,+ %d moedas

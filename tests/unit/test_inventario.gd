@@ -155,6 +155,26 @@ func test_salvar_e_restaurar() -> void:
 	assert_eq(outro.equipado("nicholas", Item.Encaixe.ARMA), "espada")
 
 
+func test_ganhar_avisa_mas_usar_nao() -> void:
+	watch_signals(inv)
+	inv.adicionar("pocao", 2)
+	inv.ganhar_dinheiro(5)
+	assert_signal_emitted_with_parameters(inv, "recebeu", ["pocao", 2])
+	assert_signal_emitted_with_parameters(inv, "dinheiro_recebido", [5])
+	inv.usar("pocao", "nicholas")
+	assert_signal_emit_count(inv, "recebeu", 1)
+
+
+func test_coletados_ficam_salvos() -> void:
+	inv.marcar_coletado("bau_1")
+	var dados: Dictionary = JSON.parse_string(JSON.stringify(inv.para_dados()))
+	var outro: Node = autofree(InventarioScript.new())
+	outro.de_dados(dados)
+	assert_true(outro.ja_coletado("bau_1"))
+	outro.limpar()
+	assert_false(outro.ja_coletado("bau_1"))
+
+
 func test_itens_da_pasta_entram_no_catalogo() -> void:
 	var com_pasta: Node = autofree(InventarioScript.new())
 	assert_not_null(com_pasta.item("pocao_teste"))

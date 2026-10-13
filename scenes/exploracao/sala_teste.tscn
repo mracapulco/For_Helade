@@ -9,6 +9,8 @@
 [ext_resource type="Resource" path="res://data/dialogos/teste/exploracao.dialogue" id="dlg_exploracao"]
 [ext_resource type="PackedScene" path="res://scenes/ui/botoes_toque.tscn" id="7_botoes"]
 [ext_resource type="PackedScene" path="res://scenes/ui/tela_bolsa.tscn" id="12_bolsa"]
+[ext_resource type="PackedScene" path="res://scenes/ui/aviso_itens.tscn" id="13_aviso"]
+[ext_resource type="Script" path="res://scripts/exploracao/recompensa.gd" id="14_recompensa"]
 [ext_resource type="SpriteFrames" path="res://assets/art/personagens/nicholas/nicholas_exploracao.tres" id="8_nicholas"]
 [ext_resource type="Script" path="res://scripts/exploracao/animacao_personagem.gd" id="11_anim"]
 [ext_resource type="Texture2D" path="res://assets/art/placeholders/exploracao/caixa_provisoria.png" id="9_caixa"]
@@ -27,6 +29,12 @@ radius = 28.0
 radius = 9.0
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_jfhrn"]
+radius = 28.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_bau_corpo"]
+radius = 9.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_bau_toque"]
 radius = 28.0
 
 [node name="SalaTeste" type="Node2D" unique_id=749893232]
@@ -120,8 +128,37 @@ marcador = "personagem_teste"
 position = Vector2(0, -12)
 shape = SubResource("CircleShape2D_jfhrn")
 
+[node name="BauTeste" type="StaticBody2D" parent="." groups=["navegacao_obstaculos"]]
+position = Vector2(-288, 240)
+
+[node name="Visual" type="Sprite2D" parent="BauTeste"]
+modulate = Color(0.75, 0.5, 0.3, 1)
+texture = ExtResource("9_caixa")
+offset = Vector2(0, -10)
+
+[node name="Colisao" type="CollisionShape2D" parent="BauTeste"]
+shape = SubResource("CircleShape2D_bau_corpo")
+
+[node name="Interagivel" type="Area2D" parent="BauTeste"]
+script = ExtResource("6_mcson")
+
+[node name="AreaDeToque" type="CollisionShape2D" parent="BauTeste/Interagivel"]
+position = Vector2(0, -12)
+shape = SubResource("CircleShape2D_bau_toque")
+
+[node name="Recompensa" type="Node" parent="BauTeste" node_paths=PackedStringArray("interagivel", "visual")]
+script = ExtResource("14_recompensa")
+interagivel = NodePath("../Interagivel")
+visual = NodePath("../Visual")
+itens = Dictionary[String, int]({
+"pocao_teste": 2
+})
+moedas = 15
+
 [node name="BotoesToque" parent="." instance=ExtResource("7_botoes")]
 sempre_mostrar = true
 
 [node name="TelaBolsa" parent="." instance=ExtResource("12_bolsa")]
 itens_de_teste = true
+
+[node name="AvisoItens" parent="." instance=ExtResource("13_aviso")]

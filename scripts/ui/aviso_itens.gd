@@ -1,0 +1,59 @@
+class_name AvisoItens
+extends CanvasLayer
+## Avisos curtos no alto da tela quando a bolsa ganha algo:
+## "+ Poção de teste ×2", "+ 15 moedas". Cada um some sozinho.
+
+## Segundos que cada aviso fica na tela antes de sumir.
+@export var duracao := 2.5
+
+var coluna: VBoxContainer
+
+
+func _ready() -> void:
+	layer = 15
+	process_mode = Node.PROCESS_MODE_ALWAYS
+	coluna = VBoxContainer.new()
+	coluna.name = "Coluna"
+	coluna.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	coluna.set_anchors_preset(Control.PRESET_CENTER_TOP)
+	coluna.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	coluna.offset_top = 32.0
+	coluna.add_theme_constant_override("separation", 8)
+	add_child(coluna)
+	Inventario.recebeu.connect(_ao_receber)
+	Inventario.dinheiro_recebido.connect(_ao_receber_dinheiro)
+
+
+## Textos dos avisos que estão na tela agora.
+func textos() -> Array[String]:
+	var lista: Array[String] = []
+	for painel in coluna.get_children():
+		if not painel.is_queued_for_deletion():
+			lista.append((painel.get_child(0) as Label).text)
+	return lista
+
+
+func mostrar(texto: String) -> void:
+	var painel := PanelContainer.new()
+	painel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var rotulo := Label.new()
+	rotulo.text = texto
+	rotulo.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	painel.add_child(rotulo)
+	coluna.add_child(painel)
+	var sumir := painel.create_tween()
+	sumir.tween_interval(duracao)
+	sumir.tween_property(painel, "modulate:a", 0.0, 0.4)
+	sumir.tween_callback(painel.queue_free)
+
+
+func _ao_receber(id: String, quantidade: int) -> void:
+	var item := Inventario.item(id)
+	var texto := "+ " + tr(item.chave_nome)
+	if quantidade > 1:
+		texto += " ×%d" % quantidade
+	mostrar(texto)
+
+
+func _ao_receber_dinheiro(valor: int) -> void:
+	mostrar(tr("AVISO_MOEDAS") % valor)

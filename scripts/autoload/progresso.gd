@@ -1,6 +1,6 @@
 extends Node
 ## Jogo salvo (autoload "Progresso"): em que parte da história o jogador está,
-## mais os valores de [Relacoes] e [Influencia]. Fica em user://progresso.cfg.
+## mais os valores de [Relacoes] e [Influencia] e a bolsa ([code]Inventario[/code]). Fica em user://progresso.cfg.
 
 const ARQUIVO := "user://progresso.cfg"
 
@@ -19,6 +19,7 @@ func novo_jogo() -> void:
 	etapa = ""
 	Relacoes.limpar()
 	Influencia.limpar()
+	Inventario.limpar()
 
 
 func salvar(nova_etapa: String) -> void:
@@ -27,6 +28,7 @@ func salvar(nova_etapa: String) -> void:
 	cfg.set_value("jogo", "etapa", etapa)
 	cfg.set_value("jogo", "relacoes", Relacoes.para_dados())
 	cfg.set_value("jogo", "influencia", Influencia.para_dados())
+	cfg.set_value("jogo", "inventario", Inventario.para_dados())
 	cfg.save(arquivo)
 
 
@@ -38,6 +40,7 @@ func carregar() -> bool:
 	etapa = cfg.get_value("jogo", "etapa", "")
 	Relacoes.de_dados(cfg.get_value("jogo", "relacoes", {}))
 	Influencia.de_dados(cfg.get_value("jogo", "influencia", {}))
+	Inventario.de_dados(cfg.get_value("jogo", "inventario", {}))
 	return true
 
 

@@ -16,8 +16,9 @@ Para testar o diálogo: abra `scenes/testes/teste_dialogo.tscn` no Godot e apert
 | --- | --- |
 | `data/dialogos/` | Cenas de roteiro em `.dialogue`, uma pasta por capítulo |
 | `data/personagens/` | Um `.tres` por personagem (nome no roteiro e retratos por expressão) |
-| `scripts/autoload/` | `Relacoes`, `Influencia` e `Elenco` |
-| `scripts/systems/` | `Medidor` (base de relações e influência) e `Personagem` |
+| `data/itens/` | Um `.tres` por item (`Item`); o nome do arquivo é o id. Entra sozinho no `Inventario` |
+| `scripts/autoload/` | `Relacoes`, `Influencia`, `Elenco` e `Inventario` |
+| `scripts/systems/` | `Medidor` (base de relações e influência), `Personagem` e `Item` |
 | `scenes/ui/` + `scripts/ui/` | Caixa de diálogo com retrato e escolhas |
 | `scenes/testes/` + `scripts/testes/` | Telas provisórias de teste |
 | `i18n/strings.csv` | Textos de interface por chave |
@@ -41,6 +42,7 @@ Nicholas: Toda escolha volta para a linha principal. [ID:CAP1_003]
 => END
 ```
 
+- **Itens:** `$> Inventario.adicionar("id_do_item")`, `$> Inventario.remover("id_do_item")`, `$> Inventario.ganhar_dinheiro(10)` e `if Inventario.tem("id_do_item")`. Itens da história (tipo HISTORIA) só saem pelo roteiro; o jogador não consegue largá-los.
 - **Retrato:** `[#retrato=expressao]`. Sem a etiqueta, usa `neutro`. Sem arte, aparece um quadro provisório com nome e expressão.
 - **Quem fala** precisa estar no `Elenco` (`scripts/autoload/elenco.gd`), senão o quadro aparece em vermelho com "FORA DO ELENCO".
 - **Escolhas não mudam o rumo:** toda opção volta para a mesma fala principal.

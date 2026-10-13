@@ -13,3 +13,9 @@ Influência com Olympia: %d"
 TESTE_DIALOGO_INICIAR,Iniciar diálogo de teste
 TESTE_DIALOGO_ZERAR,Zerar valores
 PROLOGO_DICA_TECLADO,"WASD para andar, Shift para correr, espaço para pular, mouse para olhar, Enter para ir até o brilho. Clique para prender o mouse, Esc para soltar."
+ITEM_ESPADA_TESTE_NOME,Espada de teste
+ITEM_ESPADA_TESTE_DESC,Provisória. Só para testar o inventário.
+ITEM_POCAO_TESTE_NOME,Poção de teste
+ITEM_POCAO_TESTE_DESC,Provisória. Recupera um pouco de vida.
+ITEM_CARTA_TESTE_NOME,Carta de teste
+ITEM_CARTA_TESTE_DESC,Provisória. Item da história: não pode ser largado.

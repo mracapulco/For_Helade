@@ -20,6 +20,7 @@ DialogueManager="*res://addons/dialogue_manager/dialogue_manager.gd"
 Relacoes="*res://scripts/autoload/relacoes.gd"
 Influencia="*res://scripts/autoload/influencia.gd"
 Elenco="*res://scripts/autoload/elenco.gd"
+Inventario="*res://scripts/autoload/inventario.gd"
 
 [dialogue_manager]
 

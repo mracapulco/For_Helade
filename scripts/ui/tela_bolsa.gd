@@ -17,6 +17,9 @@ const CHAVES_ABA := {
 	Item.Tipo.DIVERSOS: "BOLSA_ABA_DIVERSOS",
 }
 const ALTURA_BOTAO := 72.0
+## Quantas vezes o ícone em pixel art aparece ampliado na bolsa (como o
+## zoom 2 da exploração).
+const ESCALA_ICONE := 2
 const COR_FUNDO := Color(0.0196, 0.0471, 0.0784, 0.75) # Noite, da paleta
 const COR_DESTAQUE := Color(0.9255, 0.7412, 0.4588) # Dourado claro
 const FONTE_TITULO := preload("res://assets/fonts/cinzel/cinzel.ttf")
@@ -181,6 +184,23 @@ func _atualizar_detalhe() -> void:
 		botao_equipar.text = tr("BOLSA_DESEQUIPAR") if equipado else tr("BOLSA_EQUIPAR")
 
 
+## Cópia do ícone [constant ESCALA_ICONE] vezes maior, sem borrar os pixels.
+## Sem ícone, devolve null (o botão fica só com o nome).
+static func icone_ampliado(icone: Texture2D) -> Texture2D:
+	if icone == null:
+		return null
+	var original := icone.get_image()
+	if original == null:
+		return icone
+	# Cópia: em alguns renderizadores get_image() devolve a imagem guardada
+	# na própria textura, e redimensioná-la estragaria o ícone.
+	var imagem := Image.new()
+	imagem.copy_from(original)
+	imagem.resize(imagem.get_width() * ESCALA_ICONE, imagem.get_height() * ESCALA_ICONE,
+		Image.INTERPOLATE_NEAREST)
+	return ImageTexture.create_from_image(imagem)
+
+
 func _botao_item(id: String) -> Button:
 	var dados := Inventario.item(id)
 	var botao := Button.new()
@@ -188,7 +208,7 @@ func _botao_item(id: String) -> Button:
 	botao.custom_minimum_size = Vector2(170, 120)
 	botao.toggle_mode = true
 	botao.button_pressed = id == item_escolhido
-	botao.icon = dados.icone
+	botao.icon = icone_ampliado(dados.icone)
 	botao.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	botao.vertical_icon_alignment = VERTICAL_ALIGNMENT_TOP
 	botao.expand_icon = false

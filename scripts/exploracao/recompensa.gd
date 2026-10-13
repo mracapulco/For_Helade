@@ -2,15 +2,18 @@ class_name Recompensa
 extends Node
 ## Itens e moedas dados uma única vez ao interagir com um [Interagivel]
 ## (baú, corpo caído, alguém que entrega algo). Depois de pega, a
-## interação some e o desenho escurece; isso fica guardado no Inventario,
-## então voltar à cena não enche o baú de novo.
+## interação some e o desenho muda (baú aberto) ou escurece; isso fica
+## guardado no Inventario, então voltar à cena não enche o baú de novo.
 
 signal coletada
 
 ## Interagível que entrega a recompensa.
 @export var interagivel: Interagivel
-## Desenho que escurece depois de pego (opcional).
+## Desenho que muda depois de pego (opcional): troca para
+## [member textura_vazio] se houver, senão escurece.
 @export var visual: CanvasItem
+## Desenho depois de pego, por exemplo o baú aberto (opcional).
+@export var textura_vazio: Texture2D
 ## id do item -> quantidade.
 @export var itens: Dictionary[String, int] = {}
 @export var moedas := 0
@@ -41,7 +44,9 @@ func entregar() -> void:
 
 
 func _esvaziar() -> void:
-	if visual:
+	if visual is Sprite2D and textura_vazio:
+		(visual as Sprite2D).texture = textura_vazio
+	elif visual:
 		visual.modulate = COR_VAZIO
 	if is_instance_valid(interagivel):
 		interagivel.queue_free()

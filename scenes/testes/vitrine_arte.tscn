@@ -5,6 +5,14 @@
 [ext_resource type="SpriteFrames" path="res://assets/art/personagens/nicholas/nicholas_exploracao.tres" id="3_nicholas"]
 [ext_resource type="Texture2D" path="res://assets/art/placeholders/exploracao/personagem_provisorio.png" id="4_personagem"]
 [ext_resource type="Texture2D" path="res://assets/art/placeholders/exploracao/caixa_provisoria.png" id="5_caixa"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholders/exploracao/bau_fechado.png" id="6_bau_fechado"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholders/exploracao/bau_aberto.png" id="7_bau_aberto"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholders/exploracao/guarda_provisorio.png" id="8_guarda_provisorio"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholders/exploracao/criada_provisoria.png" id="9_criada_provisoria"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholders/exploracao/placa.png" id="10_placa"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholders/exploracao/anfora.png" id="11_anfora"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholders/exploracao/braseiro.png" id="12_braseiro"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholders/exploracao/arvore.png" id="13_arvore"]
 
 [node name="VitrineArte" type="Node2D"]
 texture_filter = 1
@@ -61,3 +69,43 @@ offset = Vector2(0, -10)
 [node name="Camera" type="Camera2D" parent="."]
 position = Vector2(0, 56)
 zoom = Vector2(2, 2)
+
+[node name="BauFechado" type="Sprite2D" parent="."]
+position = Vector2(80, 72)
+texture = ExtResource("6_bau_fechado")
+offset = Vector2(0, -10)
+
+[node name="BauAberto" type="Sprite2D" parent="."]
+position = Vector2(112, 88)
+texture = ExtResource("7_bau_aberto")
+offset = Vector2(0, -10)
+
+[node name="Guarda" type="Sprite2D" parent="."]
+position = Vector2(-80, 104)
+texture = ExtResource("8_guarda_provisorio")
+offset = Vector2(0, -22)
+
+[node name="Criada" type="Sprite2D" parent="."]
+position = Vector2(-48, 120)
+texture = ExtResource("9_criada_provisoria")
+offset = Vector2(0, -22)
+
+[node name="Placa" type="Sprite2D" parent="."]
+position = Vector2(144, 104)
+texture = ExtResource("10_placa")
+offset = Vector2(0, -13)
+
+[node name="Anfora" type="Sprite2D" parent="."]
+position = Vector2(176, 88)
+texture = ExtResource("11_anfora")
+offset = Vector2(0, -11)
+
+[node name="Braseiro" type="Sprite2D" parent="."]
+position = Vector2(176, 120)
+texture = ExtResource("12_braseiro")
+offset = Vector2(0, -13)
+
+[node name="Arvore" type="Sprite2D" parent="."]
+position = Vector2(-112, 136)
+texture = ExtResource("13_arvore")
+offset = Vector2(0, -26)

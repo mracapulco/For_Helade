@@ -29,5 +29,7 @@ enum Tipo {
 ## Cena carregada ao entrar. Vazio = ainda não existe.
 @export_file("*.tscn") var cena: String = ""
 
-## Provisório: liberado desde o começo. A ordem real vem do mapa de capítulos.
-@export var liberado_no_inicio := true
+## Já descoberto num jogo novo. Os outros aparecem quando Nicholas chega a
+## um vizinho (como no mapa do Super Mario World). Provisório: a ordem real
+## vem do mapa de capítulos.
+@export var liberado_no_inicio := false

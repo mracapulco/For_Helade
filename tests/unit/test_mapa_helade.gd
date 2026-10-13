@@ -1,14 +1,25 @@
 extends GutTest
-## Tela do mapa: Nicholas anda entre os locais por toque, setas e Enter.
+## Tela do mapa: Nicholas anda entre os locais por toque, setas e Enter;
+## névoa sobre o que não foi descoberto; dia e noite.
 
 var mapa: MapaHelade
 
 
 func before_each() -> void:
 	TranslationServer.set_locale("pt_BR")
+	Mundo.limpar()
 	mapa = add_child_autofree(load("res://scenes/mapa/mapa_helade.tscn").instantiate())
 	mapa.trocar_de_cena = false
 	await wait_process_frames(2)
+
+
+func after_each() -> void:
+	Mundo.limpar()
+
+
+func _descobrir_tudo() -> void:
+	for id: String in mapa.grafo.locais:
+		Mundo.descobrir(id)
 
 
 func _tocar_no_local(id: String) -> void:
@@ -34,6 +45,7 @@ func test_comeca_em_olympia_com_a_placa() -> void:
 
 
 func test_viajar_passa_pelos_locais_e_chega() -> void:
+	_descobrir_tudo()
 	watch_signals(mapa)
 	assert_true(mapa.viajar_para("norte"))
 	assert_true(mapa.andando)
@@ -47,6 +59,7 @@ func test_viajar_passa_pelos_locais_e_chega() -> void:
 
 
 func test_anda_de_verdade_com_o_tempo() -> void:
+	_descobrir_tudo()
 	mapa.velocidade = 2000.0
 	mapa.viajar_para("atenas")
 	await wait_for_signal(mapa.chegou, 3)
@@ -54,10 +67,10 @@ func test_anda_de_verdade_com_o_tempo() -> void:
 
 
 func test_tocar_num_local_vai_ate_ele() -> void:
-	_tocar_no_local("agape")
+	_tocar_no_local("og_estrada")
 	assert_true(mapa.andando)
 	mapa.terminar_viagem()
-	assert_eq(mapa.local_atual, "agape")
+	assert_eq(mapa.local_atual, "og_estrada")
 
 
 func test_tocar_no_local_atual_entra() -> void:
@@ -79,6 +92,7 @@ func test_botao_entrar_e_grande() -> void:
 
 
 func test_seta_para_cima_vai_ao_vizinho_de_cima() -> void:
+	_descobrir_tudo()
 	mapa.colocar_em("atenas")
 	_apertar(&"mover_frente")
 	mapa.terminar_viagem()
@@ -87,18 +101,20 @@ func test_seta_para_cima_vai_ao_vizinho_de_cima() -> void:
 
 func test_nao_entra_andando() -> void:
 	watch_signals(mapa)
-	mapa.viajar_para("atenas")
+	mapa.viajar_para("og_estrada")
 	mapa.entrar()
 	assert_signal_not_emitted(mapa, "entrada_pedida")
 
 
-func test_local_bloqueado_nao_e_destino() -> void:
-	mapa.liberados.erase("norte")
+func test_local_na_nevoa_nao_e_destino() -> void:
+	assert_false(Mundo.foi_descoberto("norte"))
 	assert_false(mapa.viajar_para("norte"))
+	assert_eq(mapa.local_em(mapa.grafo.local("atenas").posicao), "", "não dá para tocar no que está na névoa")
 	assert_eq(mapa.local_atual, "olympia")
 
 
 func test_nomes_das_regioes_escritos_no_mapa() -> void:
+	_descobrir_tudo()
 	var rotulos := mapa.get_node("Rotulos")
 	for id in ["olympia", "atenas", "agape", "norte", "templo", "floresta_ninfas"]:
 		var nome: Label = rotulos.get_node("Nome_" + id)
@@ -112,3 +128,66 @@ func test_nome_acompanha_a_camera() -> void:
 	var esperado: Vector2 = mapa.get_canvas_transform() * (mapa.grafo.local("olympia").posicao + Vector2(0, MapaHelade.DESCIDA_NOME))
 	assert_almost_eq(nome.position.x + nome.size.x * 0.5, esperado.x, 1.0)
 	assert_almost_eq(nome.position.y, esperado.y, 1.0)
+
+
+func test_jogo_novo_mostra_so_olympia_e_os_vizinhos() -> void:
+	assert_true(Mundo.foi_descoberto("olympia"))
+	for vizinho in mapa.grafo.vizinhos("olympia"):
+		assert_true(Mundo.foi_descoberto(vizinho), vizinho)
+	assert_false(Mundo.foi_descoberto("atenas"))
+	assert_false(mapa.get_node("Rotulos/Nome_atenas").visible)
+
+
+func test_nevoa_cobre_o_que_nao_foi_descoberto() -> void:
+	assert_lt(mapa.nevoa.densidade_em(mapa.grafo.local("olympia").posicao), 0.1)
+	assert_gt(mapa.nevoa.densidade_em(mapa.grafo.local("norte").posicao), 0.9)
+
+
+func test_chegar_num_lugar_descobre_os_vizinhos() -> void:
+	mapa.viajar_para("oa_estrada_1")
+	mapa.terminar_viagem()
+	assert_true(Mundo.foi_descoberto("oa_acampamento"))
+	assert_lt(mapa.nevoa.densidade_em(mapa.grafo.local("oa_acampamento").posicao), 0.1)
+	mapa.viajar_para("oa_acampamento")
+	mapa.terminar_viagem()
+	mapa.viajar_para("oa_estrada_2")
+	mapa.terminar_viagem()
+	assert_true(Mundo.foi_descoberto("atenas"))
+	assert_true(mapa.get_node("Rotulos/Nome_atenas").visible)
+
+
+func test_lugar_no_mapa_fica_guardado() -> void:
+	mapa.viajar_para("og_estrada")
+	mapa.terminar_viagem()
+	assert_eq(Mundo.local_no_mapa, "og_estrada")
+	var outro: MapaHelade = add_child_autofree(load("res://scenes/mapa/mapa_helade.tscn").instantiate())
+	await wait_process_frames(1)
+	assert_eq(outro.local_atual, "og_estrada")
+
+
+func test_noite_troca_a_arte_e_acende_as_lamparinas() -> void:
+	assert_false(mapa.fundo_noite.visible)
+	assert_eq(mapa.lamparinas.acesas, 0.0)
+	assert_false(mapa.lamparinas.visiveis().is_empty(), "estradas abertas têm postes")
+	mapa.botao_periodo.pressed.emit()
+	assert_true(Mundo.noite)
+	await wait_seconds(MapaHelade.TROCA_PERIODO + 0.2)
+	assert_true(mapa.fundo_noite.visible)
+	assert_eq(mapa.fundo_noite.modulate.a, 1.0)
+	assert_eq(mapa.lamparinas.acesas, 1.0)
+	Mundo.definir_noite(false)
+	await wait_seconds(MapaHelade.TROCA_PERIODO + 0.2)
+	assert_false(mapa.fundo_noite.visible)
+
+
+func test_mapa_abre_de_noite_se_ja_for_noite() -> void:
+	Mundo.definir_noite(true)
+	var outro: MapaHelade = add_child_autofree(load("res://scenes/mapa/mapa_helade.tscn").instantiate())
+	await wait_process_frames(1)
+	assert_eq(outro.fundo_noite.modulate.a, 1.0)
+
+
+func test_lamparinas_so_nas_estradas_abertas() -> void:
+	var antes := mapa.lamparinas.visiveis().size()
+	_descobrir_tudo()
+	assert_gt(mapa.lamparinas.visiveis().size(), antes)

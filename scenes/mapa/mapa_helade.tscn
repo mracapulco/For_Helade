@@ -1,12 +1,23 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene format=3]
 
 [ext_resource type="Script" path="res://scripts/mapa/mapa_helade.gd" id="1_mapa"]
 [ext_resource type="Texture2D" path="res://assets/art/mapa/mapa_helade.png" id="2_fundo"]
 [ext_resource type="SpriteFrames" path="res://assets/art/personagens/nicholas/nicholas_exploracao.tres" id="3_nicholas"]
+[ext_resource type="Texture2D" path="res://assets/art/mapa/mapa_helade_noite.png" id="4_noite"]
+[ext_resource type="Script" path="res://scripts/mapa/lamparinas_mapa.gd" id="5_lamparinas"]
+[ext_resource type="Script" path="res://scripts/mapa/nevoa_mapa.gd" id="6_nevoa"]
+[ext_resource type="Shader" path="res://shaders/nevoa_mapa.gdshader" id="7_shader_nevoa"]
 
-[node name="MapaHelade" type="Node2D" node_paths=PackedStringArray("fundo", "caminhos", "nicholas", "camera", "placa", "nome_local", "regiao_local", "aviso", "botao_entrar")]
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_nevoa"]
+shader = ExtResource("7_shader_nevoa")
+
+[node name="MapaHelade" type="Node2D" node_paths=PackedStringArray("fundo", "fundo_noite", "lamparinas", "nevoa", "botao_periodo", "caminhos", "nicholas", "camera", "placa", "nome_local", "regiao_local", "aviso", "botao_entrar")]
 script = ExtResource("1_mapa")
 fundo = NodePath("Fundo")
+fundo_noite = NodePath("FundoNoite")
+lamparinas = NodePath("Lamparinas")
+nevoa = NodePath("Nevoa")
+botao_periodo = NodePath("Interface/Periodo")
 caminhos = NodePath("Caminhos")
 nicholas = NodePath("Nicholas")
 camera = NodePath("Nicholas/Camera")
@@ -21,7 +32,21 @@ texture_filter = 1
 texture = ExtResource("2_fundo")
 centered = false
 
+[node name="FundoNoite" type="Sprite2D" parent="."]
+visible = false
+modulate = Color(1, 1, 1, 0)
+texture_filter = 1
+texture = ExtResource("4_noite")
+centered = false
+
 [node name="Caminhos" type="Node2D" parent="."]
+
+[node name="Lamparinas" type="Node2D" parent="."]
+script = ExtResource("5_lamparinas")
+
+[node name="Nevoa" type="Sprite2D" parent="."]
+material = SubResource("ShaderMaterial_nevoa")
+script = ExtResource("6_nevoa")
 
 [node name="Nicholas" type="AnimatedSprite2D" parent="."]
 sprite_frames = ExtResource("3_nicholas")
@@ -67,3 +92,11 @@ custom_minimum_size = Vector2(220, 72)
 size_flags_horizontal = 4
 focus_mode = 0
 text = "MAPA_ENTRAR"
+
+[node name="Periodo" type="Button" parent="Interface"]
+offset_left = 24.0
+offset_top = 24.0
+offset_right = 284.0
+offset_bottom = 88.0
+focus_mode = 0
+text = "MAPA_DIA_NOITE"

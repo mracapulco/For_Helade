@@ -24,6 +24,7 @@ Configuracoes="*res://scripts/autoload/configuracoes.gd"
 Progresso="*res://scripts/autoload/progresso.gd"
 TrocaCena="*res://scripts/autoload/troca_cena.gd"
 Inventario="*res://scripts/autoload/inventario.gd"
+Mundo="*res://scripts/autoload/mundo.gd"
 
 [dialogue_manager]
 

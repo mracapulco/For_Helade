@@ -19,9 +19,9 @@ Para testar o diálogo: abra `scenes/testes/teste_dialogo.tscn` no Godot e apert
 | `data/dialogos/` | Cenas de roteiro em `.dialogue`, uma pasta por capítulo |
 | `data/personagens/` | Um `.tres` por personagem (nome no roteiro e retratos por expressão) |
 | `data/mapa/` | Um `.tres` por local do mapa de Hélade (`LocalMapa`): tipo (região, estrada, acampamento, porto), posição no desenho, ligações por estrada e por mar, cena ao entrar |
-| `tools/arte/gerar_mapa.py` | Gera a arte do mapa (`assets/art/mapa/mapa_helade.png`) a partir dos pontos de `data/mapa/`. Rodar de novo ao mudar um ponto ou uma estrada |
+| `tools/arte/gerar_mapa.py` | Gera a arte do mapa de dia e de noite (`assets/art/mapa/mapa_helade.png` e `mapa_helade_noite.png`) a partir dos pontos de `data/mapa/`. Rodar de novo ao mudar um ponto ou uma estrada |
 | `data/itens/` | Um `.tres` por item (`Item`); o nome do arquivo é o id. Entra sozinho no `Inventario` |
-| `scripts/autoload/` | `Relacoes`, `Influencia`, `Elenco` e `Inventario` |
+| `scripts/autoload/` | `Relacoes`, `Influencia`, `Elenco`, `Inventario` e `Mundo` (dia/noite e lugares descobertos no mapa) |
 | `scripts/systems/` | `Medidor` (base de relações e influência), `Personagem` e `Item` |
 | `scenes/ui/` + `scripts/ui/` | Caixa de diálogo com retrato e escolhas; tela da bolsa (`tela_bolsa.tscn`, abre com I/Tab ou o botão Bolsa) |
 | `scenes/testes/` + `scripts/testes/` | Telas provisórias de teste |

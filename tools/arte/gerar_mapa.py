@@ -1,6 +1,8 @@
 # Gera o mapa de Hélade em pixel art (tela de viagem, estilo mapa do Super Mario World).
 # O mapa enviado pelo Rafael serve só de referência de geografia; a arte é toda gerada aqui.
 # Uso: python3 tools/arte/gerar_mapa.py assets/art/mapa/mapa_helade.png
+# Gera também a versão noturna ao lado (mapa_helade_noite.png), com as luzes
+# das casas, cidades, faróis, fogueiras e navios.
 # 1 pixel aqui = 1 pixel da arte; no jogo a câmera amplia 2x.
 import math
 import random
@@ -297,6 +299,14 @@ def ret(x0, y0, x1, y1, cor):
             ponto(x, y, cor)
 
 
+# Fontes de luz para a versão noturna: (x, y, raio, 'quente' ou 'fria').
+luzes = []
+
+
+def luz(x, y, raio, tipo='quente'):
+    luzes.append((int(x), int(y), raio, tipo))
+
+
 def ocupado(x, y, r, usados):
     return any((x - a) ** 2 + (y - b) ** 2 < r * r for a, b in usados)
 
@@ -352,6 +362,7 @@ def casa(x, y, telhado='telhado'):
     for i in range(4):
         ret(x - 4 + i, y - 4 - i, x + 4 - i, y - 4 - i, telhado if i else 'telhado_luz')
     ponto(x, y - 1, 'vela')
+    luz(x, y - 1, 6)
 
 
 def torre(x, y, alt, cor='marmore', sombra='marmore_sombra', teto='azul_noite'):
@@ -362,6 +373,7 @@ def torre(x, y, alt, cor='marmore', sombra='marmore_sombra', teto='azul_noite'):
     for i in range(5):
         ret(x - 4 + i, y - alt - 2 - i, x + 4 - i, y - alt - 2 - i, teto)
     ponto(x + 1, y - alt // 2, 'vela')
+    luz(x + 1, y - alt // 2, 7)
     for yy_ in range(y - alt - 6, y + 1):
         ponto(x - 5, yy_, 'noite') if yy_ > y - alt - 2 else None
 
@@ -386,6 +398,7 @@ def castelo_olympia(x, y):
         torre(x + dx, y + 6, alt, 'lua', 'pedra', 'azul_noite')
     ret(x - 3, y, x + 3, y + 6, 'noite')
     ponto(x, y - 40, 'ouro_claro'); ponto(x, y - 41, 'ouro_claro')
+    luz(x, y - 6, 70)
 
 
 def cidade_atenas(x, y):
@@ -406,6 +419,7 @@ def cidade_atenas(x, y):
     for c in range(-15, 16, 5):
         ret(x + c, y - 16, x + c, y + 5, 'marmore')
     ret(x, y - 40, x, y - 36, 'ouro_claro'); ponto(x, y - 41, 'vela')
+    luz(x, y, 95)
 
 
 def cidade_agape(x, y):
@@ -426,6 +440,10 @@ def cidade_agape(x, y):
     for fx, fy in ((x - 34, y + 12), (x + 36, y + 14), (x - 6, y + 20)):
         ret(fx - 3, fy - 1, fx + 3, fy + 1, 'olhos'); ponto(fx, fy, 'ouro_claro')
         ret(fx - 4, fy + 2, fx + 4, fy + 2, 'noite')
+        luz(fx, fy, 16, 'fria')
+    for cx in range(x - 50, x + 51, 10):
+        luz(cx, y + 27, 12, 'fria')
+    luz(x, y, 70)
 
 
 def fortaleza_norte(x, y):
@@ -439,6 +457,7 @@ def fortaleza_norte(x, y):
         torre(x + dx, y + 8, alt, 'prata', 'rocha', 'nuvem')
     for dx in range(-26, 27, 6):
         ponto(x + dx, y - 2, 'vela')
+    luz(x, y - 4, 65)
 
 
 def templo(x, y):
@@ -452,6 +471,7 @@ def templo(x, y):
     for i in range(9):
         ret(x - 22 + i * 2, y - 22 - i, x + 22 - i * 2, y - 22 - i, 'marmore' if i % 3 else 'ouro')
     ret(x - 23, y + 6, x + 23, y + 6, 'noite')
+    luz(x, y - 10, 34)
 
 
 def bosque_ninfas(x, y):
@@ -466,7 +486,9 @@ def bosque_ninfas(x, y):
     ret(x - 3, y - 6, x + 3, y + 4, 'terra')
     ret(x - 5, y + 3, x + 5, y + 4, 'terra')
     for _ in range(14):
-        ponto(x + random.randint(-24, 24), y - 26 + random.randint(-16, 16), 'ouro_claro')
+        lx_, ly_ = x + random.randint(-24, 24), y - 26 + random.randint(-16, 16)
+        ponto(lx_, ly_, 'ouro_claro')
+        luz(lx_, ly_, 8)
 
 
 def navio(x, y):
@@ -477,6 +499,7 @@ def navio(x, y):
         ret(x - 5 + i // 2, y - 11 + i, x - 1, y - 11 + i, 'prata')
         ret(x + 1, y - 11 + i, x + 5 - i // 2, y - 11 + i, 'lua')
     ponto(x, y - 13, 'vela')
+    luz(x, y - 2, 8)
 
 
 def pinheiro(x, y, nevado=False):
@@ -532,6 +555,7 @@ def fogueira(x, y):
     ret(x - 2, y, x + 2, y, 'terra')
     ret(x - 1, y - 3, x + 1, y - 1, 'vela')
     ponto(x, y - 4, 'ouro_claro'); ponto(x, y - 2, 'ouro_claro')
+    luz(x, y - 2, 22)
 
 
 def navio_grande(x, y):
@@ -548,6 +572,7 @@ def navio_grande(x, y):
         ponto(x + mx, y - alt - 1, 'vela'); ponto(x + mx + 1, y - alt - 1, 'vela')
     for dx in range(-14, 15, 2):
         ponto(x + dx, y + 5, 'espuma')
+    luz(x - 11, y - 2, 8); luz(x + 11, y - 2, 8)
 
 
 def farol(x, y):
@@ -556,6 +581,7 @@ def farol(x, y):
         ret(x - 2, yy_, x + 2, yy_ + 1, 'telhado')
     ret(x - 3, y - 19, x + 3, y - 17, 'noite')
     ret(x - 2, y - 21, x + 2, y - 19, 'vela'); ponto(x, y - 22, 'ouro_claro')
+    luz(x, y - 20, 34)
     ret(x - 3, y + 1, x + 3, y + 1, 'noite')
 
 
@@ -808,3 +834,35 @@ for i, cor in enumerate(['noite', 'ouro_escuro', 'ouro', 'ouro_escuro', 'noite']
 saida = sys.argv[1] if len(sys.argv) > 1 else 'mapa_helade.png'
 base.save(saida)
 print(saida, base.size)
+
+# ---------------------------------------------------------------- noite
+# Mesma arte em tons de luar, mais as luzes. As luzes são degraus (não
+# gradiente liso) para continuar parecendo pixel art.
+dia = np.array(base.convert('RGB')).astype(np.float32) / 255.0
+cinza = dia.mean(axis=2, keepdims=True)
+noite = (dia * 0.6 + cinza * 0.4) * np.array([0.30, 0.37, 0.55]) + np.array([0.01, 0.015, 0.04])
+brilho = {'quente': np.zeros((H, W), np.float32), 'fria': np.zeros((H, W), np.float32)}
+nucleos = {}
+for lx, ly, r, tipo in luzes:
+    if r not in nucleos:
+        yy_, xx_ = np.mgrid[-r:r + 1, -r:r + 1]
+        d = np.sqrt(xx_ ** 2 + yy_ ** 2) / r
+        nucleos[r] = np.floor(np.clip(1 - d, 0, 1) ** 1.8 * 6) / 6
+    k = nucleos[r]
+    x0, y0, x1, y1 = lx - r, ly - r, lx + r + 1, ly + r + 1
+    kx0, ky0 = max(0, -x0), max(0, -y0)
+    kx1, ky1 = k.shape[1] - max(0, x1 - W), k.shape[0] - max(0, y1 - H)
+    if kx0 >= kx1 or ky0 >= ky1:
+        continue
+    alvo = brilho[tipo][max(0, y0):min(H, y1), max(0, x0):min(W, x1)]
+    np.maximum(alvo, k[ky0:ky1, kx0:kx1] * (0.6 if r < 20 else 0.5), out=alvo)
+noite += brilho['quente'][..., None] * np.array([0.95, 0.66, 0.32])
+noite += brilho['fria'][..., None] * np.array([0.35, 0.62, 0.85])
+# Janelas, chamas e dourados continuam claros.
+for nome, forca in (('vela', 1.0), ('ouro_claro', 0.85), ('ouro', 0.6), ('olhos', 0.9)):
+    mascara = np.all(np.array(base.convert('RGB')) == P[nome], axis=2)
+    noite[mascara] = np.maximum(noite[mascara], np.array(P[nome]) / 255.0 * forca)
+noite_img = Image.fromarray((np.clip(noite, 0, 1) * 255).astype(np.uint8), 'RGB')
+saida_noite = saida[:-4] + '_noite.png' if saida.endswith('.png') else saida + '_noite.png'
+noite_img.save(saida_noite)
+print(saida_noite, noite_img.size)

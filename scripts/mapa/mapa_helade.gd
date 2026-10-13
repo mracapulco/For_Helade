@@ -4,6 +4,8 @@ extends Node2D
 ## World: Nicholas fica em cima de um local e anda pelos caminhos até outro.
 ## Toque/clique num local liberado para ir até ele; toque de novo (ou no botão
 ## Entrar, ou Enter) para entrar. Setas/WASD pulam para o vizinho naquela direção.
+## O que ainda não foi descoberto fica sob a névoa: ao chegar num lugar, os
+## vizinhos dele aparecem. Dia e noite vêm do autoload Mundo.
 
 signal chegou(id: String)
 signal entrada_pedida(id: String)
@@ -26,6 +28,10 @@ const FONTE_NOMES := preload("res://assets/fonts/cinzel/cinzel.ttf")
 const CENTRO_TITULO := Vector2(1450, 148)
 ## Quanto abaixo do ponto da região fica o nome (abaixo do desenho da cidade).
 const DESCIDA_NOME := 30.0
+## Duração da passagem entre dia e noite, em segundos.
+const TROCA_PERIODO := 1.2
+## Tom de Nicholas à noite, para não brilhar mais que o mapa.
+const COR_LUAR := Color(0.72, 0.76, 0.9)
 const ACOES_DIRECAO := {
 	&"mover_frente": Vector2.UP,
 	&"mover_tras": Vector2.DOWN,
@@ -35,12 +41,15 @@ const ACOES_DIRECAO := {
 
 ## Pixels da arte por segundo ao andar pelo mapa.
 @export var velocidade := 120.0
-## Onde Nicholas começa. Provisório: o jogo salvo ainda não guarda o local.
+## Onde Nicholas começa num jogo novo (depois vale o Mundo.local_no_mapa).
 @export var local_inicial := "olympia"
 ## Quando falso, Entrar só avisa (testes).
 @export var trocar_de_cena := true
 
 @export var fundo: Sprite2D
+@export var fundo_noite: Sprite2D
+@export var lamparinas: LamparinasMapa
+@export var nevoa: NevoaMapa
 @export var caminhos: Node2D
 @export var nicholas: AnimatedSprite2D
 @export var camera: Camera2D
@@ -49,10 +58,12 @@ const ACOES_DIRECAO := {
 @export var regiao_local: Label
 @export var aviso: Label
 @export var botao_entrar: Button
+## Provisório, para testar: troca entre dia e noite.
+@export var botao_periodo: Button
 
 var grafo: GrafoMapa
-## Locais liberados (id -> true).
-var liberados: Dictionary = {}
+## Locais liberados (id -> true). É o mesmo dicionário de Mundo.descobertos.
+var liberados: Dictionary = Mundo.descobertos
 var local_atual := ""
 var andando := false
 
@@ -62,16 +73,26 @@ var _viagem: Tween
 ## sair nítido em vez de ampliado junto com a arte.
 var _rotulos: Dictionary[Label, Vector2] = {}
 var _camada_rotulos: CanvasLayer
+## Nome de cada região escrito no mapa: id -> Label.
+var _nomes: Dictionary[String, Label] = {}
+var _troca_periodo: Tween
 
 
 func _ready() -> void:
 	grafo = GrafoMapa.da_pasta()
+	liberados = Mundo.descobertos
 	for id: String in grafo.locais:
 		if grafo.local(id).liberado_no_inicio:
-			liberados[id] = true
+			liberar(id)
+	var inicio := Mundo.local_no_mapa
+	if grafo.local(inicio) == null or not liberados.has(inicio):
+		inicio = local_inicial
+	liberar(inicio)
 	caminhos.draw.connect(_desenhar_caminhos)
 	botao_entrar.pressed.connect(entrar)
+	botao_periodo.pressed.connect(Mundo.alternar_periodo)
 	placa.add_to_group(BotoesToque.GRUPO_BLOQUEIA_TOQUE)
+	botao_periodo.add_to_group(BotoesToque.GRUPO_BLOQUEIA_TOQUE)
 	camera.zoom = Vector2.ONE * ZOOM_PIXEL_ART
 	if fundo.texture:
 		var tamanho := fundo.texture.get_size()
@@ -79,8 +100,21 @@ func _ready() -> void:
 		camera.limit_top = 0
 		camera.limit_right = int(tamanho.x)
 		camera.limit_bottom = int(tamanho.y)
+		nevoa.preparar(tamanho)
+	_revelar(liberados.keys())
+	lamparinas.preparar(grafo, liberados)
+	Mundo.descoberto.connect(_ao_descobrir)
+	Mundo.periodo_mudou.connect(_ao_mudar_periodo)
 	_criar_rotulos()
-	colocar_em(local_inicial)
+	_aplicar_periodo(1.0 if Mundo.noite else 0.0)
+	colocar_em(inicio)
+
+
+## Descobre um lugar e os vizinhos dele (os próximos passos da viagem).
+func liberar(id: String) -> void:
+	Mundo.descobrir(id)
+	for vizinho in grafo.vizinhos(id):
+		Mundo.descobrir(vizinho)
 
 
 func _process(_delta: float) -> void:
@@ -106,7 +140,9 @@ func _criar_rotulos() -> void:
 			continue
 		var nome := _novo_rotulo(local.chave_nome, 26)
 		nome.name = "Nome_" + id
+		nome.visible = liberados.has(id)
 		_rotulos[nome] = local.posicao + Vector2(0, DESCIDA_NOME)
+		_nomes[id] = nome
 
 
 func _novo_rotulo(chave: String, tamanho: int) -> Label:
@@ -157,6 +193,7 @@ func colocar_em(id: String) -> void:
 		push_error("MapaHelade: local desconhecido '%s'." % id)
 		return
 	local_atual = id
+	Mundo.local_no_mapa = id
 	nicholas.position = local.posicao
 	camera.reset_smoothing()
 	_parar()
@@ -165,7 +202,7 @@ func colocar_em(id: String) -> void:
 ## Local cujo ponto está perto de [param posicao] (pixels da arte), ou "".
 func local_em(posicao: Vector2) -> String:
 	for id: String in grafo.locais:
-		if grafo.local(id).posicao.distance_to(posicao) <= RAIO_TOQUE:
+		if liberados.has(id) and grafo.local(id).posicao.distance_to(posicao) <= RAIO_TOQUE:
 			return id
 	return ""
 
@@ -214,6 +251,41 @@ func entrar() -> void:
 
 func _passar_por(id: String) -> void:
 	local_atual = id
+	Mundo.local_no_mapa = id
+	liberar(id)
+
+
+func _ao_descobrir(id: String) -> void:
+	_revelar([id])
+	if _nomes.has(id):
+		_nomes[id].show()
+	caminhos.queue_redraw()
+	lamparinas.queue_redraw()
+
+
+func _revelar(ids: Array) -> void:
+	var locais: Array[LocalMapa] = []
+	for id: String in ids:
+		if grafo.local(id):
+			locais.append(grafo.local(id))
+	nevoa.revelar(locais)
+
+
+func _ao_mudar_periodo(noite: bool) -> void:
+	if _troca_periodo:
+		_troca_periodo.kill()
+	_troca_periodo = create_tween()
+	var atual := fundo_noite.modulate.a
+	_troca_periodo.tween_method(_aplicar_periodo, atual, 1.0 if noite else 0.0, TROCA_PERIODO)
+
+
+## 0 = dia, 1 = noite.
+func _aplicar_periodo(quanto: float) -> void:
+	fundo_noite.modulate.a = quanto
+	fundo_noite.visible = quanto > 0.0
+	lamparinas.acesas = quanto
+	nevoa.definir_noite(quanto)
+	nicholas.modulate = Color.WHITE.lerp(COR_LUAR, quanto)
 
 
 func _chegar() -> void:
@@ -242,16 +314,16 @@ func _desenhar_caminhos() -> void:
 	for par: Array in grafo.ligacoes():
 		var a := grafo.local(par[0]).posicao
 		var b := grafo.local(par[1]).posicao
-		var aberto := liberados.has(par[0]) and liberados.has(par[1])
+		if not (liberados.has(par[0]) and liberados.has(par[1])):
+			continue # ainda na névoa
 		var cor: Color = COR_MAR if par[2] else COR_ESTRADA
-		if not aberto:
-			cor = COR_BLOQUEADO
 		if par[2]:
 			caminhos.draw_dashed_line(a, b, cor, 2.0, 6.0)
 		else:
 			_pontilhado(a, b, cor)
 	for id: String in grafo.locais:
-		_desenhar_local(grafo.local(id))
+		if liberados.has(id):
+			_desenhar_local(grafo.local(id))
 
 
 ## Estrada de bolinhas, como no mapa do Super Mario World.

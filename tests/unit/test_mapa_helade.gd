@@ -205,6 +205,7 @@ func test_no_mar_vai_de_barco() -> void:
 	_descobrir_tudo()
 	mapa.colocar_em("porto_olympia")
 	mapa.viajar_para("mo_mar_1")
+	await wait_process_frames(2)
 	assert_true(mapa.esta_de_barco())
 	assert_eq(String(mapa.nicholas.animation).begins_with("barco"), true)
 	mapa.terminar_viagem()

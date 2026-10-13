@@ -7,6 +7,7 @@ extends CharacterBody2D
 ## Teclado (PC): WASD ou setas para andar, Shift para correr, Espaço para pular,
 ## Enter para interagir com o interagível mais próximo ao alcance.
 ## Tocar num Interagivel: anda até ele e interage ao chegar.
+## Durante uma conversa o personagem fica parado e ignora toques e teclas.
 
 signal destino_definido(destino: Vector2)
 signal chegou
@@ -19,6 +20,8 @@ signal chegou
 
 var andando := false
 var pulando := false
+## Verdadeiro enquanto uma conversa está aberta.
+var em_dialogo := false
 ## Interagível para onde o personagem está indo, se houver.
 var alvo_interacao: Interagivel
 
@@ -31,9 +34,16 @@ var _tempo_pulo := 0.0
 
 func _ready() -> void:
 	add_to_group(Interagivel.GRUPO_JOGADOR)
+	DialogueManager.dialogue_started.connect(_ao_comecar_dialogo)
+	DialogueManager.dialogue_ended.connect(_ao_terminar_dialogo)
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	if em_dialogo:
+		return
+	var na_tela: bool = event is InputEventScreenTouch or event is InputEventScreenDrag
+	if na_tela and BotoesToque.toque_em_botao(get_tree(), event.position):
+		return
 	var toque: bool = event is InputEventScreenTouch and event.pressed
 	if toque:
 		tocar(tela_para_mundo(event.position))
@@ -137,8 +147,25 @@ static func direcao_isometrica(direcao_teclas: Vector2) -> Vector2:
 	return direcao.normalized()
 
 
+func _ao_comecar_dialogo(_recurso: DialogueResource) -> void:
+	em_dialogo = true
+	andando = false
+	alvo_interacao = null
+	velocity = Vector2.ZERO
+	chegou.emit()
+
+
+func _ao_terminar_dialogo(_recurso: DialogueResource) -> void:
+	# Espera um instante para o mesmo Enter ou toque que fechou a conversa
+	# não abrir outra nem mandar o personagem andar.
+	await get_tree().create_timer(0.2).timeout
+	em_dialogo = false
+
+
 func _physics_process(delta: float) -> void:
 	_atualizar_pulo(delta)
+	if em_dialogo:
+		return
 	var rapidez := velocidade
 	if Input.is_action_pressed("correr"):
 		rapidez *= multiplicador_corrida

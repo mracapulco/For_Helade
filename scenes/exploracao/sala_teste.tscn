@@ -6,6 +6,8 @@
 [ext_resource type="Script" path="res://scripts/exploracao/personagem_exploracao.gd" id="4_pers"]
 [ext_resource type="Script" path="res://scripts/exploracao/marcador_destino.gd" id="5_marc"]
 [ext_resource type="Script" path="res://scripts/exploracao/interagivel.gd" id="6_mcson"]
+[ext_resource type="Resource" path="res://data/dialogos/teste/exploracao.dialogue" id="dlg_exploracao"]
+[ext_resource type="PackedScene" path="res://scenes/ui/botoes_toque.tscn" id="7_botoes"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_pn2jv"]
 radius = 14.0
@@ -82,7 +84,8 @@ shape = SubResource("CircleShape2D_42mlo")
 
 [node name="Interagivel" type="Area2D" parent="ObjetoTeste" unique_id=1844123862]
 script = ExtResource("6_mcson")
-chave_texto = "EXPLORACAO_OBJETO_TESTE"
+dialogo = ExtResource("dlg_exploracao")
+marcador = "objeto_teste"
 
 [node name="AreaDeToque" type="CollisionShape2D" parent="ObjetoTeste/Interagivel" unique_id=1848310895]
 position = Vector2(0, -24)
@@ -100,8 +103,12 @@ shape = SubResource("CircleShape2D_mm362")
 
 [node name="Interagivel" type="Area2D" parent="PersonagemTeste" unique_id=2087466709]
 script = ExtResource("6_mcson")
-chave_texto = "EXPLORACAO_PERSONAGEM_TESTE"
+dialogo = ExtResource("dlg_exploracao")
+marcador = "personagem_teste"
 
 [node name="AreaDeToque" type="CollisionShape2D" parent="PersonagemTeste/Interagivel" unique_id=1558270094]
 position = Vector2(0, -24)
 shape = SubResource("CircleShape2D_jfhrn")
+
+[node name="BotoesToque" parent="." instance=ExtResource("7_botoes")]
+sempre_mostrar = true

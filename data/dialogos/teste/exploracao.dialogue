@@ -1,0 +1,13 @@
+## Falas da sala de teste da exploração.
+## Nenhuma fala daqui é do livro: são só marcadores para testar a interação.
+
+~ objeto_teste
+
+[Provisório] Você examina o objeto de teste. Falas sem nome não mostram retrato. [ID:EXPLORACAO_TESTE_001]
+=> END
+
+~ personagem_teste
+
+Personagem de teste: [#retrato=neutro] [Provisório] Olá! Esta é uma fala de teste da exploração. [ID:EXPLORACAO_TESTE_002]
+Personagem de teste: [#retrato=alegre] Toque na caixa, clique ou aperte Enter para continuar. [ID:EXPLORACAO_TESTE_003]
+=> END

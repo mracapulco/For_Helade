@@ -1,0 +1,69 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/botoes_toque.gd" id="1_botoes"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBox_normal"]
+bg_color = Color(0.08, 0.1, 0.2, 0.75)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.85, 0.7, 0.3, 1)
+corner_radius_top_left = 70
+corner_radius_top_right = 70
+corner_radius_bottom_right = 70
+corner_radius_bottom_left = 70
+
+[sub_resource type="StyleBoxFlat" id="StyleBox_ligado"]
+bg_color = Color(0.55, 0.42, 0.12, 0.9)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(1, 0.88, 0.45, 1)
+corner_radius_top_left = 70
+corner_radius_top_right = 70
+corner_radius_bottom_right = 70
+corner_radius_bottom_left = 70
+
+[node name="BotoesToque" type="CanvasLayer"]
+layer = 5
+script = ExtResource("1_botoes")
+
+[node name="Painel" type="HBoxContainer" parent="."]
+unique_name_in_owner = true
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -336.0
+offset_top = -176.0
+offset_right = -32.0
+offset_bottom = -32.0
+grow_horizontal = 0
+grow_vertical = 0
+theme_override_constants/separation = 24
+
+[node name="BotaoCorrer" type="Button" parent="Painel"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(140, 140)
+focus_mode = 0
+theme_override_font_sizes/font_size = 28
+theme_override_styles/normal = SubResource("StyleBox_normal")
+theme_override_styles/hover = SubResource("StyleBox_normal")
+theme_override_styles/pressed = SubResource("StyleBox_ligado")
+theme_override_styles/hover_pressed = SubResource("StyleBox_ligado")
+toggle_mode = true
+text = "EXPLORACAO_BOTAO_CORRER"
+
+[node name="BotaoPular" type="Button" parent="Painel"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(140, 140)
+focus_mode = 0
+theme_override_font_sizes/font_size = 28
+theme_override_styles/normal = SubResource("StyleBox_normal")
+theme_override_styles/hover = SubResource("StyleBox_normal")
+theme_override_styles/pressed = SubResource("StyleBox_ligado")
+theme_override_styles/hover_pressed = SubResource("StyleBox_ligado")
+text = "EXPLORACAO_BOTAO_PULAR"

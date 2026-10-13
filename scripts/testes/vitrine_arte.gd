@@ -1,6 +1,7 @@
 extends Node2D
-## Vitrine da arte da exploração: mostra chão, bloco e personagens no tamanho
-## e no zoom do jogo, para conferir uma peça nova antes de usá-la nas salas.
+## Vitrine da arte da exploração: mostra chão, bloco, personagens e objetos
+## no tamanho e no zoom do jogo, para conferir uma peça nova antes de usá-la
+## nas salas.
 ## Para testar uma arte, salve o PNG por cima do provisório (mesmo nome e
 ## tamanho) em assets/art/placeholders/exploracao/ e rode esta cena (F6).
 

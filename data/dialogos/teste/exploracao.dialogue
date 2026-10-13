@@ -11,3 +11,18 @@
 Personagem de teste: [#retrato=neutro] [Provisório] Olá! Esta é uma fala de teste da exploração. [ID:EXPLORACAO_TESTE_002]
 Personagem de teste: [#retrato=alegre] Toque na caixa, clique ou aperte Enter para continuar. [ID:EXPLORACAO_TESTE_003]
 => END
+
+~ guarda_teste
+
+Guarda de teste: [Provisório] Figurante genérico, não é personagem do livro. [ID:EXPLORACAO_TESTE_004]
+=> END
+
+~ criada_teste
+
+Criada de teste: [Provisório] Outra figurante genérica, só para testar a arte. [ID:EXPLORACAO_TESTE_005]
+=> END
+
+~ placa_teste
+
+[Provisório] A placa ainda não diz nada. Os nomes dos lugares virão do livro. [ID:EXPLORACAO_TESTE_006]
+=> END

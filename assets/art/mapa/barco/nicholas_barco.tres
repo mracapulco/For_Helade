@@ -1,0 +1,72 @@
+[gd_resource type="SpriteFrames" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/art/mapa/barco/nicholas_barco.png" id="1_folha"]
+
+[sub_resource type="AtlasTexture" id="Atlas_1"]
+atlas = ExtResource("1_folha")
+region = Rect2(0, 0, 48, 48)
+
+[sub_resource type="AtlasTexture" id="Atlas_2"]
+atlas = ExtResource("1_folha")
+region = Rect2(48, 0, 48, 48)
+
+[sub_resource type="AtlasTexture" id="Atlas_3"]
+atlas = ExtResource("1_folha")
+region = Rect2(96, 0, 48, 48)
+
+[sub_resource type="AtlasTexture" id="Atlas_4"]
+atlas = ExtResource("1_folha")
+region = Rect2(144, 0, 48, 48)
+
+[sub_resource type="AtlasTexture" id="Atlas_5"]
+atlas = ExtResource("1_folha")
+region = Rect2(0, 48, 48, 48)
+
+[sub_resource type="AtlasTexture" id="Atlas_6"]
+atlas = ExtResource("1_folha")
+region = Rect2(48, 48, 48, 48)
+
+[sub_resource type="AtlasTexture" id="Atlas_7"]
+atlas = ExtResource("1_folha")
+region = Rect2(96, 48, 48, 48)
+
+[sub_resource type="AtlasTexture" id="Atlas_8"]
+atlas = ExtResource("1_folha")
+region = Rect2(144, 48, 48, 48)
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("Atlas_1")
+}, {
+"duration": 1.0,
+"texture": SubResource("Atlas_2")
+}, {
+"duration": 1.0,
+"texture": SubResource("Atlas_3")
+}, {
+"duration": 1.0,
+"texture": SubResource("Atlas_4")
+}],
+"loop": true,
+"name": &"barco_frente",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("Atlas_5")
+}, {
+"duration": 1.0,
+"texture": SubResource("Atlas_6")
+}, {
+"duration": 1.0,
+"texture": SubResource("Atlas_7")
+}, {
+"duration": 1.0,
+"texture": SubResource("Atlas_8")
+}],
+"loop": true,
+"name": &"barco_costas",
+"speed": 5.0
+}]

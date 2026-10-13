@@ -89,6 +89,7 @@ func test_shift_corre_mais_rapido_que_andar() -> void:
 
 
 func test_espaco_pula_e_volta_ao_chao() -> void:
+	Input.action_release("pular") # outro teste pode ter deixado a tecla "apertada"
 	await wait_physics_frames(5)
 	var chao := cena.corpo.global_position.y
 	Input.action_press("pular")

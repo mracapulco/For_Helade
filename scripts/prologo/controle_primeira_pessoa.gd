@@ -165,14 +165,46 @@ func tocar_cena(titulo: String) -> void:
 		return
 	_cenas_vistas.append(titulo)
 	cena_tocando = titulo
+	await texto_solto.mostrar(await frases_de(titulo))
+	if cena_tocando == titulo:
+		cena_tocando = ""
+
+
+## As frases de um trecho do roteiro, na ordem.
+func frases_de(titulo: String) -> Array[String]:
 	var frases: Array[String] = []
+	if roteiro == null:
+		return frases
 	var linha: DialogueLine = await roteiro.get_next_dialogue_line(titulo)
 	while linha:
 		frases.append(linha.text)
 		linha = await roteiro.get_next_dialogue_line(linha.next_id)
-	await texto_solto.mostrar(frases)
-	if cena_tocando == titulo:
-		cena_tocando = ""
+	return frases
+
+
+## Vira a cabeça de Nicholas, devagar, para um ponto do mundo.
+func olhar_para(alvo: Vector3, tempo: float) -> void:
+	var direcao := alvo - camera.global_position
+	var giro_de := corpo.rotation.y
+	var giro_para := atan2(-direcao.x, -direcao.z)
+	var olhar_de := camera.rotation.x
+	var olhar_para_ := clampf(atan2(direcao.y, Vector2(direcao.x, direcao.z).length()), deg_to_rad(-80), deg_to_rad(80))
+	var tween := create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	tween.tween_method(func(t: float) -> void:
+		corpo.rotation.y = lerp_angle(giro_de, giro_para, t)
+		camera.rotation.x = lerpf(olhar_de, olhar_para_, t), 0.0, 1.0, maxf(tempo, 0.01))
+	await tween.finished
+
+
+## Põe Nicholas num ponto sem animação (por exemplo, depois de uma tela preta).
+func colocar_em(ponto: PontoDeVista) -> void:
+	_colocar_em(ponto)
+
+
+## Devolve o controle ao jogador a partir de um ponto.
+func continuar_em(ponto: PontoDeVista) -> void:
+	travado = false
+	_chegar_em(ponto)
 
 
 func _chegar_em(ponto: PontoDeVista) -> void:
@@ -185,10 +217,9 @@ func _chegar_em(ponto: PontoDeVista) -> void:
 
 func _atualizar_dica(ponto: PontoDeVista) -> void:
 	if dica:
-		# Sem mais lugares para ir, o trecho jogável acabou. Aviso provisório até
-		# a cena nos aposentos da duquesa (passo 3).
+		# Sem brilho para seguir, quem conduz é a SequenciaPrologo.
 		if ponto.alvos().is_empty():
-			dica.text = tr("PROLOGO_PROVISORIO_FIM")
+			dica.text = ""
 		else:
 			dica.text = tr("PROLOGO_DICA_TOQUE") if OS.has_feature("mobile") else tr("PROLOGO_DICA_TECLADO")
 

@@ -29,8 +29,8 @@ signal chegou(ponto: PontoDeVista)
 @export var velocidade := 1.6
 ## Velocidade segurando Shift.
 @export var velocidade_correndo := 3.2
-## Impulso do pulo (m/s): uma criança pula uns 40 cm.
-@export var impulso_pulo := 2.8
+## Impulso do pulo (m/s): uma criança pula uns 45 cm, o bastante para subir na cama.
+@export var impulso_pulo := 3.0
 @export var sensibilidade_mouse := 0.0025
 ## Tempo para deslizar até um ponto quando o jogador toca no brilho.
 @export var duracao_movimento := 1.4

@@ -187,7 +187,7 @@ height = 0.24
 radius = 0.25
 height = 1.15
 
-[node name="Prologo" type="Node3D" unique_id=1659565720 node_paths=PackedStringArray("corpo", "camera", "ponto_inicial", "dica", "mira", "abertura", "texto_solto")]
+[node name="Prologo" type="Node3D" unique_id=731583142 node_paths=PackedStringArray("corpo", "camera", "ponto_inicial", "dica", "mira", "abertura", "texto_solto")]
 script = ExtResource("1_viiba")
 corpo = NodePath("Nicholas")
 camera = NodePath("Nicholas/Camera")
@@ -198,473 +198,475 @@ abertura = NodePath("AberturaOlhos")
 roteiro = ExtResource("2_h34uw")
 texto_solto = NodePath("Frases/TextoSolto")
 
-[node name="Ambiente" type="WorldEnvironment" parent="." unique_id=1657802345]
+[node name="Ambiente" type="WorldEnvironment" parent="." unique_id=1193572421]
 environment = SubResource("Environment_383km")
 
-[node name="Lua" type="DirectionalLight3D" parent="." unique_id=807841961]
+[node name="Lua" type="DirectionalLight3D" parent="." unique_id=1457227152]
 transform = Transform3D(0.8660254, -0.38302222, 0.32139382, 0, 0.64278764, 0.76604444, -0.5, -0.66341394, 0.5566704, 0, 0, 0)
 light_color = Color(0.6, 0.7, 1, 1)
 light_energy = 0.25
 
-[node name="Cenario" type="Node3D" parent="." unique_id=1406750983]
+[node name="Cenario" type="Node3D" parent="." unique_id=1663121402]
 
-[node name="QuartoNicholas" type="Node3D" parent="Cenario" unique_id=1512115263]
+[node name="QuartoNicholas" type="Node3D" parent="Cenario" unique_id=1364072108]
 
-[node name="Chao" type="CSGBox3D" parent="Cenario/QuartoNicholas" unique_id=1123257761]
+[node name="Chao" type="CSGBox3D" parent="Cenario/QuartoNicholas" unique_id=2858094]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, -0.05, 2)
 use_collision = true
 size = Vector3(4, 0.1, 4)
 material = SubResource("StandardMaterial3D_n33pe")
 
-[node name="Teto" type="CSGBox3D" parent="Cenario/QuartoNicholas" unique_id=31606568]
+[node name="Teto" type="CSGBox3D" parent="Cenario/QuartoNicholas" unique_id=2089089401]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 3.05, 2)
 use_collision = true
 size = Vector3(4, 0.1, 4)
 material = SubResource("StandardMaterial3D_gnccc")
 
-[node name="ParedeOeste" type="CSGBox3D" parent="Cenario/QuartoNicholas" unique_id=1870362957]
+[node name="ParedeOeste" type="CSGBox3D" parent="Cenario/QuartoNicholas" unique_id=753438910]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.05, 1.5, 2)
 use_collision = true
 size = Vector3(0.1, 3, 4)
 material = SubResource("StandardMaterial3D_gnccc")
 
-[node name="ParedeNorte" type="CSGBox3D" parent="Cenario/QuartoNicholas" unique_id=1313239197]
+[node name="ParedeNorte" type="CSGBox3D" parent="Cenario/QuartoNicholas" unique_id=180307043]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 1.5, -0.05)
 use_collision = true
 size = Vector3(4, 3, 0.1)
 material = SubResource("StandardMaterial3D_gnccc")
 
-[node name="ParedeSul" type="CSGBox3D" parent="Cenario/QuartoNicholas" unique_id=1062931643]
+[node name="ParedeSul" type="CSGBox3D" parent="Cenario/QuartoNicholas" unique_id=1734304786]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 1.5, 4.05)
 use_collision = true
 size = Vector3(4, 3, 0.1)
 material = SubResource("StandardMaterial3D_gnccc")
 
-[node name="ParedeLesteA" type="CSGBox3D" parent="Cenario/QuartoNicholas" unique_id=1801198214]
+[node name="ParedeLesteA" type="CSGBox3D" parent="Cenario/QuartoNicholas" unique_id=1406551093]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.05, 1.5, 0.7)
 use_collision = true
 size = Vector3(0.1, 3, 1.4)
 material = SubResource("StandardMaterial3D_gnccc")
 
-[node name="ParedeLesteB" type="CSGBox3D" parent="Cenario/QuartoNicholas" unique_id=234112804]
+[node name="ParedeLesteB" type="CSGBox3D" parent="Cenario/QuartoNicholas" unique_id=537588985]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.05, 1.5, 3.3)
 use_collision = true
 size = Vector3(0.1, 3, 1.4)
 material = SubResource("StandardMaterial3D_gnccc")
 
-[node name="VergaPorta" type="CSGBox3D" parent="Cenario/QuartoNicholas" unique_id=2029903202]
+[node name="VergaPorta" type="CSGBox3D" parent="Cenario/QuartoNicholas" unique_id=688196905]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.05, 2.6, 2)
 use_collision = true
 size = Vector3(0.1, 0.8, 1.2)
 material = SubResource("StandardMaterial3D_gnccc")
 
-[node name="Cama" type="CSGBox3D" parent="Cenario/QuartoNicholas" unique_id=456514145]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.2, 0.25, 2.3)
-size = Vector3(1.2, 0.5, 2)
+[node name="Cama" type="CSGBox3D" parent="Cenario/QuartoNicholas" unique_id=136293002]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.2, 0.15, 2.3)
+use_collision = true
+size = Vector3(1.2, 0.3, 2)
 material = SubResource("StandardMaterial3D_y0f6t")
 
-[node name="Coberta" type="CSGBox3D" parent="Cenario/QuartoNicholas" unique_id=1036302231]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.2, 0.52, 2.5)
+[node name="Coberta" type="CSGBox3D" parent="Cenario/QuartoNicholas" unique_id=848493575]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.2, 0.33, 2.5)
+use_collision = true
 size = Vector3(1.15, 0.06, 1.6)
 material = SubResource("StandardMaterial3D_p113k")
 
-[node name="Travesseiro" type="CSGBox3D" parent="Cenario/QuartoNicholas" unique_id=1386487048]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.2, 0.58, 1.5)
+[node name="Travesseiro" type="CSGBox3D" parent="Cenario/QuartoNicholas" unique_id=1527786522]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.2, 0.42, 1.5)
 size = Vector3(0.9, 0.15, 0.4)
 material = SubResource("StandardMaterial3D_p113k")
 
-[node name="Vela" type="OmniLight3D" parent="Cenario/QuartoNicholas" unique_id=971894467]
+[node name="Vela" type="OmniLight3D" parent="Cenario/QuartoNicholas" unique_id=1711938038]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.6, 1, 0.6)
 light_color = Color(1, 0.7, 0.4, 1)
 light_energy = 1.2
 omni_range = 4.0
 
-[node name="Corredor" type="Node3D" parent="Cenario" unique_id=852120786]
+[node name="Corredor" type="Node3D" parent="Cenario" unique_id=1911627218]
 
-[node name="Chao" type="CSGBox3D" parent="Cenario/Corredor" unique_id=101851238]
+[node name="Chao" type="CSGBox3D" parent="Cenario/Corredor" unique_id=1761853132]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, -0.05, 2)
 use_collision = true
 size = Vector3(10, 0.1, 2)
 material = SubResource("StandardMaterial3D_n33pe")
 
-[node name="Teto" type="CSGBox3D" parent="Cenario/Corredor" unique_id=2046614856]
+[node name="Teto" type="CSGBox3D" parent="Cenario/Corredor" unique_id=639231787]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 3.05, 2)
 use_collision = true
 size = Vector3(10, 0.1, 2)
 material = SubResource("StandardMaterial3D_gnccc")
 
-[node name="ParedeNorte" type="CSGBox3D" parent="Cenario/Corredor" unique_id=1656876063]
+[node name="ParedeNorte" type="CSGBox3D" parent="Cenario/Corredor" unique_id=262060194]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 1.5, 0.95)
 use_collision = true
 size = Vector3(10, 3, 0.1)
 material = SubResource("StandardMaterial3D_gnccc")
 
-[node name="ParedeSul" type="CSGBox3D" parent="Cenario/Corredor" unique_id=493706622]
+[node name="ParedeSul" type="CSGBox3D" parent="Cenario/Corredor" unique_id=2064666645]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 1.5, 3.05)
 use_collision = true
 size = Vector3(10, 3, 0.1)
 material = SubResource("StandardMaterial3D_gnccc")
 
-[node name="PortaAposentos" type="CSGBox3D" parent="Cenario/Corredor" unique_id=945490446]
+[node name="PortaAposentos" type="CSGBox3D" parent="Cenario/Corredor" unique_id=1248528355]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.65, 1.15, 1.45)
 use_collision = true
 size = Vector3(1.2, 2.3, 0.06)
 material = SubResource("StandardMaterial3D_y0f6t")
 
-[node name="MolduraPorta" type="CSGBox3D" parent="Cenario/Corredor" unique_id=1848325341]
+[node name="MolduraPorta" type="CSGBox3D" parent="Cenario/Corredor" unique_id=732588263]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.99, 2.35, 2)
 use_collision = true
 size = Vector3(0.05, 0.1, 1.4)
 material = SubResource("StandardMaterial3D_5k3mg")
 
-[node name="Tocha1" type="OmniLight3D" parent="Cenario/Corredor" unique_id=1137913032]
+[node name="Tocha1" type="OmniLight3D" parent="Cenario/Corredor" unique_id=587403919]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 2, 1.2)
 light_color = Color(1, 0.6, 0.3, 1)
 omni_range = 4.5
 
-[node name="Tocha2" type="OmniLight3D" parent="Cenario/Corredor" unique_id=455105670]
+[node name="Tocha2" type="OmniLight3D" parent="Cenario/Corredor" unique_id=1550354816]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.5, 2, 2.8)
 light_color = Color(1, 0.6, 0.3, 1)
 omni_range = 4.5
 
-[node name="LuzPorta" type="OmniLight3D" parent="Cenario/Corredor" unique_id=1825347287]
+[node name="LuzPorta" type="OmniLight3D" parent="Cenario/Corredor" unique_id=333309578]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.4, 1.8, 2)
 light_color = Color(1, 0.75, 0.45, 1)
 light_energy = 0.8
 omni_range = 2.5
 
-[node name="Aposentos" type="Node3D" parent="Cenario" unique_id=1438825489]
+[node name="Aposentos" type="Node3D" parent="Cenario" unique_id=1501862351]
 
-[node name="Chao" type="CSGBox3D" parent="Cenario/Aposentos" unique_id=1428632359]
+[node name="Chao" type="CSGBox3D" parent="Cenario/Aposentos" unique_id=1507633805]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13.5, -0.05, 2)
 use_collision = true
 size = Vector3(7, 0.1, 6)
 material = SubResource("StandardMaterial3D_n33pe")
 
-[node name="Teto" type="CSGBox3D" parent="Cenario/Aposentos" unique_id=1018661801]
+[node name="Teto" type="CSGBox3D" parent="Cenario/Aposentos" unique_id=136141468]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13.5, 3.25, 2)
 use_collision = true
 size = Vector3(7, 0.1, 6)
 material = SubResource("StandardMaterial3D_gnccc")
 
-[node name="ParedeOesteA" type="CSGBox3D" parent="Cenario/Aposentos" unique_id=876427058]
+[node name="ParedeOesteA" type="CSGBox3D" parent="Cenario/Aposentos" unique_id=1073718961]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.05, 1.6, 0.2)
 use_collision = true
 size = Vector3(0.1, 3.2, 2.4)
 material = SubResource("StandardMaterial3D_gnccc")
 
-[node name="ParedeOesteB" type="CSGBox3D" parent="Cenario/Aposentos" unique_id=204822786]
+[node name="ParedeOesteB" type="CSGBox3D" parent="Cenario/Aposentos" unique_id=324709298]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.05, 1.6, 3.8)
 use_collision = true
 size = Vector3(0.1, 3.2, 2.4)
 material = SubResource("StandardMaterial3D_gnccc")
 
-[node name="VergaPorta" type="CSGBox3D" parent="Cenario/Aposentos" unique_id=800485434]
+[node name="VergaPorta" type="CSGBox3D" parent="Cenario/Aposentos" unique_id=1731212499]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.05, 2.75, 2)
 use_collision = true
 size = Vector3(0.1, 0.9, 1.2)
 material = SubResource("StandardMaterial3D_gnccc")
 
-[node name="ParedeNorte" type="CSGBox3D" parent="Cenario/Aposentos" unique_id=1013389025]
+[node name="ParedeNorte" type="CSGBox3D" parent="Cenario/Aposentos" unique_id=30377157]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13.5, 1.6, -1.05)
 use_collision = true
 size = Vector3(7, 3.2, 0.1)
 material = SubResource("StandardMaterial3D_gnccc")
 
-[node name="ParedeLeste" type="CSGBox3D" parent="Cenario/Aposentos" unique_id=1480705602]
+[node name="ParedeLeste" type="CSGBox3D" parent="Cenario/Aposentos" unique_id=268417268]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17.05, 1.6, 2)
 use_collision = true
 size = Vector3(0.1, 3.2, 6)
 material = SubResource("StandardMaterial3D_gnccc")
 
-[node name="ParedeSulA" type="CSGBox3D" parent="Cenario/Aposentos" unique_id=1769791582]
+[node name="ParedeSulA" type="CSGBox3D" parent="Cenario/Aposentos" unique_id=727154344]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.1, 1.6, 5.05)
 use_collision = true
 size = Vector3(2.2, 3.2, 0.1)
 material = SubResource("StandardMaterial3D_gnccc")
 
-[node name="ParedeSulB" type="CSGBox3D" parent="Cenario/Aposentos" unique_id=2100807849]
+[node name="ParedeSulB" type="CSGBox3D" parent="Cenario/Aposentos" unique_id=178901654]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15.6, 1.6, 5.05)
 use_collision = true
 size = Vector3(2.8, 3.2, 0.1)
 material = SubResource("StandardMaterial3D_gnccc")
 
-[node name="VergaVaranda" type="CSGBox3D" parent="Cenario/Aposentos" unique_id=1843763073]
+[node name="VergaVaranda" type="CSGBox3D" parent="Cenario/Aposentos" unique_id=776008654]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13.2, 2.8, 5.05)
 use_collision = true
 size = Vector3(2, 0.8, 0.1)
 material = SubResource("StandardMaterial3D_gnccc")
 
-[node name="CamaDuquesa" type="CSGBox3D" parent="Cenario/Aposentos" unique_id=636324814]
+[node name="CamaDuquesa" type="CSGBox3D" parent="Cenario/Aposentos" unique_id=351534007]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15.6, 0.3, 2)
 use_collision = true
 size = Vector3(2.2, 0.6, 2.6)
 material = SubResource("StandardMaterial3D_y0f6t")
 
-[node name="Lencol" type="CSGBox3D" parent="Cenario/Aposentos" unique_id=1254911986]
+[node name="Lencol" type="CSGBox3D" parent="Cenario/Aposentos" unique_id=1825395514]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15.6, 0.64, 2)
 use_collision = true
 size = Vector3(2.1, 0.08, 2.5)
 material = SubResource("StandardMaterial3D_msarb")
 
-[node name="Dossel" type="CSGBox3D" parent="Cenario/Aposentos" unique_id=1321881494]
+[node name="Dossel" type="CSGBox3D" parent="Cenario/Aposentos" unique_id=1506230738]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15.6, 2.35, 2)
 use_collision = true
 size = Vector3(2.4, 0.1, 2.8)
 material = SubResource("StandardMaterial3D_eejka")
 
-[node name="Coluna1" type="CSGBox3D" parent="Cenario/Aposentos" unique_id=21846501]
+[node name="Coluna1" type="CSGBox3D" parent="Cenario/Aposentos" unique_id=620540265]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14.5, 1.2, 0.7)
 use_collision = true
 size = Vector3(0.1, 2.4, 0.1)
 material = SubResource("StandardMaterial3D_y0f6t")
 
-[node name="Coluna2" type="CSGBox3D" parent="Cenario/Aposentos" unique_id=1216791798]
+[node name="Coluna2" type="CSGBox3D" parent="Cenario/Aposentos" unique_id=1657319101]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16.7, 1.2, 0.7)
 use_collision = true
 size = Vector3(0.1, 2.4, 0.1)
 material = SubResource("StandardMaterial3D_y0f6t")
 
-[node name="Coluna3" type="CSGBox3D" parent="Cenario/Aposentos" unique_id=189362204]
+[node name="Coluna3" type="CSGBox3D" parent="Cenario/Aposentos" unique_id=1338860111]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14.5, 1.2, 3.3)
 use_collision = true
 size = Vector3(0.1, 2.4, 0.1)
 material = SubResource("StandardMaterial3D_y0f6t")
 
-[node name="Coluna4" type="CSGBox3D" parent="Cenario/Aposentos" unique_id=1391906566]
+[node name="Coluna4" type="CSGBox3D" parent="Cenario/Aposentos" unique_id=1647815940]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16.7, 1.2, 3.3)
 use_collision = true
 size = Vector3(0.1, 2.4, 0.1)
 material = SubResource("StandardMaterial3D_y0f6t")
 
-[node name="CortinaLeste" type="CSGBox3D" parent="Cenario/Aposentos" unique_id=956569373]
+[node name="CortinaLeste" type="CSGBox3D" parent="Cenario/Aposentos" unique_id=1686589864]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16.75, 1.5, 2)
 use_collision = true
 size = Vector3(0.05, 1.7, 2.6)
 material = SubResource("StandardMaterial3D_eejka")
 
-[node name="VelaCama" type="OmniLight3D" parent="Cenario/Aposentos" unique_id=1056228556]
+[node name="VelaCama" type="OmniLight3D" parent="Cenario/Aposentos" unique_id=56085049]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, 1.4, 0.2)
 light_color = Color(1, 0.7, 0.4, 1)
 light_energy = 1.4
 
-[node name="VelaPorta" type="OmniLight3D" parent="Cenario/Aposentos" unique_id=2138537220]
+[node name="VelaPorta" type="OmniLight3D" parent="Cenario/Aposentos" unique_id=375604664]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11, 1.6, 4.4)
 light_color = Color(1, 0.7, 0.4, 1)
 light_energy = 0.8
 omni_range = 3.5
 
-[node name="ChaoVaranda" type="CSGBox3D" parent="Cenario/Aposentos" unique_id=1869649855]
+[node name="ChaoVaranda" type="CSGBox3D" parent="Cenario/Aposentos" unique_id=1877036958]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13.5, -0.05, 6.6)
 use_collision = true
 size = Vector3(5, 0.1, 3)
 material = SubResource("StandardMaterial3D_syvfp")
 
-[node name="ParapeitoSul" type="CSGBox3D" parent="Cenario/Aposentos" unique_id=911677140]
+[node name="ParapeitoSul" type="CSGBox3D" parent="Cenario/Aposentos" unique_id=746807131]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13.5, 0.4, 8.05)
 use_collision = true
 size = Vector3(5, 0.8, 0.12)
 material = SubResource("StandardMaterial3D_syvfp")
 
-[node name="ParapeitoOeste" type="CSGBox3D" parent="Cenario/Aposentos" unique_id=1555499075]
+[node name="ParapeitoOeste" type="CSGBox3D" parent="Cenario/Aposentos" unique_id=573409122]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.05, 0.4, 6.6)
 use_collision = true
 size = Vector3(0.12, 0.8, 3)
 material = SubResource("StandardMaterial3D_syvfp")
 
-[node name="ParapeitoLeste" type="CSGBox3D" parent="Cenario/Aposentos" unique_id=753729640]
+[node name="ParapeitoLeste" type="CSGBox3D" parent="Cenario/Aposentos" unique_id=1161420150]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15.95, 0.4, 6.6)
 use_collision = true
 size = Vector3(0.12, 0.8, 3)
 material = SubResource("StandardMaterial3D_syvfp")
 
-[node name="Mar" type="CSGBox3D" parent="Cenario/Aposentos" unique_id=564062912]
+[node name="Mar" type="CSGBox3D" parent="Cenario/Aposentos" unique_id=854792279]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13.5, -12, 160)
 size = Vector3(700, 0.1, 320)
 material = SubResource("StandardMaterial3D_gf1pi")
 
-[node name="LuaNoCeu" type="CSGSphere3D" parent="Cenario/Aposentos" unique_id=754771764]
+[node name="LuaNoCeu" type="CSGSphere3D" parent="Cenario/Aposentos" unique_id=1475350551]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30, 40, 170)
 radius = 7.0
 material = SubResource("StandardMaterial3D_daj6l")
 
-[node name="Figuras" type="Node3D" parent="Cenario/Aposentos" unique_id=664252648]
+[node name="Figuras" type="Node3D" parent="Cenario/Aposentos" unique_id=1572308870]
 
-[node name="Parteira" type="Node3D" parent="Cenario/Aposentos/Figuras" unique_id=820540385]
+[node name="Parteira" type="Node3D" parent="Cenario/Aposentos/Figuras" unique_id=2063827996]
 transform = Transform3D(-0.3939192, 0, -0.9191451, 0, 1, 0, 0.9191451, 0, -0.3939192, 14.2, 0, 1.4)
 
-[node name="Corpo" type="MeshInstance3D" parent="Cenario/Aposentos/Figuras/Parteira" unique_id=1183109502]
+[node name="Corpo" type="MeshInstance3D" parent="Cenario/Aposentos/Figuras/Parteira" unique_id=502136178]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
 mesh = SubResource("CapsuleMesh_rs64o")
 
-[node name="Rosto" type="MeshInstance3D" parent="Cenario/Aposentos/Figuras/Parteira" unique_id=243863527]
+[node name="Rosto" type="MeshInstance3D" parent="Cenario/Aposentos/Figuras/Parteira" unique_id=328816597]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.42, -0.19)
 mesh = SubResource("BoxMesh_cyt0c")
 
-[node name="Althea" type="Node3D" parent="Cenario/Aposentos/Figuras/Parteira" unique_id=1106631220]
+[node name="Althea" type="Node3D" parent="Cenario/Aposentos/Figuras/Parteira" unique_id=1233187584]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.95, -0.32)
 
-[node name="Manta" type="MeshInstance3D" parent="Cenario/Aposentos/Figuras/Parteira/Althea" unique_id=1821956238]
+[node name="Manta" type="MeshInstance3D" parent="Cenario/Aposentos/Figuras/Parteira/Althea" unique_id=486613686]
 transform = Transform3D(1, 0, 0, 0, 0.8, 0, 0, 0, 1.5, 0, 0, 0)
 mesh = SubResource("SphereMesh_3yxbc")
 
-[node name="AlvoAlthea" type="Area3D" parent="Cenario/Aposentos/Figuras/Parteira/Althea" unique_id=1765279839]
+[node name="AlvoAlthea" type="Area3D" parent="Cenario/Aposentos/Figuras/Parteira/Althea" unique_id=2022474918]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.18, 0)
 script = ExtResource("3_nnoio")
 
-[node name="Colisao" type="CollisionShape3D" parent="Cenario/Aposentos/Figuras/Parteira/Althea/AlvoAlthea" unique_id=655706371]
+[node name="Colisao" type="CollisionShape3D" parent="Cenario/Aposentos/Figuras/Parteira/Althea/AlvoAlthea" unique_id=536295681]
 shape = SubResource("BoxShape3D_828km")
 
-[node name="Brilho" type="MeshInstance3D" parent="Cenario/Aposentos/Figuras/Parteira/Althea/AlvoAlthea" unique_id=326836219]
+[node name="Brilho" type="MeshInstance3D" parent="Cenario/Aposentos/Figuras/Parteira/Althea/AlvoAlthea" unique_id=1662163392]
 mesh = SubResource("SphereMesh_e2xxx")
 
-[node name="Parteira2" type="Node3D" parent="Cenario/Aposentos/Figuras" unique_id=367036586]
+[node name="Parteira2" type="Node3D" parent="Cenario/Aposentos/Figuras" unique_id=1329276407]
 transform = Transform3D(0.47409979, 0, -0.8804711, 0, 1, 0, 0.8804711, 0, 0.47409979, 14.3, 0, 2.7)
 
-[node name="Corpo" type="MeshInstance3D" parent="Cenario/Aposentos/Figuras/Parteira2" unique_id=1175916834]
+[node name="Corpo" type="MeshInstance3D" parent="Cenario/Aposentos/Figuras/Parteira2" unique_id=298613538]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
 mesh = SubResource("CapsuleMesh_sipn0")
 
-[node name="Rosto" type="MeshInstance3D" parent="Cenario/Aposentos/Figuras/Parteira2" unique_id=1052422163]
+[node name="Rosto" type="MeshInstance3D" parent="Cenario/Aposentos/Figuras/Parteira2" unique_id=442131582]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.42, -0.19)
 mesh = SubResource("BoxMesh_tw5at")
 
-[node name="Empregada1" type="Node3D" parent="Cenario/Aposentos/Figuras" unique_id=1246461815]
+[node name="Empregada1" type="Node3D" parent="Cenario/Aposentos/Figuras" unique_id=2105177422]
 transform = Transform3D(-0.987763, 0, -0.15596268, 0, 1, 0, 0.15596269, 0, -0.9877629, 15.3, 0, 0.1)
 
-[node name="Corpo" type="MeshInstance3D" parent="Cenario/Aposentos/Figuras/Empregada1" unique_id=1917471756]
+[node name="Corpo" type="MeshInstance3D" parent="Cenario/Aposentos/Figuras/Empregada1" unique_id=1630933588]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
 mesh = SubResource("CapsuleMesh_1u7dh")
 
-[node name="Rosto" type="MeshInstance3D" parent="Cenario/Aposentos/Figuras/Empregada1" unique_id=520514254]
+[node name="Rosto" type="MeshInstance3D" parent="Cenario/Aposentos/Figuras/Empregada1" unique_id=894667897]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.42, -0.19)
 mesh = SubResource("BoxMesh_bfywl")
 
-[node name="Empregada2" type="Node3D" parent="Cenario/Aposentos/Figuras" unique_id=1700455651]
+[node name="Empregada2" type="Node3D" parent="Cenario/Aposentos/Figuras" unique_id=1407864402]
 transform = Transform3D(0.99450547, 0, 0.10468468, 0, 1, 0, -0.10468468, 0, 0.99450547, 15.8, 0, 3.9)
 
-[node name="Corpo" type="MeshInstance3D" parent="Cenario/Aposentos/Figuras/Empregada2" unique_id=1070175189]
+[node name="Corpo" type="MeshInstance3D" parent="Cenario/Aposentos/Figuras/Empregada2" unique_id=171694005]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
 mesh = SubResource("CapsuleMesh_vu7pa")
 
-[node name="Rosto" type="MeshInstance3D" parent="Cenario/Aposentos/Figuras/Empregada2" unique_id=103115846]
+[node name="Rosto" type="MeshInstance3D" parent="Cenario/Aposentos/Figuras/Empregada2" unique_id=1845760345]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.42, -0.19)
 mesh = SubResource("BoxMesh_4is6p")
 
-[node name="Empregada3" type="Node3D" parent="Cenario/Aposentos/Figuras" unique_id=1576085968]
+[node name="Empregada3" type="Node3D" parent="Cenario/Aposentos/Figuras" unique_id=657885039]
 transform = Transform3D(-0.6561787, 0, -0.75460553, 0, 1, 0, 0.75460553, 0, -0.6561787, 13.3, 0, 0)
 
-[node name="Corpo" type="MeshInstance3D" parent="Cenario/Aposentos/Figuras/Empregada3" unique_id=35911755]
+[node name="Corpo" type="MeshInstance3D" parent="Cenario/Aposentos/Figuras/Empregada3" unique_id=544818314]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
 mesh = SubResource("CapsuleMesh_6lm4u")
 
-[node name="Rosto" type="MeshInstance3D" parent="Cenario/Aposentos/Figuras/Empregada3" unique_id=1290988235]
+[node name="Rosto" type="MeshInstance3D" parent="Cenario/Aposentos/Figuras/Empregada3" unique_id=543466011]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.42, -0.19)
 mesh = SubResource("BoxMesh_elmdc")
 
-[node name="Pontos" type="Node3D" parent="." unique_id=980512435]
+[node name="Pontos" type="Node3D" parent="." unique_id=1031558735]
 
-[node name="Cama" type="Marker3D" parent="Pontos" unique_id=1737082525]
-transform = Transform3D(0.1842885, 0.015092545, -0.9827563, 0, 0.9998821, 0.015355553, 0.9828722, -0.0028298518, 0.18426678, -3.2, 1.05, 2.6)
+[node name="Cama" type="Marker3D" parent="Pontos" unique_id=1710232265]
+transform = Transform3D(0.1842885, 0.12280366, -0.97517025, 0, 0.99216384, 0.12494367, 0.9828722, -0.023025682, 0.18284439, -3.2, 1.41, 2.6)
 script = ExtResource("4_73s4l")
 cena_ao_chegar = "acordar"
 
-[node name="AlvoPortaQuarto" type="Area3D" parent="Pontos/Cama" unique_id=1903416624 node_paths=PackedStringArray("destino")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.036857724, 0.0030183792, -3.4526992)
+[node name="AlvoPortaQuarto" type="Area3D" parent="Pontos/Cama" unique_id=922735064 node_paths=PackedStringArray("destino")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.036857724, 0.02456081, -3.4765124)
 script = ExtResource("3_nnoio")
 destino = NodePath("../../PortaQuarto")
 
-[node name="Colisao" type="CollisionShape3D" parent="Pontos/Cama/AlvoPortaQuarto" unique_id=827507762]
+[node name="Colisao" type="CollisionShape3D" parent="Pontos/Cama/AlvoPortaQuarto" unique_id=907662393]
 shape = SubResource("BoxShape3D_t4lga")
 
-[node name="Brilho" type="MeshInstance3D" parent="Pontos/Cama/AlvoPortaQuarto" unique_id=1472698325]
+[node name="Brilho" type="MeshInstance3D" parent="Pontos/Cama/AlvoPortaQuarto" unique_id=778443076]
 mesh = SubResource("SphereMesh_4nhw3")
 
-[node name="PortaQuarto" type="Marker3D" parent="Pontos" unique_id=276609147]
+[node name="PortaQuarto" type="Marker3D" parent="Pontos" unique_id=140264441]
 transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, -0.3, 1.05, 2)
 script = ExtResource("4_73s4l")
 cena_ao_chegar = "saindo_do_quarto"
 
-[node name="AlvoCorredor" type="Area3D" parent="Pontos/PortaQuarto" unique_id=1008462701 node_paths=PackedStringArray("destino")]
+[node name="AlvoCorredor" type="Area3D" parent="Pontos/PortaQuarto" unique_id=482068998 node_paths=PackedStringArray("destino")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.14999998, -5.3)
 script = ExtResource("3_nnoio")
 destino = NodePath("../../Corredor")
 
-[node name="Colisao" type="CollisionShape3D" parent="Pontos/PortaQuarto/AlvoCorredor" unique_id=756648383]
+[node name="Colisao" type="CollisionShape3D" parent="Pontos/PortaQuarto/AlvoCorredor" unique_id=1849770173]
 shape = SubResource("BoxShape3D_tyj37")
 
-[node name="Brilho" type="MeshInstance3D" parent="Pontos/PortaQuarto/AlvoCorredor" unique_id=678771736]
+[node name="Brilho" type="MeshInstance3D" parent="Pontos/PortaQuarto/AlvoCorredor" unique_id=2068315777]
 mesh = SubResource("SphereMesh_br2w8")
 
-[node name="Corredor" type="Marker3D" parent="Pontos" unique_id=2062883417]
+[node name="Corredor" type="Marker3D" parent="Pontos" unique_id=446099779]
 transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 5, 1.05, 2)
 script = ExtResource("4_73s4l")
 
-[node name="AlvoPortaAposentos" type="Area3D" parent="Pontos/Corredor" unique_id=549504393 node_paths=PackedStringArray("destino")]
+[node name="AlvoPortaAposentos" type="Area3D" parent="Pontos/Corredor" unique_id=2016095527 node_paths=PackedStringArray("destino")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.049999952, -4.8)
 script = ExtResource("3_nnoio")
 destino = NodePath("../../PortaAposentos")
 
-[node name="Colisao" type="CollisionShape3D" parent="Pontos/Corredor/AlvoPortaAposentos" unique_id=1428577146]
+[node name="Colisao" type="CollisionShape3D" parent="Pontos/Corredor/AlvoPortaAposentos" unique_id=1550872479]
 shape = SubResource("BoxShape3D_bpcub")
 
-[node name="Brilho" type="MeshInstance3D" parent="Pontos/Corredor/AlvoPortaAposentos" unique_id=1120439456]
+[node name="Brilho" type="MeshInstance3D" parent="Pontos/Corredor/AlvoPortaAposentos" unique_id=1998584399]
 mesh = SubResource("SphereMesh_57i2x")
 
-[node name="PortaAposentos" type="Marker3D" parent="Pontos" unique_id=1047011245]
+[node name="PortaAposentos" type="Marker3D" parent="Pontos" unique_id=454180126]
 transform = Transform3D(0, -0.15437685, -0.988012, 0, 0.988012, -0.15437685, 1, 0, 0, 8.4, 1.05, 2)
 script = ExtResource("4_73s4l")
 cena_ao_chegar = "porta_aposentos"
 
-[node name="AlvoEntrada" type="Area3D" parent="Pontos/PortaAposentos" unique_id=1589604139 node_paths=PackedStringArray("destino")]
+[node name="AlvoEntrada" type="Area3D" parent="Pontos/PortaAposentos" unique_id=228803094 node_paths=PackedStringArray("destino")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.37359208, -2.0671072)
 script = ExtResource("3_nnoio")
 destino = NodePath("../../Entrada")
 
-[node name="Colisao" type="CollisionShape3D" parent="Pontos/PortaAposentos/AlvoEntrada" unique_id=1334183741]
+[node name="Colisao" type="CollisionShape3D" parent="Pontos/PortaAposentos/AlvoEntrada" unique_id=1609453308]
 shape = SubResource("BoxShape3D_b6ysb")
 
-[node name="Brilho" type="MeshInstance3D" parent="Pontos/PortaAposentos/AlvoEntrada" unique_id=677062666]
+[node name="Brilho" type="MeshInstance3D" parent="Pontos/PortaAposentos/AlvoEntrada" unique_id=1531726906]
 mesh = SubResource("SphereMesh_ctyak")
 
-[node name="Entrada" type="Marker3D" parent="Pontos" unique_id=1840675015]
+[node name="Entrada" type="Marker3D" parent="Pontos" unique_id=2114255321]
 transform = Transform3D(0, 0.011627109, -0.99993235, 0, 0.99993235, 0.011627109, 1, 0, 0, 11.3, 1.05, 2)
 script = ExtResource("4_73s4l")
 
-[node name="QuartoVazio" type="Marker3D" parent="Pontos" unique_id=1641110988]
+[node name="QuartoVazio" type="Marker3D" parent="Pontos" unique_id=1383637411]
 transform = Transform3D(-0.919145, 0.019373076, -0.39344257, 0, 0.9987898, 0.04918032, 0.39391926, 0.045203846, -0.91803277, 12, 1.05, 3.2)
 script = ExtResource("4_73s4l")
 cena_ao_chegar = "quarto_vazio"
 
-[node name="AlvoVaranda" type="Area3D" parent="Pontos/QuartoVazio" unique_id=1317811760 node_paths=PackedStringArray("destino")]
+[node name="AlvoVaranda" type="Area3D" parent="Pontos/QuartoVazio" unique_id=1287729802 node_paths=PackedStringArray("destino")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.15756798, 0.08179748, -2.6778688)
 script = ExtResource("3_nnoio")
 destino = NodePath("../../Varanda")
 
-[node name="Colisao" type="CollisionShape3D" parent="Pontos/QuartoVazio/AlvoVaranda" unique_id=259109464]
+[node name="Colisao" type="CollisionShape3D" parent="Pontos/QuartoVazio/AlvoVaranda" unique_id=1739977214]
 shape = SubResource("BoxShape3D_0io05")
 
-[node name="Brilho" type="MeshInstance3D" parent="Pontos/QuartoVazio/AlvoVaranda" unique_id=1687956472]
+[node name="Brilho" type="MeshInstance3D" parent="Pontos/QuartoVazio/AlvoVaranda" unique_id=1926107486]
 mesh = SubResource("SphereMesh_56vmu")
 
-[node name="Varanda" type="Marker3D" parent="Pontos" unique_id=1319419697]
+[node name="Varanda" type="Marker3D" parent="Pontos" unique_id=1266870003]
 transform = Transform3D(-1, 0, 0, 0, 0.99988115, 0.015416667, 0, 0.015416667, -0.99988115, 13.2, 1.05, 7.3)
 script = ExtResource("4_73s4l")
 
-[node name="Nicholas" type="CharacterBody3D" parent="." unique_id=1515245504]
+[node name="Nicholas" type="CharacterBody3D" parent="." unique_id=2074645200]
 
-[node name="Colisao" type="CollisionShape3D" parent="Nicholas" unique_id=2023374303]
+[node name="Colisao" type="CollisionShape3D" parent="Nicholas" unique_id=1501687189]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.575, 0)
 shape = SubResource("CapsuleShape3D_mfwf1")
 
-[node name="Camera" type="Camera3D" parent="Nicholas" unique_id=395728084]
+[node name="Camera" type="Camera3D" parent="Nicholas" unique_id=1700370543]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.05, 0)
 current = true
 fov = 70.0
 
-[node name="Hud" type="CanvasLayer" parent="." unique_id=926015547]
+[node name="Hud" type="CanvasLayer" parent="." unique_id=10275560]
 
-[node name="Dica" type="Label" parent="Hud" unique_id=950152234]
+[node name="Dica" type="Label" parent="Hud" unique_id=245345840]
 anchors_preset = 12
 anchor_top = 1.0
 anchor_right = 1.0
@@ -679,7 +681,7 @@ horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 3
 
-[node name="Mira" type="ColorRect" parent="Hud" unique_id=1492636289]
+[node name="Mira" type="ColorRect" parent="Hud" unique_id=8688771]
 visible = false
 anchors_preset = 8
 anchor_left = 0.5
@@ -693,19 +695,19 @@ offset_bottom = 3.0
 mouse_filter = 2
 color = Color(0.95, 0.85, 0.6, 0.8)
 
-[node name="AberturaOlhos" type="CanvasLayer" parent="." unique_id=2008690033 node_paths=PackedStringArray("palpebra_cima", "palpebra_baixo")]
+[node name="AberturaOlhos" type="CanvasLayer" parent="." unique_id=458474607 node_paths=PackedStringArray("palpebra_cima", "palpebra_baixo")]
 layer = 10
 script = ExtResource("5_0f3j4")
 palpebra_cima = NodePath("PalpebraCima")
 palpebra_baixo = NodePath("PalpebraBaixo")
 
-[node name="PalpebraCima" type="ColorRect" parent="AberturaOlhos" unique_id=1610962374]
+[node name="PalpebraCima" type="ColorRect" parent="AberturaOlhos" unique_id=844361454]
 anchors_preset = 10
 anchor_right = 1.0
 mouse_filter = 2
 color = Color(0, 0, 0, 1)
 
-[node name="PalpebraBaixo" type="ColorRect" parent="AberturaOlhos" unique_id=875816332]
+[node name="PalpebraBaixo" type="ColorRect" parent="AberturaOlhos" unique_id=161333766]
 anchors_preset = 12
 anchor_top = 1.0
 anchor_right = 1.0
@@ -713,10 +715,10 @@ anchor_bottom = 1.0
 mouse_filter = 2
 color = Color(0, 0, 0, 1)
 
-[node name="Frases" type="CanvasLayer" parent="." unique_id=1287374193]
+[node name="Frases" type="CanvasLayer" parent="." unique_id=234550785]
 layer = 20
 
-[node name="TextoSolto" type="Label" parent="Frases" unique_id=582068007]
+[node name="TextoSolto" type="Label" parent="Frases" unique_id=330691953]
 anchors_preset = -1
 anchor_top = 0.25
 anchor_right = 1.0
@@ -732,20 +734,20 @@ vertical_alignment = 1
 autowrap_mode = 3
 script = ExtResource("6_uawdr")
 
-[node name="Escuro" type="CanvasLayer" parent="." unique_id=818607693]
+[node name="Escuro" type="CanvasLayer" parent="." unique_id=1022927240]
 layer = 5
 
-[node name="Tela" type="ColorRect" parent="Escuro" unique_id=1462991755]
+[node name="Tela" type="ColorRect" parent="Escuro" unique_id=1290306000]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 mouse_filter = 2
 color = Color(0, 0, 0, 0)
 
-[node name="Escolha" type="CanvasLayer" parent="." unique_id=934129348]
+[node name="Escolha" type="CanvasLayer" parent="." unique_id=653709432]
 layer = 15
 
-[node name="BotaoNome" type="Button" parent="Escolha" unique_id=139375269]
+[node name="BotaoNome" type="Button" parent="Escolha" unique_id=1401327290]
 anchors_preset = 7
 anchor_left = 0.5
 anchor_top = 1.0
@@ -757,13 +759,13 @@ offset_right = 200.0
 offset_bottom = -130.0
 theme_override_font_sizes/font_size = 44
 
-[node name="TelaFinal" type="CanvasLayer" parent="." unique_id=1155881238 node_paths=PackedStringArray("linhas", "titulo")]
+[node name="TelaFinal" type="CanvasLayer" parent="." unique_id=1508917285 node_paths=PackedStringArray("linhas", "titulo")]
 layer = 25
 script = ExtResource("7_rnfgu")
 linhas = [NodePath("Coluna/Linha1"), NodePath("Coluna/Linha2"), NodePath("Coluna/Linha3")]
 titulo = NodePath("Coluna/Titulo")
 
-[node name="Coluna" type="VBoxContainer" parent="TelaFinal" unique_id=1366768460]
+[node name="Coluna" type="VBoxContainer" parent="TelaFinal" unique_id=361609567]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -771,31 +773,31 @@ mouse_filter = 2
 theme_override_constants/separation = 24
 alignment = 1
 
-[node name="Linha1" type="Label" parent="TelaFinal/Coluna" unique_id=28487821]
+[node name="Linha1" type="Label" parent="TelaFinal/Coluna" unique_id=188568286]
 layout_mode = 2
 theme_override_font_sizes/font_size = 40
 theme_override_colors/font_color = Color(0.97, 0.92, 0.8, 1)
 horizontal_alignment = 1
 
-[node name="Linha2" type="Label" parent="TelaFinal/Coluna" unique_id=1450412612]
+[node name="Linha2" type="Label" parent="TelaFinal/Coluna" unique_id=216315335]
 layout_mode = 2
 theme_override_font_sizes/font_size = 40
 theme_override_colors/font_color = Color(0.97, 0.92, 0.8, 1)
 horizontal_alignment = 1
 
-[node name="Linha3" type="Label" parent="TelaFinal/Coluna" unique_id=1828860338]
+[node name="Linha3" type="Label" parent="TelaFinal/Coluna" unique_id=881178425]
 layout_mode = 2
 theme_override_font_sizes/font_size = 40
 theme_override_colors/font_color = Color(0.97, 0.92, 0.8, 1)
 horizontal_alignment = 1
 
-[node name="Titulo" type="Label" parent="TelaFinal/Coluna" unique_id=822499725]
+[node name="Titulo" type="Label" parent="TelaFinal/Coluna" unique_id=1833749406]
 layout_mode = 2
 theme_override_font_sizes/font_size = 72
 theme_override_colors/font_color = Color(0.9, 0.7, 0.3, 1)
 horizontal_alignment = 1
 
-[node name="Sequencia" type="Node" parent="." unique_id=1632506857 node_paths=PackedStringArray("controle", "ponto_entrada", "ponto_quarto_vazio", "ponto_varanda", "cama", "dossel", "figuras", "parteira", "althea", "alvo_althea", "vela_cama", "escuro", "botao_nome", "tela_final")]
+[node name="Sequencia" type="Node" parent="." unique_id=805272105 node_paths=PackedStringArray("controle", "ponto_entrada", "ponto_quarto_vazio", "ponto_varanda", "cama", "dossel", "figuras", "parteira", "althea", "alvo_althea", "vela_cama", "escuro", "botao_nome", "tela_final")]
 script = ExtResource("8_q2utl")
 controle = NodePath("..")
 ponto_entrada = NodePath("../Pontos/Entrada")

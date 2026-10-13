@@ -82,3 +82,12 @@ func test_tocar_no_bau_de_longe_anda_e_abre() -> void:
 
 func test_itens_de_teste_da_sala_nao_geram_aviso() -> void:
 	assert_eq(aviso.textos(), [] as Array[String])
+
+
+func test_bau_pego_mostra_o_desenho_aberto() -> void:
+	var visual: Sprite2D = sala.get_node("BauTeste/Visual")
+	var aberto: Texture2D = sala.get_node("BauTeste/Recompensa").textura_vazio
+	assert_not_null(aberto)
+	_bau_interagivel().interagir()
+	assert_eq(visual.texture, aberto)
+	assert_eq(visual.modulate, Color.WHITE, "com desenho aberto, não escurece")

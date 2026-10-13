@@ -1,0 +1,152 @@
+[gd_resource type="Theme" load_steps=17 format=3]
+
+[ext_resource type="FontFile" path="res://assets/fonts/alegreya/alegreya.ttf" id="1_texto"]
+[ext_resource type="FontFile" path="res://assets/fonts/alegreya/alegreya_italico.ttf" id="2_italico"]
+[ext_resource type="FontFile" path="res://assets/fonts/cinzel/cinzel.ttf" id="3_titulo"]
+
+[sub_resource type="FontVariation" id="FontVariation_negrito"]
+base_font = ExtResource("1_texto")
+variation_opentype = {
+2003265652: 700
+}
+
+[sub_resource type="FontVariation" id="FontVariation_titulo"]
+base_font = ExtResource("3_titulo")
+variation_opentype = {
+2003265652: 600
+}
+
+[sub_resource type="StyleBoxFlat" id="StyleBox_painel"]
+content_margin_left = 20.0
+content_margin_top = 18.0
+content_margin_right = 20.0
+content_margin_bottom = 18.0
+bg_color = Color(0.0196, 0.0471, 0.0784, 0.94)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.7255, 0.5216, 0.2627, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+shadow_color = Color(0, 0, 0, 0.45)
+shadow_size = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBox_botao"]
+content_margin_left = 24.0
+content_margin_top = 12.0
+content_margin_right = 24.0
+content_margin_bottom = 12.0
+bg_color = Color(0.0745, 0.1451, 0.2353, 0.92)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.5412, 0.3686, 0.1725, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBox_botao_foco"]
+content_margin_left = 24.0
+content_margin_top = 12.0
+content_margin_right = 24.0
+content_margin_bottom = 12.0
+bg_color = Color(0.1686, 0.2392, 0.3333, 1)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.9255, 0.7412, 0.4588, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBox_botao_apertado"]
+content_margin_left = 24.0
+content_margin_top = 12.0
+content_margin_right = 24.0
+content_margin_bottom = 12.0
+bg_color = Color(0.5412, 0.3686, 0.1725, 1)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.9255, 0.7412, 0.4588, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBox_redondo"]
+bg_color = Color(0.0745, 0.1451, 0.2353, 0.75)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.7255, 0.5216, 0.2627, 1)
+corner_radius_top_left = 70
+corner_radius_top_right = 70
+corner_radius_bottom_right = 70
+corner_radius_bottom_left = 70
+
+[sub_resource type="StyleBoxFlat" id="StyleBox_redondo_ligado"]
+bg_color = Color(0.5412, 0.3686, 0.1725, 0.9)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.9255, 0.7412, 0.4588, 1)
+corner_radius_top_left = 70
+corner_radius_top_right = 70
+corner_radius_bottom_right = 70
+corner_radius_bottom_left = 70
+
+[sub_resource type="StyleBoxFlat" id="StyleBox_botao_contorno"]
+draw_center = false
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.9255, 0.7412, 0.4588, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[resource]
+default_font = ExtResource("1_texto")
+default_font_size = 26
+Button/colors/font_color = Color(0.8471, 0.8118, 0.7686, 1)
+Button/colors/font_disabled_color = Color(0.3686, 0.4, 0.451, 1)
+Button/colors/font_focus_color = Color(0.9255, 0.7412, 0.4588, 1)
+Button/colors/font_hover_color = Color(0.9255, 0.7412, 0.4588, 1)
+Button/colors/font_hover_pressed_color = Color(0.9255, 0.7412, 0.4588, 1)
+Button/colors/font_pressed_color = Color(0.9255, 0.7412, 0.4588, 1)
+Button/styles/disabled = SubResource("StyleBox_botao")
+Button/styles/focus = SubResource("StyleBox_botao_contorno")
+Button/styles/hover = SubResource("StyleBox_botao_foco")
+Button/styles/hover_pressed = SubResource("StyleBox_botao_apertado")
+Button/styles/normal = SubResource("StyleBox_botao")
+Button/styles/pressed = SubResource("StyleBox_botao_apertado")
+BotaoRedondo/base_type = &"Button"
+BotaoRedondo/font_sizes/font_size = 22
+BotaoRedondo/fonts/font = SubResource("FontVariation_titulo")
+BotaoRedondo/styles/hover = SubResource("StyleBox_redondo")
+BotaoRedondo/styles/hover_pressed = SubResource("StyleBox_redondo_ligado")
+BotaoRedondo/styles/normal = SubResource("StyleBox_redondo")
+BotaoRedondo/styles/pressed = SubResource("StyleBox_redondo_ligado")
+Label/colors/font_color = Color(0.8471, 0.8118, 0.7686, 1)
+NomePersonagem/base_type = &"RichTextLabel"
+NomePersonagem/colors/default_color = Color(0.9255, 0.7412, 0.4588, 1)
+NomePersonagem/font_sizes/normal_font_size = 24
+NomePersonagem/fonts/normal_font = SubResource("FontVariation_titulo")
+PanelContainer/styles/panel = SubResource("StyleBox_painel")
+RichTextLabel/colors/default_color = Color(0.8471, 0.8118, 0.7686, 1)
+RichTextLabel/fonts/bold_font = SubResource("FontVariation_negrito")
+RichTextLabel/fonts/italics_font = ExtResource("2_italico")
+RichTextLabel/fonts/normal_font = ExtResource("1_texto")

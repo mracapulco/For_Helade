@@ -38,6 +38,10 @@ window/handheld/orientation=4
 
 enabled=PackedStringArray("res://addons/dialogue_manager/plugin.cfg", "res://addons/gut/plugin.cfg")
 
+[gui]
+
+theme/custom="res://assets/ui/tema_helade.tres"
+
 [input]
 
 mover_frente={

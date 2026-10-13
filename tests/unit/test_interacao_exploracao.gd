@@ -40,6 +40,11 @@ func _caixas_abertas() -> Array[Node]:
 	return caixas
 
 
+# Um ponto ao alcance do objeto, logo abaixo dele (vale em qualquer escala).
+func _perto_do_objeto() -> Vector2:
+	return objeto.get_parent().global_position + Vector2(0, objeto.alcance * 0.55)
+
+
 func test_toque_no_objeto_encontra_o_interagivel() -> void:
 	assert_eq(personagem.interagivel_em(objeto.global_position), objeto)
 
@@ -66,7 +71,7 @@ func test_tocar_de_longe_anda_e_interage_ao_chegar() -> void:
 
 
 func test_tocar_de_perto_interage_na_hora() -> void:
-	personagem.global_position = objeto.get_parent().global_position + Vector2(0, 50)
+	personagem.global_position = _perto_do_objeto()
 	watch_signals(objeto)
 	personagem.tocar(objeto.global_position)
 	assert_signal_emitted(objeto, "interagido")
@@ -76,7 +81,7 @@ func test_tocar_de_perto_interage_na_hora() -> void:
 func test_destaque_aparece_so_ao_alcance() -> void:
 	await wait_process_frames(2)
 	assert_false(objeto.destacado)
-	personagem.global_position = objeto.get_parent().global_position + Vector2(0, 50)
+	personagem.global_position = _perto_do_objeto()
 	await wait_process_frames(2)
 	assert_true(objeto.destacado)
 
@@ -134,7 +139,7 @@ func _apertar_enter() -> void:
 
 
 func test_enter_interage_com_o_que_esta_perto() -> void:
-	personagem.global_position = objeto.get_parent().global_position + Vector2(0, 50)
+	personagem.global_position = _perto_do_objeto()
 	watch_signals(objeto)
 	await _apertar_enter()
 	assert_signal_emitted(objeto, "interagido")

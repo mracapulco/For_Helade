@@ -85,7 +85,9 @@ func test_toque_no_chao_anda_sem_alvo() -> void:
 
 func test_toque_na_area_do_interagivel_fora_do_desenho_ainda_conta() -> void:
 	# A área de toque é maior que o desenho, pensando em dedo.
-	var ponto := objeto.global_position + Vector2(40, -24)
+	var area := objeto.get_node("AreaDeToque") as CollisionShape2D
+	var raio := (area.shape as CircleShape2D).radius
+	var ponto := area.global_position + Vector2(raio * 0.8, 0)
 	assert_eq(personagem.interagivel_em(ponto), objeto)
 
 
@@ -149,7 +151,7 @@ func test_clique_avanca_ate_fechar_e_libera_o_personagem() -> void:
 
 
 func test_enter_logo_ao_fechar_nao_reabre_a_conversa() -> void:
-	personagem.global_position = objeto.global_position + Vector2(0, 50)
+	personagem.global_position = objeto.global_position + Vector2(0, objeto.alcance * 0.55)
 	objeto.interagir()
 	await wait_process_frames(3)
 	DialogueManager.dialogue_ended.emit(ROTEIRO)

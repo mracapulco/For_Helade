@@ -4,63 +4,6 @@
 [ext_resource type="PackedScene" path="res://addons/dialogue_manager/nodes/dialogue_label/dialogue_label.tscn" id="2_label"]
 [ext_resource type="Script" path="res://addons/dialogue_manager/nodes/responses_menu/dialogue_responses_menu.gd" id="3_menu"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBox_painel"]
-content_margin_left = 16.0
-content_margin_top = 16.0
-content_margin_right = 16.0
-content_margin_bottom = 16.0
-bg_color = Color(0.04, 0.06, 0.12, 0.95)
-border_width_left = 3
-border_width_top = 3
-border_width_right = 3
-border_width_bottom = 3
-border_color = Color(0.86, 0.72, 0.38, 1)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
-
-[sub_resource type="StyleBoxFlat" id="StyleBox_botao"]
-content_margin_left = 24.0
-content_margin_top = 12.0
-content_margin_right = 24.0
-content_margin_bottom = 12.0
-bg_color = Color(0.04, 0.06, 0.12, 0.95)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.55, 0.47, 0.28, 1)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
-
-[sub_resource type="StyleBoxFlat" id="StyleBox_botao_foco"]
-content_margin_left = 24.0
-content_margin_top = 12.0
-content_margin_right = 24.0
-content_margin_bottom = 12.0
-bg_color = Color(0.12, 0.14, 0.24, 1)
-border_width_left = 3
-border_width_top = 3
-border_width_right = 3
-border_width_bottom = 3
-border_color = Color(0.86, 0.72, 0.38, 1)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
-
-[sub_resource type="Theme" id="Theme_caixa"]
-default_font_size = 24
-Button/styles/disabled = SubResource("StyleBox_botao")
-Button/styles/focus = SubResource("StyleBox_botao_foco")
-Button/styles/hover = SubResource("StyleBox_botao_foco")
-Button/styles/normal = SubResource("StyleBox_botao")
-Button/styles/pressed = SubResource("StyleBox_botao_foco")
-PanelContainer/styles/panel = SubResource("StyleBox_painel")
-
 [node name="CaixaDialogo" type="CanvasLayer"]
 layer = 100
 script = ExtResource("1_caixa")
@@ -73,7 +16,6 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme = SubResource("Theme_caixa")
 
 [node name="Margem" type="MarginContainer" parent="Balloon"]
 layout_mode = 1
@@ -124,7 +66,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-color = Color(0.3, 0.3, 0.35, 1)
+color = Color(0.1686, 0.2392, 0.3333, 1)
 
 [node name="RetratoProvisorioTexto" type="Label" parent="Balloon/Margem/Painel/Linha/AreaRetrato/RetratoProvisorio"]
 unique_name_in_owner = true
@@ -151,7 +93,7 @@ size_flags_horizontal = 3
 unique_name_in_owner = true
 layout_mode = 2
 mouse_filter = 1
-theme_override_colors/default_color = Color(0.86, 0.72, 0.38, 1)
+theme_type_variation = &"NomePersonagem"
 bbcode_enabled = true
 text = "Personagem"
 fit_content = true
@@ -172,7 +114,7 @@ mouse_filter = 2
 
 [node name="Progress" type="Polygon2D" parent="Balloon/Margem/Painel/Linha/AreaProgresso"]
 unique_name_in_owner = true
-color = Color(0.86, 0.72, 0.38, 1)
+color = Color(0.9255, 0.7412, 0.4588, 1)
 polygon = PackedVector2Array(0, 0, 10, 10, 20, 0)
 
 [node name="AreaEscolhas" type="CenterContainer" parent="Balloon"]

@@ -1,13 +1,18 @@
 class_name CameraExploracao
 extends Camera2D
 ## Câmera da exploração isométrica. Fica como filha do personagem, segue com
-## suavização e não mostra nada além das bordas do `mapa`.
+## suavização e não mostra nada além das bordas do `mapa`. O mundo é desenhado
+## em pixel art (1 unidade = 1 pixel da arte) e a câmera amplia `zoom` vezes.
 
 ## Camada de chão usada para calcular as bordas da sala.
 @export var mapa: TileMapLayer
 
+## Quantas vezes a arte é ampliada na tela (piso de 64×32 aparece com 128×64).
+const ZOOM_PIXEL_ART := 2.0
+
 
 func _ready() -> void:
+	zoom = Vector2.ONE * ZOOM_PIXEL_ART
 	position_smoothing_enabled = true
 	limit_smoothed = true
 	if mapa:

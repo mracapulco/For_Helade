@@ -22,5 +22,5 @@ func _draw() -> void:
 	var pontos := PackedVector2Array()
 	for i in 33:
 		var a := TAU * i / 32.0
-		pontos.append(Vector2(cos(a) * 22.0, sin(a) * 11.0))
-	draw_polyline(pontos, cor, 3.0, true)
+		pontos.append(Vector2(cos(a) * 11.0, sin(a) * 5.5))
+	draw_polyline(pontos, cor, 1.5, true)

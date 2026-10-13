@@ -47,7 +47,7 @@ func test_duas_teclas_fazem_as_direcoes_retas_da_tela() -> void:
 func test_d_anda_para_a_direita() -> void:
 	var x_inicial := personagem.global_position.x
 	await _andar(["mover_direita"], 20)
-	assert_gt(personagem.global_position.x, x_inicial + 20.0)
+	assert_gt(personagem.global_position.x, x_inicial + 10.0)
 
 
 func test_correr_vai_mais_longe() -> void:
@@ -57,7 +57,7 @@ func test_correr_vai_mais_longe() -> void:
 
 
 func test_teclado_cancela_o_clique() -> void:
-	personagem.ir_para(personagem.global_position + Vector2(300, 0))
+	personagem.ir_para(personagem.global_position + Vector2(150, 0))
 	await _andar(["mover_frente"], 3)
 	assert_false(personagem.andando)
 
@@ -66,7 +66,7 @@ func test_pulo_sobe_e_volta_ao_chao() -> void:
 	var corpo: Node2D = personagem.get_node("Corpo")
 	personagem.pular()
 	await wait_seconds(personagem.duracao_pulo / 2.0)
-	assert_lt(corpo.position.y, -10.0, "no meio do pulo o corpo está no alto")
+	assert_lt(corpo.position.y, -5.0, "no meio do pulo o corpo está no alto")
 	await wait_seconds(personagem.duracao_pulo)
 	assert_false(personagem.pulando)
 	assert_eq(corpo.position.y, 0.0)

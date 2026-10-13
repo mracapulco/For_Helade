@@ -12,10 +12,10 @@ extends CharacterBody2D
 signal destino_definido(destino: Vector2)
 signal chegou
 
-@export var velocidade := 240.0
+@export var velocidade := 120.0
 ## Quanto mais rápido fica ao correr.
 @export var multiplicador_corrida := 1.75
-@export var altura_pulo := 40.0
+@export var altura_pulo := 20.0
 @export var duracao_pulo := 0.45
 
 var andando := false

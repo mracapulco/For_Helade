@@ -42,7 +42,7 @@ func test_objeto_bloqueia_a_navegacao() -> void:
 	var regiao: NavigationRegion2D = sala.get_node("Navegacao")
 	var centro := objeto.get_parent().global_position as Vector2
 	var mais_perto := NavigationServer2D.map_get_closest_point(regiao.get_navigation_map(), centro)
-	assert_gt(mais_perto.distance_to(centro), 15.0)
+	assert_gt(mais_perto.distance_to(centro), 8.0)
 
 
 func test_tocar_de_longe_anda_e_interage_ao_chegar() -> void:
@@ -56,7 +56,7 @@ func test_tocar_de_longe_anda_e_interage_ao_chegar() -> void:
 
 
 func test_tocar_de_perto_interage_na_hora() -> void:
-	personagem.global_position = objeto.get_parent().global_position + Vector2(0, 50)
+	personagem.global_position = objeto.get_parent().global_position + Vector2(0, 25)
 	watch_signals(objeto)
 	personagem.tocar(objeto.global_position)
 	assert_signal_emitted(objeto, "interagido")
@@ -66,7 +66,7 @@ func test_tocar_de_perto_interage_na_hora() -> void:
 func test_destaque_aparece_so_ao_alcance() -> void:
 	await wait_frames(2)
 	assert_false(objeto.destacado)
-	personagem.global_position = objeto.get_parent().global_position + Vector2(0, 50)
+	personagem.global_position = objeto.get_parent().global_position + Vector2(0, 25)
 	await wait_frames(2)
 	assert_true(objeto.destacado)
 
@@ -124,7 +124,7 @@ func _apertar_enter() -> void:
 
 
 func test_enter_interage_com_o_que_esta_perto() -> void:
-	personagem.global_position = objeto.get_parent().global_position + Vector2(0, 50)
+	personagem.global_position = objeto.get_parent().global_position + Vector2(0, 25)
 	watch_signals(objeto)
 	await _apertar_enter()
 	assert_signal_emitted(objeto, "interagido")

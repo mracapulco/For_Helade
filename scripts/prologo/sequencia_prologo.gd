@@ -118,7 +118,8 @@ func _aposentos() -> void:
 	for figura: Node3D in figuras.get_children():
 		giro.tween_property(figura, "rotation:y", _giro_para_nicholas(figura), _t(0.25))
 	await controle.tocar_cena("olhares")
-	create_tween().tween_property(vela_cama, "light_energy", vela_cama.light_energy * 0.3, _t(4.0))
+	var energia := _energia(vela_cama)
+	create_tween().tween_property(vela_cama, energia, vela_cama.get(energia) * 0.3, _t(4.0))
 	await controle.tocar_cena("choro")
 
 	var frente := -controle.corpo.global_basis.z
@@ -148,7 +149,7 @@ func _aposentos() -> void:
 	await controle.tocar_cena("depois")
 	figuras.visible = false
 	althea.visible = false
-	vela_cama.light_energy /= 0.3
+	vela_cama.set(_energia(vela_cama), vela_cama.get(_energia(vela_cama)) / 0.3)
 	controle.colocar_em(ponto_quarto_vazio)
 	if controle.abertura:
 		controle.abertura.abrir() # começa fechada, então a troca não aparece
@@ -199,6 +200,11 @@ func _giro_para_nicholas(figura: Node3D) -> float:
 	var direcao := controle.corpo.global_position - figura.global_position
 	var alvo := atan2(-direcao.x, -direcao.z)
 	return figura.rotation.y + wrapf(alvo - figura.rotation.y, -PI, PI)
+
+
+## Uma chama que tremula guarda a força da luz em `brilho`.
+func _energia(luz: OmniLight3D) -> String:
+	return "brilho" if luz is ChamaTremula else "light_energy"
 
 
 func _mudar(nova: String) -> void:

@@ -8,66 +8,75 @@
 [ext_resource type="Script" path="res://scripts/prologo/texto_solto.gd" id="6_uawdr"]
 [ext_resource type="Script" path="res://scripts/prologo/tela_final.gd" id="7_rnfgu"]
 [ext_resource type="Script" path="res://scripts/prologo/sequencia_prologo.gd" id="8_q2utl"]
+[ext_resource type="Material" path="res://assets/art/prologo/materiais/parede_pedra.tres" id="m_parede"]
+[ext_resource type="Material" path="res://assets/art/prologo/materiais/piso_pedra.tres" id="m_piso_pedra"]
+[ext_resource type="Material" path="res://assets/art/prologo/materiais/assoalho.tres" id="m_assoalho"]
+[ext_resource type="Material" path="res://assets/art/prologo/materiais/teto_reboco.tres" id="m_teto"]
+[ext_resource type="Material" path="res://assets/art/prologo/materiais/madeira_movel.tres" id="m_madeira"]
+[ext_resource type="Material" path="res://assets/art/prologo/materiais/coberta_azul.tres" id="m_coberta"]
+[ext_resource type="Material" path="res://assets/art/prologo/materiais/lencol.tres" id="m_lencol"]
+[ext_resource type="Material" path="res://assets/art/prologo/materiais/veludo_azul_escuro.tres" id="m_veludo"]
+[ext_resource type="Material" path="res://assets/art/prologo/materiais/marmore_varanda.tres" id="m_marmore"]
+[ext_resource type="Material" path="res://assets/art/prologo/materiais/roupa_clara.tres" id="m_roupa_clara"]
+[ext_resource type="Material" path="res://assets/art/prologo/materiais/roupa_escura.tres" id="m_roupa_escura"]
+[ext_resource type="Material" path="res://assets/art/prologo/materiais/ouro.tres" id="m_ouro"]
+[ext_resource type="Shader" path="res://assets/shaders/prologo/ceu_noite.gdshader" id="s_ceu"]
+[ext_resource type="Shader" path="res://assets/shaders/prologo/mar.gdshader" id="s_mar"]
+[ext_resource type="Shader" path="res://assets/shaders/prologo/vinheta.gdshader" id="s_vinheta"]
+[ext_resource type="Script" path="res://scripts/prologo/chama_tremula.gd" id="9_chama"]
+[ext_resource type="Script" path="res://scripts/prologo/sensacao_primeira_pessoa.gd" id="10_sensacao"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ceu"]
+shader = ExtResource("s_ceu")
+
+[sub_resource type="Sky" id="Sky_noite"]
+sky_material = SubResource("ShaderMaterial_ceu")
 
 [sub_resource type="Environment" id="Environment_383km"]
-background_mode = 1
-background_color = Color(0.02, 0.03, 0.07, 1)
+background_mode = 2
+sky = SubResource("Sky_noite")
 ambient_light_source = 2
 ambient_light_color = Color(0.25, 0.3, 0.5, 1)
-ambient_light_energy = 0.35
+ambient_light_energy = 0.3
+tonemap_mode = 3
+tonemap_exposure = 1.15
+glow_enabled = true
+glow_intensity = 0.7
+glow_bloom = 0.04
+glow_hdr_threshold = 0.9
+fog_enabled = true
+fog_light_color = Color(0.05, 0.07, 0.12, 1)
+fog_density = 0.0025
+fog_sky_affect = 0.0
+adjustment_enabled = true
+adjustment_contrast = 1.08
+adjustment_saturation = 0.92
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_n33pe"]
-albedo_color = Color(0.16, 0.13, 0.12, 1)
-roughness = 0.9
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_mar"]
+shader = ExtResource("s_mar")
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_gnccc"]
-albedo_color = Color(0.2, 0.22, 0.3, 1)
-roughness = 0.9
+[sub_resource type="PlaneMesh" id="PlaneMesh_mar"]
+material = SubResource("ShaderMaterial_mar")
+size = Vector2(700, 320)
+subdivide_width = 140
+subdivide_depth = 64
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_y0f6t"]
-albedo_color = Color(0.35, 0.22, 0.12, 1)
-roughness = 0.9
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_p113k"]
-albedo_color = Color(0.12, 0.16, 0.35, 1)
-roughness = 0.9
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_5k3mg"]
-albedo_color = Color(0.85, 0.65, 0.25, 1)
-roughness = 0.9
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_msarb"]
-albedo_color = Color(0.75, 0.72, 0.66, 1)
-roughness = 0.9
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_eejka"]
-albedo_color = Color(0.07, 0.09, 0.26, 1)
-roughness = 0.9
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_syvfp"]
-albedo_color = Color(0.42, 0.42, 0.48, 1)
-roughness = 0.9
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_gf1pi"]
-albedo_color = Color(0.03, 0.07, 0.18, 1)
-roughness = 0.9
-emission_enabled = true
-emission = Color(0.03, 0.07, 0.18, 1)
-emission_energy_multiplier = 0.25
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_vinheta"]
+shader = ExtResource("s_vinheta")
+shader_parameter/vinheta = 0.35
+shader_parameter/desfoque = 0.0
+shader_parameter/granulacao = 0.03
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_daj6l"]
 albedo_color = Color(0.9, 0.92, 1, 1)
 roughness = 0.9
+disable_fog = true
 emission_enabled = true
 emission = Color(0.9, 0.92, 1, 1)
-emission_energy_multiplier = 2.0
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_gbh0d"]
-albedo_color = Color(0.55, 0.5, 0.44, 1)
-roughness = 0.9
+emission_energy_multiplier = 3.0
 
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_rs64o"]
-material = SubResource("StandardMaterial3D_gbh0d")
+material = ExtResource("m_roupa_clara")
 radius = 0.2
 height = 1.6
 
@@ -104,7 +113,7 @@ radius = 0.08
 height = 0.16
 
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_sipn0"]
-material = SubResource("StandardMaterial3D_gbh0d")
+material = ExtResource("m_roupa_clara")
 radius = 0.2
 height = 1.6
 
@@ -112,12 +121,8 @@ height = 1.6
 material = SubResource("StandardMaterial3D_fvi6q")
 size = Vector3(0.16, 0.18, 0.04)
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_wyfcv"]
-albedo_color = Color(0.28, 0.26, 0.32, 1)
-roughness = 0.9
-
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_1u7dh"]
-material = SubResource("StandardMaterial3D_wyfcv")
+material = ExtResource("m_roupa_escura")
 radius = 0.2
 height = 1.6
 
@@ -126,7 +131,7 @@ material = SubResource("StandardMaterial3D_fvi6q")
 size = Vector3(0.16, 0.18, 0.04)
 
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_vu7pa"]
-material = SubResource("StandardMaterial3D_wyfcv")
+material = ExtResource("m_roupa_escura")
 radius = 0.2
 height = 1.6
 
@@ -135,7 +140,7 @@ material = SubResource("StandardMaterial3D_fvi6q")
 size = Vector3(0.16, 0.18, 0.04)
 
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_6lm4u"]
-material = SubResource("StandardMaterial3D_wyfcv")
+material = ExtResource("m_roupa_escura")
 radius = 0.2
 height = 1.6
 
@@ -202,9 +207,11 @@ texto_solto = NodePath("Frases/TextoSolto")
 environment = SubResource("Environment_383km")
 
 [node name="Lua" type="DirectionalLight3D" parent="." unique_id=1457227152]
-transform = Transform3D(0.8660254, -0.38302222, 0.32139382, 0, 0.64278764, 0.76604444, -0.5, -0.66341394, 0.5566704, 0, 0, 0)
+transform = Transform3D(0.9866, -0.0688, 0.149, 0, 0.9085, 0.419, -0.1641, -0.4134, 0.896, 0, 0, 0)
 light_color = Color(0.6, 0.7, 1, 1)
-light_energy = 0.25
+light_energy = 0.4
+shadow_enabled = true
+directional_shadow_max_distance = 40.0
 
 [node name="Cenario" type="Node3D" parent="." unique_id=1663121402]
 
@@ -214,72 +221,74 @@ light_energy = 0.25
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, -0.05, 2)
 use_collision = true
 size = Vector3(4, 0.1, 4)
-material = SubResource("StandardMaterial3D_n33pe")
+material = ExtResource("m_assoalho")
 
 [node name="Teto" type="CSGBox3D" parent="Cenario/QuartoNicholas" unique_id=2089089401]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 3.05, 2)
 use_collision = true
 size = Vector3(4, 0.1, 4)
-material = SubResource("StandardMaterial3D_gnccc")
+material = ExtResource("m_teto")
 
 [node name="ParedeOeste" type="CSGBox3D" parent="Cenario/QuartoNicholas" unique_id=753438910]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.05, 1.5, 2)
 use_collision = true
 size = Vector3(0.1, 3, 4)
-material = SubResource("StandardMaterial3D_gnccc")
+material = ExtResource("m_parede")
 
 [node name="ParedeNorte" type="CSGBox3D" parent="Cenario/QuartoNicholas" unique_id=180307043]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 1.5, -0.05)
 use_collision = true
 size = Vector3(4, 3, 0.1)
-material = SubResource("StandardMaterial3D_gnccc")
+material = ExtResource("m_parede")
 
 [node name="ParedeSul" type="CSGBox3D" parent="Cenario/QuartoNicholas" unique_id=1734304786]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 1.5, 4.05)
 use_collision = true
 size = Vector3(4, 3, 0.1)
-material = SubResource("StandardMaterial3D_gnccc")
+material = ExtResource("m_parede")
 
 [node name="ParedeLesteA" type="CSGBox3D" parent="Cenario/QuartoNicholas" unique_id=1406551093]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.05, 1.5, 0.7)
 use_collision = true
 size = Vector3(0.1, 3, 1.4)
-material = SubResource("StandardMaterial3D_gnccc")
+material = ExtResource("m_parede")
 
 [node name="ParedeLesteB" type="CSGBox3D" parent="Cenario/QuartoNicholas" unique_id=537588985]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.05, 1.5, 3.3)
 use_collision = true
 size = Vector3(0.1, 3, 1.4)
-material = SubResource("StandardMaterial3D_gnccc")
+material = ExtResource("m_parede")
 
 [node name="VergaPorta" type="CSGBox3D" parent="Cenario/QuartoNicholas" unique_id=688196905]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.05, 2.6, 2)
 use_collision = true
 size = Vector3(0.1, 0.8, 1.2)
-material = SubResource("StandardMaterial3D_gnccc")
+material = ExtResource("m_parede")
 
 [node name="Cama" type="CSGBox3D" parent="Cenario/QuartoNicholas" unique_id=136293002]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.2, 0.15, 2.3)
 use_collision = true
 size = Vector3(1.2, 0.3, 2)
-material = SubResource("StandardMaterial3D_y0f6t")
+material = ExtResource("m_madeira")
 
 [node name="Coberta" type="CSGBox3D" parent="Cenario/QuartoNicholas" unique_id=848493575]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.2, 0.33, 2.5)
 use_collision = true
 size = Vector3(1.15, 0.06, 1.6)
-material = SubResource("StandardMaterial3D_p113k")
+material = ExtResource("m_coberta")
 
 [node name="Travesseiro" type="CSGBox3D" parent="Cenario/QuartoNicholas" unique_id=1527786522]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.2, 0.42, 1.5)
 size = Vector3(0.9, 0.15, 0.4)
-material = SubResource("StandardMaterial3D_p113k")
+material = ExtResource("m_coberta")
 
 [node name="Vela" type="OmniLight3D" parent="Cenario/QuartoNicholas" unique_id=1711938038]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.6, 1, 0.6)
 light_color = Color(1, 0.7, 0.4, 1)
 light_energy = 1.2
 omni_range = 4.0
+script = ExtResource("9_chama")
+shadow_enabled = true
 
 [node name="Corredor" type="Node3D" parent="Cenario" unique_id=1911627218]
 
@@ -287,53 +296,60 @@ omni_range = 4.0
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, -0.05, 2)
 use_collision = true
 size = Vector3(10, 0.1, 2)
-material = SubResource("StandardMaterial3D_n33pe")
+material = ExtResource("m_piso_pedra")
 
 [node name="Teto" type="CSGBox3D" parent="Cenario/Corredor" unique_id=639231787]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 3.05, 2)
 use_collision = true
 size = Vector3(10, 0.1, 2)
-material = SubResource("StandardMaterial3D_gnccc")
+material = ExtResource("m_teto")
 
 [node name="ParedeNorte" type="CSGBox3D" parent="Cenario/Corredor" unique_id=262060194]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 1.5, 0.95)
 use_collision = true
 size = Vector3(10, 3, 0.1)
-material = SubResource("StandardMaterial3D_gnccc")
+material = ExtResource("m_parede")
 
 [node name="ParedeSul" type="CSGBox3D" parent="Cenario/Corredor" unique_id=2064666645]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 1.5, 3.05)
 use_collision = true
 size = Vector3(10, 3, 0.1)
-material = SubResource("StandardMaterial3D_gnccc")
+material = ExtResource("m_parede")
 
 [node name="PortaAposentos" type="CSGBox3D" parent="Cenario/Corredor" unique_id=1248528355]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.65, 1.15, 1.45)
 use_collision = true
 size = Vector3(1.2, 2.3, 0.06)
-material = SubResource("StandardMaterial3D_y0f6t")
+material = ExtResource("m_madeira")
 
 [node name="MolduraPorta" type="CSGBox3D" parent="Cenario/Corredor" unique_id=732588263]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.99, 2.35, 2)
 use_collision = true
 size = Vector3(0.05, 0.1, 1.4)
-material = SubResource("StandardMaterial3D_5k3mg")
+material = ExtResource("m_ouro")
 
 [node name="Tocha1" type="OmniLight3D" parent="Cenario/Corredor" unique_id=587403919]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 2, 1.2)
 light_color = Color(1, 0.6, 0.3, 1)
 omni_range = 4.5
+script = ExtResource("9_chama")
+tremor = 0.4
+shadow_enabled = true
 
 [node name="Tocha2" type="OmniLight3D" parent="Cenario/Corredor" unique_id=1550354816]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.5, 2, 2.8)
 light_color = Color(1, 0.6, 0.3, 1)
 omni_range = 4.5
+script = ExtResource("9_chama")
+tremor = 0.4
+shadow_enabled = true
 
 [node name="LuzPorta" type="OmniLight3D" parent="Cenario/Corredor" unique_id=333309578]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.4, 1.8, 2)
 light_color = Color(1, 0.75, 0.45, 1)
 light_energy = 0.8
 omni_range = 2.5
+script = ExtResource("9_chama")
 
 [node name="Aposentos" type="Node3D" parent="Cenario" unique_id=1501862351]
 
@@ -341,152 +357,154 @@ omni_range = 2.5
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13.5, -0.05, 2)
 use_collision = true
 size = Vector3(7, 0.1, 6)
-material = SubResource("StandardMaterial3D_n33pe")
+material = ExtResource("m_assoalho")
 
 [node name="Teto" type="CSGBox3D" parent="Cenario/Aposentos" unique_id=136141468]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13.5, 3.25, 2)
 use_collision = true
 size = Vector3(7, 0.1, 6)
-material = SubResource("StandardMaterial3D_gnccc")
+material = ExtResource("m_teto")
 
 [node name="ParedeOesteA" type="CSGBox3D" parent="Cenario/Aposentos" unique_id=1073718961]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.05, 1.6, 0.2)
 use_collision = true
 size = Vector3(0.1, 3.2, 2.4)
-material = SubResource("StandardMaterial3D_gnccc")
+material = ExtResource("m_parede")
 
 [node name="ParedeOesteB" type="CSGBox3D" parent="Cenario/Aposentos" unique_id=324709298]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.05, 1.6, 3.8)
 use_collision = true
 size = Vector3(0.1, 3.2, 2.4)
-material = SubResource("StandardMaterial3D_gnccc")
+material = ExtResource("m_parede")
 
 [node name="VergaPorta" type="CSGBox3D" parent="Cenario/Aposentos" unique_id=1731212499]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.05, 2.75, 2)
 use_collision = true
 size = Vector3(0.1, 0.9, 1.2)
-material = SubResource("StandardMaterial3D_gnccc")
+material = ExtResource("m_parede")
 
 [node name="ParedeNorte" type="CSGBox3D" parent="Cenario/Aposentos" unique_id=30377157]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13.5, 1.6, -1.05)
 use_collision = true
 size = Vector3(7, 3.2, 0.1)
-material = SubResource("StandardMaterial3D_gnccc")
+material = ExtResource("m_parede")
 
 [node name="ParedeLeste" type="CSGBox3D" parent="Cenario/Aposentos" unique_id=268417268]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17.05, 1.6, 2)
 use_collision = true
 size = Vector3(0.1, 3.2, 6)
-material = SubResource("StandardMaterial3D_gnccc")
+material = ExtResource("m_parede")
 
 [node name="ParedeSulA" type="CSGBox3D" parent="Cenario/Aposentos" unique_id=727154344]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.1, 1.6, 5.05)
 use_collision = true
 size = Vector3(2.2, 3.2, 0.1)
-material = SubResource("StandardMaterial3D_gnccc")
+material = ExtResource("m_parede")
 
 [node name="ParedeSulB" type="CSGBox3D" parent="Cenario/Aposentos" unique_id=178901654]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15.6, 1.6, 5.05)
 use_collision = true
 size = Vector3(2.8, 3.2, 0.1)
-material = SubResource("StandardMaterial3D_gnccc")
+material = ExtResource("m_parede")
 
 [node name="VergaVaranda" type="CSGBox3D" parent="Cenario/Aposentos" unique_id=776008654]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13.2, 2.8, 5.05)
 use_collision = true
 size = Vector3(2, 0.8, 0.1)
-material = SubResource("StandardMaterial3D_gnccc")
+material = ExtResource("m_parede")
 
 [node name="CamaDuquesa" type="CSGBox3D" parent="Cenario/Aposentos" unique_id=351534007]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15.6, 0.3, 2)
 use_collision = true
 size = Vector3(2.2, 0.6, 2.6)
-material = SubResource("StandardMaterial3D_y0f6t")
+material = ExtResource("m_madeira")
 
 [node name="Lencol" type="CSGBox3D" parent="Cenario/Aposentos" unique_id=1825395514]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15.6, 0.64, 2)
 use_collision = true
 size = Vector3(2.1, 0.08, 2.5)
-material = SubResource("StandardMaterial3D_msarb")
+material = ExtResource("m_lencol")
 
 [node name="Dossel" type="CSGBox3D" parent="Cenario/Aposentos" unique_id=1506230738]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15.6, 2.35, 2)
 use_collision = true
 size = Vector3(2.4, 0.1, 2.8)
-material = SubResource("StandardMaterial3D_eejka")
+material = ExtResource("m_veludo")
 
 [node name="Coluna1" type="CSGBox3D" parent="Cenario/Aposentos" unique_id=620540265]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14.5, 1.2, 0.7)
 use_collision = true
 size = Vector3(0.1, 2.4, 0.1)
-material = SubResource("StandardMaterial3D_y0f6t")
+material = ExtResource("m_madeira")
 
 [node name="Coluna2" type="CSGBox3D" parent="Cenario/Aposentos" unique_id=1657319101]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16.7, 1.2, 0.7)
 use_collision = true
 size = Vector3(0.1, 2.4, 0.1)
-material = SubResource("StandardMaterial3D_y0f6t")
+material = ExtResource("m_madeira")
 
 [node name="Coluna3" type="CSGBox3D" parent="Cenario/Aposentos" unique_id=1338860111]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14.5, 1.2, 3.3)
 use_collision = true
 size = Vector3(0.1, 2.4, 0.1)
-material = SubResource("StandardMaterial3D_y0f6t")
+material = ExtResource("m_madeira")
 
 [node name="Coluna4" type="CSGBox3D" parent="Cenario/Aposentos" unique_id=1647815940]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16.7, 1.2, 3.3)
 use_collision = true
 size = Vector3(0.1, 2.4, 0.1)
-material = SubResource("StandardMaterial3D_y0f6t")
+material = ExtResource("m_madeira")
 
 [node name="CortinaLeste" type="CSGBox3D" parent="Cenario/Aposentos" unique_id=1686589864]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16.75, 1.5, 2)
 use_collision = true
 size = Vector3(0.05, 1.7, 2.6)
-material = SubResource("StandardMaterial3D_eejka")
+material = ExtResource("m_veludo")
 
 [node name="VelaCama" type="OmniLight3D" parent="Cenario/Aposentos" unique_id=56085049]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, 1.4, 0.2)
 light_color = Color(1, 0.7, 0.4, 1)
 light_energy = 1.4
+script = ExtResource("9_chama")
+shadow_enabled = true
 
 [node name="VelaPorta" type="OmniLight3D" parent="Cenario/Aposentos" unique_id=375604664]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11, 1.6, 4.4)
 light_color = Color(1, 0.7, 0.4, 1)
 light_energy = 0.8
 omni_range = 3.5
+script = ExtResource("9_chama")
 
 [node name="ChaoVaranda" type="CSGBox3D" parent="Cenario/Aposentos" unique_id=1877036958]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13.5, -0.05, 6.6)
 use_collision = true
 size = Vector3(5, 0.1, 3)
-material = SubResource("StandardMaterial3D_syvfp")
+material = ExtResource("m_marmore")
 
 [node name="ParapeitoSul" type="CSGBox3D" parent="Cenario/Aposentos" unique_id=746807131]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13.5, 0.4, 8.05)
 use_collision = true
 size = Vector3(5, 0.8, 0.12)
-material = SubResource("StandardMaterial3D_syvfp")
+material = ExtResource("m_marmore")
 
 [node name="ParapeitoOeste" type="CSGBox3D" parent="Cenario/Aposentos" unique_id=573409122]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.05, 0.4, 6.6)
 use_collision = true
 size = Vector3(0.12, 0.8, 3)
-material = SubResource("StandardMaterial3D_syvfp")
+material = ExtResource("m_marmore")
 
 [node name="ParapeitoLeste" type="CSGBox3D" parent="Cenario/Aposentos" unique_id=1161420150]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15.95, 0.4, 6.6)
 use_collision = true
 size = Vector3(0.12, 0.8, 3)
-material = SubResource("StandardMaterial3D_syvfp")
+material = ExtResource("m_marmore")
 
-[node name="Mar" type="CSGBox3D" parent="Cenario/Aposentos" unique_id=854792279]
+[node name="Mar" type="MeshInstance3D" parent="Cenario/Aposentos" unique_id=854792279]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13.5, -12, 160)
-size = Vector3(700, 0.1, 320)
-material = SubResource("StandardMaterial3D_gf1pi")
+mesh = SubResource("PlaneMesh_mar")
 
 [node name="LuaNoCeu" type="CSGSphere3D" parent="Cenario/Aposentos" unique_id=1475350551]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30, 40, 170)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 40.5, 76, 169)
 radius = 7.0
 material = SubResource("StandardMaterial3D_daj6l")
 
@@ -664,6 +682,16 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.05, 0)
 current = true
 fov = 70.0
 
+[node name="Visao" type="CanvasLayer" parent="."]
+layer = 0
+
+[node name="Vinheta" type="ColorRect" parent="Visao"]
+material = SubResource("ShaderMaterial_vinheta")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+
 [node name="Hud" type="CanvasLayer" parent="." unique_id=10275560]
 
 [node name="Dica" type="Label" parent="Hud" unique_id=245345840]
@@ -813,3 +841,9 @@ vela_cama = NodePath("../Cenario/Aposentos/VelaCama")
 escuro = NodePath("../Escuro/Tela")
 botao_nome = NodePath("../Escolha/BotaoNome")
 tela_final = NodePath("../TelaFinal")
+
+[node name="Sensacao" type="Node" parent="." node_paths=PackedStringArray("controle", "sequencia", "vinheta")]
+script = ExtResource("10_sensacao")
+controle = NodePath("..")
+sequencia = NodePath("../Sequencia")
+vinheta = NodePath("../Visao/Vinheta")

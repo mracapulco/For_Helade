@@ -82,7 +82,7 @@ func test_seta_para_cima_vai_ao_vizinho_de_cima() -> void:
 	mapa.colocar_em("atenas")
 	_apertar(&"mover_frente")
 	mapa.terminar_viagem()
-	assert_eq(mapa.local_atual, "norte")
+	assert_eq(mapa.local_atual, "an_estrada")
 
 
 func test_nao_entra_andando() -> void:

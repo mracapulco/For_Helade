@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dn1ykjfq6bhny"
-path="res://.godot/imported/mapa_helade_provisorio.jpg-b136f786e78a79142d079919cac200e3.ctex"
+uid="uid://n1ebwinritbj"
+path="res://.godot/imported/mapa_helade.png-429638b482605bb9fd6ac2044ecaa99a.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/art/placeholders/mapa/mapa_helade_provisorio.jpg"
-dest_files=["res://.godot/imported/mapa_helade_provisorio.jpg-b136f786e78a79142d079919cac200e3.ctex"]
+source_file="res://assets/art/mapa/mapa_helade.png"
+dest_files=["res://.godot/imported/mapa_helade.png-429638b482605bb9fd6ac2044ecaa99a.ctex"]
 
 [params]
 

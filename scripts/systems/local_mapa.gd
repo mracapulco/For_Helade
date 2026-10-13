@@ -4,7 +4,15 @@ extends Resource
 ## e o nome do arquivo deve ser igual ao [member id].
 ## As ligações valem para os dois lados: basta listar uma vez.
 
+enum Tipo {
+	REGIAO, ## Lugar grande com cena própria (Olympia, Atenas...).
+	ESTRADA, ## Etapa de viagem entre regiões.
+	ACAMPAMENTO, ## Parada para a noite numa viagem longa.
+	PORTO, ## Onde se pega barco.
+}
+
 @export var id: String = ""
+@export var tipo := Tipo.REGIAO
 
 ## Chaves de tradução do nome e da linha de baixo da placa (i18n/strings.csv).
 @export var chave_nome: String = ""

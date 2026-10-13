@@ -11,6 +11,11 @@ func _abrir_sala() -> void:
 	personagem = sala.get_node("Personagem")
 	aviso = sala.get_node("AvisoItens")
 	await wait_physics_frames(3)
+	# O chão só entra no mapa de navegação alguns quadros depois; antes disso o
+	# ponto andável mais próximo é (0, 0) e o personagem não chega ao baú.
+	var mapa_nav := personagem.agente.get_navigation_map()
+	var bau: Vector2 = sala.get_node("BauTeste").global_position
+	await wait_until(func(): return NavigationServer2D.map_get_closest_point(mapa_nav, bau).distance_to(bau) < 40.0, 5)
 
 
 func before_each() -> void:

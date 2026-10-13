@@ -71,3 +71,16 @@ MAPA_FLORESTA_NINFAS_NOME,Floresta das Ninfas
 MAPA_FLORESTA_NINFAS_REGIAO,"Ilha a leste, só por mar"
 MAPA_ENTRAR,Entrar
 MAPA_SEM_CENA,"[Provisório] Este lugar ainda não tem cena."
+MAPA_ESTRADA_NOME,Estrada
+MAPA_TRILHA_NOME,Trilha
+MAPA_ACAMPAMENTO_NOME,Acampamento
+MAPA_PORTO_NOME,Porto
+MAPA_ROTA_OLYMPIA_ATENAS,"[Provisório] Estrada principal, de Olympia a Atenas"
+MAPA_ROTA_OLYMPIA_ATENAS_TRILHA,"[Provisório] Caminho secundário, de Olympia a Atenas"
+MAPA_ROTA_OLYMPIA_AGAPE,[Provisório] De Olympia a Ágape
+MAPA_ROTA_ATENAS_AGAPE,[Provisório] De Atenas a Ágape
+MAPA_ROTA_ATENAS_NORTE,[Provisório] De Atenas ao Norte
+MAPA_ROTA_AGAPE_TEMPLO,[Provisório] De Ágape ao Templo
+MAPA_ROTA_NORTE_TEMPLO,[Provisório] Do Norte ao Templo
+MAPA_PORTO_OLYMPIA_REGIAO,[Provisório] Costa de Olympia
+MAPA_PORTO_AGAPE_REGIAO,[Provisório] Costa de Ágape

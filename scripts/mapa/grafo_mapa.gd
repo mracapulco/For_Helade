@@ -57,23 +57,33 @@ func ligacoes() -> Array:
 	return pares
 
 
-## Menor caminho (em número de trechos) de [param origem] a [param destino],
-## passando só por locais liberados. Inclui os dois extremos; vazio se não
-## houver caminho.
+## Caminho mais curto (em distância no mapa) de [param origem] a
+## [param destino], passando só por locais liberados. Inclui os dois extremos;
+## vazio se não houver caminho.
 func caminho(origem: String, destino: String, liberados: Dictionary) -> Array[String]:
 	var vazio: Array[String] = []
 	if not liberados.has(origem) or not liberados.has(destino):
 		return vazio
+	var distancia := {origem: 0.0}
 	var veio_de := {origem: ""}
-	var fila: Array[String] = [origem]
-	while not fila.is_empty():
-		var atual: String = fila.pop_front()
+	var abertos: Array[String] = [origem]
+	while not abertos.is_empty():
+		var atual: String = abertos[0]
+		for candidato in abertos:
+			if distancia[candidato] < distancia[atual]:
+				atual = candidato
+		abertos.erase(atual)
 		if atual == destino:
 			break
 		for proximo in vizinhos(atual):
-			if liberados.has(proximo) and not veio_de.has(proximo):
+			if not liberados.has(proximo):
+				continue
+			var nova: float = distancia[atual] + local(atual).posicao.distance_to(local(proximo).posicao)
+			if nova < distancia.get(proximo, INF):
+				distancia[proximo] = nova
 				veio_de[proximo] = atual
-				fila.append(proximo)
+				if not abertos.has(proximo):
+					abertos.append(proximo)
 	if not veio_de.has(destino):
 		return vazio
 	var volta: Array[String] = []

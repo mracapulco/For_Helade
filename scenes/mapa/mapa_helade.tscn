@@ -1,7 +1,7 @@
 [gd_scene load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://scripts/mapa/mapa_helade.gd" id="1_mapa"]
-[ext_resource type="Texture2D" path="res://assets/art/placeholders/mapa/mapa_helade_provisorio.jpg" id="2_fundo"]
+[ext_resource type="Texture2D" path="res://assets/art/mapa/mapa_helade.png" id="2_fundo"]
 [ext_resource type="SpriteFrames" path="res://assets/art/personagens/nicholas/nicholas_exploracao.tres" id="3_nicholas"]
 
 [node name="MapaHelade" type="Node2D" node_paths=PackedStringArray("fundo", "caminhos", "nicholas", "camera", "placa", "nome_local", "regiao_local", "aviso", "botao_entrar")]
@@ -17,7 +17,7 @@ aviso = NodePath("Interface/Placa/Coluna/Aviso")
 botao_entrar = NodePath("Interface/Placa/Coluna/Entrar")
 
 [node name="Fundo" type="Sprite2D" parent="."]
-texture_filter = 2
+texture_filter = 1
 texture = ExtResource("2_fundo")
 centered = false
 

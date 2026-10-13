@@ -12,6 +12,9 @@ const ZOOM_PIXEL_ART := 2.0
 ## Raio, em pixels da arte, em que um toque conta como "no local".
 const RAIO_TOQUE := 24.0
 const RAIO_PONTO := 7.0
+const RAIO_ETAPA := 4.0
+## Distância entre as bolinhas das estradas (pixels da arte).
+const PASSO_PONTILHADO := 9.0
 const COR_ESTRADA := Color(0.9255, 0.7412, 0.4588) # Dourado claro
 const COR_MAR := Color(0.6235, 0.7216, 0.8235) # Olhos
 const COR_PONTO := Color(0.0745, 0.1451, 0.2353) # Azul noite
@@ -192,9 +195,38 @@ func _desenhar_caminhos() -> void:
 		if par[2]:
 			caminhos.draw_dashed_line(a, b, cor, 2.0, 6.0)
 		else:
-			caminhos.draw_line(a, b, cor, 2.0)
+			_pontilhado(a, b, cor)
 	for id: String in grafo.locais:
-		var local := grafo.local(id)
-		var contorno := COR_ESTRADA if liberados.has(id) else COR_BLOQUEADO
-		caminhos.draw_circle(local.posicao, RAIO_PONTO, COR_PONTO)
-		caminhos.draw_circle(local.posicao, RAIO_PONTO, contorno, false, 2.0)
+		_desenhar_local(grafo.local(id))
+
+
+## Estrada de bolinhas, como no mapa do Super Mario World.
+func _pontilhado(a: Vector2, b: Vector2, cor: Color) -> void:
+	var comprimento := a.distance_to(b)
+	var passos := int(comprimento / PASSO_PONTILHADO)
+	for i in range(1, passos):
+		var ponto := a.lerp(b, float(i) / passos)
+		caminhos.draw_circle(ponto, 2.0, COR_PONTO)
+		caminhos.draw_circle(ponto, 1.0, cor)
+
+
+func _desenhar_local(local: LocalMapa) -> void:
+	var p := local.posicao
+	var contorno := COR_ESTRADA if liberados.has(local.id) else COR_BLOQUEADO
+	match local.tipo:
+		LocalMapa.Tipo.ESTRADA:
+			caminhos.draw_circle(p, RAIO_ETAPA + 1.0, COR_PONTO)
+			caminhos.draw_circle(p, RAIO_ETAPA, contorno)
+		LocalMapa.Tipo.ACAMPAMENTO:
+			var tenda := PackedVector2Array([p + Vector2(0, -8), p + Vector2(7, 3), p + Vector2(-7, 3)])
+			caminhos.draw_colored_polygon(tenda, contorno)
+			caminhos.draw_polyline(tenda + PackedVector2Array([tenda[0]]), COR_PONTO, 1.0)
+			caminhos.draw_line(p + Vector2(0, -8), p + Vector2(0, 3), COR_PONTO, 1.0)
+		LocalMapa.Tipo.PORTO:
+			caminhos.draw_circle(p, RAIO_ETAPA + 2.0, COR_PONTO)
+			caminhos.draw_circle(p, RAIO_ETAPA + 1.0, COR_MAR if liberados.has(local.id) else COR_BLOQUEADO)
+			caminhos.draw_circle(p, 2.0, COR_PONTO)
+		_:
+			# Só o anel, para não cobrir o desenho da cidade.
+			caminhos.draw_circle(p, RAIO_PONTO + 1.0, COR_PONTO, false, 4.0)
+			caminhos.draw_circle(p, RAIO_PONTO, contorno, false, 2.0)

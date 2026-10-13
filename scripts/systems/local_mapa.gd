@@ -3,12 +3,15 @@ extends Resource
 ## Um ponto do mapa de Hélade. Cada local é um .tres em res://data/mapa/,
 ## e o nome do arquivo deve ser igual ao [member id].
 ## As ligações valem para os dois lados: basta listar uma vez.
+## Cada local tem no máximo uma ligação por direção (norte, sul, leste, oeste),
+## para as setas do controle levarem sempre a um caminho só.
 
 enum Tipo {
 	REGIAO, ## Lugar grande com cena própria (Olympia, Atenas...).
 	ESTRADA, ## Etapa de viagem entre regiões.
 	ACAMPAMENTO, ## Parada para a noite numa viagem longa.
 	PORTO, ## Onde se pega barco.
+	MAR, ## Ponto de passagem no mar, numa rota de barco.
 }
 
 @export var id: String = ""

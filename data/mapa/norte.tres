@@ -8,4 +8,4 @@ id = "norte"
 chave_nome = "MAPA_NORTE_NOME"
 chave_regiao = "MAPA_NORTE_REGIAO"
 posicao = Vector2(470, 330)
-vizinhos = Array[String](["an_acampamento", "nt_estrada"])
+vizinhos = Array[String](["nt_estrada_1"])

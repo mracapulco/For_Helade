@@ -67,10 +67,10 @@ func test_anda_de_verdade_com_o_tempo() -> void:
 
 
 func test_tocar_num_local_vai_ate_ele() -> void:
-	_tocar_no_local("og_estrada")
+	_tocar_no_local("og_estrada_1")
 	assert_true(mapa.andando)
 	mapa.terminar_viagem()
-	assert_eq(mapa.local_atual, "og_estrada")
+	assert_eq(mapa.local_atual, "og_estrada_1")
 
 
 func test_tocar_no_local_atual_entra() -> void:
@@ -96,12 +96,12 @@ func test_seta_para_cima_vai_ao_vizinho_de_cima() -> void:
 	mapa.colocar_em("atenas")
 	_apertar(&"mover_frente")
 	mapa.terminar_viagem()
-	assert_eq(mapa.local_atual, "an_estrada")
+	assert_eq(mapa.local_atual, "an_estrada_1")
 
 
 func test_nao_entra_andando() -> void:
 	watch_signals(mapa)
-	mapa.viajar_para("og_estrada")
+	mapa.viajar_para("og_estrada_1")
 	mapa.entrar()
 	assert_signal_not_emitted(mapa, "entrada_pedida")
 
@@ -146,23 +146,23 @@ func test_nevoa_cobre_o_que_nao_foi_descoberto() -> void:
 func test_chegar_num_lugar_descobre_os_vizinhos() -> void:
 	mapa.viajar_para("oa_estrada_1")
 	mapa.terminar_viagem()
-	assert_true(Mundo.foi_descoberto("oa_acampamento"))
-	assert_lt(mapa.nevoa.densidade_em(mapa.grafo.local("oa_acampamento").posicao), 0.1)
-	mapa.viajar_para("oa_acampamento")
-	mapa.terminar_viagem()
-	mapa.viajar_para("oa_estrada_2")
-	mapa.terminar_viagem()
+	assert_true(Mundo.foi_descoberto("oa_estrada_2"))
+	assert_false(Mundo.foi_descoberto("oa_acampamento"))
+	assert_lt(mapa.nevoa.densidade_em(mapa.grafo.local("oa_estrada_2").posicao), 0.1)
+	for proximo in ["oa_estrada_2", "oa_acampamento", "oa_estrada_3", "oa_estrada_4"]:
+		mapa.viajar_para(proximo)
+		mapa.terminar_viagem()
 	assert_true(Mundo.foi_descoberto("atenas"))
 	assert_true(mapa.get_node("Rotulos/Nome_atenas").visible)
 
 
 func test_lugar_no_mapa_fica_guardado() -> void:
-	mapa.viajar_para("og_estrada")
+	mapa.viajar_para("og_estrada_1")
 	mapa.terminar_viagem()
-	assert_eq(Mundo.local_no_mapa, "og_estrada")
+	assert_eq(Mundo.local_no_mapa, "og_estrada_1")
 	var outro: MapaHelade = add_child_autofree(load("res://scenes/mapa/mapa_helade.tscn").instantiate())
 	await wait_process_frames(1)
-	assert_eq(outro.local_atual, "og_estrada")
+	assert_eq(outro.local_atual, "og_estrada_1")
 
 
 func test_noite_troca_a_arte_e_acende_as_lamparinas() -> void:
@@ -191,3 +191,25 @@ func test_lamparinas_so_nas_estradas_abertas() -> void:
 	var antes := mapa.lamparinas.visiveis().size()
 	_descobrir_tudo()
 	assert_gt(mapa.lamparinas.visiveis().size(), antes)
+
+
+func test_explorar_tudo_tira_toda_a_nevoa() -> void:
+	_descobrir_tudo()
+	assert_eq(mapa.nevoa.fracao_coberta(), 0.0)
+
+
+func test_no_mar_vai_de_barco() -> void:
+	if mapa.quadros_barco == null:
+		pending("arte do barquinho ainda não ligada na cena")
+		return
+	_descobrir_tudo()
+	mapa.colocar_em("porto_olympia")
+	mapa.viajar_para("mo_mar_1")
+	assert_true(mapa.esta_de_barco())
+	assert_eq(String(mapa.nicholas.animation).begins_with("barco"), true)
+	mapa.terminar_viagem()
+	assert_true(mapa.esta_de_barco(), "parado no mar continua no barco")
+	mapa.viajar_para("porto_olympia")
+	mapa.terminar_viagem()
+	assert_false(mapa.esta_de_barco())
+	assert_eq(String(mapa.nicholas.animation), "parado_frente")

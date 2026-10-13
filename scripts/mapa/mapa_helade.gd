@@ -60,6 +60,8 @@ const ACOES_DIRECAO := {
 @export var botao_entrar: Button
 ## Provisório, para testar: troca entre dia e noite.
 @export var botao_periodo: Button
+## Nicholas no barquinho, nas rotas por mar (animações barco_frente e barco_costas).
+@export var quadros_barco: SpriteFrames
 
 var grafo: GrafoMapa
 ## Locais liberados (id -> true). É o mesmo dicionário de Mundo.descobertos.
@@ -76,11 +78,14 @@ var _camada_rotulos: CanvasLayer
 ## Nome de cada região escrito no mapa: id -> Label.
 var _nomes: Dictionary[String, Label] = {}
 var _troca_periodo: Tween
+var _quadros_a_pe: SpriteFrames
+var _de_barco := false
 
 
 func _ready() -> void:
 	grafo = GrafoMapa.da_pasta()
 	liberados = Mundo.descobertos
+	_quadros_a_pe = nicholas.sprite_frames
 	for id: String in grafo.locais:
 		if grafo.local(id).liberado_no_inicio:
 			liberar(id)
@@ -100,7 +105,7 @@ func _ready() -> void:
 		camera.limit_top = 0
 		camera.limit_right = int(tamanho.x)
 		camera.limit_bottom = int(tamanho.y)
-		nevoa.preparar(tamanho)
+		nevoa.preparar(tamanho, grafo)
 	_revelar(liberados.keys())
 	lamparinas.preparar(grafo, liberados)
 	Mundo.descoberto.connect(_ao_descobrir)
@@ -223,7 +228,8 @@ func viajar_para(destino: String) -> bool:
 	for i in range(1, trechos.size()):
 		var proximo := grafo.local(trechos[i])
 		var tempo := anterior.distance_to(proximo.posicao) / velocidade
-		_viagem.tween_callback(_olhar_para.bind(proximo.posicao - anterior))
+		var por_mar := grafo.por_mar(trechos[i - 1], trechos[i])
+		_viagem.tween_callback(_olhar_para.bind(proximo.posicao - anterior, por_mar))
 		_viagem.tween_property(nicholas, "position", proximo.posicao, tempo)
 		_viagem.tween_callback(_passar_por.bind(trechos[i]))
 		anterior = proximo.posicao
@@ -301,13 +307,33 @@ func _parar() -> void:
 	aviso.text = ""
 	placa.show()
 	var costas := String(nicholas.animation).ends_with("costas")
-	nicholas.play(&"parado_costas" if costas else &"parado_frente")
+	_trocar_quadros(local.tipo == LocalMapa.Tipo.MAR)
+	if _de_barco:
+		nicholas.play(&"barco_costas" if costas else &"barco_frente")
+	else:
+		nicholas.play(&"parado_costas" if costas else &"parado_frente")
 
 
-func _olhar_para(rumo: Vector2) -> void:
+func _olhar_para(rumo: Vector2, por_mar := false) -> void:
 	if rumo.x != 0.0:
 		nicholas.flip_h = rumo.x < 0.0
-	nicholas.play(&"andando_costas" if rumo.y < 0.0 else &"andando_frente")
+	_trocar_quadros(por_mar)
+	if _de_barco:
+		nicholas.play(&"barco_costas" if rumo.y < 0.0 else &"barco_frente")
+	else:
+		nicholas.play(&"andando_costas" if rumo.y < 0.0 else &"andando_frente")
+
+
+## No mar Nicholas vai no barquinho; em terra, a pé.
+func _trocar_quadros(barco: bool) -> void:
+	_de_barco = barco and quadros_barco != null
+	var quadros := quadros_barco if _de_barco else _quadros_a_pe
+	if nicholas.sprite_frames != quadros:
+		nicholas.sprite_frames = quadros
+
+
+func esta_de_barco() -> bool:
+	return _de_barco
 
 
 func _desenhar_caminhos() -> void:
@@ -348,6 +374,9 @@ func _desenhar_local(local: LocalMapa) -> void:
 			caminhos.draw_colored_polygon(tenda, contorno)
 			caminhos.draw_polyline(tenda + PackedVector2Array([tenda[0]]), COR_PONTO, 1.0)
 			caminhos.draw_line(p + Vector2(0, -8), p + Vector2(0, 3), COR_PONTO, 1.0)
+		LocalMapa.Tipo.MAR:
+			caminhos.draw_circle(p, RAIO_ETAPA, COR_PONTO, false, 3.0)
+			caminhos.draw_circle(p, RAIO_ETAPA, COR_MAR, false, 1.0)
 		LocalMapa.Tipo.PORTO:
 			caminhos.draw_circle(p, RAIO_ETAPA + 2.0, COR_PONTO)
 			caminhos.draw_circle(p, RAIO_ETAPA + 1.0, COR_MAR if liberados.has(local.id) else COR_BLOQUEADO)

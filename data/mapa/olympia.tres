@@ -8,5 +8,5 @@ id = "olympia"
 chave_nome = "MAPA_OLYMPIA_NOME"
 chave_regiao = "MAPA_OLYMPIA_REGIAO"
 posicao = Vector2(780, 1036)
-vizinhos = Array[String](["oa_estrada_1", "oa_trilha_1", "og_estrada", "porto_olympia"])
+vizinhos = Array[String](["oa_estrada_1", "ot_trilha_1", "og_estrada_1", "po_estrada"])
 liberado_no_inicio = true

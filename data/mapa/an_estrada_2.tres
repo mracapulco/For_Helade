@@ -4,8 +4,9 @@
 
 [resource]
 script = ExtResource("1_local")
-id = "og_estrada"
+id = "an_estrada_2"
 chave_nome = "MAPA_ESTRADA_NOME"
-chave_regiao = "MAPA_ROTA_OLYMPIA_AGAPE"
-posicao = Vector2(866, 906)
+chave_regiao = "MAPA_ROTA_ATENAS_NORTE"
+posicao = Vector2(446, 548)
 tipo = 1
+vizinhos = Array[String](["an_acampamento"])

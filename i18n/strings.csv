@@ -86,3 +86,6 @@ MAPA_PORTO_OLYMPIA_REGIAO,[Provisório] Costa de Olympia
 MAPA_PORTO_AGAPE_REGIAO,[Provisório] Costa de Ágape
 MAPA_TITULO,Hélade
 MAPA_DIA_NOITE,[Provisório] Dia / Noite
+MAPA_MAR_NOME,Mar aberto
+MAPA_ROTA_OLYMPIA_FLORESTA,"[Provisório] Rota de barco, de Olympia à Floresta das Ninfas"
+MAPA_ROTA_AGAPE_FLORESTA,"[Provisório] Rota de barco, de Ágape à Floresta das Ninfas"

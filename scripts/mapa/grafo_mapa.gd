@@ -94,23 +94,22 @@ func caminho(origem: String, destino: String, liberados: Dictionary) -> Array[St
 	return volta
 
 
-## Vizinho liberado que fica mais na [param direcao] (na tela), ou "" se
-## nenhum estiver a menos de 60° dela.
+## Direção principal (norte, sul, leste ou oeste) de [param a] para [param b].
+func direcao(a: String, b: String) -> Vector2:
+	var rumo := local(b).posicao - local(a).posicao
+	if absf(rumo.x) > absf(rumo.y):
+		return Vector2.RIGHT if rumo.x > 0.0 else Vector2.LEFT
+	return Vector2.DOWN if rumo.y > 0.0 else Vector2.UP
+
+
+## Vizinho liberado cuja saída fica na [param direcao] (uma das quatro), ou "".
 func vizinho_na_direcao(id: String, direcao: Vector2, liberados: Dictionary) -> String:
-	var origem := local(id)
-	if origem == null or direcao == Vector2.ZERO:
+	if local(id) == null or direcao == Vector2.ZERO:
 		return ""
-	var melhor := ""
-	var melhor_alinhamento := 0.5 # cos(60°)
 	for outro in vizinhos(id):
-		if not liberados.has(outro):
-			continue
-		var rumo := (local(outro).posicao - origem.posicao).normalized()
-		var alinhamento := rumo.dot(direcao.normalized())
-		if alinhamento > melhor_alinhamento:
-			melhor_alinhamento = alinhamento
-			melhor = outro
-	return melhor
+		if liberados.has(outro) and direcao(id, outro) == direcao.normalized():
+			return outro
+	return ""
 
 
 func _ligar(a: String, b: String, mar: bool) -> void:

@@ -8,6 +8,8 @@ Jogo baseado no livro *Pelos Olhos Dele*, de Shara M. Schwartz. Contexto e decis
 
 ## Rodar
 
+Mapa de Hélade: abra `scenes/mapa/mapa_helade.tscn` e aperte F6.
+
 Para testar o diálogo: abra `scenes/testes/teste_dialogo.tscn` no Godot e aperte F6 (rodar a cena atual).
 
 ## Pastas
@@ -16,6 +18,7 @@ Para testar o diálogo: abra `scenes/testes/teste_dialogo.tscn` no Godot e apert
 | --- | --- |
 | `data/dialogos/` | Cenas de roteiro em `.dialogue`, uma pasta por capítulo |
 | `data/personagens/` | Um `.tres` por personagem (nome no roteiro e retratos por expressão) |
+| `data/mapa/` | Um `.tres` por local do mapa de Hélade (`LocalMapa`): posição no desenho, ligações por estrada e por mar, cena ao entrar |
 | `data/itens/` | Um `.tres` por item (`Item`); o nome do arquivo é o id. Entra sozinho no `Inventario` |
 | `scripts/autoload/` | `Relacoes`, `Influencia`, `Elenco` e `Inventario` |
 | `scripts/systems/` | `Medidor` (base de relações e influência), `Personagem` e `Item` |

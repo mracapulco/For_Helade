@@ -57,3 +57,17 @@ BOLSA_DESEQUIPAR,Desequipar
 BOLSA_LARGAR,Largar
 BOLSA_EQUIPADO,(equipado)
 AVISO_MOEDAS,+ %d moedas
+MAPA_OLYMPIA_NOME,Olympia
+MAPA_OLYMPIA_REGIAO,"Sul, costa gélida"
+MAPA_ATENAS_NOME,Atenas
+MAPA_ATENAS_REGIAO,Capital do Império
+MAPA_AGAPE_NOME,Ágape
+MAPA_AGAPE_REGIAO,Leste
+MAPA_NORTE_NOME,Norte
+MAPA_NORTE_REGIAO,Antiga Khronosses
+MAPA_TEMPLO_NOME,Templo
+MAPA_TEMPLO_REGIAO,"[Provisório] região a confirmar"
+MAPA_FLORESTA_NINFAS_NOME,Floresta das Ninfas
+MAPA_FLORESTA_NINFAS_REGIAO,"Ilha a leste, só por mar"
+MAPA_ENTRAR,Entrar
+MAPA_SEM_CENA,"[Provisório] Este lugar ainda não tem cena."

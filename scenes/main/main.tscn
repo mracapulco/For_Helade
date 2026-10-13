@@ -1,3 +1,404 @@
 [gd_scene format=3]
 
-[node name="Main" type="Node"]
+[ext_resource type="Script" path="res://scripts/menu/menu_inicial.gd" id="1_k2fmo"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholders/capa_provisoria.jpg" id="2_l3cfh"]
+[ext_resource type="Script" path="res://scripts/menu/tela_opcoes.gd" id="3_6q06x"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ow5a4"]
+bg_color = Color(0.05, 0.07, 0.16, 0.85)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.9, 0.7, 0.3, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hujxm"]
+bg_color = Color(0.05, 0.07, 0.16, 0.85)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.9, 0.7, 0.3, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_yyfjg"]
+bg_color = Color(0.05, 0.07, 0.16, 0.85)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.9, 0.7, 0.3, 0.45)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_b1x3f"]
+bg_color = Color(0.18, 0.14, 0.08, 0.95)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.9, 0.7, 0.3, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="Theme" id="Theme_a8run"]
+Button/colors/font_focus_color = Color(1, 0.85, 0.5, 1)
+Button/colors/font_hover_color = Color(1, 0.85, 0.5, 1)
+Button/styles/focus = SubResource("StyleBoxFlat_ow5a4")
+Button/styles/hover = SubResource("StyleBoxFlat_hujxm")
+Button/styles/normal = SubResource("StyleBoxFlat_yyfjg")
+Button/styles/pressed = SubResource("StyleBoxFlat_b1x3f")
+OptionButton/styles/focus = SubResource("StyleBoxFlat_ow5a4")
+OptionButton/styles/hover = SubResource("StyleBoxFlat_hujxm")
+OptionButton/styles/normal = SubResource("StyleBoxFlat_yyfjg")
+OptionButton/styles/pressed = SubResource("StyleBoxFlat_b1x3f")
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ouso4"]
+content_margin_left = 40.0
+content_margin_top = 24.0
+content_margin_right = 40.0
+content_margin_bottom = 24.0
+bg_color = Color(0.03, 0.05, 0.12, 0.94)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.9, 0.7, 0.3, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[node name="MenuInicial" type="Control" unique_id=1454982370 node_paths=PackedStringArray("botao_continuar", "botao_novo_jogo", "botao_opcoes", "botao_sair", "aviso", "painel_principal", "opcoes")]
+layout_mode = 3
+anchors_preset = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme = SubResource("Theme_a8run")
+script = ExtResource("1_k2fmo")
+botao_continuar = NodePath("Principal/Botoes/Continuar")
+botao_novo_jogo = NodePath("Principal/Botoes/NovoJogo")
+botao_opcoes = NodePath("Principal/Botoes/Opcoes")
+botao_sair = NodePath("Principal/Botoes/Sair")
+aviso = NodePath("Principal/Aviso")
+painel_principal = NodePath("Principal")
+opcoes = NodePath("TelaOpcoes")
+
+[node name="Fundo" type="ColorRect" parent="." unique_id=1134868878]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.02, 0.03, 0.08, 1)
+
+[node name="CapaFundo" type="TextureRect" parent="." unique_id=1143090470]
+modulate = Color(0.35, 0.35, 0.45, 1)
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+texture = ExtResource("2_l3cfh")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Capa" type="TextureRect" parent="." unique_id=910271096]
+layout_mode = 0
+anchor_left = 0.55
+anchor_top = 0.05
+anchor_right = 0.97
+anchor_bottom = 0.95
+texture = ExtResource("2_l3cfh")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Principal" type="VBoxContainer" parent="." unique_id=1712488065]
+layout_mode = 0
+anchor_left = 0.05
+anchor_right = 0.52
+anchor_bottom = 1.0
+theme_override_constants/separation = 18
+alignment = 1
+
+[node name="Titulo" type="Label" parent="Principal" unique_id=1998754296]
+layout_mode = 2
+theme_override_font_sizes/font_size = 88
+theme_override_colors/font_color = Color(0.9, 0.7, 0.3, 1)
+text = "JOGO_TITULO"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Espaco" type="Control" parent="Principal" unique_id=166306320]
+custom_minimum_size = Vector2(0, 24)
+layout_mode = 2
+
+[node name="Botoes" type="VBoxContainer" parent="Principal" unique_id=848512294]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_constants/separation = 16
+
+[node name="Continuar" type="Button" parent="Principal/Botoes" unique_id=1409973857]
+custom_minimum_size = Vector2(420, 84)
+layout_mode = 2
+theme_override_font_sizes/font_size = 36
+text = "MENU_CONTINUAR"
+
+[node name="NovoJogo" type="Button" parent="Principal/Botoes" unique_id=510180120]
+custom_minimum_size = Vector2(420, 84)
+layout_mode = 2
+theme_override_font_sizes/font_size = 36
+text = "MENU_NOVO_JOGO"
+
+[node name="Opcoes" type="Button" parent="Principal/Botoes" unique_id=2120610832]
+custom_minimum_size = Vector2(420, 84)
+layout_mode = 2
+theme_override_font_sizes/font_size = 36
+text = "MENU_OPCOES"
+
+[node name="Sair" type="Button" parent="Principal/Botoes" unique_id=1212292640]
+custom_minimum_size = Vector2(420, 84)
+layout_mode = 2
+theme_override_font_sizes/font_size = 36
+text = "MENU_SAIR"
+
+[node name="Aviso" type="Label" parent="Principal" unique_id=252595668]
+custom_minimum_size = Vector2(0, 80)
+layout_mode = 2
+theme_override_font_sizes/font_size = 26
+theme_override_colors/font_color = Color(0.95, 0.9, 0.8, 1)
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+
+[node name="TelaOpcoes" type="PanelContainer" parent="." unique_id=1865121126 node_paths=PackedStringArray("idioma", "sensibilidade", "tela_cheia", "vsync", "volume_geral", "volume_musica", "volume_efeitos", "botao_voltar", "so_no_pc")]
+visible = false
+layout_mode = 0
+anchor_left = 0.08
+anchor_top = 0.05
+anchor_right = 0.92
+anchor_bottom = 0.95
+theme_override_styles/panel = SubResource("StyleBoxFlat_ouso4")
+script = ExtResource("3_6q06x")
+idioma = NodePath("Coluna/Rolagem/Lista/LinhaIdioma/Valor")
+sensibilidade = NodePath("Coluna/Rolagem/Lista/LinhaSensibilidade/Valor")
+tela_cheia = NodePath("Coluna/Rolagem/Lista/LinhaTelaCheia/Valor")
+vsync = NodePath("Coluna/Rolagem/Lista/LinhaVsync/Valor")
+volume_geral = NodePath("Coluna/Rolagem/Lista/LinhaVolumeGeral/Valor")
+volume_musica = NodePath("Coluna/Rolagem/Lista/LinhaVolumeMusica/Valor")
+volume_efeitos = NodePath("Coluna/Rolagem/Lista/LinhaVolumeEfeitos/Valor")
+botao_voltar = NodePath("Coluna/Voltar")
+so_no_pc = [NodePath("Coluna/Rolagem/Lista/LinhaTelaCheia"), NodePath("Coluna/Rolagem/Lista/Teclas")]
+
+[node name="Coluna" type="VBoxContainer" parent="TelaOpcoes" unique_id=132481012]
+layout_mode = 2
+
+[node name="Titulo" type="Label" parent="TelaOpcoes/Coluna" unique_id=336926205]
+layout_mode = 2
+theme_override_font_sizes/font_size = 48
+theme_override_colors/font_color = Color(0.9, 0.7, 0.3, 1)
+text = "OPCOES_TITULO"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Rolagem" type="ScrollContainer" parent="TelaOpcoes/Coluna" unique_id=181555769]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="Lista" type="VBoxContainer" parent="TelaOpcoes/Coluna/Rolagem" unique_id=816321226]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 6
+
+[node name="SecaoIdioma" type="Label" parent="TelaOpcoes/Coluna/Rolagem/Lista" unique_id=360779552]
+custom_minimum_size = Vector2(0, 64)
+layout_mode = 2
+theme_override_font_sizes/font_size = 34
+theme_override_colors/font_color = Color(0.9, 0.7, 0.3, 1)
+text = "OPCOES_SECAO_IDIOMA"
+vertical_alignment = 2
+
+[node name="LinhaIdioma" type="HBoxContainer" parent="TelaOpcoes/Coluna/Rolagem/Lista" unique_id=447737301]
+custom_minimum_size = Vector2(0, 72)
+layout_mode = 2
+theme_override_constants/separation = 24
+
+[node name="Rotulo" type="Label" parent="TelaOpcoes/Coluna/Rolagem/Lista/LinhaIdioma" unique_id=312620121]
+custom_minimum_size = Vector2(380, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 30
+theme_override_colors/font_color = Color(0.95, 0.9, 0.8, 1)
+text = "OPCOES_IDIOMA"
+vertical_alignment = 1
+
+[node name="Valor" type="OptionButton" parent="TelaOpcoes/Coluna/Rolagem/Lista/LinhaIdioma" unique_id=662347216]
+custom_minimum_size = Vector2(360, 64)
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+
+[node name="SecaoControles" type="Label" parent="TelaOpcoes/Coluna/Rolagem/Lista" unique_id=784585967]
+custom_minimum_size = Vector2(0, 64)
+layout_mode = 2
+theme_override_font_sizes/font_size = 34
+theme_override_colors/font_color = Color(0.9, 0.7, 0.3, 1)
+text = "OPCOES_SECAO_CONTROLES"
+vertical_alignment = 2
+
+[node name="LinhaSensibilidade" type="HBoxContainer" parent="TelaOpcoes/Coluna/Rolagem/Lista" unique_id=1423129983]
+custom_minimum_size = Vector2(0, 72)
+layout_mode = 2
+theme_override_constants/separation = 24
+
+[node name="Rotulo" type="Label" parent="TelaOpcoes/Coluna/Rolagem/Lista/LinhaSensibilidade" unique_id=1627562736]
+custom_minimum_size = Vector2(380, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 30
+theme_override_colors/font_color = Color(0.95, 0.9, 0.8, 1)
+text = "OPCOES_SENSIBILIDADE"
+vertical_alignment = 1
+
+[node name="Valor" type="HSlider" parent="TelaOpcoes/Coluna/Rolagem/Lista/LinhaSensibilidade" unique_id=232215736]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+min_value = 0.25
+max_value = 2.0
+step = 0.05
+value = 0.25
+
+[node name="Teclas" type="Label" parent="TelaOpcoes/Coluna/Rolagem/Lista" unique_id=2066482976]
+layout_mode = 2
+theme_override_font_sizes/font_size = 26
+theme_override_colors/font_color = Color(0.8, 0.78, 0.72, 1)
+text = "OPCOES_TECLAS"
+vertical_alignment = 1
+autowrap_mode = 3
+
+[node name="SecaoGraficos" type="Label" parent="TelaOpcoes/Coluna/Rolagem/Lista" unique_id=1650537807]
+custom_minimum_size = Vector2(0, 64)
+layout_mode = 2
+theme_override_font_sizes/font_size = 34
+theme_override_colors/font_color = Color(0.9, 0.7, 0.3, 1)
+text = "OPCOES_SECAO_GRAFICOS"
+vertical_alignment = 2
+
+[node name="LinhaTelaCheia" type="HBoxContainer" parent="TelaOpcoes/Coluna/Rolagem/Lista" unique_id=1393511354]
+custom_minimum_size = Vector2(0, 72)
+layout_mode = 2
+theme_override_constants/separation = 24
+
+[node name="Rotulo" type="Label" parent="TelaOpcoes/Coluna/Rolagem/Lista/LinhaTelaCheia" unique_id=1189188788]
+custom_minimum_size = Vector2(380, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 30
+theme_override_colors/font_color = Color(0.95, 0.9, 0.8, 1)
+text = "OPCOES_TELA_CHEIA"
+vertical_alignment = 1
+
+[node name="Valor" type="CheckButton" parent="TelaOpcoes/Coluna/Rolagem/Lista/LinhaTelaCheia" unique_id=189017142]
+custom_minimum_size = Vector2(120, 64)
+layout_mode = 2
+
+[node name="LinhaVsync" type="HBoxContainer" parent="TelaOpcoes/Coluna/Rolagem/Lista" unique_id=439877724]
+custom_minimum_size = Vector2(0, 72)
+layout_mode = 2
+theme_override_constants/separation = 24
+
+[node name="Rotulo" type="Label" parent="TelaOpcoes/Coluna/Rolagem/Lista/LinhaVsync" unique_id=2099592218]
+custom_minimum_size = Vector2(380, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 30
+theme_override_colors/font_color = Color(0.95, 0.9, 0.8, 1)
+text = "OPCOES_VSYNC"
+vertical_alignment = 1
+
+[node name="Valor" type="CheckButton" parent="TelaOpcoes/Coluna/Rolagem/Lista/LinhaVsync" unique_id=1421076944]
+custom_minimum_size = Vector2(120, 64)
+layout_mode = 2
+
+[node name="SecaoSom" type="Label" parent="TelaOpcoes/Coluna/Rolagem/Lista" unique_id=2101128863]
+custom_minimum_size = Vector2(0, 64)
+layout_mode = 2
+theme_override_font_sizes/font_size = 34
+theme_override_colors/font_color = Color(0.9, 0.7, 0.3, 1)
+text = "OPCOES_SECAO_SOM"
+vertical_alignment = 2
+
+[node name="LinhaVolumeGeral" type="HBoxContainer" parent="TelaOpcoes/Coluna/Rolagem/Lista" unique_id=1902263831]
+custom_minimum_size = Vector2(0, 72)
+layout_mode = 2
+theme_override_constants/separation = 24
+
+[node name="Rotulo" type="Label" parent="TelaOpcoes/Coluna/Rolagem/Lista/LinhaVolumeGeral" unique_id=1071987265]
+custom_minimum_size = Vector2(380, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 30
+theme_override_colors/font_color = Color(0.95, 0.9, 0.8, 1)
+text = "OPCOES_VOLUME_GERAL"
+vertical_alignment = 1
+
+[node name="Valor" type="HSlider" parent="TelaOpcoes/Coluna/Rolagem/Lista/LinhaVolumeGeral" unique_id=756469184]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+max_value = 1.0
+step = 0.05
+
+[node name="LinhaVolumeMusica" type="HBoxContainer" parent="TelaOpcoes/Coluna/Rolagem/Lista" unique_id=1903437310]
+custom_minimum_size = Vector2(0, 72)
+layout_mode = 2
+theme_override_constants/separation = 24
+
+[node name="Rotulo" type="Label" parent="TelaOpcoes/Coluna/Rolagem/Lista/LinhaVolumeMusica" unique_id=247640551]
+custom_minimum_size = Vector2(380, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 30
+theme_override_colors/font_color = Color(0.95, 0.9, 0.8, 1)
+text = "OPCOES_VOLUME_MUSICA"
+vertical_alignment = 1
+
+[node name="Valor" type="HSlider" parent="TelaOpcoes/Coluna/Rolagem/Lista/LinhaVolumeMusica" unique_id=810689164]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+max_value = 1.0
+step = 0.05
+
+[node name="LinhaVolumeEfeitos" type="HBoxContainer" parent="TelaOpcoes/Coluna/Rolagem/Lista" unique_id=344338547]
+custom_minimum_size = Vector2(0, 72)
+layout_mode = 2
+theme_override_constants/separation = 24
+
+[node name="Rotulo" type="Label" parent="TelaOpcoes/Coluna/Rolagem/Lista/LinhaVolumeEfeitos" unique_id=197017009]
+custom_minimum_size = Vector2(380, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 30
+theme_override_colors/font_color = Color(0.95, 0.9, 0.8, 1)
+text = "OPCOES_VOLUME_EFEITOS"
+vertical_alignment = 1
+
+[node name="Valor" type="HSlider" parent="TelaOpcoes/Coluna/Rolagem/Lista/LinhaVolumeEfeitos" unique_id=2073551563]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+max_value = 1.0
+step = 0.05
+
+[node name="Voltar" type="Button" parent="TelaOpcoes/Coluna" unique_id=1212783593]
+custom_minimum_size = Vector2(420, 84)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 36
+text = "MENU_VOLTAR"

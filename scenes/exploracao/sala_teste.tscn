@@ -8,6 +8,7 @@
 [ext_resource type="Script" path="res://scripts/exploracao/interagivel.gd" id="6_mcson"]
 [ext_resource type="Resource" path="res://data/dialogos/teste/exploracao.dialogue" id="dlg_exploracao"]
 [ext_resource type="PackedScene" path="res://scenes/ui/botoes_toque.tscn" id="7_botoes"]
+[ext_resource type="PackedScene" path="res://scenes/ui/tela_bolsa.tscn" id="12_bolsa"]
 [ext_resource type="SpriteFrames" path="res://assets/art/personagens/nicholas/nicholas_exploracao.tres" id="8_nicholas"]
 [ext_resource type="Script" path="res://scripts/exploracao/animacao_personagem.gd" id="11_anim"]
 [ext_resource type="Texture2D" path="res://assets/art/placeholders/exploracao/caixa_provisoria.png" id="9_caixa"]
@@ -121,3 +122,6 @@ shape = SubResource("CircleShape2D_jfhrn")
 
 [node name="BotoesToque" parent="." instance=ExtResource("7_botoes")]
 sempre_mostrar = true
+
+[node name="TelaBolsa" parent="." instance=ExtResource("12_bolsa")]
+itens_de_teste = true

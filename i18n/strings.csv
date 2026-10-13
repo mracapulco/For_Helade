@@ -39,3 +39,20 @@ ITEM_POCAO_TESTE_NOME,Poção de teste
 ITEM_POCAO_TESTE_DESC,Provisória. Recupera um pouco de vida.
 ITEM_CARTA_TESTE_NOME,Carta de teste
 ITEM_CARTA_TESTE_DESC,Provisória. Item da história: não pode ser largado.
+BOLSA_BOTAO,Bolsa
+BOLSA_TITULO,Bolsa
+BOLSA_FECHAR,Fechar
+BOLSA_MOEDAS,Moedas: %d
+BOLSA_ABA_ARMAS,Armas
+BOLSA_ABA_EQUIPAMENTO,Equipamento
+BOLSA_ABA_CONSUMIVEIS,Consumíveis
+BOLSA_ABA_HISTORIA,História
+BOLSA_ABA_DIVERSOS,Diversos
+BOLSA_VAZIA,Nada aqui ainda.
+BOLSA_ESCOLHA_ITEM,Toque num item para ver os detalhes.
+BOLSA_ITEM_DA_HISTORIA,Item da história: não pode ser largado.
+BOLSA_USAR,Usar
+BOLSA_EQUIPAR,Equipar
+BOLSA_DESEQUIPAR,Desequipar
+BOLSA_LARGAR,Largar
+BOLSA_EQUIPADO,(equipado)

@@ -19,7 +19,7 @@ Para testar o diálogo: abra `scenes/testes/teste_dialogo.tscn` no Godot e apert
 | `data/itens/` | Um `.tres` por item (`Item`); o nome do arquivo é o id. Entra sozinho no `Inventario` |
 | `scripts/autoload/` | `Relacoes`, `Influencia`, `Elenco` e `Inventario` |
 | `scripts/systems/` | `Medidor` (base de relações e influência), `Personagem` e `Item` |
-| `scenes/ui/` + `scripts/ui/` | Caixa de diálogo com retrato e escolhas |
+| `scenes/ui/` + `scripts/ui/` | Caixa de diálogo com retrato e escolhas; tela da bolsa (`tela_bolsa.tscn`, abre com I/Tab ou o botão Bolsa) |
 | `scenes/testes/` + `scripts/testes/` | Telas provisórias de teste |
 | `i18n/strings.csv` | Textos de interface por chave |
 | `tests/` | Testes GUT (`unit/`, `integration/`) |

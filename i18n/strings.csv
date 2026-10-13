@@ -33,3 +33,6 @@ OPCOES_SECAO_SOM,Som
 OPCOES_VOLUME_GERAL,Volume geral
 OPCOES_VOLUME_MUSICA,Música
 OPCOES_VOLUME_EFEITOS,Efeitos sonoros
+MENU_CONFIRMAR_NOVO,"Começar um novo jogo apaga o jogo salvo. Quer mesmo começar de novo?"
+MENU_CONFIRMAR_SIM,"Sim, começar"
+MENU_CONFIRMAR_NAO,Não

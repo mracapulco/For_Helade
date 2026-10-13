@@ -16,9 +16,19 @@ func before_each() -> void:
 	objeto = sala.get_node("ObjetoTeste/Interagivel")
 	outro = sala.get_node("PersonagemTeste/Interagivel")
 	await wait_physics_frames(3)
+	# O mapa de navegação atualiza em segundo plano; espera a sala nova entrar
+	# nele (antes disso o ponto andável mais próximo de tudo é a origem).
+	var mapa := personagem.agente.get_navigation_map()
+	var centro_objeto := objeto.get_parent().global_position as Vector2
+	await wait_until(func() -> bool:
+		return NavigationServer2D.map_get_closest_point(mapa, centro_objeto).distance_to(centro_objeto) < 64.0, 2.0)
 
 
 func after_each() -> void:
+	# A caixa entra na cena um quadro depois (call_deferred). Tira a sala antes
+	# de esperar, para ela não seguir rodando junto com a sala do próximo teste.
+	sala.free()
+	await wait_process_frames(2)
 	for caixa in _caixas_abertas():
 		caixa.free()
 
@@ -109,7 +119,7 @@ func test_todas_as_falas_tem_id_de_traducao() -> void:
 
 func test_clique_durante_a_digitacao_mostra_a_fala_inteira() -> void:
 	outro.interagir()
-	await wait_frames(3)
+	await wait_process_frames(3)
 	var caixa := _caixas_abertas()[0] as CaixaDialogo
 	assert_true(caixa.dialogue_label.is_typing)
 	caixa._on_balloon_gui_input(_clique())
@@ -120,18 +130,18 @@ func test_clique_durante_a_digitacao_mostra_a_fala_inteira() -> void:
 func test_clique_avanca_ate_fechar_e_libera_o_personagem() -> void:
 	watch_signals(DialogueManager)
 	outro.interagir()
-	await wait_frames(3)
+	await wait_process_frames(3)
 	var caixa := _caixas_abertas()[0] as CaixaDialogo
 	assert_true(personagem.em_dialogo)
 
 	await wait_until(func() -> bool: return caixa.is_waiting_for_input, 5.0)
 	caixa._on_balloon_gui_input(_clique())
-	await wait_frames(2)
+	await wait_process_frames(2)
 	assert_eq(caixa.dialogue_line.static_id, "EXPLORACAO_TESTE_003")
 
 	await wait_until(func() -> bool: return caixa.is_waiting_for_input, 5.0)
 	caixa._on_balloon_gui_input(_clique())
-	await wait_frames(3)
+	await wait_process_frames(3)
 	assert_signal_emitted(DialogueManager, "dialogue_ended")
 	assert_true(_caixas_abertas().is_empty(), "a caixa deve fechar no fim")
 	await wait_seconds(0.3)
@@ -141,7 +151,7 @@ func test_clique_avanca_ate_fechar_e_libera_o_personagem() -> void:
 func test_enter_logo_ao_fechar_nao_reabre_a_conversa() -> void:
 	personagem.global_position = objeto.global_position + Vector2(0, 50)
 	objeto.interagir()
-	await wait_frames(3)
+	await wait_process_frames(3)
 	DialogueManager.dialogue_ended.emit(ROTEIRO)
 	watch_signals(objeto)
 	var tecla := InputEventAction.new()

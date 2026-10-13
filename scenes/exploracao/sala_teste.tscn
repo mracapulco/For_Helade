@@ -8,23 +8,28 @@
 [ext_resource type="Script" path="res://scripts/exploracao/interagivel.gd" id="6_mcson"]
 [ext_resource type="Resource" path="res://data/dialogos/teste/exploracao.dialogue" id="dlg_exploracao"]
 [ext_resource type="PackedScene" path="res://scenes/ui/botoes_toque.tscn" id="7_botoes"]
+[ext_resource type="SpriteFrames" path="res://assets/art/personagens/nicholas/nicholas_exploracao.tres" id="8_nicholas"]
+[ext_resource type="Script" path="res://scripts/exploracao/animacao_personagem.gd" id="11_anim"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholders/exploracao/caixa_provisoria.png" id="9_caixa"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholders/exploracao/personagem_provisorio.png" id="10_personagem"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_pn2jv"]
-radius = 14.0
+radius = 7.0
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_42mlo"]
-radius = 18.0
+radius = 9.0
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_vy6ro"]
-radius = 56.0
+radius = 28.0
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_mm362"]
-radius = 18.0
+radius = 9.0
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_jfhrn"]
-radius = 56.0
+radius = 28.0
 
 [node name="SalaTeste" type="Node2D" unique_id=749893232]
+texture_filter = 1
 y_sort_enabled = true
 
 [node name="Chao" type="TileMapLayer" parent="." unique_id=2023771221]
@@ -48,17 +53,21 @@ script = ExtResource("5_marc")
 personagem = NodePath("../Personagem")
 
 [node name="Personagem" type="CharacterBody2D" parent="." unique_id=997458425]
-position = Vector2(-256, 384)
+position = Vector2(-128, 192)
 motion_mode = 1
 script = ExtResource("4_pers")
 
 [node name="Sombra" type="Polygon2D" parent="Personagem" unique_id=615637889]
 color = Color(0, 0, 0, 0.35)
-polygon = PackedVector2Array(20, 0, 19.318516, 2.5881906, 17.320509, 5, 14.142136, 7.071068, 10, 8.6602545, 5.176381, 9.659258, 1.2246468e-15, 10, -5.176381, 9.659258, -10, 8.6602545, -14.142136, 7.071068, -17.320509, 5, -19.318516, 2.5881906, -20, 1.2246468e-15, -19.318516, -2.5881906, -17.320509, -5, -14.142136, -7.071068, -10, -8.6602545, -5.176381, -9.659258, -3.67394e-15, -10, 5.176381, -9.659258, 10, -8.6602545, 14.142136, -7.071068, 17.320509, -5, 19.318516, -2.5881906)
+polygon = PackedVector2Array(10, 0, 9.6593, 1.2941, 8.6603, 2.5, 7.0711, 3.5355, 5, 4.3301, 2.5882, 4.8296, 0, 5, -2.5882, 4.8296, -5, 4.3301, -7.0711, 3.5355, -8.6603, 2.5, -9.6593, 1.2941, -10, 0, -9.6593, -1.2941, -8.6603, -2.5, -7.0711, -3.5355, -5, -4.3301, -2.5882, -4.8296, -0, -5, 2.5882, -4.8296, 5, -4.3301, 7.0711, -3.5355, 8.6603, -2.5, 9.6593, -1.2941)
 
-[node name="Corpo" type="Polygon2D" parent="Personagem" unique_id=337995875]
-color = Color(0.3, 0.55, 0.95, 1)
-polygon = PackedVector2Array(16, -36, 15.454813, -26.682514, 13.856406, -18, 11.313708, -10.544155, 8, -4.823086, 4.1411047, -1.2266693, 9.797175e-16, 0, -4.1411047, -1.2266693, -8, -4.823086, -11.313708, -10.544155, -13.856406, -18, -15.454813, -26.682514, -16, -36, -15.454813, -45.317486, -13.856406, -54, -11.313708, -61.455845, -8, -67.17691, -4.1411047, -70.77333, -2.9391522e-15, -72, 4.1411047, -70.77333, 8, -67.17691, 11.313708, -61.455845, 13.856406, -54, 15.454813, -45.317486)
+[node name="Corpo" type="Node2D" parent="Personagem" unique_id=337995875]
+
+[node name="Visual" type="AnimatedSprite2D" parent="Personagem/Corpo"]
+sprite_frames = ExtResource("8_nicholas")
+animation = &"parado_frente"
+offset = Vector2(0, -22)
+script = ExtResource("11_anim")
 
 [node name="Colisao" type="CollisionShape2D" parent="Personagem" unique_id=2084710673]
 shape = SubResource("CircleShape2D_pn2jv")
@@ -68,16 +77,16 @@ script = ExtResource("2_blak7")
 mapa = NodePath("../../Chao")
 
 [node name="Agente" type="NavigationAgent2D" parent="Personagem" unique_id=100217193]
-path_desired_distance = 8.0
-target_desired_distance = 8.0
-radius = 14.0
+path_desired_distance = 4.0
+target_desired_distance = 4.0
+radius = 7.0
 
 [node name="ObjetoTeste" type="StaticBody2D" parent="." unique_id=247210171 groups=["navegacao_obstaculos"]]
-position = Vector2(256, 384)
+position = Vector2(128, 192)
 
-[node name="Desenho" type="Polygon2D" parent="ObjetoTeste" unique_id=1565415405]
-color = Color(0.95, 0.8, 0.2, 1)
-polygon = PackedVector2Array(-22, -40, 22, -40, 22, 0, -22, 0)
+[node name="Visual" type="Sprite2D" parent="ObjetoTeste" unique_id=1565415405]
+texture = ExtResource("9_caixa")
+offset = Vector2(0, -10)
 
 [node name="Colisao" type="CollisionShape2D" parent="ObjetoTeste" unique_id=981607017]
 shape = SubResource("CircleShape2D_42mlo")
@@ -88,15 +97,15 @@ dialogo = ExtResource("dlg_exploracao")
 marcador = "objeto_teste"
 
 [node name="AreaDeToque" type="CollisionShape2D" parent="ObjetoTeste/Interagivel" unique_id=1848310895]
-position = Vector2(0, -24)
+position = Vector2(0, -12)
 shape = SubResource("CircleShape2D_vy6ro")
 
 [node name="PersonagemTeste" type="StaticBody2D" parent="." unique_id=148811563 groups=["navegacao_obstaculos"]]
-position = Vector2(64, 800)
+position = Vector2(32, 400)
 
-[node name="Desenho" type="Polygon2D" parent="PersonagemTeste" unique_id=542798467]
-color = Color(0.3, 0.8, 0.45, 1)
-polygon = PackedVector2Array(16, -36, 15.454813, -26.682514, 13.856406, -18, 11.313708, -10.544156, 8, -4.8230853, 4.1411047, -1.2266703, 9.797175e-16, 0, -4.1411047, -1.2266703, -8, -4.8230853, -11.313708, -10.544156, -13.856406, -18, -15.454813, -26.682514, -16, -36, -15.454813, -45.317486, -13.856406, -54, -11.313708, -61.455845, -8, -67.17692, -4.1411047, -70.77333, -2.9391522e-15, -72, 4.1411047, -70.77333, 8, -67.17692, 11.313708, -61.455845, 13.856406, -54, 15.454813, -45.317486)
+[node name="Visual" type="Sprite2D" parent="PersonagemTeste" unique_id=542798467]
+texture = ExtResource("10_personagem")
+offset = Vector2(0, -20)
 
 [node name="Colisao" type="CollisionShape2D" parent="PersonagemTeste" unique_id=1782629014]
 shape = SubResource("CircleShape2D_mm362")
@@ -107,7 +116,7 @@ dialogo = ExtResource("dlg_exploracao")
 marcador = "personagem_teste"
 
 [node name="AreaDeToque" type="CollisionShape2D" parent="PersonagemTeste/Interagivel" unique_id=1558270094]
-position = Vector2(0, -24)
+position = Vector2(0, -12)
 shape = SubResource("CircleShape2D_jfhrn")
 
 [node name="BotoesToque" parent="." instance=ExtResource("7_botoes")]

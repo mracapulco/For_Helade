@@ -10,7 +10,7 @@ const GRUPO_OBSTACULOS := &"navegacao_obstaculos"
 @export var chao: TileMapLayer
 @export var obstaculos: TileMapLayer
 ## Folga entre o personagem e os obstáculos, em pixels.
-@export var raio_personagem := 16.0
+@export var raio_personagem := 8.0
 
 
 func _ready() -> void:

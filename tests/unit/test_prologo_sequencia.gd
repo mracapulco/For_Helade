@@ -17,6 +17,8 @@ func before_each() -> void:
 	frases.tempo_por_letra = 0.0
 	seq = cena.get_node("Sequencia")
 	seq.escala_tempo = 0.02
+	seq.cena_depois = ""
+	seq.etapa_salva = ""
 	add_child_autofree(cena)
 	await wait_physics_frames(2)
 	await wait_until(func() -> bool: return not cena.travado, 3.0)

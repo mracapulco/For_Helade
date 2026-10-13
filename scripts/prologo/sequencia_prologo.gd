@@ -31,6 +31,10 @@ signal terminou
 ## O único botão da cena, com o nome "Althea?".
 @export var botao_nome: Button
 @export var tela_final: TelaFinal
+## Para onde o jogo vai depois do título. Vazio: fica no título (testes).
+@export var cena_depois := "res://scenes/main/main.tscn"
+## Parte da história salva ao terminar o prólogo.
+@export var etapa_salva := "capitulo_1"
 ## Multiplica todos os tempos da sequência (os testes usam valores pequenos).
 @export var escala_tempo := 1.0
 
@@ -170,6 +174,13 @@ func _varanda() -> void:
 	await tela_final.mostrar(await controle.frases_de("sussurros_finais"), escala_tempo)
 	_mudar("fim")
 	terminou.emit()
+	await get_tree().create_timer(_t(3.0)).timeout
+	var progresso := get_node_or_null("/root/Progresso")
+	if progresso and not etapa_salva.is_empty():
+		progresso.salvar(etapa_salva)
+	var troca := get_node_or_null("/root/TrocaCena")
+	if troca and not cena_depois.is_empty():
+		troca.ir_para(cena_depois)
 
 
 func _esperar(o_que: String) -> void:

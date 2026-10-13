@@ -20,6 +20,9 @@ DialogueManager="*res://addons/dialogue_manager/dialogue_manager.gd"
 Relacoes="*res://scripts/autoload/relacoes.gd"
 Influencia="*res://scripts/autoload/influencia.gd"
 Elenco="*res://scripts/autoload/elenco.gd"
+Configuracoes="*res://scripts/autoload/configuracoes.gd"
+Progresso="*res://scripts/autoload/progresso.gd"
+TrocaCena="*res://scripts/autoload/troca_cena.gd"
 Inventario="*res://scripts/autoload/inventario.gd"
 
 [dialogue_manager]
@@ -38,6 +41,10 @@ window/handheld/orientation=4
 [editor_plugins]
 
 enabled=PackedStringArray("res://addons/dialogue_manager/plugin.cfg", "res://addons/gut/plugin.cfg")
+
+[gui]
+
+theme/custom="res://assets/ui/tema_helade.tres"
 
 [input]
 
@@ -101,3 +108,4 @@ locale/fallback="pt_BR"
 
 renderer/rendering_method="gl_compatibility"
 renderer/rendering_method.mobile="gl_compatibility"
+2d/snap/snap_2d_transforms_to_pixel=true

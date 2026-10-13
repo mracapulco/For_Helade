@@ -83,8 +83,9 @@ func _unhandled_input(evento: InputEvent) -> void:
 		return
 	var mouse_preso := Input.mouse_mode == Input.MOUSE_MODE_CAPTURED
 	if evento is InputEventMouseMotion and mouse_preso:
-		corpo.rotate_y(-evento.relative.x * sensibilidade_mouse)
-		camera.rotation.x = clampf(camera.rotation.x - evento.relative.y * sensibilidade_mouse, deg_to_rad(-80), deg_to_rad(80))
+		var sensibilidade := sensibilidade_mouse * _ajuste_do_jogador()
+		corpo.rotate_y(-evento.relative.x * sensibilidade)
+		camera.rotation.x = clampf(camera.rotation.x - evento.relative.y * sensibilidade, deg_to_rad(-80), deg_to_rad(80))
 	elif evento is InputEventMouseButton and evento.pressed and evento.button_index == MOUSE_BUTTON_LEFT:
 		# Toques chegam como cliques "emulados": esses nunca prendem o mouse.
 		if evento.device == InputEvent.DEVICE_ID_EMULATION:
@@ -222,6 +223,12 @@ func _atualizar_dica(ponto: PontoDeVista) -> void:
 			dica.text = ""
 		else:
 			dica.text = tr("PROLOGO_DICA_TOQUE") if OS.has_feature("mobile") else tr("PROLOGO_DICA_TECLADO")
+
+
+## Sensibilidade escolhida nas Opções (1 quando a cena roda sem o menu).
+func _ajuste_do_jogador() -> float:
+	var configuracoes := get_node_or_null("/root/Configuracoes")
+	return configuracoes.sensibilidade_mouse if configuracoes else 1.0
 
 
 func _alvo_na_mira() -> AlvoToque:

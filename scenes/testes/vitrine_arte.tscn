@@ -1,0 +1,63 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/testes/vitrine_arte.gd" id="1_vitrine"]
+[ext_resource type="TileSet" path="res://scenes/exploracao/tileset_sala_teste.tres" id="2_tiles"]
+[ext_resource type="SpriteFrames" path="res://assets/art/personagens/nicholas/nicholas_exploracao.tres" id="3_nicholas"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholders/exploracao/personagem_provisorio.png" id="4_personagem"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholders/exploracao/caixa_provisoria.png" id="5_caixa"]
+
+[node name="VitrineArte" type="Node2D"]
+texture_filter = 1
+y_sort_enabled = true
+script = ExtResource("1_vitrine")
+
+[node name="Fundo" type="ColorRect" parent="."]
+z_index = -2
+offset_left = -400.0
+offset_top = -200.0
+offset_right = 400.0
+offset_bottom = 400.0
+color = Color(0.0196, 0.0471, 0.0784, 1)
+
+[node name="Chao" type="TileMapLayer" parent="."]
+z_index = -1
+tile_set = ExtResource("2_tiles")
+
+[node name="Obstaculos" type="TileMapLayer" parent="."]
+y_sort_enabled = true
+tile_set = ExtResource("2_tiles")
+
+[node name="Nicholas" type="AnimatedSprite2D" parent="."]
+position = Vector2(-48, 72)
+sprite_frames = ExtResource("3_nicholas")
+animation = &"parado_frente"
+autoplay = "parado_frente"
+offset = Vector2(0, -22)
+
+[node name="NicholasAndando" type="AnimatedSprite2D" parent="."]
+position = Vector2(-16, 56)
+sprite_frames = ExtResource("3_nicholas")
+animation = &"andando_frente"
+autoplay = "andando_frente"
+offset = Vector2(0, -22)
+
+[node name="NicholasCorrendo" type="AnimatedSprite2D" parent="."]
+position = Vector2(-48, 40)
+sprite_frames = ExtResource("3_nicholas")
+animation = &"correndo_costas"
+autoplay = "correndo_costas"
+offset = Vector2(0, -22)
+
+[node name="Personagem" type="Sprite2D" parent="."]
+position = Vector2(16, 72)
+texture = ExtResource("4_personagem")
+offset = Vector2(0, -20)
+
+[node name="Caixa" type="Sprite2D" parent="."]
+position = Vector2(48, 56)
+texture = ExtResource("5_caixa")
+offset = Vector2(0, -10)
+
+[node name="Camera" type="Camera2D" parent="."]
+position = Vector2(0, 56)
+zoom = Vector2(2, 2)

@@ -19,6 +19,13 @@ const COR_ESTRADA := Color(0.9255, 0.7412, 0.4588) # Dourado claro
 const COR_MAR := Color(0.6235, 0.7216, 0.8235) # Olhos
 const COR_PONTO := Color(0.0745, 0.1451, 0.2353) # Azul noite
 const COR_BLOQUEADO := Color(0.3686, 0.4, 0.451) # Pedra fria
+const COR_OURO_CLARO := Color(0.9255, 0.7412, 0.4588)
+const COR_CONTORNO := Color(0.0196, 0.0471, 0.0784) # Noite
+const FONTE_NOMES := preload("res://assets/fonts/cinzel/cinzel.ttf")
+## Centro da cartela desenhada em tools/arte/gerar_mapa.py (CARTELA), onde vai o título.
+const CENTRO_TITULO := Vector2(1450, 148)
+## Quanto abaixo do ponto da região fica o nome (abaixo do desenho da cidade).
+const DESCIDA_NOME := 30.0
 const ACOES_DIRECAO := {
 	&"mover_frente": Vector2.UP,
 	&"mover_tras": Vector2.DOWN,
@@ -50,6 +57,11 @@ var local_atual := ""
 var andando := false
 
 var _viagem: Tween
+## Nomes escritos sobre o mapa: Label -> posição no desenho (pixels da arte).
+## Ficam numa camada de tela e são reposicionados a cada quadro, para o texto
+## sair nítido em vez de ampliado junto com a arte.
+var _rotulos: Dictionary[Label, Vector2] = {}
+var _camada_rotulos: CanvasLayer
 
 
 func _ready() -> void:
@@ -67,7 +79,49 @@ func _ready() -> void:
 		camera.limit_top = 0
 		camera.limit_right = int(tamanho.x)
 		camera.limit_bottom = int(tamanho.y)
+	_criar_rotulos()
 	colocar_em(local_inicial)
+
+
+func _process(_delta: float) -> void:
+	var tela := get_canvas_transform()
+	for rotulo: Label in _rotulos:
+		var ancora: Vector2 = tela * _rotulos[rotulo]
+		rotulo.position = (ancora - Vector2(rotulo.size.x * 0.5, 0.0)).round()
+
+
+## Rótulo do nome de cada região e o título do mapa na cartela.
+func _criar_rotulos() -> void:
+	_camada_rotulos = CanvasLayer.new()
+	_camada_rotulos.name = "Rotulos"
+	_camada_rotulos.layer = 4
+	add_child(_camada_rotulos)
+	var titulo := _novo_rotulo("MAPA_TITULO", 56)
+	titulo.add_theme_color_override(&"font_color", COR_OURO_CLARO)
+	titulo.reset_size()
+	_rotulos[titulo] = CENTRO_TITULO - Vector2(0, titulo.size.y / ZOOM_PIXEL_ART * 0.5)
+	for id: String in grafo.locais:
+		var local := grafo.local(id)
+		if local.tipo != LocalMapa.Tipo.REGIAO:
+			continue
+		var nome := _novo_rotulo(local.chave_nome, 26)
+		nome.name = "Nome_" + id
+		_rotulos[nome] = local.posicao + Vector2(0, DESCIDA_NOME)
+
+
+func _novo_rotulo(chave: String, tamanho: int) -> Label:
+	var rotulo := Label.new()
+	rotulo.text = chave
+	rotulo.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	rotulo.add_theme_font_override(&"font", FONTE_NOMES)
+	rotulo.add_theme_font_size_override(&"font_size", tamanho)
+	rotulo.add_theme_color_override(&"font_color", COR_ESTRADA.lightened(0.35))
+	rotulo.add_theme_color_override(&"font_outline_color", COR_CONTORNO)
+	rotulo.add_theme_constant_override(&"outline_size", 8)
+	rotulo.add_theme_color_override(&"font_shadow_color", Color(COR_CONTORNO, 0.6))
+	rotulo.add_theme_constant_override(&"shadow_offset_y", 3)
+	_camada_rotulos.add_child(rotulo)
+	return rotulo
 
 
 func _unhandled_input(evento: InputEvent) -> void:

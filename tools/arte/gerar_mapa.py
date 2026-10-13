@@ -147,6 +147,40 @@ campos = (deformar(elipse(LOCAIS['atenas'], (190, 130)), 40, 70)
           | deformar(elipse(LOCAIS['agape'], (170, 120)), 40, 70)) & ~montanha & ~mata & ~frio
 quente = elipse(LOCAIS['agape'], (230, 170))
 
+# Rios: descem das montanhas e do lago até o mar, com curvas.
+RIOS = [
+    [(630, 584), (680, 650), (705, 740), (690, 830), (640, 920), (592, 1010), (560, 1100), (548, 1160)],
+    [(800, 190), (880, 176), (960, 160), (1030, 120), (1060, 96)],
+    [(300, 590), (240, 640), (180, 690), (110, 724)],
+    [(1000, 470), (1060, 520), (1110, 560), (1180, 580)],
+]
+
+
+def meandro(pontos, nivel=4):
+    """Divide cada trecho e desloca o meio para o lado, para o rio serpentear."""
+    for _ in range(nivel):
+        novo = [pontos[0]]
+        for (x0, y0), (x1, y1) in zip(pontos, pontos[1:]):
+            mx, my = (x0 + x1) / 2, (y0 + y1) / 2
+            nx, ny = -(y1 - y0), (x1 - x0)
+            tam = math.hypot(nx, ny) or 1
+            desvio = random.uniform(-0.18, 0.18) * math.hypot(x1 - x0, y1 - y0)
+            novo += [(mx + nx / tam * desvio, my + ny / tam * desvio), (x1, y1)]
+        pontos = novo
+    return pontos
+
+
+img_rio = Image.new('L', (W, H), 0)
+d_rio = ImageDraw.Draw(img_rio)
+for curso in RIOS:
+    pts = meandro(curso)
+    for i, (a, b) in enumerate(zip(pts, pts[1:])):
+        largura = 3 + int(4 * i / len(pts))  # mais largo perto da foz
+        d_rio.line([a, b], fill=255, width=largura)
+        d_rio.ellipse((b[0] - largura / 2, b[1] - largura / 2, b[0] + largura / 2, b[1] + largura / 2), fill=255)
+rio = (np.array(img_rio) > 0) & terra
+margem_rio = distancia(rio, 6) <= 1
+
 # ---------------------------------------------------------------- pintura
 img = np.zeros((H, W, 3), dtype=np.uint8)
 
@@ -203,6 +237,11 @@ for (lx, ly) in LOCAIS.values():
     pinta(clareira & ~frio & ~neve, 'grama')
     pinta(clareira & ~frio & ~neve & (n_det > 0.3), 'grama_luz')
 
+# Rios (antes das trilhas, que passam por cima como pontes).
+pinta(margem_rio & ~rio & terra, 'noite')
+pinta(rio, 'mar_raso')
+pinta(rio & (n_det > 0.2) & xadrez, 'espuma')
+
 # Trilhas de terra batida por baixo das estradas (o jogo desenha os pontos por cima).
 img_estrada = Image.new('L', (W, H), 0)
 d_estrada = ImageDraw.Draw(img_estrada)
@@ -218,6 +257,23 @@ for (px, py) in PONTOS.values():
 trilha = (np.array(img_trilha) > 0) & terra
 pinta(trilha & ~frio & ~neve, 'terra')
 pinta(trilha & (frio | neve), 'geada')
+# Pontes de madeira onde a estrada cruza um rio.
+ponte = trilha & (distancia(rio, 4) <= 1)
+pinta(ponte, 'ouro_escuro')
+pinta(ponte & (XX % 2 == 0), 'terra')
+
+# Flores e tufos na grama: detalhe que aparece com o zoom.
+grama_livre = terra & ~montanha & ~mata & ~campos & ~frio & ~trilha & ~rio & ~praia
+sorteio_px = rng.random((H, W))
+pinta(grama_livre & (sorteio_px < 0.004), 'ouro_claro')
+pinta(grama_livre & (sorteio_px > 0.9965), 'lua')
+pinta(grama_livre & (sorteio_px > 0.4) & (sorteio_px < 0.403), 'telhado_luz')
+tufo = grama_livre & (sorteio_px > 0.6) & (sorteio_px < 0.615)
+pinta(tufo, 'grama_sombra')
+pinta(np.roll(tufo, -1, axis=0) & grama_livre, 'grama_luz')
+# Lotes com fileiras (vinhas e plantações).
+fileira = campos & (sorteio % 2 == 0) & (XX % 3 == 0) & ~cerca
+pinta(fileira & ~trilha, 'grama_sombra')
 
 # Contorno escuro da terra (estilo Mario World: tudo tem borda).
 pinta(terra & (dist_mar == 1), 'noite')
@@ -319,7 +375,12 @@ def muralha(x0, x1, y, alt=6, cor='rocha_luz', sombra='rocha'):
 
 
 def castelo_olympia(x, y):
-    # Castelo à beira-mar, pedra fria e telhados azul-noite (como a capa).
+    # Castelo à beira-mar, pedra fria e telhados azul-noite (como a capa),
+    # com o casario coberto de geada em volta.
+    for i in range(40):
+        cx = x + random.randint(-58, 58); cy = y + random.randint(2, 30)
+        if abs(cx - x) > 30 or cy > y + 14:
+            casa(cx, cy, random.choice(['azul_noite', 'azul_noite', 'gelo']))
     muralha(x - 26, x + 26, y + 6, 10, 'lua', 'pedra')
     for dx, alt in ((-24, 22), (24, 22), (-10, 30), (10, 30), (0, 40)):
         torre(x + dx, y + 6, alt, 'lua', 'pedra', 'azul_noite')
@@ -333,6 +394,8 @@ def cidade_atenas(x, y):
         cx = x + random.randint(-64, 64); cy = y + random.randint(-20, 26)
         casa(cx, cy, random.choice(['telhado', 'azul_noite']))
     muralha(x - 70, x + 70, y + 34, 8, 'marmore', 'marmore_sombra')
+    for dx in (-70, -35, 35, 70):
+        torre(x + dx, y + 34, 14, 'marmore', 'marmore_sombra', 'azul_noite')
     ret(x - 17, y - 18, x + 17, y + 6, 'marmore_sombra')
     ret(x - 17, y - 18, x - 4, y + 6, 'marmore')
     for i in range(17):
@@ -352,13 +415,25 @@ def cidade_agape(x, y):
         casa(cx, cy, random.choice(['telhado', 'telhado_luz', 'ouro_escuro']))
     for dx in (-20, 0, 20):
         torre(x + dx, y + 2, 18 if dx else 26, 'prata', 'marmore_sombra', 'telhado')
-    ret(x - 44, y + 26, x + 44, y + 27, 'olhos')
-    for cx in range(x - 44, x + 45, 4):
-        ponto(cx, y + 26, 'ouro_claro')
+    # Águas quentes que brilham à noite: canais claros com reflexos dourados.
+    for cx in range(x - 52, x + 53):
+        cy_ = int(y + 27 + math.sin(cx / 7.0) * 2)
+        ret(cx, cy_ - 1, cx, cy_ + 1, 'olhos')
+        ponto(cx, cy_ + 2, 'noite')
+        if cx % 5 == 0:
+            ponto(cx, cy_, 'ouro_claro')
+    # Pequenas fontes que brilham entre as casas.
+    for fx, fy in ((x - 34, y + 12), (x + 36, y + 14), (x - 6, y + 20)):
+        ret(fx - 3, fy - 1, fx + 3, fy + 1, 'olhos'); ponto(fx, fy, 'ouro_claro')
+        ret(fx - 4, fy + 2, fx + 4, fy + 2, 'noite')
 
 
 def fortaleza_norte(x, y):
-    # Fortaleza de pedra clara no meio das montanhas nevadas.
+    # Fortaleza de pedra clara no meio das montanhas nevadas, com casas nevadas.
+    for i in range(34):
+        cx = x + random.randint(-56, 56); cy = y + random.randint(-6, 30)
+        if abs(cx - x) > 34 or cy > y + 16:
+            casa(cx, cy, 'gelo')
     muralha(x - 30, x + 30, y + 8, 12, 'prata', 'rocha')
     for dx, alt in ((-28, 20), (28, 20), (-12, 32), (12, 32), (0, 44)):
         torre(x + dx, y + 8, alt, 'prata', 'rocha', 'nuvem')
@@ -404,6 +479,144 @@ def navio(x, y):
     ponto(x, y - 13, 'vela')
 
 
+def pinheiro(x, y, nevado=False):
+    """Pinheiro em três camadas; com neve nas pontas quando nevado."""
+    for camada, (topo, base_meia) in enumerate(((-13, 2), (-9, 3), (-5, 4))):
+        for dy in range(5):
+            meia = max(0, base_meia * dy // 4)
+            for dx in range(-meia, meia + 1):
+                cor = 'mata_luz' if dx < 0 else 'mata_escura'
+                if nevado and dy < 2:
+                    cor = 'gelo' if dx <= 0 else 'gelo_sombra'
+                ponto(x + dx, y + topo + dy, cor)
+            ponto(x - meia - 1, y + topo + dy, 'noite'); ponto(x + meia + 1, y + topo + dy, 'noite')
+    ponto(x, y - 14, 'noite')
+    ret(x - 4, y, x + 4, y, 'noite')
+    ret(x, y - 1, x, y, 'terra')
+
+
+def pedra(x, y, cor='rocha_luz'):
+    ret(x - 2, y - 2, x + 2, y, 'rocha')
+    ret(x - 2, y - 2, x, y - 1, cor)
+    ret(x - 3, y - 1, x - 3, y, 'noite'); ret(x + 3, y - 1, x + 3, y, 'noite')
+    ret(x - 2, y - 3, x + 2, y - 3, 'noite'); ret(x - 2, y + 1, x + 2, y + 1, 'noite')
+
+
+def moinho(x, y):
+    ret(x - 3, y - 11, x + 3, y, 'marmore_sombra')
+    ret(x - 3, y - 11, x - 1, y, 'marmore')
+    for i in range(4):
+        ret(x - 4 + i, y - 12 - i, x + 4 - i, y - 12 - i, 'telhado')
+    ret(x - 4, y, x + 4, y, 'noite')
+    for i in range(-7, 8):
+        ponto(x + i, y - 13 + i, 'prata'); ponto(x + i, y - 13 - i, 'prata')
+    ponto(x, y - 13, 'noite'); ponto(x, y - 5, 'noite')
+
+
+def palheiro(x, y):
+    ret(x - 2, y - 3, x + 2, y, 'campo_quente')
+    ret(x - 1, y - 4, x + 1, y - 4, 'ouro_claro')
+    ret(x - 2, y + 1, x + 2, y + 1, 'noite')
+
+
+def tenda(x, y, cor='prata'):
+    for i in range(7):
+        ret(x - i, y - 7 + i, x + i, y - 7 + i, cor if i < 3 or True else cor)
+        ret(x, y - 7 + i, x + i, y - 7 + i, 'marmore_sombra')
+        ponto(x - i - 1, y - 7 + i, 'noite'); ponto(x + i + 1, y - 7 + i, 'noite')
+    ret(x - 7, y, x + 7, y, 'noite')
+    ret(x, y - 4, x, y - 1, 'noite')
+
+
+def fogueira(x, y):
+    ret(x - 2, y, x + 2, y, 'terra')
+    ret(x - 1, y - 3, x + 1, y - 1, 'vela')
+    ponto(x, y - 4, 'ouro_claro'); ponto(x, y - 2, 'ouro_claro')
+
+
+def navio_grande(x, y):
+    """Navio de dois mastros, maior que o barquinho."""
+    for i in range(4):
+        ret(x - 12 + i, y + i, x + 12 - i, y + i, 'terra' if i < 3 else 'noite')
+    ret(x - 13, y - 1, x + 13, y - 1, 'ouro_escuro')
+    for mx, alt in ((-5, 18), (5, 22)):
+        ret(x + mx, y - alt, x + mx, y - 1, 'terra')
+        for j in range(3):
+            topo = y - alt + 2 + j * 6
+            ret(x + mx - 5 + j, topo, x + mx + 5 - j, topo + 4, 'lua' if j % 2 == 0 else 'prata')
+            ret(x + mx + 1, topo, x + mx + 5 - j, topo + 4, 'marmore_sombra')
+        ponto(x + mx, y - alt - 1, 'vela'); ponto(x + mx + 1, y - alt - 1, 'vela')
+    for dx in range(-14, 15, 2):
+        ponto(x + dx, y + 5, 'espuma')
+
+
+def farol(x, y):
+    ret(x - 2, y - 16, x + 2, y, 'lua')
+    for yy_ in range(y - 14, y, 4):
+        ret(x - 2, yy_, x + 2, yy_ + 1, 'telhado')
+    ret(x - 3, y - 19, x + 3, y - 17, 'noite')
+    ret(x - 2, y - 21, x + 2, y - 19, 'vela'); ponto(x, y - 22, 'ouro_claro')
+    ret(x - 3, y + 1, x + 3, y + 1, 'noite')
+
+
+def aldeia(x, y, telhados, neve_no_telhado=False):
+    n = random.randint(3, 7)
+    casas = sorted((y + random.randint(-8, 8), x + random.randint(-14, 14)) for _ in range(n))
+    for cy, cx in casas:
+        casa(cx, cy, 'gelo' if neve_no_telhado else random.choice(telhados))
+    if random.random() < 0.3:
+        torre(x + random.choice((-18, 18)), y + 4, 12, 'marmore', 'marmore_sombra', random.choice(telhados))
+
+
+def rosa_dos_ventos(x, y, r):
+    """Rosa dos ventos dourada, com 8 pontas e anel."""
+    for a in range(0, 360, 1):
+        for rr in (r * 0.62, r * 0.62 + 1):
+            ponto(int(x + math.cos(math.radians(a)) * rr), int(y + math.sin(math.radians(a)) * rr), 'ouro_escuro')
+    for k in range(8):
+        ang = math.radians(k * 45 - 90)
+        comp = r if k % 2 == 0 else r * 0.55
+        larg = r * 0.16 if k % 2 == 0 else r * 0.12
+        for t in np.linspace(0, 1, int(comp * 2)):
+            meia = larg * (1 - t)
+            cx, cy = x + math.cos(ang) * comp * t, y + math.sin(ang) * comp * t
+            for sgn in (-1, 1):
+                for u in np.linspace(0, meia, max(2, int(meia * 2))):
+                    px_ = int(cx + math.cos(ang + math.pi / 2) * u * sgn)
+                    py_ = int(cy + math.sin(ang + math.pi / 2) * u * sgn)
+                    ponto(px_, py_, ('ouro_claro' if sgn < 0 else 'ouro') if k % 2 == 0 else ('prata' if sgn < 0 else 'pedra'))
+    for rr in range(3):
+        for a in range(0, 360, 6):
+            ponto(int(x + math.cos(math.radians(a)) * rr), int(y + math.sin(math.radians(a)) * rr), 'vela')
+    # Flor-de-lis simples no norte.
+    ret(x - 1, y - r - 6, x + 1, y - r - 2, 'ouro_claro')
+    ponto(x - 3, y - r - 4, 'ouro_claro'); ponto(x + 3, y - r - 4, 'ouro_claro')
+
+
+def cartela(x0, y0, x1, y1):
+    """Moldura de pergaminho para o título (o texto vem do jogo, traduzível)."""
+    ret(x0 + 4, y0 + 4, x1 + 4, y1 + 4, 'noite')
+    ret(x0, y0, x1, y1, 'azul_noite')
+    ret(x0 + 3, y0 + 3, x1 - 3, y1 - 3, 'nuvem')
+    ret(x0 + 5, y0 + 5, x1 - 5, y1 - 5, 'azul_noite')
+    for i, cor in enumerate(['noite', 'ouro_escuro', 'ouro', 'ouro_claro', 'ouro']):
+        ret(x0 + i, y0 + i, x1 - i, y0 + i, cor); ret(x0 + i, y1 - i, x1 - i, y1 - i, cor)
+        ret(x0 + i, y0 + i, x0 + i, y1 - i, cor); ret(x1 - i, y0 + i, x1 - i, y1 - i, cor)
+    # Volutas nos cantos e sol no alto, como no mapa de referência.
+    for cx, cy in ((x0, y0), (x1, y0), (x0, y1), (x1, y1)):
+        for a in range(0, 360, 4):
+            for rr in (6, 7):
+                ponto(int(cx + math.cos(math.radians(a)) * rr), int(cy + math.sin(math.radians(a)) * rr), 'ouro')
+        ret(cx - 2, cy - 2, cx + 2, cy + 2, 'ouro_claro')
+    mx = (x0 + x1) // 2
+    for a in range(0, 360, 15):
+        for rr in range(8, 15):
+            ponto(int(mx + math.cos(math.radians(a)) * rr), int(y0 - 2 + math.sin(math.radians(a)) * rr * 0.8), 'ouro')
+    for rr in range(9):
+        for a in range(0, 360, 5):
+            ponto(int(mx + math.cos(math.radians(a)) * rr), int(y0 - 2 + math.sin(math.radians(a)) * rr * 0.8), 'ouro_claro' if rr < 6 else 'ouro_escuro')
+
+
 usados = [(x, y) for x, y in LOCAIS.values()]
 usados_pequenos = [p for k, p in PONTOS.items() if k not in LOCAIS]
 RAIO_LIVRE = 70
@@ -415,51 +628,169 @@ def livre(x, y, r=RAIO_LIVRE):
     return not ocupado(x, y, r, usados) and not ocupado(x, y, 22, usados_pequenos)
 
 
-# Ondas espalhadas no mar fundo.
-for _ in range(900):
+def no_mar(x, y, folga=6):
+    return 0 <= x < W and 0 <= y < H and not terra[y, x] and dist_terra[y, x] > folga
+
+
+# Linhas de rumo saindo das rosas dos ventos, só no mar (mapa antigo).
+ROSAS = [((150, 1170), 46), ((1520, 1040), 34)]
+for (rx, ry), _ in ROSAS:
+    for k in range(16):
+        ang = math.radians(k * 22.5)
+        for t in range(50, 1900, 1):
+            x, y = int(rx + math.cos(ang) * t), int(ry + math.sin(ang) * t)
+            if not (0 <= x < W and 0 <= y < H):
+                break
+            if no_mar(x, y, 4) and t % 4 != 0:
+                ponto(x, y, 'nuvem')
+
+# Ondas: pequenos "~" no mar fundo e cristas perto da costa.
+for _ in range(1400):
     x, y = random.randrange(W), random.randrange(H)
-    if not terra[y, x] and dist_terra[y, x] > 14:
-        for dx in range(-2, 3):
-            ponto(x + dx, y - (1 if abs(dx) < 2 else 0), 'mar_raso')
+    if no_mar(x, y, 14):
+        for dx in range(-3, 4):
+            ponto(x + dx, y - (1 if abs(dx) in (1, 2) else 0), 'mar_raso')
+        ponto(x - 1, y - 1, 'espuma')
+for _ in range(500):
+    x, y = random.randrange(W), random.randrange(H)
+    if 0 <= x < W and 0 <= y < H and not terra[y, x] and 5 < dist_terra[y, x] < 12:
+        ret(x - 1, y, x + 1, y, 'espuma')
+
+# Recifes e rochedos soltos no mar.
+for _ in range(60):
+    x, y = random.randrange(W), random.randrange(H)
+    if no_mar(x, y, 10) and dist_terra[y, x] < 40:
+        pedra(x, y, 'lua')
+        for dx in range(-4, 5):
+            ponto(x + dx, y + 2, 'espuma')
+
+for (rx, ry), r in ROSAS:
+    rosa_dos_ventos(rx, ry, r)
+CARTELA = (1300, 92, 1600, 204)  # o jogo escreve o título aqui dentro
+cartela(*CARTELA)
 
 # Montanhas, de cima para baixo (as de baixo cobrem as de trás).
 picos = []
-for y in range(60, 620, 26):
-    for x in range(60, 900, 32):
-        jx, jy = x + random.randint(-9, 9) + (16 if (y // 26) % 2 else 0), y + random.randint(-6, 6)
-        vale = abs(n_alto[min(jy, H - 1), min(jx, W - 1)]) < 0.12  # vales sem picos
-        if 0 < jx < W and 0 < jy < H and montanha[jy, jx] and terra[jy, jx] and dist_mar[jy, jx] > 10 \
-                and livre(jx, jy, 64) and not lago[jy, jx] and not vale:
-            picos.append((jy, jx))
-for jy, jx in sorted(picos):
-    montanha_sprite(jx, jy, random.randint(16, 26), neve[jy, jx])
+for y in range(60, 620, 22):
+    for x in range(60, 900, 28):
+        jx, jy = x + random.randint(-9, 9) + (14 if (y // 22) % 2 else 0), y + random.randint(-6, 6)
+        if not (0 < jx < W and 0 < jy < H):
+            continue
+        vale = abs(n_alto[jy, jx]) < 0.1  # vales sem picos
+        if montanha[jy, jx] and terra[jy, jx] and dist_mar[jy, jx] > 10 and livre(jx, jy, 64) \
+                and not lago[jy, jx] and not vale and not margem_rio[jy, jx]:
+            alto = 30 if neve[jy, jx] and random.random() < 0.3 else 0
+            picos.append((jy, jx, random.randint(16, 26) + alto))
+for jy, jx, alt in sorted(picos):
+    montanha_sprite(jx, jy, alt, neve[jy, jx])
 
-# Árvores: matas fechadas e algumas soltas pelos campos.
-arvores = []
+# Objetos pequenos, todos desenhados juntos de cima para baixo.
+objetos = []
+
+
+def perto_de_agua(x, y):
+    return dist_mar[y, x] < 7 or margem_rio[y, x] or rio[y, x]
+
+
 for y in range(40, H, 7):
     for x in range(30, W, 7):
         jx, jy = x + random.randint(-3, 3), y + random.randint(-2, 2)
-        if not (0 < jx < W and 0 < jy < H) or not terra[jy, jx] or dist_mar[jy, jx] < 7:
+        if not (0 < jx < W and 0 < jy < H) or not terra[jy, jx] or perto_de_agua(jx, jy):
             continue
-        if montanha[jy, jx] or not livre(jx, jy, 46 if mata[jy, jx] else 60):
+        if not livre(jx, jy, 46 if mata[jy, jx] else 60):
             continue
-        if mata[jy, jx] or (not campos[jy, jx] and not frio[jy, jx] and random.random() < 0.035):
-            arvores.append((jy, jx))
-        elif frio[jy, jx] and random.random() < 0.03:
-            arvores.append((jy, jx))
-for jy, jx in sorted(arvores):
-    arvore(jx, jy, escura=bool(frio[jy, jx]))
+        sorte = random.random()
+        if montanha[jy, jx]:
+            if abs(n_alto[jy, jx]) < 0.1 and sorte < 0.25:  # pinheiros nos vales
+                objetos.append((jy, jx, pinheiro, (bool(neve[jy, jx]),)))
+            elif sorte < 0.04:
+                objetos.append((jy, jx, pedra, ()))
+        elif mata[jy, jx]:
+            if jy < 560 and sorte < 0.35:  # mata do norte mistura pinheiros
+                objetos.append((jy, jx, pinheiro, (False,)))
+            else:
+                objetos.append((jy, jx, arvore, (False,)))
+        elif frio[jy, jx]:
+            if sorte < 0.05:
+                objetos.append((jy, jx, pinheiro, (True,)))
+            elif sorte < 0.07:
+                objetos.append((jy, jx, pedra, ('lua',)))
+        elif campos[jy, jx]:
+            if sorte < 0.012:
+                objetos.append((jy, jx, palheiro, ()))
+        elif sorte < 0.05:
+            objetos.append((jy, jx, arvore, (False,)))
+        elif sorte < 0.058:
+            objetos.append((jy, jx, pedra, ()))
+
+# Aldeias espalhadas pelas planícies, campos e costa gélida.
+aldeias = []
+tentativas = 0
+while len(aldeias) < 46 and tentativas < 20000:
+    tentativas += 1
+    x, y = random.randrange(60, W - 60), random.randrange(60, H - 60)
+    if not terra[y, x] or montanha[y, x] or mata[y, x] or dist_mar[y, x] < 16 or margem_rio[y, x]:
+        continue
+    if not livre(x, y, 90) or ocupado(x, y, 70, aldeias):
+        continue
+    aldeias.append((x, y))
+    if frio[y, x]:
+        objetos.append((y, x, aldeia, (['azul_noite'], True)))
+    elif quente[y, x]:
+        objetos.append((y, x, aldeia, (['telhado', 'telhado_luz', 'ouro_escuro'],)))
+    else:
+        objetos.append((y, x, aldeia, (['telhado', 'azul_noite', 'telhado_luz'],)))
+    if campos[y, x] and random.random() < 0.6:
+        objetos.append((y + 6, x + random.choice((-26, 26)), moinho, ()))
 
 # Colinas soltas nas planícies.
-for _ in range(60):
+for _ in range(80):
     x, y = random.randrange(W), random.randrange(H)
-    if terra[y, x] and not montanha[y, x] and not mata[y, x] and not campos[y, x] \
-            and dist_mar[y, x] > 14 and livre(x, y, 60):
-        colina(x, y)
+    if terra[y, x] and not montanha[y, x] and not mata[y, x] and not campos[y, x] and not frio[y, x] \
+            and dist_mar[y, x] > 14 and livre(x, y, 60) and not ocupado(x, y, 40, aldeias):
+        objetos.append((y, x, colina, ()))
 
-# Navios perto de Olympia e de Ágape.
-for x, y in ((960, 1110), (1010, 1150), (1060, 1090), (1100, 1180), (1180, 960), (1210, 870)):
-    if not terra[y, x]:
+# Acampamentos: tendas e fogueira ao lado do ponto do mapa.
+for ident, (x, y) in PONTOS.items():
+    if 'acampamento' in ident:
+        objetos.append((y - 10, x - 18, tenda, ('prata',)))
+        objetos.append((y - 14, x + 16, tenda, ('olhos',)))
+        objetos.append((y - 12, x - 2, fogueira, ()))
+
+for jy, jx, funcao, extra in sorted(objetos, key=lambda o: (o[0], o[1])):
+    funcao(jx, jy, *extra)
+
+# Portos: píer de madeira para o mar, farol e barco atracado.
+for ident, (x, y) in PONTOS.items():
+    if not ident.startswith('porto_'):
+        continue
+    melhor = None
+    for a in range(0, 360, 10):
+        for t in range(4, 60):
+            qx, qy = int(x + math.cos(math.radians(a)) * t), int(y + math.sin(math.radians(a)) * t)
+            if 0 <= qx < W and 0 <= qy < H and not terra[qy, qx]:
+                if melhor is None or t < melhor[0]:
+                    melhor = (t, a)
+                break
+    t, a = melhor
+    dx, dy = math.cos(math.radians(a)), math.sin(math.radians(a))
+    for k in range(6, t + 26):
+        cx, cy = x + dx * k, y + dy * k
+        for u in (-2, -1, 0, 1, 2):
+            ponto(int(cx - dy * u), int(cy + dx * u), 'ouro_escuro' if abs(u) < 2 else 'noite')
+        if k % 3 == 0:
+            ponto(int(cx), int(cy), 'terra')
+    fim_x, fim_y = int(x + dx * (t + 26)), int(y + dy * (t + 26))
+    navio(fim_x + int(-dy * 12), fim_y + int(dx * 12))
+    farol(x - int(dy * 18) - 4, y + int(dx * 18) - 6)
+
+# Frota perto de Olympia (o mapa de referência mostra navios ali) e barcos pelo mar.
+for x, y in ((1090, 1080), (1150, 1120), (1060, 1160), (1200, 1190), (1130, 1230), (1240, 1100),
+             (1010, 1210)):
+    if no_mar(x, y, 8):
+        navio_grande(x, y)
+for x, y in ((1220, 880), (1230, 700), (1440, 880), (260, 1150), (60, 640), (1180, 260), (1500, 640)):
+    if no_mar(x, y, 8):
         navio(x, y)
 
 x, y = LOCAIS['olympia']; castelo_olympia(x, y - 8)

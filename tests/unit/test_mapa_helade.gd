@@ -96,3 +96,19 @@ func test_local_bloqueado_nao_e_destino() -> void:
 	mapa.liberados.erase("norte")
 	assert_false(mapa.viajar_para("norte"))
 	assert_eq(mapa.local_atual, "olympia")
+
+
+func test_nomes_das_regioes_escritos_no_mapa() -> void:
+	var rotulos := mapa.get_node("Rotulos")
+	for id in ["olympia", "atenas", "agape", "norte", "templo", "floresta_ninfas"]:
+		var nome: Label = rotulos.get_node("Nome_" + id)
+		assert_eq(tr(nome.text), tr(mapa.grafo.local(id).chave_nome))
+	assert_null(rotulos.get_node_or_null("Nome_oa_acampamento"), "etapas não ganham nome no mapa")
+
+
+func test_nome_acompanha_a_camera() -> void:
+	var nome: Label = mapa.get_node("Rotulos/Nome_olympia")
+	await wait_process_frames(2)
+	var esperado: Vector2 = mapa.get_canvas_transform() * (mapa.grafo.local("olympia").posicao + Vector2(0, MapaHelade.DESCIDA_NOME))
+	assert_almost_eq(nome.position.x + nome.size.x * 0.5, esperado.x, 1.0)
+	assert_almost_eq(nome.position.y, esperado.y, 1.0)

@@ -18,6 +18,7 @@ Para testar o diálogo: abra `scenes/testes/teste_dialogo.tscn` no Godot e apert
 | --- | --- |
 | `data/dialogos/` | Cenas de roteiro em `.dialogue`, uma pasta por capítulo |
 | `data/personagens/` | Um `.tres` por personagem (nome no roteiro e retratos por expressão) |
+| `data/acampamentos/` + `scenes/exploracao/acampamentos/` | Um `BiomaAcampamento` (.tres) por acampamento do mapa; as cenas herdam `acampamento_base.tscn` e só trocam o bioma. Arte provisória: `tools/arte/gerar_acampamento.py` |
 | `data/mapa/` | Um `.tres` por local do mapa de Hélade (`LocalMapa`): tipo (região, estrada, acampamento, porto), posição no desenho, ligações por estrada e por mar, cena ao entrar |
 | `tools/arte/gerar_mapa.py` | Gera a arte do mapa de dia e de noite (`assets/art/mapa/mapa_helade.png` e `mapa_helade_noite.png`) a partir dos pontos de `data/mapa/`. Rodar de novo ao mudar um ponto ou uma estrada |
 | `data/itens/` | Um `.tres` por item (`Item`); o nome do arquivo é o id. Entra sozinho no `Inventario` |

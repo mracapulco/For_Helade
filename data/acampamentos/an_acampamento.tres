@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="BiomaAcampamento" format=3]
+
+[ext_resource type="Script" path="res://scripts/exploracao/bioma_acampamento.gd" id="1"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholders/acampamento/chao_passo_nevado.png" id="2"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholders/acampamento/rochedo.png" id="3"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholders/acampamento/rocha_neve.png" id="4"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholders/acampamento/pinheiro_neve.png" id="5"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholders/acampamento/pedrinhas.png" id="6"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholders/acampamento/neve_mancha.png" id="7"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholders/acampamento/cabra.png" id="8"]
+
+[resource]
+script = ExtResource("1")
+id = "an_acampamento"
+chave_nome = "ACAMP_NOME_AN"
+pisos = ExtResource("2")
+lados_agua = Array[int]([])
+largura_agua = 2
+cor_dia = Color(0.95, 0.97, 1.0, 1)
+obstaculos = Array[Texture2D]([ExtResource("3"), ExtResource("3"), ExtResource("4"), ExtResource("4"), ExtResource("5")])
+densidade_borda = 0.65
+enfeites = Array[Texture2D]([ExtResource("6"), ExtResource("7")])
+densidade_enfeites = 0.18
+enfeites_margem = Array[Texture2D]([])
+semente = 5
+companheiro = ExtResource("8")
+marcador_companheiro = "cabra"

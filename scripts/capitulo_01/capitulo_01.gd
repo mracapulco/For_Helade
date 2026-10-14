@@ -268,9 +268,10 @@ func _levantar_althea() -> void:
 	objetos["althea"] = althea
 	_ativar(althea, false)
 	althea.get_node("Interagivel").interagido.connect(sentar_a_mesa)
-	# O pulo: sobe e desce enquanto vai da cama para o chão ao lado.
+	# O pulo: sobe e desce enquanto vai da cama para o chão, do lado onde
+	# Nicholas está.
 	var visual: AnimatedSprite2D = althea.get_node("Visual")
-	var destino := sala.centro(Vector2i(1, 2))
+	var destino := sala.centro(lado_da_cama_perto_de_nicholas())
 	_virar(althea, destino)
 	var tempo := maxf(0.45 * escala_tempo, 0.01)
 	var pulo := create_tween().set_parallel()
@@ -278,7 +279,25 @@ func _levantar_althea() -> void:
 	pulo.tween_method(func(t: float) -> void: visual.offset.y = -22.0 - sin(t * PI) * 10.0, 0.0, 1.0, tempo)
 	await pulo.finished
 	visual.offset.y = -22.0
-	_virar(althea, objetos["embrulho"].position)
+	_virar(althea, jogador.position)
+
+
+## Casa livre ao lado da cama de Althea mais perto de Nicholas (nunca a dele).
+func lado_da_cama_perto_de_nicholas() -> Vector2i:
+	var cama := Vector2i(2, 2)
+	var dele := sala.chao.local_to_map(jogador.position)
+	var ocupadas := [dele, Vector2i(1, 3), Vector2i(3, 1), Vector2i(1, 1)]   # Nicholas, embrulho, armário, baú
+	var melhor := Vector2i(3, 2)
+	var menor := INF
+	for passo: Vector2i in [Vector2i(1, 0), Vector2i(0, 1), Vector2i(1, 1), Vector2i(-1, 0), Vector2i(-1, 1)]:
+		var casa := cama + passo
+		if ocupadas.has(casa):
+			continue
+		var distancia := sala.centro(casa).distance_to(jogador.position)
+		if distancia < menor:
+			menor = distancia
+			melhor = casa
+	return melhor
 
 
 ## Uma pessoa anda até [param destino], com a animação de andar virada para lá.

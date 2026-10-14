@@ -287,14 +287,18 @@ def cama(com_althea, dossel=False, sentada=False):
         q.p(21, 15 + y, 'monstro_luz'); q.p(18, 15 + y, 'monstro_luz')
         q.r(19, 17 + y, 34, 22 + y, 'colcha_luz')           # volume do corpo sob a colcha
     if sentada:
-        # Althea sentada na cama, ainda com a pelúcia, antes de pular para o chão
-        q.r(19, 17 + y, 34, 22 + y, 'colcha_luz')           # pernas sob a colcha
-        q.r(10, 8 + y, 16, 16 + y, 'vestido_althea')        # camisola
-        q.elipse(13, 4 + y, 3, 3, 'pele_luz')               # rosto
-        q.r(10, 1 + y, 16, 3 + y, 'cab_althea')             # cabelo curto
-        q.r(10, 3 + y, 10, 6 + y, 'cab_althea'); q.r(16, 3 + y, 16, 6 + y, 'cab_althea')
-        q.p(12, 4 + y, 'azul'); q.p(14, 4 + y, 'azul')
-        q.r(16, 11 + y, 20, 14 + y, 'monstro'); q.p(19, 11 + y, 'monstro_luz')
+        # Althea sentada na beira da cama, abaixo do dossel, com a pelúcia,
+        # antes de pular para o chão
+        q.r(7, 12 + y, 44, 24 + y, 'lencol'); q.r(9, 13 + y, 16, 17 + y, 'perola')
+        q.r(18, 14 + y, 44, 26 + y, 'colcha'); q.linha(14 + y, 18, 44, 'colcha_luz')
+        x = 30
+        q.r(x - 3, 9 + y, x + 3, 18 + y, 'vestido_althea')            # camisola
+        q.r(x - 2, 19 + y, x - 1, 27 + y, 'pele'); q.r(x + 1, 19 + y, x + 2, 27 + y, 'pele')   # pernas para fora
+        q.elipse(x, 5 + y, 3, 3, 'pele_luz')                           # rosto
+        q.r(x - 3, 1 + y, x + 3, 3 + y, 'cab_althea')                  # cabelo curto
+        q.r(x - 3, 3 + y, x - 3, 7 + y, 'cab_althea'); q.r(x + 3, 3 + y, x + 3, 7 + y, 'cab_althea')
+        q.p(x - 1, 5 + y, 'azul'); q.p(x + 1, 5 + y, 'azul')
+        q.r(x + 3, 12 + y, x + 7, 15 + y, 'monstro'); q.p(x + 6, 12 + y, 'monstro_luz')
     q.r(42, 12 + y, 45, 30 + y, 'madeira_luz')              # pé da cama
     return q.contornar()
 

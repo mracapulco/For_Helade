@@ -43,8 +43,18 @@ enum Lado {
 @export var enfeites_margem: Array[Texture2D] = []
 ## Muda a arrumação dos enfeites sem mudar o resto.
 @export var semente := 1
+## Falésias ao longo da praia (só nos lados com água).
+@export var falesias: Array[Texture2D] = []
+
+@export_group("Clima e bichos")
+## Quanta neve cai (0 = nenhuma, 1 = nevasca leve).
+@export_range(0.0, 1.0) var neve := 0.0
+## Mata fechada: insetos e pássaros de dia, vaga-lumes à noite.
+@export var fauna_da_mata := false
 
 @export_group("Companhia")
+## Mercador do acampamento: faixa de 4 quadros de 32×48 (parado, respirando).
+@export var mercador: Texture2D
 ## Animal ou viajante que fica perto da fogueira.
 @export var companheiro: Texture2D
 ## Marcador (~ nome) em data/dialogos/acampamentos/acampamento.dialogue.

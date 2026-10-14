@@ -169,3 +169,93 @@ func test_agua_tem_colisao_e_saida_fica_fora_dela() -> void:
 	var agua := acampamento.get_node("Chao").to_global((acampamento.get_node("Chao") as TileMapLayer).map_to_local(Vector2i(7, 14))) as Vector2
 	assert_gt(NavigationServer2D.map_get_closest_point(mapa, agua).distance_to(agua), 10.0,
 		"não dá para andar na água")
+
+
+const ANIMAIS := ["cao", "ovelha", "cabra", "burro", "coruja", "gaivota", "caranguejo"]
+const COM_NEVE := ["an_acampamento", "nt_acampamento", "og_acampamento"]
+
+
+func test_fogueira_tem_chama_animada() -> void:
+	await _abrir("oa_acampamento")
+	assert_eq(acampamento.fogo.hframes, Acampamento.QUADROS_FOGO)
+	var antes := acampamento.fogo.frame
+	await wait_seconds(Acampamento.TEMPO_QUADRO_FOGO * 2.5)
+	assert_ne(acampamento.fogo.frame, antes, "a chama troca de quadro")
+	assert_not_null(acampamento.som_fogueira.stream, "estalo da fogueira")
+
+
+func test_cada_mercador_tem_roupa_propria_e_anima(id: String = use_parameters(IDS)) -> void:
+	await _abrir(id)
+	assert_not_null(acampamento.bioma.mercador, id)
+	assert_eq(acampamento.visual_mercador.texture, acampamento.bioma.mercador)
+	assert_eq(acampamento.visual_mercador.hframes, Acampamento.QUADROS_MERCADOR)
+
+
+func test_mercadores_com_roupas_diferentes() -> void:
+	var roupas := {}
+	for id: String in IDS:
+		var bioma: BiomaAcampamento = load("res://data/acampamentos/%s.tres" % id)
+		roupas[bioma.mercador.resource_path] = true
+	assert_eq(roupas.size(), IDS.size())
+
+
+func test_animal_faz_som_e_se_mexe(id: String = use_parameters(IDS)) -> void:
+	await _abrir(id)
+	var marcador := acampamento.bioma.marcador_companheiro
+	if not ANIMAIS.has(marcador):
+		assert_null(acampamento.som_companheiro.stream, "%s: gente não faz som de bicho" % id)
+		return
+	assert_not_null(acampamento.som_companheiro.stream, "%s: som do %s" % [id, marcador])
+	acampamento.companheiro.interagido.emit()
+	assert_true(acampamento.som_companheiro.playing, id)
+	await wait_seconds(0.15)
+	var v := acampamento.visual_companheiro
+	var mexeu := v.position != Vector2.ZERO or v.rotation != 0.0 or v.scale != Vector2.ONE or v.flip_h
+	assert_true(mexeu, "%s: o %s se mexe" % [id, marcador])
+	await wait_for_signal(acampamento._reacao.finished, 3)
+	assert_eq(v.position, Vector2.ZERO, "volta ao lugar")
+	assert_eq(v.rotation, 0.0)
+
+
+func test_cada_animal_tem_som() -> void:
+	for animal: String in ANIMAIS:
+		assert_true(ResourceLoader.exists(Acampamento.PASTA_SONS_ANIMAIS + animal + ".wav"), animal)
+
+
+func test_neve_so_nos_acampamentos_frios(id: String = use_parameters(IDS)) -> void:
+	await _abrir(id)
+	if COM_NEVE.has(id):
+		assert_not_null(acampamento.vida.neve, id)
+		assert_true(acampamento.vida.neve.emitting, id)
+	else:
+		assert_null(acampamento.vida.neve, id)
+
+
+func test_mata_tem_bichos_de_dia_e_vagalumes_de_noite() -> void:
+	await _abrir("at_acampamento")
+	var vida := acampamento.vida
+	assert_true(vida.insetos.emitting)
+	assert_true(vida.passaros.emitting)
+	assert_false(vida.vagalumes.emitting)
+	Mundo.definir_noite(true)
+	assert_false(vida.insetos.emitting)
+	assert_false(vida.passaros.emitting)
+	assert_true(vida.vagalumes.emitting)
+
+
+func test_falesias_perto_da_praia() -> void:
+	await _abrir("ot_acampamento")
+	var cenario := acampamento.get_node("Cenario") as CenarioAcampamento
+	var falesias := cenario.get_children().filter(func(n: Node) -> bool: return n.name.begins_with("Falesia"))
+	assert_gt(falesias.size(), 2, "falésias na cena")
+	for lado in acampamento.bioma.lados_agua:
+		for celula in cenario.celulas_de_falesia(lado):
+			var distancia := CenarioAcampamento.distancia_ao_lado(celula, lado)
+			assert_between(distancia, acampamento.bioma.largura_agua, acampamento.bioma.largura_agua + 1, "colada na praia")
+	# O caminho até a água continua livre.
+	var mapa := _mapa_navegacao()
+	var chao := acampamento.get_node("Chao") as TileMapLayer
+	var praia := chao.to_global(chao.map_to_local(Vector2i(acampamento.bioma.largura_agua, 7)))
+	var inicio := acampamento.get_node("Personagem").global_position as Vector2
+	var caminho := NavigationServer2D.map_get_path(mapa, inicio, praia, true)
+	assert_lt(caminho[caminho.size() - 1].distance_to(praia), 20.0, "dá para chegar na praia")

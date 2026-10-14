@@ -64,6 +64,7 @@ func _ready() -> void:
 	_posicionar_saida()
 	_vestir_companheiro()
 	_reservar()
+	_por_falesias()
 	_pintar_chao()
 	_espalhar()
 	_pintar_fundo()
@@ -206,7 +207,7 @@ func _pintar_fundo() -> void:
 				continue
 			fundo.set_cell(celula, 0, _piso(celula))
 			var fora := distancia_para_fora(celula)
-			if terreno(celula) == Terreno.BORDA and fora <= ALCANCE_ENFEITE_FUNDO \
+			if terreno(celula) == Terreno.BORDA and fora <= ALCANCE_ENFEITE_FUNDO and not _ocupadas.has(celula) \
 					and _rng.randf() < minf(bioma.densidade_borda + 0.2, 0.9):
 				_por_obstaculo(celula, false)
 
@@ -264,6 +265,36 @@ func _espalhar() -> void:
 						_por_enfeite(celula, bioma.enfeites)
 
 
+## Onde ficam as falésias de um lado com água: nas duas pontas da praia, onde
+## a areia encontra a borda (e continuando para fora do losango), sem fechar
+## o caminho até a água.
+func celulas_de_falesia(lado: BiomaAcampamento.Lado) -> Array[Vector2i]:
+	var celulas: Array[Vector2i] = []
+	for x in range(-ALCANCE_ENFEITE_FUNDO, TAMANHO + ALCANCE_ENFEITE_FUNDO):
+		for y in range(-ALCANCE_ENFEITE_FUNDO, TAMANHO + ALCANCE_ENFEITE_FUNDO):
+			var celula := Vector2i(x, y)
+			var distancia := distancia_ao_lado(celula, lado)
+			if distancia < bioma.largura_agua or distancia > bioma.largura_agua + 1:
+				continue
+			if dentro(celula) and terreno(celula) != Terreno.BORDA:
+				continue
+			if (x + y) % 2 == 0 and not _ocupadas.has(celula):
+				celulas.append(celula)
+	return celulas
+
+
+func _por_falesias() -> void:
+	if bioma.falesias.is_empty():
+		return
+	var i := 0
+	for lado in bioma.lados_agua:
+		for celula in celulas_de_falesia(lado):
+			var textura: Texture2D = bioma.falesias[i % bioma.falesias.size()]
+			i += 1
+			_por_peca(celula, textura, dentro(celula), "Falesia")
+			_ocupadas[celula] = true
+
+
 func _desvio() -> Vector2:
 	return Vector2(_rng.randi_range(-10, 10), _rng.randi_range(-5, 5))
 
@@ -273,6 +304,10 @@ func _por_obstaculo(celula: Vector2i, solido := true) -> void:
 	if bioma.obstaculos.is_empty():
 		return
 	var textura: Texture2D = bioma.obstaculos[_rng.randi() % bioma.obstaculos.size()]
+	_por_peca(celula, textura, solido, "Obstaculo")
+
+
+func _por_peca(celula: Vector2i, textura: Texture2D, solido: bool, prefixo: String) -> void:
 	var visual := Sprite2D.new()
 	visual.name = "Visual"
 	visual.texture = textura
@@ -280,12 +315,12 @@ func _por_obstaculo(celula: Vector2i, solido := true) -> void:
 	_apoiar_no_chao(visual)
 	var posicao := chao.map_to_local(celula) + _desvio()
 	if not solido:
-		visual.name = "Fundo_%d_%d" % [celula.x, celula.y]
+		visual.name = "%sFundo_%d_%d" % [prefixo, celula.x, celula.y]
 		visual.position = posicao
 		add_child(visual)
 		return
 	var corpo := StaticBody2D.new()
-	corpo.name = "Obstaculo_%d_%d" % [celula.x, celula.y]
+	corpo.name = "%s_%d_%d" % [prefixo, celula.x, celula.y]
 	corpo.add_to_group(GRUPO_OBSTACULOS)
 	corpo.position = posicao
 	corpo.add_child(visual)

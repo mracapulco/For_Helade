@@ -15,6 +15,12 @@ extends Node3D
 @export var gatilhos := {}
 ## Metros por segundo de cada pessoa (sem valor: 2,8, correndo).
 @export var velocidades := {}
+## Atividade de quem anda, por pessoa (sem valor: correndo ou andando,
+## pela velocidade).
+@export var atividades := {}
+## Quem já aparece parado no começo do caminho durante a espera (Janet
+## pegando as roupas), em vez de surgir só na hora de andar.
+@export var aparecem_antes: Array[String] = []
 ## Segundos de espera depois do gatilho, por pessoa (sem valor: parte já).
 @export var atrasos := {}
 ## Etapas da sequência em que quem ainda está no caminho some de vez.
@@ -61,6 +67,8 @@ func _gatilho(nome: String) -> void:
 			_ja_passaram.append(pessoa.name)
 			var atraso: float = atrasos.get(String(pessoa.name), 0.0)
 			if atraso > 0.0:
+				if String(pessoa.name) in aparecem_antes:
+					_mostrar_no_comeco(pessoa)
 				get_tree().create_timer(atraso, false).timeout.connect(_partir.bind(pessoa))
 			else:
 				_partir(pessoa)
@@ -79,9 +87,19 @@ func _partir(pessoa: PessoaPrologo) -> void:
 	pessoa.global_position = pontos[0]
 	pessoa.visible = true
 	var rapidez: float = velocidades.get(String(pessoa.name), 2.8)
-	pessoa.atividade = "correndo" if rapidez > 2.0 else "andando"
+	pessoa.atividade = atividades.get(String(pessoa.name), "correndo" if rapidez > 2.0 else "andando")
 	em_caminho[pessoa] = {"pontos": pontos.slice(1), "rapidez": rapidez}
 	_virar(pessoa, pontos[1] if pontos.size() > 1 else pontos[0])
+
+
+func _mostrar_no_comeco(pessoa: PessoaPrologo) -> void:
+	var caminho := get_node_or_null("Caminho" + pessoa.name)
+	if caminho == null or caminho.get_child_count() < 2:
+		return
+	pessoa.global_position = (caminho.get_child(0) as Node3D).global_position
+	pessoa.visible = true
+	pessoa.atividade = "parada"
+	_virar(pessoa, (caminho.get_child(1) as Node3D).global_position)
 
 
 func _physics_process(delta: float) -> void:

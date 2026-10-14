@@ -81,6 +81,8 @@ func test_percorre_tudo_ate_o_titulo() -> void:
 	await _ate_a_etapa("segurar")
 	seq.alvo_althea.tocado.emit(seq.alvo_althea)
 	await _ate_a_etapa("quarto_vazio")
+	# A etapa começa ainda no escuro; o controle volta quando a tela clareia.
+	await wait_until(func() -> bool: return not cena.travado, 3.0)
 	assert_false(cena.travado, "o controle volta no quarto vazio")
 	assert_false(seq.figuras.visible)
 	assert_eq(cena.ponto_atual, _ponto("QuartoVazio"))

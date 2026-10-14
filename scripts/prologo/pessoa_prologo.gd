@@ -11,7 +11,7 @@ extends Node3D
 enum Roupa { VESTIDO, TUNICA }
 
 ## O que a pessoa está fazendo. As juntas vão aos poucos até a pose dela.
-const ATIVIDADES := ["parada", "trabalhando", "carregando", "segurando_bebe", "andando", "correndo", "deitada_parto", "deitada_exausta", "deitada_chorando", "deitada_partiu"]
+const ATIVIDADES := ["parada", "trabalhando", "carregando", "segurando_bebe", "andando", "levando_roupas", "correndo", "deitada_parto", "deitada_exausta", "deitada_chorando", "deitada_partiu"]
 
 @export var roupa := Roupa.VESTIDO:
 	set(valor):
@@ -64,7 +64,12 @@ const ATIVIDADES := ["parada", "trabalhando", "carregando", "segurando_bebe", "a
 	set(valor):
 		deitada = valor
 		_remontar()
-@export_enum("parada", "trabalhando", "carregando", "segurando_bebe", "andando", "correndo", "deitada_parto", "deitada_exausta", "deitada_chorando", "deitada_partiu") var atividade := "parada"
+@export_enum("parada", "trabalhando", "carregando", "segurando_bebe", "andando", "levando_roupas", "correndo", "deitada_parto", "deitada_exausta", "deitada_chorando", "deitada_partiu") var atividade := "parada"
+## Roupas dobradas nos braços: as que Janet leva para a duquesa.
+@export var roupas_dobradas := false:
+	set(valor):
+		roupas_dobradas = valor
+		_remontar()
 ## Rapidez com que as juntas chegam a uma pose nova (maior = mais rápido).
 @export var suavidade := 5.0
 ## Muda o ritmo de cada pessoa, para ninguém se mexer igual.
@@ -225,7 +230,21 @@ func _montar() -> void:
 		_braco(lado, roupa_mat, ombro)
 
 	colo = MalhaCorpo.junta(tronco, "Colo", Vector3(0, 0.12, -0.3))
+	if roupas_dobradas:
+		_roupas_dobradas()
 	_aplicar_palidez()
+
+
+## Uma pilha de peças de linho dobradas, de cores claras e lisas.
+func _roupas_dobradas() -> void:
+	var pilha := MalhaCorpo.junta(colo, "RoupasDobradas", Vector3(0, -0.06, 0.04))
+	var cores := [Color(0.82, 0.79, 0.72), Color(0.6, 0.64, 0.72), Color(0.9, 0.88, 0.84)]
+	var y := 0.0
+	for i in cores.size():
+		var peca := MalhaCorpo.peca(pilha, "Peca%d" % i, BoxMesh.new(), MalhaCorpo.tecido(cores[i], 4.0),
+			Vector3(0.01 * (i - 1), y + 0.022, 0.0), Vector3(0.34 - 0.02 * i, 0.044, 0.24))
+		peca.rotation.y = 0.05 * (i - 1)
+		y += 0.044
 
 
 func _cabeca() -> void:
@@ -365,6 +384,13 @@ func _pose(nome: String, t: float) -> Dictionary:
 		"segurando_bebe":
 			return {"inclina": -0.05, "ombro_e": 0.5, "ombro_d": 0.4, "cotovelo_e": 1.45, "cotovelo_d": 1.35,
 				"abre_e": -0.3, "abre_d": -0.22, "cabeca": -0.3, "respiracao": 0.4, "folego": 0.01}
+		"levando_roupas":
+			# Andando devagar, com as roupas dobradas junto ao peito.
+			var passo := _pose("andando", t)
+			for chave in ["ombro_e", "ombro_d", "cotovelo_e", "cotovelo_d"]:
+				passo.erase(chave)
+			passo.merge(_pose("carregando", t))
+			return passo
 		"andando", "correndo":
 			var correndo := nome == "correndo"
 			var ritmo := 9.5 if correndo else 5.5

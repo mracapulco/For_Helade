@@ -184,12 +184,13 @@ func _aposentos() -> void:
 		corpo_nicholas.segurando = false
 	vela_cama.set(_energia(vela_cama), vela_cama.get(_energia(vela_cama)) / 0.3)
 	controle.colocar_em(ponto_quarto_vazio)
+	# Já no escuro, para Janet estar no quarto quando a tela clarear.
+	_mudar("quarto_vazio")
 	# Nicholas não dormiu: a tela só clareia, sem os olhos abrindo.
 	var clarear := create_tween()
 	clarear.tween_property(escuro, "color:a", 0.0, _t(1.5))
 	await clarear.finished
 
-	_mudar("quarto_vazio")
 	controle.continuar_em(ponto_quarto_vazio)
 
 

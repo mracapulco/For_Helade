@@ -180,17 +180,25 @@ sequencia = NodePath("../Sequencia")
 gatilhos = {
 "Correria1": "PortaQuarto",
 "Correria2": "PortaQuarto",
-"Correria3": "Corredor"
+"Correria3": "Corredor",
+"Janet": "etapa:quarto_vazio"
 }
 velocidades = {
 "Correria1": 3.2,
 "Correria2": 2.9,
-"Correria3": 2.7
+"Correria3": 2.7,
+"Janet": 1.0
 }
+atividades = {
+"Janet": "levando_roupas"
+}
+aparecem_antes = Array[String](["Janet"])
 atrasos = {
 "Correria1": 0.6,
-"Correria2": 2.2
+"Correria2": 2.2,
+"Janet": 3.2
 }
+etapas_que_encerram = Array[String](["caos", "varanda"])
 
 [node name="Correria1" type="Node3D" parent="Passagens"]
 script = ExtResource("12_pessoa")
@@ -255,6 +263,35 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.8, 0, 0.9)
 
 [node name="P3" type="Marker3D" parent="Passagens/CaminhoCorreria3"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14.7, 0, 1.0)
+
+[node name="Janet" type="Node3D" parent="Passagens"]
+script = ExtResource("12_pessoa")
+cor_roupa = Color(0.22, 0.24, 0.3, 1)
+touca = false
+cor_cabelo = Color(0.26, 0.17, 0.1, 1)
+roupas_dobradas = true
+semente = 14
+altura = 1.6
+
+[node name="CaminhoJanet" type="Node3D" parent="Passagens"]
+
+[node name="P0" type="Marker3D" parent="Passagens/CaminhoJanet"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.9, 0, 11.7)
+
+[node name="P1" type="Marker3D" parent="Passagens/CaminhoJanet"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.0, 0, 11.3)
+
+[node name="P2" type="Marker3D" parent="Passagens/CaminhoJanet"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.6, 0, 10.0)
+
+[node name="P3" type="Marker3D" parent="Passagens/CaminhoJanet"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.8, 0, 6.0)
+
+[node name="P4" type="Marker3D" parent="Passagens/CaminhoJanet"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.6, 0, 4.4)
+
+[node name="P5" type="Marker3D" parent="Passagens/CaminhoJanet"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.0, 0, 2.6)
 
 [node name="Pontos" type="Node3D" parent="." unique_id=1031558735]
 

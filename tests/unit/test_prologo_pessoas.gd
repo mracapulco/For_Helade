@@ -255,7 +255,7 @@ func _passagens() -> PassagensPrologo:
 
 func test_empregados_so_aparecem_quando_nicholas_sai_do_quarto() -> void:
 	var passagens := _passagens()
-	assert_eq(passagens.pessoas().size(), 3)
+	assert_eq(passagens.pessoas().size(), 4, "três na correria e Janet")
 	for pessoa in passagens.pessoas():
 		assert_false(pessoa.visible, pessoa.name + " ainda não passou")
 	cena.continuar_em(_ponto("PortaQuarto"))
@@ -290,3 +290,27 @@ func test_ninguem_corre_mais_depois_que_nicholas_entra() -> void:
 	assert_true(passagens.em_caminho.is_empty())
 	for pessoa in passagens.pessoas():
 		assert_false(pessoa.visible, pessoa.name)
+
+
+# --- Janet no quarto vazio (planos/prologo-npcs.md, etapa 4) ---
+
+func test_janet_so_aparece_no_quarto_vazio_e_sai_com_as_roupas() -> void:
+	var janet: PessoaPrologo = _passagens().get_node("Janet")
+	assert_true(janet.roupas_dobradas)
+	assert_not_null(janet.colo.get_node_or_null("RoupasDobradas"))
+	await _entrar_nos_aposentos()
+	await _ate_a_etapa("nome")
+	assert_false(janet.visible, "Janet não está no parto")
+	seq.botao_nome.pressed.emit()
+	await _ate_a_etapa("segurar")
+	seq.alvo_althea.tocado.emit(seq.alvo_althea)
+	await _ate_a_etapa("quarto_vazio")
+	assert_true(janet.visible, "já no quarto quando a tela clareia")
+	assert_eq(janet.atividade, "parada")
+	await wait_until(func() -> bool: return janet.atividade == "levando_roupas", 5.0)
+	var antes := janet.global_position
+	await wait_seconds(0.5)
+	assert_gt(janet.global_position.distance_to(antes), 0.3, "anda até a porta")
+	await wait_until(func() -> bool: return not janet.visible, 15.0)
+	assert_false(janet.visible, "saiu pela porta")
+	assert_lt(janet.global_position.z, 3.6, "saiu para o corredor")

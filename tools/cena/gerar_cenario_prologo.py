@@ -369,6 +369,51 @@ def tapecaria(c: Cena, pai, pos, giro, largura, altura):
     return g
 
 
+def quadro(c: Cena, pai, pos, giro, largura, imagem, proporcao=0.75):
+    """Quadro na parede (a parede no -z local): recorte em pixel art do mapa de
+    Hélade (tools/arte/gerar_quadros_prologo.py), com moldura dourada."""
+    altura = largura * proporcao
+    g = grupo(c, "Quadro", pai, pos, giro)
+    tela = c.s("StandardMaterial3D", albedo_texture=c.e("Texture2D", f"res://assets/art/prologo/quadros/{imagem}.png"),
+               roughness="0.85", texture_filter="0")
+    c.no("Tela", "MeshInstance3D", g, transform=transform((0, 0, 0.035), (90, 0, 0)),
+         mesh=c.s("PlaneMesh", size=v2(largura, altura)), material_override=tela)
+    caixa(c, "Fundo", g, (0, 0, 0.015), (largura + 0.04, altura + 0.04, 0.03), "madeira_movel")
+    m = 0.07
+    for nome, centro, tam in (("Moldura", (0, (altura + m) / 2, 0.03), (largura + 2 * m, m, 0.06)),
+                              ("Moldura", (0, -(altura + m) / 2, 0.03), (largura + 2 * m, m, 0.06)),
+                              ("Moldura", ((largura + m) / 2, 0, 0.03), (m, altura, 0.06)),
+                              ("Moldura", (-(largura + m) / 2, 0, 0.03), (m, altura, 0.06))):
+        caixa(c, nome, g, centro, tam, "ouro")
+    return g
+
+
+def espada_na_parede(c: Cena, pai, pos, giro):
+    """Espada deitada sobre uma placa de madeira (a parede no -z local). Sem brasão."""
+    g = grupo(c, "EspadaNaParede", pai, pos, giro)
+    caixa(c, "Placa", g, (0, 0, 0.02), (1.4, 0.42, 0.04), "madeira_movel")
+    for x in (-0.38, 0.3):
+        cilindro(c, "Suporte", g, (x, -0.06, 0.07), 0.018, 0.08, "bronze", rot=(90, 0, 0))
+    caixa(c, "Lamina", g, (0.12, 0, 0.1), (0.86, 0.05, 0.012), "ferro")
+    c.no("Ponta", "MeshInstance3D", g, transform=transform((0.585, 0, 0.1), (0, 0, -90)),
+         mesh=c.s("PrismMesh", size=v3(0.05, 0.08, 0.012)), material_override=c.mat("ferro"))
+    caixa(c, "Guarda", g, (-0.33, 0, 0.1), (0.04, 0.22, 0.04), "bronze")
+    cilindro(c, "Punho", g, (-0.44, 0, 0.1), 0.02, 0.18, "madeira_movel", rot=(0, 0, 90))
+    esfera(c, "Pomo", g, (-0.55, 0, 0.1), 0.035, "bronze")
+    return g
+
+
+def armario(c: Cena, pai, pos, giro, largura=1.4, altura=2.2, profundidade=0.6):
+    """Armário de duas portas; a frente olha para +z local."""
+    g = grupo(c, "Armario", pai, pos, giro)
+    caixa(c, "Corpo", g, (0, altura / 2, 0), (largura, altura, profundidade), "madeira_movel", True)
+    caixa(c, "Topo", g, (0, altura + 0.04, 0.02), (largura + 0.1, 0.08, profundidade + 0.06), "madeira_movel")
+    caixa(c, "Fresta", g, (0, altura / 2, profundidade / 2 + 0.001), (0.02, altura - 0.2, 0.01), "carvao")
+    for x in (-0.08, 0.08):
+        cilindro(c, "Puxador", g, (x, altura / 2 + 0.05, profundidade / 2 + 0.02), 0.015, 0.04, "bronze", rot=(90, 0, 0))
+    return g
+
+
 def pilastra(c: Cena, pai, pos, giro, altura):
     g = grupo(c, "Pilastra", pai, pos, giro)
     caixa(c, "Fuste", g, (0, altura / 2, 0.08), (0.45, altura, 0.16), "parede_pedra")
@@ -414,12 +459,10 @@ def quarto_nicholas() -> Cena:
     plano(c, "Tapete", ".", (-8.8, 0.006, 8.6), (3.0, 2.2), "tapete")
     bau(c, ".", (-12.15, 0, 10.7), giro=90, largura=0.9, profundidade=0.5)
     # Armário encostado na parede leste.
-    arm = grupo(c, "Armario", ".", (-5.82, 0, 6.2), -90)
-    caixa(c, "Corpo", arm, (0, 1.1, 0), (1.4, 2.2, 0.6), "madeira_movel", True)
-    caixa(c, "Topo", arm, (0, 2.24, 0.02), (1.5, 0.08, 0.66), "madeira_movel")
-    caixa(c, "Fresta", arm, (0, 1.1, 0.301), (0.02, 2.0, 0.01), "carvao")
-    for x in (-0.08, 0.08):
-        cilindro(c, "Puxador", arm, (x, 1.15, 0.32), 0.015, 0.04, "bronze", rot=(90, 0, 0))
+    armario(c, ".", (-5.82, 0, 6.2), -90)
+    # Baú de brinquedos e, acima dele, Olympia vista no mapa: a casa de Nicholas.
+    bau(c, ".", (-5.85, 0, 8.9), giro=-90, largura=0.8, profundidade=0.45, altura=0.45)
+    quadro(c, ".", (-5.5, 1.75, 8.9), -90, 1.0, "olympia")
     m = mesa(c, ".", (-7.0, 0, 11.6), 1.0, 0.6, 0.72)
     cadeira(c, ".", (-7.0, 0, 10.95), giro=180)
     _, topo = vela(c, m, (0.3, 0.72, 0.1), altura=0.1)
@@ -464,6 +507,9 @@ def corredor() -> Cena:
     plano(c, "Passadeira", ".", (0, 0.006, 1.8), (28.0, 1.6), "passadeira")
     tapecaria(c, ".", (-8.25, 2.5, z0), 0, 1.5, 2.2)
     tapecaria(c, ".", (8.25, 2.5, z0), 0, 1.5, 2.2)
+    quadro(c, ".", (-1.6, 2.15, z0), 0, 1.2, "atenas")
+    quadro(c, ".", (1.6, 2.15, z0), 0, 1.2, "norte")
+    espada_na_parede(c, ".", (-4.3, 1.9, z1), 180)
     banco = grupo(c, "Banco", ".", (1.6, 0, 0.35), 0)
     caixa(c, "Assento", banco, (0, 0.42, 0), (1.3, 0.06, 0.4), "madeira_movel", True)
     for x in (-0.55, 0.55):
@@ -561,7 +607,10 @@ def aposentos() -> Cena:
 
     bau(c, ".", (12.5, 0, 4.3), giro=0, largura=1.1)
     plano(c, "Tapete", ".", (9.0, 0.006, 8.1), (4.2, 3.2), "tapete")
-    tapecaria(c, ".", (9.6, 2.6, z0), 0, 1.6, 2.4)
+    armario(c, ".", (x0 + 0.32, 0, 10.8), 90, largura=1.5, altura=2.4)
+    bau(c, ".", (12.0, 0, z1 - 0.3), giro=180, largura=0.9)
+    quadro(c, ".", (12.5, 2.2, z0), 0, 1.5, "helade", proporcao=0.77)
+    quadro(c, ".", (x0, 2.0, 5.3), 90, 1.1, "agape")
     # Cortinas pesadas no arco da varanda.
     cilindro(c, "Varao", ".", (9.0, 3.75, z1 - 0.15), 0.025, 5.4, "bronze", rot=(0, 0, 90))
     for x in (7.05, 10.95):

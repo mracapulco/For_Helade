@@ -74,7 +74,7 @@ func test_mira_na_passagem_encontra_o_alvo() -> void:
 	assert_null(cena._alvo_na_mira())
 
 
-func test_shift_corre_mais_rapido_que_andar() -> void:
+func test_shift_nao_corre_no_prologo() -> void:
 	var inicio := cena.corpo.global_position
 	Input.action_press("mover_frente")
 	await wait_physics_frames(20)
@@ -82,10 +82,11 @@ func test_shift_corre_mais_rapido_que_andar() -> void:
 	inicio = cena.corpo.global_position
 	Input.action_press("correr")
 	await wait_physics_frames(20)
-	var correndo := cena.corpo.global_position.distance_to(inicio)
+	var com_shift := cena.corpo.global_position.distance_to(inicio)
 	Input.action_release("correr")
 	Input.action_release("mover_frente")
-	assert_gt(correndo, andando * 1.5)
+	assert_gt(andando, 0.1)
+	assert_almost_eq(com_shift, andando, andando * 0.15)
 
 
 func test_espaco_pula_e_volta_ao_chao() -> void:

@@ -1,8 +1,7 @@
 class_name ControlePrimeiraPessoa
 extends Node3D
 ## Primeira pessoa de Nicholas.
-## No PC: WASD (ou setas) para andar, Shift para correr, espaço para pular e
-## mouse para olhar; Enter (ou clicar) com a mira na próxima passagem (uma
+## No PC: WASD (ou setas) para andar, espaço para pular e mouse para olhar; Enter (ou clicar) com a mira na próxima passagem (uma
 ## porta, por exemplo) também leva até ela. Esc solta o mouse.
 ## No toque: tocar na próxima passagem leva a câmera até o próximo ponto.
 ## Chegar perto do próximo ponto, andando ou pelo toque, avança o percurso.
@@ -25,10 +24,9 @@ signal chegou(ponto: PontoDeVista)
 @export var texto_solto: TextoSolto
 ## Trecho do roteiro mostrado na tela preta, antes de os olhos abrirem.
 @export var cena_inicial := "abertura"
-## Passo de criança, em metros por segundo.
+## Passo de criança, em metros por segundo. No prólogo não se corre: o passo
+## acompanha o tempo das frases.
 @export var velocidade := 1.6
-## Velocidade segurando Shift.
-@export var velocidade_correndo := 3.2
 ## Impulso do pulo (m/s): uma criança pula uns 45 cm, o bastante para subir na cama.
 @export var impulso_pulo := 3.0
 @export var sensibilidade_mouse := 0.0025
@@ -110,9 +108,8 @@ func _physics_process(delta: float) -> void:
 	if not travado:
 		direcao = Input.get_vector("mover_esquerda", "mover_direita", "mover_frente", "mover_tras")
 	var passo := corpo.global_basis * Vector3(direcao.x, 0.0, direcao.y)
-	var rapidez := velocidade_correndo if not travado and Input.is_action_pressed("correr") else velocidade
-	corpo.velocity.x = passo.x * rapidez
-	corpo.velocity.z = passo.z * rapidez
+	corpo.velocity.x = passo.x * velocidade
+	corpo.velocity.z = passo.z * velocidade
 	if corpo.is_on_floor():
 		corpo.velocity.y = impulso_pulo if not travado and Input.is_action_just_pressed("pular") else 0.0
 	else:

@@ -93,3 +93,31 @@ func test_toda_vela_e_tocha_tem_chama_visivel() -> void:
 	for chama in chamas:
 		var perto := luzes.any(func(p: Vector3) -> bool: return p.distance_to(chama) < 0.8)
 		assert_true(perto, "chama sem luz em %s" % chama)
+
+
+func test_quadros_mostram_o_mapa_em_pixel_art() -> void:
+	var cena: Node = CENA.instantiate()
+	var quadros := cena.find_children("Quadro*", "Node3D", true, false)
+	assert_gte(quadros.size(), 5, "dois no corredor e outros nos quartos")
+	for quadro: Node3D in quadros:
+		var tela: MeshInstance3D = quadro.get_node("Tela")
+		var material: StandardMaterial3D = tela.material_override
+		assert_not_null(material.albedo_texture, "quadro sem imagem")
+		assert_true(material.albedo_texture.resource_path.begins_with("res://assets/art/prologo/quadros/"))
+		assert_eq(material.texture_filter, BaseMaterial3D.TEXTURE_FILTER_NEAREST, "pixel art sem borrar")
+	assert_eq(cena.find_children("EspadaNaParede*", "Node3D", true, false).size(), 1)
+	cena.free()
+
+
+func test_nada_pendurado_no_vao_da_porta_dos_aposentos() -> void:
+	# A porta dupla dos aposentos vai de x 8 a 10, na parede em z 3,6 a 3,9.
+	# Os enfeites ficam direto no cômodo, e o cômodo fica na origem.
+	var cena: Node = CENA.instantiate()
+	var aposentos: Node3D = cena.get_node("Cenario/Aposentos")
+	assert_eq(aposentos.position, Vector3.ZERO)
+	for no in aposentos.get_children():
+		if no.name.begins_with("Tapecaria") or no.name.begins_with("Quadro"):
+			var p: Vector3 = (no as Node3D).position
+			var no_vao := p.x > 7.0 and p.x < 11.0 and p.z < 4.3
+			assert_false(no_vao, "%s está no vão da porta" % no.name)
+	cena.free()

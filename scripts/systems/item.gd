@@ -16,6 +16,14 @@ enum Encaixe { NENHUM, ARMA, ARMADURA, ACESSORIO }
 ## Ícone da bolsa. Sem arte, a interface mostra um quadro provisório.
 @export var icone: Texture2D
 
+## Desenho do item na mão do personagem, quando equipado (armas).
+## Sem ele, o item equipado não aparece no corpo.
+@export var visual_na_mao: Texture2D
+
+## Pixel de [member visual_na_mao] que fica dentro do punho: o canto de
+## cima à esquerda da mão 2×2 do personagem.
+@export var pega_na_mao := Vector2i.ZERO
+
 ## Aba da bolsa onde o item aparece.
 @export var tipo: Tipo = Tipo.DIVERSOS
 

@@ -2,6 +2,7 @@ keys,pt_BR
 JOGO_TITULO,Por Hélade
 EXPLORACAO_BOTAO_CORRER,Correr
 EXPLORACAO_BOTAO_PULAR,Pular
+EXPLORACAO_BOTAO_GOLPE,Golpe
 PROLOGO_DICA_TOQUE,Toque no brilho dourado para se mover
 PROLOGO_DICA_SEGURAR_TOQUE,Toque no brilho para segurar Althea
 PROLOGO_DICA_SEGURAR_TECLADO,Clique no brilho ou aperte Enter para segurar Althea
@@ -100,3 +101,6 @@ ACAMP_NOME_NT,[Provisório] Acampamento no pinhal nevado
 ACAMP_NOME_AT,[Provisório] Acampamento na mata escura
 ACAMP_NOME_ILHA,[Provisório] Acampamento na praia da ilha
 ACAMP_NOME_ILHOTA,[Provisório] Acampamento na ilhota de pedra
+MENU_CONFIRMAR_NOVO,"Começar um novo jogo apaga o jogo salvo. Quer mesmo começar de novo?"
+MENU_CONFIRMAR_SIM,"Sim, começar"
+MENU_CONFIRMAR_NAO,Não

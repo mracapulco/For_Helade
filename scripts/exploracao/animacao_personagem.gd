@@ -1,7 +1,7 @@
 class_name AnimacaoPersonagem
 extends AnimatedSprite2D
 ## Escolhe a animação do personagem da exploração (parado, andando, correndo,
-## interagindo) e o lado para onde ele olha, a partir do movimento.
+## interagindo, golpe) e o lado para onde ele olha, a partir do movimento.
 ## As animações se chamam "acao_direcao": "frente" olha para baixo e para a
 ## direita, "costas" para cima e para a direita; para a esquerda, espelha.
 
@@ -17,6 +17,8 @@ func _ready() -> void:
 		personagem = get_parent().get_parent() as PersonagemExploracao
 	DialogueManager.dialogue_started.connect(_ao_comecar_dialogo)
 	DialogueManager.dialogue_ended.connect(_ao_terminar_dialogo)
+	if personagem:
+		personagem.golpeou.connect(_ao_golpear)
 	if sprite_frames:
 		play(&"parado_frente")
 
@@ -25,9 +27,11 @@ func _process(_delta: float) -> void:
 	if personagem == null or sprite_frames == null:
 		return
 	var movimento := personagem.velocity
-	if movimento.length() > 1.0:
-		olhar_para(movimento)
-	var acao := escolher_acao(movimento.length(), personagem.velocidade, interagindo)
+	# Vira para onde o personagem olha (a última direção em que andou), que
+	# é também para onde o golpe sai.
+	olhar_para(personagem.direcao_olhar)
+	var acao := escolher_acao(movimento.length(), personagem.velocidade, interagindo,
+		personagem.golpeando)
 	var nome := StringName("%s_%s" % [acao, direcao])
 	if animation != nome:
 		play(nome)
@@ -44,7 +48,10 @@ static func nome_direcao(vetor: Vector2) -> String:
 
 
 ## Correr é andar mais rápido que a velocidade normal (com folga).
-static func escolher_acao(rapidez: float, velocidade_normal: float, em_interacao: bool) -> String:
+static func escolher_acao(rapidez: float, velocidade_normal: float, em_interacao: bool,
+		golpeando := false) -> String:
+	if golpeando:
+		return "golpe"
 	if em_interacao:
 		return "interagindo"
 	if rapidez > velocidade_normal * 1.2:
@@ -54,10 +61,18 @@ static func escolher_acao(rapidez: float, velocidade_normal: float, em_interacao
 	return "parado"
 
 
+func _ao_golpear() -> void:
+	# Recomeça do primeiro quadro mesmo se o golpe anterior acabou de terminar.
+	if String(animation).begins_with("golpe"):
+		frame = 0
+		play()
+
+
 func _ao_comecar_dialogo(_recurso: DialogueResource) -> void:
 	var alvo := personagem.interagivel_ao_alcance() if personagem else null
 	if alvo:
 		olhar_para(alvo.global_position - personagem.global_position)
+		personagem.direcao_olhar = personagem.global_position.direction_to(alvo.global_position)
 	interagindo = true
 
 

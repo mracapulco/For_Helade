@@ -1,5 +1,7 @@
 # Gera a folha de animação de Nicholas na exploração (pixel art, base: capa do livro).
 # Uso: python3 tools/arte/gerar_nicholas.py assets/art/personagens/nicholas/nicholas_exploracao.png
+# Também grava, ao lado, nicholas_maos.tres: onde fica a mão da frente em cada
+# quadro, para desenhar o item equipado (a espada) na mão dele.
 import sys
 from PIL import Image
 H = lambda h: tuple(int(h[i:i+2], 16) for i in (1, 3, 5)) + (255,)
@@ -92,8 +94,16 @@ def braco(q, x, y, swing, cor, mao=True, comprimento=9):
     q.r(x, yy, x + 1, yy + comprimento, cor)
     if mao: q.r(x, yy + comprimento + 1, x + 1, yy + comprimento + 2, 'pele')
 
+def braco_erguido(q, x, yt):
+    # Braço da frente erguido ao lado da cabeça, preparando o golpe. Desenhado
+    # por último para ficar por cima do cabelo.
+    q.r(x+5, yt - 1, x+6, yt + 1, 'tunica')
+    q.r(x+6, yt - 4, x+7, yt - 2, 'tunica')
+    q.p(x+5, yt + 1, 'tunica_sombra'); q.p(x+6, yt - 2, 'tunica_sombra')
+    q.r(x+6, yt - 6, x+7, yt - 5, 'pele')
+
 def nicholas(dir, f_esq=0, f_dir=0, lift_esq=0, lift_dir=0, dy=0, inclina=0,
-             braco_esq=0, braco_dir=0, alcance=0, manto_voa=0, curvo=False):
+             braco_esq=0, braco_dir=0, alcance=0, manto_voa=0, curvo=False, ergue=False):
     q = Q()
     x = CX + inclina
     yc = 3 + dy           # topo do cabelo
@@ -132,7 +142,7 @@ def nicholas(dir, f_esq=0, f_dir=0, lift_esq=0, lift_dir=0, dy=0, inclina=0,
             q.r(x+5, ay, x+5 + alcance, ay + 1, 'tunica')
             q.r(x+5, ay + 1, x+5 + alcance, ay + 1, 'tunica_sombra')
             q.r(x+6 + alcance, ay, x+7 + alcance, ay + 1, 'pele')
-        else:
+        elif not ergue:
             braco(q, x+5, yt + 1, braco_dir, 'tunica', comprimento=6 if curvo else 8)
         # cabeça
         rosto(q, x, yc)
@@ -144,7 +154,7 @@ def nicholas(dir, f_esq=0, f_dir=0, lift_esq=0, lift_dir=0, dy=0, inclina=0,
             ay = yt + 2
             q.r(x+5, ay, x+5 + alcance, ay + 1, 'tunica')
             q.r(x+6 + alcance, ay, x+7 + alcance, ay + 1, 'pele')
-        else:
+        elif not ergue:
             braco(q, x+5, yt + 1, braco_dir, 'tunica', comprimento=6 if curvo else 8)
         # capa grande nas costas
         q.r(x-5 - manto_voa, yt, x+4, 35 + dy, 'manto')
@@ -159,6 +169,8 @@ def nicholas(dir, f_esq=0, f_dir=0, lift_esq=0, lift_dir=0, dy=0, inclina=0,
         q.r(x-3, yt - 2, x+3, yt, 'manto_luz')
         q.linha(yt - 3, x-2, x+2, 'pele_sombra')           # nuca
         cabelo_costas(q, x, yc)
+    if ergue:
+        braco_erguido(q, x, yt)
     return q.contornar()
 
 ANIM = {
@@ -172,19 +184,60 @@ ANIM = {
                    dict(f_dir=-3, f_esq=3, dy=1, inclina=1, braco_dir=2, braco_esq=-2, manto_voa=1, curvo=True),
                    dict(lift_dir=2, inclina=1, dy=-1, manto_voa=2, curvo=True)],
     'interagindo': [dict(), dict(alcance=2), dict(alcance=4)],
+    # golpe de espada: ergue, corta para a frente, termina com a lâmina baixa
+    'golpe':      [dict(ergue=True), dict(alcance=5, inclina=1, dy=1), dict(braco_dir=1, inclina=1, dy=1)],
 }
-ORDEM = ['parado', 'andando', 'correndo', 'interagindo']
+ORDEM = ['parado', 'andando', 'correndo', 'interagindo', 'golpe']
+# Giro do item na mão em cada quadro, em graus (0 = ponta para baixo,
+# 180 = para cima, -90 = para a frente). Animações fora daqui ficam em 0.
+ANGULOS = {'golpe': [180, -90, 0]}
 DIRS = ['frente', 'costas']
 
+def linhas_da_folha():
+    # Uma linha por animação e direção. O golpe veio depois e fica no fim,
+    # para não mudar o lugar das linhas que já existiam.
+    antigas = [a for a in ORDEM if a != 'golpe']
+    return [(d, a) for d in DIRS for a in antigas] + [(d, 'golpe') for d in DIRS]
+
 def folha():
-    im = Image.new('RGBA', (W * 4, HH * len(ORDEM) * len(DIRS)), (0, 0, 0, 0))
-    linha = 0
+    linhas = linhas_da_folha()
+    im = Image.new('RGBA', (W * 4, HH * len(linhas)), (0, 0, 0, 0))
+    for linha, (d, a) in enumerate(linhas):
+        for i, k in enumerate(ANIM[a]):
+            im.paste(nicholas(d, **k), (i * W, linha * HH))
+    return im
+
+def mao(dir, f_esq=0, f_dir=0, lift_esq=0, lift_dir=0, dy=0, inclina=0,
+        braco_esq=0, braco_dir=0, alcance=0, manto_voa=0, curvo=False, ergue=False):
+    # Canto de cima à esquerda da mão 2×2 do braço da frente (o da direita
+    # na tela), com as mesmas contas de nicholas().
+    x = CX + inclina
+    yt = 19 + dy
+    if ergue:
+        return (x + 6, yt - 6)
+    if alcance:
+        return (x + 6 + alcance, yt + (3 if dir == 'frente' else 2))
+    comprimento = 6 if curvo else 8
+    return (x + 5, yt + 1 + braco_dir + comprimento + 1)
+
+def maos_tres():
+    linhas = []
+    giros = []
     for d in DIRS:
         for a in ORDEM:
-            for i, k in enumerate(ANIM[a]):
-                im.paste(nicholas(d, **k), (i * W, linha * HH))
-            linha += 1
-    return im
+            pontos = ', '.join('%d, %d' % mao(d, **k) for k in ANIM[a])
+            linhas.append('&"%s_%s": PackedVector2Array(%s)' % (a, d, pontos))
+            if a in ANGULOS:
+                giros.append('&"%s_%s": PackedFloat32Array(%s)' % (a, d, ', '.join(str(g) for g in ANGULOS[a])))
+    return ('[gd_resource type="Resource" script_class="MaosPersonagem" format=3]\n\n'
+            '[ext_resource type="Script" path="res://scripts/systems/maos_personagem.gd" id="1_maos"]\n\n'
+            '[resource]\nscript = ExtResource("1_maos")\n'
+            'tamanho_quadro = Vector2i(%d, %d)\n'
+            'pontos = {\n%s\n}\n'
+            'angulos = {\n%s\n}\n' % (W, HH, ',\n'.join(linhas), ',\n'.join(giros)))
 
 if __name__ == '__main__':
     folha().save(sys.argv[1])
+    import os
+    with open(os.path.join(os.path.dirname(sys.argv[1]), 'nicholas_maos.tres'), 'w') as f:
+        f.write(maos_tres())

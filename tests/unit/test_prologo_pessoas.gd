@@ -154,3 +154,94 @@ func test_sangue_so_representado_em_manchas_escuras() -> void:
 	assert_eq(sangue.albedo_color, MalhaCorpo.COR_SANGUE)
 	assert_gt(sangue.roughness, 0.5, "fosco, sem brilho de ferida")
 	assert_false(sangue.emission_enabled)
+
+
+# --- Corpo de Nicholas em primeira pessoa (pedido do Rafael, 14/10/2026) ---
+
+func _corpo() -> CorpoNicholas:
+	return cena.get_node("Nicholas/CorpoNicholas")
+
+
+func test_nicholas_tem_pernas_pes_bracos_e_maos() -> void:
+	var corpo := _corpo()
+	assert_eq(corpo.coxas.size(), 2)
+	assert_eq(corpo.ombros.size(), 2)
+	for pulso in corpo.pulsos:
+		assert_not_null(pulso.get_node_or_null("Mao/Dedo0"), "mão com dedos")
+	for joelho in corpo.joelhos:
+		assert_not_null(joelho.get_node_or_null("Pe"))
+
+
+func test_o_peito_so_faz_sombra() -> void:
+	# Visto de dentro, o peito taparia as pernas; ele só aparece na sombra.
+	var peito: MeshInstance3D = _corpo().quadril.get_node("Peito")
+	assert_eq(peito.cast_shadow, GeometryInstance3D.SHADOW_CASTING_SETTING_SHADOWS_ONLY)
+
+
+func test_parado_andando_e_correndo() -> void:
+	var corpo := _corpo()
+	cena.colocar_em(_ponto("Corredor"))
+	await wait_physics_frames(10)
+	assert_eq(corpo.pose, "parado")
+	var andou := false
+	var correu := false
+	cena.pode_correr = true
+	# Vai e volta pelo corredor com as teclas, como o jogador.
+	for correr in [false, true]:
+		if correr:
+			Input.action_press("correr")
+		for ida in ["mover_frente", "mover_tras", "mover_frente"]:
+			Input.action_press(ida)
+			for i in 15:
+				await wait_physics_frames(1)
+				andou = andou or corpo.pose == "andando"
+				correu = correu or corpo.pose == "correndo"
+			Input.action_release(ida)
+	Input.action_release("correr")
+	assert_true(andou, "andando")
+	assert_true(correu, "correndo")
+
+
+func test_pulo_dobra_as_pernas() -> void:
+	var corpo := _corpo()
+	cena.colocar_em(_ponto("Corredor"))
+	await wait_physics_frames(5)
+	Input.action_press("pular")
+	await wait_physics_frames(3)
+	Input.action_release("pular")
+	await wait_until(func() -> bool: return corpo.pose == "no_ar", 1.0)
+	assert_eq(corpo.pose, "no_ar")
+	await wait_physics_frames(6)
+	assert_gt(corpo.joelhos[0].rotation.x * -1.0, 0.3, "joelho dobrado no ar")
+
+
+func test_travado_nos_aposentos() -> void:
+	await _entrar_nos_aposentos()
+	await _ate_a_etapa("caos")
+	await wait_until(func() -> bool: return _corpo().pose == "travado", 1.0)
+	assert_eq(_corpo().pose, "travado")
+
+
+func test_segura_althea_com_os_dois_bracos() -> void:
+	await _entrar_nos_aposentos()
+	await _ate_a_etapa("nome")
+	seq.botao_nome.pressed.emit()
+	await _ate_a_etapa("segurar")
+	seq.alvo_althea.tocado.emit(seq.alvo_althea)
+	await _ate_a_etapa("nos_bracos")
+	var corpo := _corpo()
+	assert_true(corpo.segurando)
+	await _ate_a_etapa("quarto_vazio")
+	assert_false(corpo.segurando, "Althea foi levada no escuro")
+
+
+func test_no_colo_as_maos_ficam_junto_de_althea() -> void:
+	var corpo := _corpo()
+	cena.travado = true
+	corpo.segurando = true
+	await wait_seconds(0.6)
+	assert_eq(corpo.pose, "segurando")
+	# Onde a SequenciaPrologo põe Althea, na frente dos olhos.
+	var althea := cena.camera.global_transform * Vector3(0.0, -0.22, -0.43)
+	for pulso in corpo.pulsos:
+		assert_lt(pulso.global_position.distance_to(althea), 0.3)

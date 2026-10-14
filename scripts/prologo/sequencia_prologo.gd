@@ -26,6 +26,8 @@ signal terminou
 ## A parteira que entrega Althea a Nicholas.
 @export var parteira: Node3D
 @export var althea: Node3D
+## O corpo de Nicholas em primeira pessoa (segura Althea no colo).
+@export var corpo_nicholas: CorpoNicholas
 @export var alvo_althea: AlvoToque
 @export var vela_cama: OmniLight3D
 ## Tela escura por cima da cena (fica abaixo das frases).
@@ -156,8 +158,13 @@ func _aposentos() -> void:
 	_atividade(parteira, "parada")
 	# Nos braços de Nicholas, logo abaixo do olhar.
 	althea.reparent(controle.camera, false)
-	althea.position = Vector3(0.0, -0.3, -0.5)
-	althea.rotation = Vector3.ZERO
+	althea.position = Vector3(0.0, -0.22, -0.43)
+	# Inclinada para Nicholas ver o rostinho.
+	althea.rotation = Vector3(0.45, 0.0, 0.0)
+	if corpo_nicholas:
+		corpo_nicholas.segurando = true
+	# Nicholas olha para a irmã nos braços.
+	create_tween().set_trans(Tween.TRANS_SINE).tween_property(controle.camera, "rotation:x", -0.45, _t(0.8))
 
 	# Com Althea nos braços, Nicholas já pode correr pelo castelo.
 	controle.pode_correr = true
@@ -173,6 +180,8 @@ func _aposentos() -> void:
 	figuras.visible = false
 	althea.visible = false
 	_choro(false)
+	if corpo_nicholas:
+		corpo_nicholas.segurando = false
 	vela_cama.set(_energia(vela_cama), vela_cama.get(_energia(vela_cama)) / 0.3)
 	controle.colocar_em(ponto_quarto_vazio)
 	# Nicholas não dormiu: a tela só clareia, sem os olhos abrindo.

@@ -11,6 +11,7 @@
 [ext_resource type="Script" path="res://scripts/prologo/pessoa_prologo.gd" id="12_pessoa"]
 [ext_resource type="Script" path="res://scripts/prologo/duquesa_na_cama.gd" id="13_duquesa"]
 [ext_resource type="Script" path="res://scripts/prologo/bebe_althea.gd" id="14_althea"]
+[ext_resource type="Script" path="res://scripts/prologo/corpo_nicholas.gd" id="15_corpo"]
 [ext_resource type="Shader" path="res://assets/shaders/prologo/ceu_noite.gdshader" id="s_ceu"]
 [ext_resource type="Shader" path="res://assets/shaders/prologo/vinheta.gdshader" id="s_vinheta"]
 [ext_resource type="Script" path="res://scripts/prologo/sensacao_primeira_pessoa.gd" id="10_sensacao"]
@@ -254,6 +255,10 @@ raio_chegada = 1.9
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.575, 0)
 shape = SubResource("CapsuleShape3D_mfwf1")
 
+[node name="CorpoNicholas" type="Node3D" parent="Nicholas" node_paths=PackedStringArray("controle")]
+script = ExtResource("15_corpo")
+controle = NodePath("../..")
+
 [node name="Camera" type="Camera3D" parent="Nicholas" unique_id=1700370543]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.05, 0)
 current = true
@@ -402,7 +407,7 @@ theme_override_font_sizes/font_size = 72
 theme_override_colors/font_color = Color(0.9, 0.7, 0.3, 1)
 horizontal_alignment = 1
 
-[node name="Sequencia" type="Node" parent="." unique_id=805272105 node_paths=PackedStringArray("controle", "ponto_entrada", "ponto_quarto_vazio", "ponto_varanda", "cama", "dossel", "figuras", "duquesa", "parteira", "althea", "alvo_althea", "vela_cama", "escuro", "botao_nome", "tela_final")]
+[node name="Sequencia" type="Node" parent="." unique_id=805272105 node_paths=PackedStringArray("controle", "ponto_entrada", "ponto_quarto_vazio", "ponto_varanda", "cama", "dossel", "figuras", "duquesa", "parteira", "althea", "corpo_nicholas", "alvo_althea", "vela_cama", "escuro", "botao_nome", "tela_final")]
 script = ExtResource("8_q2utl")
 controle = NodePath("..")
 ponto_entrada = NodePath("../Pontos/Entrada")
@@ -414,6 +419,7 @@ figuras = NodePath("../Pessoas")
 duquesa = NodePath("../Duquesa")
 parteira = NodePath("../Pessoas/Parteira")
 althea = NodePath("../Pessoas/Parteira/Althea")
+corpo_nicholas = NodePath("../Nicholas/CorpoNicholas")
 alvo_althea = NodePath("../Pessoas/Parteira/Althea/AlvoAlthea")
 vela_cama = NodePath("../Cenario/Aposentos/VelaCama")
 escuro = NodePath("../Escuro/Tela")

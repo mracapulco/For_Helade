@@ -335,7 +335,8 @@ func _posar(mistura: float) -> void:
 		cotovelos[i].rotation.x = lerp_angle(cotovelos[i].rotation.x, p.get("cotovelo_" + chave, 0.15), mistura)
 		if i < coxas.size():
 			coxas[i].rotation.x = lerp_angle(coxas[i].rotation.x, p.get("coxa_" + chave, 0.0), mistura)
-			joelhos[i].rotation.x = lerp_angle(joelhos[i].rotation.x, p.get("joelho_" + chave, 0.0), mistura)
+			# O joelho dobra para trás.
+			joelhos[i].rotation.x = lerp_angle(joelhos[i].rotation.x, -float(p.get("joelho_" + chave, 0.0)), mistura)
 	pescoco.rotation.x = lerp_angle(pescoco.rotation.x, p.get("cabeca", 0.0), mistura)
 	pescoco.rotation.y = lerp_angle(pescoco.rotation.y, p.get("vira", 0.0), mistura)
 	pescoco.rotation.z = lerp_angle(pescoco.rotation.z, p.get("tomba", 0.0), mistura)

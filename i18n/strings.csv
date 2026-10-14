@@ -100,3 +100,6 @@ ACAMP_NOME_NT,[Provisório] Acampamento no pinhal nevado
 ACAMP_NOME_AT,[Provisório] Acampamento na mata escura
 ACAMP_NOME_ILHA,[Provisório] Acampamento na praia da ilha
 ACAMP_NOME_ILHOTA,[Provisório] Acampamento na ilhota de pedra
+MENU_CONFIRMAR_NOVO,"Começar um novo jogo apaga o jogo salvo. Quer mesmo começar de novo?"
+MENU_CONFIRMAR_SIM,"Sim, começar"
+MENU_CONFIRMAR_NAO,Não

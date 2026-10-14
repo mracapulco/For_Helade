@@ -30,6 +30,7 @@ func after_each() -> void:
 func _abrir_menu() -> void:
 	menu = CENA.instantiate()
 	menu.trocar_de_cena = false
+	menu.animar_entrada = false
 	add_child_autofree(menu)
 	await wait_process_frames(2)
 
@@ -116,3 +117,53 @@ func test_textos_vem_da_traducao() -> void:
 	await _abrir_menu()
 	assert_eq(tr(menu.botao_novo_jogo.text), "Novo jogo")
 	assert_eq(tr(menu.botao_opcoes.text), "Opções")
+
+
+func test_novo_jogo_sem_jogo_salvo_nao_pergunta() -> void:
+	await _abrir_menu()
+	menu.botao_novo_jogo.pressed.emit()
+	assert_false(menu.confirmacao.visible)
+	assert_eq(menu.cena_pedida, "res://scenes/prologo/prologo.tscn")
+
+
+func test_novo_jogo_com_jogo_salvo_pergunta_antes() -> void:
+	Progresso.salvar("capitulo_1")
+	await _abrir_menu()
+	menu.botao_novo_jogo.pressed.emit()
+	assert_true(menu.confirmacao.visible)
+	assert_true(menu.botao_confirmar_nao.has_focus(), "o seguro fica selecionado")
+	assert_eq(menu.cena_pedida, "")
+	menu.botao_confirmar_nao.pressed.emit()
+	assert_false(menu.confirmacao.visible)
+	assert_true(Progresso.tem_jogo_salvo(), "Não mantém o jogo salvo")
+
+
+func test_confirmar_apaga_o_salvo_e_comeca() -> void:
+	Progresso.salvar("capitulo_1")
+	await _abrir_menu()
+	menu.botao_novo_jogo.pressed.emit()
+	menu.botao_confirmar_sim.pressed.emit()
+	assert_false(Progresso.tem_jogo_salvo())
+	assert_eq(menu.cena_pedida, "res://scenes/prologo/prologo.tscn")
+
+
+func test_musica_do_menu_toca_em_laco_no_barramento_de_musica() -> void:
+	await _abrir_menu()
+	assert_true(menu.musica.playing)
+	assert_eq(menu.musica.bus, &"Musica")
+	assert_true(menu.musica.stream.loop)
+
+
+func test_entrada_animada_e_pulada_com_um_toque() -> void:
+	menu = CENA.instantiate()
+	menu.trocar_de_cena = false
+	add_child_autofree(menu)
+	await wait_process_frames(2)
+	assert_lt(menu.botao_novo_jogo.modulate.a, 1.0, "botões ainda surgindo")
+	var toque := InputEventMouseButton.new()
+	toque.button_index = MOUSE_BUTTON_LEFT
+	toque.pressed = true
+	menu._input(toque)
+	await wait_process_frames(2)
+	for parte in [menu.capa, menu.titulo, menu.botao_novo_jogo, menu.botao_opcoes]:
+		assert_eq(parte.modulate.a, 1.0)

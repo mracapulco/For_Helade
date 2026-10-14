@@ -1,0 +1,104 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/mapa/mapa_helade.gd" id="1_mapa"]
+[ext_resource type="Texture2D" path="res://assets/art/mapa/mapa_helade.png" id="2_fundo"]
+[ext_resource type="SpriteFrames" path="res://assets/art/personagens/nicholas/nicholas_exploracao.tres" id="3_nicholas"]
+[ext_resource type="Texture2D" path="res://assets/art/mapa/mapa_helade_noite.png" id="4_noite"]
+[ext_resource type="Script" path="res://scripts/mapa/lamparinas_mapa.gd" id="5_lamparinas"]
+[ext_resource type="Script" path="res://scripts/mapa/nevoa_mapa.gd" id="6_nevoa"]
+[ext_resource type="Shader" path="res://shaders/nevoa_mapa.gdshader" id="7_shader_nevoa"]
+[ext_resource type="SpriteFrames" path="res://assets/art/mapa/barco/nicholas_barco.tres" id="8_barco"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_nevoa"]
+shader = ExtResource("7_shader_nevoa")
+
+[node name="MapaHelade" type="Node2D" node_paths=PackedStringArray("fundo", "fundo_noite", "lamparinas", "nevoa", "botao_periodo", "caminhos", "nicholas", "camera", "placa", "nome_local", "regiao_local", "aviso", "botao_entrar")]
+script = ExtResource("1_mapa")
+fundo = NodePath("Fundo")
+fundo_noite = NodePath("FundoNoite")
+lamparinas = NodePath("Lamparinas")
+nevoa = NodePath("Nevoa")
+botao_periodo = NodePath("Interface/Periodo")
+quadros_barco = ExtResource("8_barco")
+caminhos = NodePath("Caminhos")
+nicholas = NodePath("Nicholas")
+camera = NodePath("Nicholas/Camera")
+placa = NodePath("Interface/Placa")
+nome_local = NodePath("Interface/Placa/Coluna/Nome")
+regiao_local = NodePath("Interface/Placa/Coluna/Regiao")
+aviso = NodePath("Interface/Placa/Coluna/Aviso")
+botao_entrar = NodePath("Interface/Placa/Coluna/Entrar")
+
+[node name="Fundo" type="Sprite2D" parent="."]
+texture_filter = 1
+texture = ExtResource("2_fundo")
+centered = false
+
+[node name="FundoNoite" type="Sprite2D" parent="."]
+visible = false
+modulate = Color(1, 1, 1, 0)
+texture_filter = 1
+texture = ExtResource("4_noite")
+centered = false
+
+[node name="Caminhos" type="Node2D" parent="."]
+
+[node name="Lamparinas" type="Node2D" parent="."]
+script = ExtResource("5_lamparinas")
+
+[node name="Nevoa" type="Sprite2D" parent="."]
+material = SubResource("ShaderMaterial_nevoa")
+script = ExtResource("6_nevoa")
+
+[node name="Nicholas" type="AnimatedSprite2D" parent="."]
+sprite_frames = ExtResource("3_nicholas")
+animation = &"parado_frente"
+offset = Vector2(0, -22)
+
+[node name="Camera" type="Camera2D" parent="Nicholas"]
+position_smoothing_enabled = true
+
+[node name="Interface" type="CanvasLayer" parent="."]
+layer = 5
+
+[node name="Placa" type="PanelContainer" parent="Interface"]
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -220.0
+offset_top = -232.0
+offset_right = 220.0
+offset_bottom = -32.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="Coluna" type="VBoxContainer" parent="Interface/Placa"]
+alignment = 1
+
+[node name="Nome" type="Label" parent="Interface/Placa/Coluna"]
+theme_override_colors/font_color = Color(0.9255, 0.7412, 0.4588, 1)
+theme_override_font_sizes/font_size = 32
+horizontal_alignment = 1
+
+[node name="Regiao" type="Label" parent="Interface/Placa/Coluna"]
+horizontal_alignment = 1
+
+[node name="Aviso" type="Label" parent="Interface/Placa/Coluna"]
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="Entrar" type="Button" parent="Interface/Placa/Coluna"]
+custom_minimum_size = Vector2(220, 72)
+size_flags_horizontal = 4
+focus_mode = 0
+text = "MAPA_ENTRAR"
+
+[node name="Periodo" type="Button" parent="Interface"]
+offset_left = 24.0
+offset_top = 24.0
+offset_right = 284.0
+offset_bottom = 88.0
+focus_mode = 0
+text = "MAPA_DIA_NOITE"

@@ -1,0 +1,49 @@
+## Falas dos acampamentos (pontos de descanso nas rotas entre os reinos).
+## Nenhuma fala daqui é do livro: mercador, viajante e animais são figurantes
+## genéricos, com texto provisório até existir a loja e o roteiro real.
+
+~ mercador
+
+Mercador: [#retrato=neutro] [Provisório] Boa noite, viajante! Descanse junto ao fogo. [ID:ACAMP_MERCADOR_001]
+Mercador: [Provisório] Minhas mercadorias ainda estão encaixotadas. A loja abre em breve. [ID:ACAMP_MERCADOR_002]
+=> END
+
+~ viajante
+
+Viajante: [#retrato=neutro] [Provisório] A estrada é longa. Melhor dormir antes de seguir. [ID:ACAMP_VIAJANTE_001]
+=> END
+
+~ cao
+
+[Provisório] Um cão se aproxima, abana o rabo e deita perto da fogueira. [ID:ACAMP_CAO_001]
+=> END
+
+~ ovelha
+
+[Provisório] Uma ovelha perdida pasta a grama gelada sem dar atenção a você. [ID:ACAMP_OVELHA_001]
+=> END
+
+~ burro
+
+[Provisório] Um burro de carga mastiga em paz, com os cestos ainda nas costas. [ID:ACAMP_BURRO_001]
+=> END
+
+~ cabra
+
+[Provisório] Uma cabra equilibrada nas pedras observa você, desconfiada. [ID:ACAMP_CABRA_001]
+=> END
+
+~ coruja
+
+[Provisório] Uma coruja pisca devagar, empoleirada no toco. [ID:ACAMP_CORUJA_001]
+=> END
+
+~ gaivota
+
+[Provisório] Uma gaivota grasna e fica de olho nas sobras do jantar. [ID:ACAMP_GAIVOTA_001]
+=> END
+
+~ caranguejo
+
+[Provisório] Um caranguejo anda de lado pela areia e some entre as pedras. [ID:ACAMP_CARANGUEJO_001]
+=> END

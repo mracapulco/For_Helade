@@ -33,6 +33,73 @@ OPCOES_SECAO_SOM,Som
 OPCOES_VOLUME_GERAL,Volume geral
 OPCOES_VOLUME_MUSICA,Música
 OPCOES_VOLUME_EFEITOS,Efeitos sonoros
+ITEM_ESPADA_TESTE_NOME,Espada de teste
+ITEM_ESPADA_TESTE_DESC,Provisória. Só para testar o inventário.
+ITEM_POCAO_TESTE_NOME,Poção de teste
+ITEM_POCAO_TESTE_DESC,Provisória. Recupera um pouco de vida.
+ITEM_CARTA_TESTE_NOME,Carta de teste
+ITEM_CARTA_TESTE_DESC,Provisória. Item da história: não pode ser largado.
+BOLSA_BOTAO,Bolsa
+BOLSA_TITULO,Bolsa
+BOLSA_FECHAR,Fechar
+BOLSA_MOEDAS,Moedas: %d
+BOLSA_ABA_ARMAS,Armas
+BOLSA_ABA_EQUIPAMENTO,Equipamento
+BOLSA_ABA_CONSUMIVEIS,Consumíveis
+BOLSA_ABA_HISTORIA,História
+BOLSA_ABA_DIVERSOS,Diversos
+BOLSA_VAZIA,Nada aqui ainda.
+BOLSA_ESCOLHA_ITEM,Toque num item para ver os detalhes.
+BOLSA_ITEM_DA_HISTORIA,Item da história: não pode ser largado.
+BOLSA_USAR,Usar
+BOLSA_EQUIPAR,Equipar
+BOLSA_DESEQUIPAR,Desequipar
+BOLSA_LARGAR,Largar
+BOLSA_EQUIPADO,(equipado)
+AVISO_MOEDAS,+ %d moedas
+MAPA_OLYMPIA_NOME,Olympia
+MAPA_OLYMPIA_REGIAO,"Sul, costa gélida"
+MAPA_ATENAS_NOME,Atenas
+MAPA_ATENAS_REGIAO,Capital do Império
+MAPA_AGAPE_NOME,Ágape
+MAPA_AGAPE_REGIAO,Leste
+MAPA_NORTE_NOME,Norte
+MAPA_NORTE_REGIAO,Antiga Khronosses
+MAPA_TEMPLO_NOME,Templo
+MAPA_TEMPLO_REGIAO,"[Provisório] região a confirmar"
+MAPA_FLORESTA_NINFAS_NOME,Floresta das Ninfas
+MAPA_FLORESTA_NINFAS_REGIAO,"Ilha a leste, só por mar"
+MAPA_ENTRAR,Entrar
+MAPA_SEM_CENA,"[Provisório] Este lugar ainda não tem cena."
+MAPA_ESTRADA_NOME,Estrada
+MAPA_TRILHA_NOME,Trilha
+MAPA_ACAMPAMENTO_NOME,Acampamento
+MAPA_PORTO_NOME,Porto
+MAPA_ROTA_OLYMPIA_ATENAS,"[Provisório] Estrada principal, de Olympia a Atenas"
+MAPA_ROTA_OLYMPIA_ATENAS_TRILHA,"[Provisório] Caminho secundário, de Olympia a Atenas"
+MAPA_ROTA_OLYMPIA_AGAPE,[Provisório] De Olympia a Ágape
+MAPA_ROTA_ATENAS_AGAPE,[Provisório] De Atenas a Ágape
+MAPA_ROTA_ATENAS_NORTE,[Provisório] De Atenas ao Norte
+MAPA_ROTA_AGAPE_TEMPLO,[Provisório] De Ágape ao Templo
+MAPA_ROTA_NORTE_TEMPLO,[Provisório] Do Norte ao Templo
+MAPA_PORTO_OLYMPIA_REGIAO,[Provisório] Costa de Olympia
+MAPA_PORTO_AGAPE_REGIAO,[Provisório] Costa de Ágape
+MAPA_TITULO,Hélade
+MAPA_DIA_NOITE,[Provisório] Dia / Noite
+MAPA_MAR_NOME,Mar aberto
+MAPA_ROTA_OLYMPIA_FLORESTA,"[Provisório] Rota de barco, de Olympia à Floresta das Ninfas"
+MAPA_ROTA_AGAPE_FLORESTA,"[Provisório] Rota de barco, de Ágape à Floresta das Ninfas"
+ACAMP_SALVO,Progresso salvo.
+ACAMP_BOTAO_MAPA,Voltar ao mapa
+ACAMP_NOME_OA,[Provisório] Acampamento na campina à beira do rio
+ACAMP_NOME_OT,[Provisório] Acampamento na mata perto das falésias
+ACAMP_NOME_OG,[Provisório] Acampamento nas colinas geladas
+ACAMP_NOME_AG,[Provisório] Acampamento à beira do rio entre os parreirais
+ACAMP_NOME_AN,[Provisório] Acampamento no passo nevado
+ACAMP_NOME_NT,[Provisório] Acampamento no pinhal nevado
+ACAMP_NOME_AT,[Provisório] Acampamento na mata escura
+ACAMP_NOME_ILHA,[Provisório] Acampamento na praia da ilha
+ACAMP_NOME_ILHOTA,[Provisório] Acampamento na ilhota de pedra
 MENU_CONFIRMAR_NOVO,"Começar um novo jogo apaga o jogo salvo. Quer mesmo começar de novo?"
 MENU_CONFIRMAR_SIM,"Sim, começar"
 MENU_CONFIRMAR_NAO,Não

@@ -8,10 +8,21 @@
 [ext_resource type="Script" path="res://scripts/exploracao/interagivel.gd" id="6_mcson"]
 [ext_resource type="Resource" path="res://data/dialogos/teste/exploracao.dialogue" id="dlg_exploracao"]
 [ext_resource type="PackedScene" path="res://scenes/ui/botoes_toque.tscn" id="7_botoes"]
+[ext_resource type="PackedScene" path="res://scenes/ui/tela_bolsa.tscn" id="12_bolsa"]
+[ext_resource type="PackedScene" path="res://scenes/ui/aviso_itens.tscn" id="13_aviso"]
+[ext_resource type="Script" path="res://scripts/exploracao/recompensa.gd" id="14_recompensa"]
 [ext_resource type="SpriteFrames" path="res://assets/art/personagens/nicholas/nicholas_exploracao.tres" id="8_nicholas"]
 [ext_resource type="Script" path="res://scripts/exploracao/animacao_personagem.gd" id="11_anim"]
 [ext_resource type="Texture2D" path="res://assets/art/placeholders/exploracao/caixa_provisoria.png" id="9_caixa"]
 [ext_resource type="Texture2D" path="res://assets/art/placeholders/exploracao/personagem_provisorio.png" id="10_personagem"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholders/exploracao/bau_fechado.png" id="15_bau_fechado"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholders/exploracao/bau_aberto.png" id="16_bau_aberto"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholders/exploracao/guarda_provisorio.png" id="17_guarda"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholders/exploracao/criada_provisoria.png" id="18_criada"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholders/exploracao/placa.png" id="19_placa"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholders/exploracao/arvore.png" id="20_arvore"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholders/exploracao/anfora.png" id="21_anfora"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholders/exploracao/braseiro.png" id="22_braseiro"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_pn2jv"]
 radius = 7.0
@@ -27,6 +38,24 @@ radius = 9.0
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_jfhrn"]
 radius = 28.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_bau_corpo"]
+radius = 9.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_bau_toque"]
+radius = 28.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_figurante"]
+radius = 9.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_toque"]
+radius = 28.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_enfeite"]
+radius = 7.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_arvore"]
+radius = 12.0
 
 [node name="SalaTeste" type="Node2D" unique_id=749893232]
 texture_filter = 1
@@ -119,5 +148,144 @@ marcador = "personagem_teste"
 position = Vector2(0, -12)
 shape = SubResource("CircleShape2D_jfhrn")
 
+[node name="BauTeste" type="StaticBody2D" parent="." groups=["navegacao_obstaculos"]]
+position = Vector2(-288, 240)
+
+[node name="Visual" type="Sprite2D" parent="BauTeste"]
+texture = ExtResource("15_bau_fechado")
+offset = Vector2(0, -10)
+
+[node name="Colisao" type="CollisionShape2D" parent="BauTeste"]
+shape = SubResource("CircleShape2D_bau_corpo")
+
+[node name="Interagivel" type="Area2D" parent="BauTeste"]
+script = ExtResource("6_mcson")
+
+[node name="AreaDeToque" type="CollisionShape2D" parent="BauTeste/Interagivel"]
+position = Vector2(0, -12)
+shape = SubResource("CircleShape2D_bau_toque")
+
+[node name="Recompensa" type="Node" parent="BauTeste" node_paths=PackedStringArray("interagivel", "visual")]
+script = ExtResource("14_recompensa")
+interagivel = NodePath("../Interagivel")
+visual = NodePath("../Visual")
+textura_vazio = ExtResource("16_bau_aberto")
+itens = Dictionary[String, int]({
+"pocao_teste": 2
+})
+moedas = 15
+
+[node name="GuardaTeste" type="StaticBody2D" parent="." groups=["navegacao_obstaculos"]]
+position = Vector2(256, 320)
+
+[node name="Visual" type="Sprite2D" parent="GuardaTeste"]
+texture = ExtResource("17_guarda")
+offset = Vector2(0, -22)
+
+[node name="Colisao" type="CollisionShape2D" parent="GuardaTeste"]
+shape = SubResource("CircleShape2D_figurante")
+
+[node name="Interagivel" type="Area2D" parent="GuardaTeste"]
+script = ExtResource("6_mcson")
+dialogo = ExtResource("dlg_exploracao")
+marcador = "guarda_teste"
+
+[node name="AreaDeToque" type="CollisionShape2D" parent="GuardaTeste/Interagivel"]
+position = Vector2(0, -12)
+shape = SubResource("CircleShape2D_toque")
+
+[node name="CriadaTeste" type="StaticBody2D" parent="." groups=["navegacao_obstaculos"]]
+position = Vector2(-192, 320)
+
+[node name="Visual" type="Sprite2D" parent="CriadaTeste"]
+texture = ExtResource("18_criada")
+offset = Vector2(0, -22)
+
+[node name="Colisao" type="CollisionShape2D" parent="CriadaTeste"]
+shape = SubResource("CircleShape2D_figurante")
+
+[node name="Interagivel" type="Area2D" parent="CriadaTeste"]
+script = ExtResource("6_mcson")
+dialogo = ExtResource("dlg_exploracao")
+marcador = "criada_teste"
+
+[node name="AreaDeToque" type="CollisionShape2D" parent="CriadaTeste/Interagivel"]
+position = Vector2(0, -12)
+shape = SubResource("CircleShape2D_toque")
+
+[node name="PlacaTeste" type="StaticBody2D" parent="." groups=["navegacao_obstaculos"]]
+position = Vector2(-32, 208)
+
+[node name="Visual" type="Sprite2D" parent="PlacaTeste"]
+texture = ExtResource("19_placa")
+offset = Vector2(0, -13)
+
+[node name="Colisao" type="CollisionShape2D" parent="PlacaTeste"]
+shape = SubResource("CircleShape2D_figurante")
+
+[node name="Interagivel" type="Area2D" parent="PlacaTeste"]
+script = ExtResource("6_mcson")
+dialogo = ExtResource("dlg_exploracao")
+marcador = "placa_teste"
+
+[node name="AreaDeToque" type="CollisionShape2D" parent="PlacaTeste/Interagivel"]
+position = Vector2(0, -12)
+shape = SubResource("CircleShape2D_toque")
+
+[node name="Arvore" type="StaticBody2D" parent="." groups=["navegacao_obstaculos"]]
+position = Vector2(160, 400)
+
+[node name="Visual" type="Sprite2D" parent="Arvore"]
+texture = ExtResource("20_arvore")
+offset = Vector2(0, -26)
+
+[node name="Colisao" type="CollisionShape2D" parent="Arvore"]
+shape = SubResource("CircleShape2D_arvore")
+
+[node name="Anfora" type="StaticBody2D" parent="." groups=["navegacao_obstaculos"]]
+position = Vector2(0, 64)
+
+[node name="Visual" type="Sprite2D" parent="Anfora"]
+texture = ExtResource("21_anfora")
+offset = Vector2(0, -11)
+
+[node name="Colisao" type="CollisionShape2D" parent="Anfora"]
+shape = SubResource("CircleShape2D_enfeite")
+
+[node name="Anfora2" type="StaticBody2D" parent="." groups=["navegacao_obstaculos"]]
+position = Vector2(64, 64)
+
+[node name="Visual" type="Sprite2D" parent="Anfora2"]
+texture = ExtResource("21_anfora")
+offset = Vector2(0, -11)
+
+[node name="Colisao" type="CollisionShape2D" parent="Anfora2"]
+shape = SubResource("CircleShape2D_enfeite")
+
+[node name="Braseiro" type="StaticBody2D" parent="." groups=["navegacao_obstaculos"]]
+position = Vector2(-128, 128)
+
+[node name="Visual" type="Sprite2D" parent="Braseiro"]
+texture = ExtResource("22_braseiro")
+offset = Vector2(0, -13)
+
+[node name="Colisao" type="CollisionShape2D" parent="Braseiro"]
+shape = SubResource("CircleShape2D_enfeite")
+
+[node name="Braseiro2" type="StaticBody2D" parent="." groups=["navegacao_obstaculos"]]
+position = Vector2(192, 128)
+
+[node name="Visual" type="Sprite2D" parent="Braseiro2"]
+texture = ExtResource("22_braseiro")
+offset = Vector2(0, -13)
+
+[node name="Colisao" type="CollisionShape2D" parent="Braseiro2"]
+shape = SubResource("CircleShape2D_enfeite")
+
 [node name="BotoesToque" parent="." instance=ExtResource("7_botoes")]
 sempre_mostrar = true
+
+[node name="TelaBolsa" parent="." instance=ExtResource("12_bolsa")]
+itens_de_teste = true
+
+[node name="AvisoItens" parent="." instance=ExtResource("13_aviso")]

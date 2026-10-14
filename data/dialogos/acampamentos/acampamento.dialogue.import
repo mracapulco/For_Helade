@@ -1,0 +1,16 @@
+[remap]
+
+importer="dialogue_manager"
+importer_version=18
+type="Resource"
+uid="uid://bog6qcvmcsi7u"
+path="res://.godot/imported/acampamento.dialogue-db2699a2dc5da9a8b4ec2fff42324bc2.tres"
+
+[deps]
+
+source_file="res://data/dialogos/acampamentos/acampamento.dialogue"
+dest_files=["res://.godot/imported/acampamento.dialogue-db2699a2dc5da9a8b4ec2fff42324bc2.tres"]
+
+[params]
+
+defaults=true

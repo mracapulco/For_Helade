@@ -45,9 +45,9 @@ const ETAPAS := {
 	"nos_bracos": {"sussurros": 0.45, "fogo": 0.2},
 	"depois": {"sussurros": 0.2},
 	"quarto_vazio": {"fogo": 0.3, "vento_mar": 0.3},
-	"varanda": {"ondas": 0.75, "vento_mar": 0.35, "grilos": 0.3},
+	"varanda": {"ondas": 0.98, "vento_mar": 0.46, "grilos": 0.3},
 	# Os sussurros crescem junto com as frases do final.
-	"final": {"sussurros": 0.85, "ondas": 0.3},
+	"final": {"sussurros": 0.85, "ondas": 0.39},
 	"fim": {},
 }
 ## Batimento (velocidade do laço do coração; 1 = 100 por minuto).
@@ -56,12 +56,19 @@ const RITMO_CORACAO := {"caos": 1.4, "dossel": 1.55, "choro": 1.35, "segurar": 1
 const RAPIDEZ := {"muda": 4.0, "final": 0.12, "fim": 0.5}
 const RAPIDEZ_PADRAO := 0.8
 
-## Um passo de criança, em metros, e o chão de cada lugar.
-const PASSO := 0.45
+## Distância entre um passo e outro (m): passos de criança sem pressa, e mais
+## largos correndo. Cada passo sorteia um entre oito sons, sem repetir o último.
+const PASSO := 0.7
+const PASSO_CORRENDO := 1.0
+const VARIACOES_DE_PASSO := 8
 const PASSOS := {
-	"madeira": [EFEITOS + "passo_madeira_1.ogg", EFEITOS + "passo_madeira_2.ogg", EFEITOS + "passo_madeira_3.ogg"],
-	"pedra": [EFEITOS + "passo_pedra_1.ogg", EFEITOS + "passo_pedra_2.ogg", EFEITOS + "passo_pedra_3.ogg"],
+	"madeira": EFEITOS + "passo_madeira_%d.ogg",
+	"pedra": EFEITOS + "passo_pedra_%d.ogg",
 }
+const PULO := EFEITOS + "pulo.ogg"
+const ATERRISSAGEM := EFEITOS + "aterrissagem_%s.ogg"
+## Tempo mínimo no ar para a chegada ao chão fazer barulho (descer de um degrau não conta).
+const TEMPO_NO_AR := 0.15
 
 var etapa := ""
 var _camadas := {}
@@ -69,6 +76,10 @@ var _volumes := {}
 var _passos := {}
 var _andado := 0.0
 var _ultima_posicao := Vector3.ZERO
+var _pulo: AudioStreamPlayer
+var _aterrissagens := {}
+var _no_chao := true
+var _no_ar := 0.0
 
 
 ## Alvos de volume antes dos aposentos, pelo lugar onde Nicholas está:
@@ -110,21 +121,28 @@ func _ready() -> void:
 		_volumes[nome] = 0.0
 	for chao: String in PASSOS:
 		var sorteio := AudioStreamRandomizer.new()
-		for caminho: String in PASSOS[chao]:
-			sorteio.add_stream(-1, load(caminho))
-		sorteio.random_pitch = 1.12
-		sorteio.random_volume_offset_db = 3.0
-		var tocador := AudioStreamPlayer.new()
-		tocador.name = "Passos" + chao.capitalize()
-		tocador.bus = BARRAMENTO
-		tocador.stream = sorteio
-		tocador.volume_db = -6.0
-		add_child(tocador)
-		_passos[chao] = tocador
+		sorteio.playback_mode = AudioStreamRandomizer.PLAYBACK_RANDOM_NO_REPEATS
+		for i in range(1, VARIACOES_DE_PASSO + 1):
+			sorteio.add_stream(-1, load(PASSOS[chao] % i))
+		sorteio.random_pitch = 1.06
+		sorteio.random_volume_offset_db = 2.5
+		_passos[chao] = _novo_tocador("Passos" + chao.capitalize(), sorteio, -9.0)
+		_aterrissagens[chao] = _novo_tocador("Aterrissagem" + chao.capitalize(), load(ATERRISSAGEM % chao), -6.0)
+	_pulo = _novo_tocador("Pulo", load(PULO), -8.0)
 	if sequencia:
 		sequencia.etapa_mudou.connect(func(nova: String) -> void: etapa = nova)
 	if controle and controle.corpo:
 		_ultima_posicao = controle.corpo.global_position
+
+
+func _novo_tocador(nome: String, som: AudioStream, volume_db: float) -> AudioStreamPlayer:
+	var tocador := AudioStreamPlayer.new()
+	tocador.name = nome
+	tocador.bus = BARRAMENTO
+	tocador.stream = som
+	tocador.volume_db = volume_db
+	add_child(tocador)
+	return tocador
 
 
 ## Volume que cada camada busca agora.
@@ -153,15 +171,35 @@ func _process(delta: float) -> void:
 func _contar_passos() -> void:
 	if controle == null or controle.corpo == null:
 		return
-	var posicao := controle.corpo.global_position
+	var corpo := controle.corpo
+	var posicao := corpo.global_position
 	var andou := Vector2(posicao.x - _ultima_posicao.x, posicao.z - _ultima_posicao.z).length()
 	_ultima_posicao = posicao
-	if andou > 1.0:
-		return # troca de ponto (teleporte), não passo
+	_ouvir_pulo(corpo, posicao)
+	if andou > 1.0 or not _no_chao:
+		return # troca de ponto (teleporte) ou no ar: não é passo
 	_andado += andou
-	if _andado >= PASSO:
+	var rapidez := andou / maxf(get_process_delta_time(), 0.0001)
+	var passo := PASSO_CORRENDO if rapidez > (controle.velocidade + controle.velocidade_correndo) / 2.0 else PASSO
+	if _andado >= passo:
 		_andado = 0.0
 		_passos[chao_em(posicao)].play()
+
+
+## Som no impulso do pulo e quando os pés voltam ao chão.
+func _ouvir_pulo(corpo: CharacterBody3D, posicao: Vector3) -> void:
+	var no_chao := corpo.is_on_floor()
+	if _no_chao and not no_chao and corpo.velocity.y > 0.5:
+		_pulo.play()
+	if not no_chao:
+		_no_ar += get_process_delta_time()
+	elif not _no_chao:
+		if _no_ar >= TEMPO_NO_AR:
+			_aterrissagens[chao_em(posicao)].play()
+		_andado = 0.0
+	if no_chao:
+		_no_ar = 0.0
+	_no_chao = no_chao
 
 
 func _posicao() -> Vector3:

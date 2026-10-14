@@ -28,9 +28,12 @@ func test_todos_os_sons_carregam_e_os_ambientes_repetem() -> void:
 	for caminho: String in SomPrologo.CAMADAS.values():
 		var som: AudioStream = load(caminho)
 		assert_not_null(som, caminho)
-	for lista: Array in SomPrologo.PASSOS.values():
-		for caminho: String in lista:
-			assert_not_null(load(caminho), caminho)
+	for modelo: String in SomPrologo.PASSOS.values():
+		for i in range(1, SomPrologo.VARIACOES_DE_PASSO + 1):
+			assert_not_null(load(modelo % i), modelo % i)
+	assert_not_null(load(SomPrologo.PULO))
+	for chao in ["madeira", "pedra"]:
+		assert_not_null(load(SomPrologo.ATERRISSAGEM % chao))
 
 
 func test_tudo_toca_no_barramento_efeitos() -> void:
@@ -38,7 +41,8 @@ func test_tudo_toca_no_barramento_efeitos() -> void:
 	await wait_process_frames(2)
 	var som: SomPrologo = cena.get_node("Som")
 	var tocadores := som.find_children("*", "AudioStreamPlayer", false, false)
-	assert_eq(tocadores.size(), SomPrologo.CAMADAS.size() + SomPrologo.PASSOS.size())
+	# camadas + passos, aterrissagem por chão + pulo
+	assert_eq(tocadores.size(), SomPrologo.CAMADAS.size() + 2 * SomPrologo.PASSOS.size() + 1)
 	for tocador: AudioStreamPlayer in tocadores:
 		assert_eq(tocador.bus, &"Efeitos", tocador.name)
 	assert_true((som.get_node("Caos") as AudioStreamPlayer).stream.loop, "ambiente em laço")
@@ -70,6 +74,22 @@ func test_volume_desliza_ate_o_silencio_da_muda() -> void:
 	await wait_seconds(0.4)
 	for camada: String in SomPrologo.CAMADAS:
 		assert_eq(som.volume(camada), 0.0, camada)
+
+
+func test_pulo_tem_som() -> void:
+	var cena: ControlePrimeiraPessoa = add_child_autofree(_cena_rapida())
+	await wait_physics_frames(10)
+	var pulo: AudioStreamPlayer = cena.get_node("Som/Pulo")
+	Input.action_press("pular")
+	await wait_physics_frames(1)
+	Input.action_release("pular")
+	await wait_process_frames(3)
+	assert_true(pulo.playing, "o impulso do pulo faz barulho")
+
+
+func test_passos_de_crianca_sem_pressa() -> void:
+	assert_gte(SomPrologo.PASSO, 0.6, "passos curtos demais soam apressados")
+	assert_gte(SomPrologo.VARIACOES_DE_PASSO, 6, "poucos sons de passo soam repetidos")
 
 
 func _cena_rapida() -> Node:

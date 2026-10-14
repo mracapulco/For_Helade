@@ -165,17 +165,57 @@ def conversa(n: int, f0: float, rapidez: float, sonora: bool = True) -> np.ndarr
 
 # ------------------------------------------------------------ ruídos de corpo e casa
 
-def passo_de(chao: str) -> np.ndarray:
-    """Pé descalço de criança: um toque curto, sem salto de sapato."""
-    n = amostras(0.18)
+def passo_de(chao: str, forca: float = 1.0) -> np.ndarray:
+    """Pé descalço de criança: calcanhar e depois a planta, sem salto de sapato.
+    Cada chamada sai diferente (altura, tempo entre as duas partes, arrasto)."""
+    n = amostras(0.32)
     t = tempo(n)
-    if chao == "madeira":
-        corpo = np.sin(2 * np.pi * rng.uniform(95, 130) * t) * np.exp(-t / 0.035)
-        estalo = faixa(ruido(n), 250, 1400) * np.exp(-t / 0.012) * 0.6
-    else:
-        corpo = np.sin(2 * np.pi * rng.uniform(70, 90) * t) * np.exp(-t / 0.02) * 0.6
-        estalo = faixa(ruido(n), 600, 3500) * np.exp(-t / 0.008)
-    return normalizar(corpo + estalo, 0.5)
+    som = np.zeros(n)
+    grave = rng.uniform(85, 125) if chao == "madeira" else rng.uniform(60, 85)
+    for parte, (atraso, peso) in enumerate(((0.0, 1.0), (rng.uniform(0.045, 0.09), rng.uniform(0.4, 0.75)))):
+        m = n - amostras(atraso)
+        tt = tempo(m)
+        if chao == "madeira":
+            corpo = np.sin(2 * np.pi * grave * (1 + 0.15 * parte) * tt) * np.exp(-tt / rng.uniform(0.025, 0.045))
+            pele = faixa(ruido(m), rng.uniform(200, 350), rng.uniform(1000, 1800)) * np.exp(-tt / rng.uniform(0.008, 0.016))
+            rangido = 0.0
+            if rng.random() < 0.25:  # tábua velha cedendo um pouco
+                f = rng.uniform(300, 520)
+                rangido = np.sin(2 * np.pi * f * tt * (1 + 0.4 * tt)) * envelope(m, 0.02, 0.05) * 0.12
+            parte_som = corpo + 0.5 * pele + rangido
+        else:
+            corpo = np.sin(2 * np.pi * grave * tt) * np.exp(-tt / rng.uniform(0.015, 0.025)) * 0.5
+            pele = faixa(ruido(m), rng.uniform(500, 800), rng.uniform(2500, 4500)) * np.exp(-tt / rng.uniform(0.006, 0.012))
+            parte_som = corpo + pele
+        som[amostras(atraso):] += parte_som * peso
+    if rng.random() < 0.4:  # pé arrastando de leve
+        m = amostras(rng.uniform(0.06, 0.12))
+        arrasto = faixa(ruido(m), 1500, 6000) * np.hanning(m) * 0.06
+        colocar(som, arrasto, amostras(rng.uniform(0.03, 0.1)), 1.0)
+    som *= np.minimum(1.0, np.linspace(6, 0, n))  # termina em silêncio
+    return normalizar(som, 0.45 * forca)
+
+
+def pulo() -> np.ndarray:
+    """Impulso do pulo: o fôlego curto e a roupa mexendo."""
+    n = amostras(0.35)
+    folego = formantes(ruido(n), [(1300, 900, 1.0), (3000, 1200, 0.4)]) * envelope(n, 0.03, 0.07)
+    roupa = faixa(ruido(n), 1500, 6000) * envelope(n, 0.05, 0.1) * 0.4
+    pes = passo_de("madeira", 0.6)
+    som = 0.5 * normalizar(folego) + 0.3 * normalizar(roupa)
+    colocar(som, pes[: n], 0, 0.6)
+    return normalizar(som, 0.45)
+
+
+def aterrissagem(chao: str) -> np.ndarray:
+    """Os dois pés chegando juntos no chão, mais pesado que um passo."""
+    n = amostras(0.4)
+    som = np.zeros(n)
+    colocar(som, passo_de(chao, 1.0)[:n], 0, 1.0)
+    colocar(som, passo_de(chao, 1.0)[:n], amostras(rng.uniform(0.012, 0.03)), 0.8)
+    t = tempo(n)
+    som += np.sin(2 * np.pi * 55 * t) * np.exp(-t / 0.05) * 0.3
+    return normalizar(som, 0.6)
 
 
 def baque(n: int, freq: float, queda: float) -> np.ndarray:
@@ -315,30 +355,68 @@ def respiracao() -> np.ndarray:
 
 
 def choro() -> np.ndarray:
-    """Recém-nascida chorando: "uéé" com tremor, e o fôlego entre um e outro."""
-    n = amostras(7.5)
+    """Recém-nascida chorando. A voz de bebê é áspera e instável: a altura
+    treme (jitter), o volume oscila (shimmer), às vezes a voz quebra para
+    cima, e a boca abre e fecha mudando a vogal ("uéé-aa"). O laço é longo e
+    nenhum choro se repete, para não soar como um som em loop."""
+    total = 26.0
+    n = amostras(total)
     trilha = np.zeros(n)
-    t = 0.0
-    while t < 7.5:
-        dur = rng.uniform(0.8, 1.3)
-        m = amostras(dur)
-        tt = np.linspace(0, 1, m)
-        f0 = rng.uniform(430, 500) * (1 + 0.12 * np.sin(np.pi * tt) - 0.18 * tt ** 3)
-        f0 *= 1 + 0.025 * np.sin(2 * np.pi * 6.5 * tempo(m))
-        fase = np.cumsum(f0) / TAXA
-        voz = np.zeros(m)
-        for k in range(1, 16):
-            fk = k * f0.mean()
-            # formantes de um choro de bebê, mais agudos que os de um adulto
-            peso = sum(a / (1 + ((fk - c) / 350) ** 2) for c, a in ((1100, 1.0), (2100, 0.6), (3800, 0.25)))
-            voz += peso / k ** 0.5 * np.sin(2 * np.pi * k * fase)
-        voz *= envelope(m, 0.08, dur / 2.5) ** 0.5 * np.hanning(m) ** 0.3
-        colocar(trilha, voz, amostras(t), 1.0)
-        t += dur
-        fol = amostras(0.28)
-        colocar(trilha, formantes(ruido(fol), [(1500, 1200, 1.0)]) * np.hanning(fol), amostras(t), 0.08)
-        t += rng.uniform(0.3, 0.45)
-    return normalizar(eco(trilha, 0.9, 0.3), 0.6)
+    t = 0.4
+    while t < total - 0.3:
+        intensidade = rng.uniform(0.55, 1.0)
+        for _ in range(rng.integers(1, 4)):  # uma série de choros num fôlego só
+            dur = rng.uniform(0.55, 1.6)
+            colocar(trilha, um_choro(dur, intensidade), amostras(t), intensidade)
+            t += dur + rng.uniform(0.05, 0.18)
+        # puxando o ar: um "hh" curto e agudo, às vezes com voz
+        fol = amostras(rng.uniform(0.2, 0.4))
+        puxar = formantes(ruido(fol), [(1800, 1000, 1.0), (3600, 1500, 0.5)]) * np.hanning(fol)
+        if rng.random() < 0.4:
+            tt = tempo(fol)
+            puxar += 0.3 * np.sin(2 * np.pi * np.cumsum(np.linspace(700, 900, fol)) / TAXA) * np.hanning(fol) * np.std(puxar)
+        colocar(trilha, puxar, amostras(t), 0.12)
+        t += fol / TAXA + rng.uniform(0.15, 0.6)
+        if rng.random() < 0.2:
+            t += rng.uniform(0.8, 1.8)  # uma pausa maior, como quem perde o fôlego
+    return normalizar(eco(faixa(trilha, 250, 9000), 0.9, 0.3), 0.6)
+
+
+def um_choro(dur: float, intensidade: float) -> np.ndarray:
+    m = amostras(dur)
+    quadro = 220  # amostras por quadro (5 ms) para as mudanças lentas
+    q = m // quadro + 2
+    x = np.linspace(0, 1, q)
+    # altura: sobe no começo, segura com tremor, cai no fim
+    base = rng.uniform(400, 520) * (0.9 + 0.1 * intensidade)
+    contorno = base * (1 + 0.15 * np.sin(np.pi * np.minimum(x * 1.3, 1)) - 0.25 * x ** 4)
+    jitter = np.convolve(rng.standard_normal(q), np.ones(4) / 4, mode="same") * 0.025
+    f0q = contorno * (1 + jitter)
+    if rng.random() < 0.35:  # quebra de voz: salta para cima por um instante
+        i = rng.integers(q // 4, 3 * q // 4)
+        f0q[i:i + rng.integers(6, 20)] *= rng.uniform(1.5, 1.9)
+    f0 = np.interp(np.arange(m), np.arange(q) * quadro, f0q)
+    fase = np.cumsum(f0) / TAXA
+    # vogal: a boca abre ("u" -> "é" -> "a") e fecha no fim
+    abertura = np.sin(np.pi * np.minimum(x * rng.uniform(1.0, 1.4), 1)) ** 0.7
+    f1 = 650 + 650 * abertura
+    f2 = 1500 + 800 * abertura
+    shimmer = 1 + np.convolve(rng.standard_normal(q), np.ones(3) / 3, mode="same") * 0.12
+    voz = np.zeros(m)
+    for k in range(1, 22):
+        fk = k * f0q
+        peso = 1 / (1 + ((fk - f1) / 300) ** 2) + 0.6 / (1 + ((fk - f2) / 400) ** 2) + \
+            0.25 / (1 + ((fk - 3800) / 600) ** 2)
+        peso *= shimmer / k ** 0.35
+        voz += np.interp(np.arange(m), np.arange(q) * quadro, peso) * np.sin(2 * np.pi * k * fase + rng.uniform(0, 6.28))
+    # aspereza: ruído de ar junto da voz, mais forte quando o choro é mais forte
+    ar = formantes(ruido(m), [(1300, 600, 1.0), (2300, 800, 0.6)]) * (0.15 + 0.2 * intensidade)
+    voz = voz / max(np.std(voz), 1e-9) + ar / max(np.std(ar), 1e-9) * 0.35
+    ataque = min(m, amostras(rng.uniform(0.04, 0.1)))
+    env = np.ones(m)
+    env[:ataque] = np.linspace(0, 1, ataque)
+    env *= np.minimum(1.0, np.linspace(1.0, 0.0, m) * rng.uniform(4, 8))
+    return voz * env
 
 
 def main() -> None:
@@ -354,8 +432,10 @@ def main() -> None:
     salvar(respiracao(), EFEITOS / "respiracao.ogg")
     salvar(choro(), EFEITOS / "choro.ogg")
     for chao in ("madeira", "pedra"):
-        for i in range(1, 4):
+        for i in range(1, 9):
             salvar(passo_de(chao), EFEITOS / f"passo_{chao}_{i}.ogg")
+        salvar(aterrissagem(chao), EFEITOS / f"aterrissagem_{chao}.ogg")
+    salvar(pulo(), EFEITOS / "pulo.ogg")
 
 
 if __name__ == "__main__":

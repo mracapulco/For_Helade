@@ -24,6 +24,7 @@ const ESTADOS := {
 	"muda": {"respiracao": "presa", "vinheta": 0.85, "desfoque": 0.9},
 	"nome": {"respiracao": "presa", "vinheta": 0.85, "desfoque": 0.9},
 	"olhares": {"respiracao": "ofegante", "vinheta": 0.7, "desfoque": 0.5},
+	"choro": {"respiracao": "ofegante", "vinheta": 0.7, "desfoque": 0.5},
 	"segurar": {"respiracao": "ofegante", "vinheta": 0.6, "desfoque": 0.3},
 	"nos_bracos": {"respiracao": "calma", "vinheta": 0.55, "desfoque": 0.2},
 	"depois": {"respiracao": "calma", "vinheta": 0.5, "desfoque": 0.2},

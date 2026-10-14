@@ -120,6 +120,7 @@ func _aposentos() -> void:
 	await controle.tocar_cena("olhares")
 	var energia := _energia(vela_cama)
 	create_tween().tween_property(vela_cama, energia, vela_cama.get(energia) * 0.3, _t(4.0))
+	_mudar("choro")
 	await controle.tocar_cena("choro")
 
 	var frente := -controle.corpo.global_basis.z

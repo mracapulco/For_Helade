@@ -13,6 +13,7 @@
 [ext_resource type="Shader" path="res://assets/shaders/prologo/ceu_noite.gdshader" id="s_ceu"]
 [ext_resource type="Shader" path="res://assets/shaders/prologo/vinheta.gdshader" id="s_vinheta"]
 [ext_resource type="Script" path="res://scripts/prologo/sensacao_primeira_pessoa.gd" id="10_sensacao"]
+[ext_resource type="Script" path="res://scripts/prologo/som_prologo.gd" id="11_som"]
 [ext_resource type="PackedScene" path="res://scenes/prologo/cenario/exterior.tscn" id="c_exterior"]
 [ext_resource type="PackedScene" path="res://scenes/prologo/cenario/quarto_nicholas.tscn" id="c_quarto_nicholas"]
 [ext_resource type="PackedScene" path="res://scenes/prologo/cenario/corredor.tscn" id="c_corredor"]
@@ -488,3 +489,8 @@ script = ExtResource("10_sensacao")
 controle = NodePath("..")
 sequencia = NodePath("../Sequencia")
 vinheta = NodePath("../Visao/Vinheta")
+
+[node name="Som" type="Node" parent="." node_paths=PackedStringArray("controle", "sequencia")]
+script = ExtResource("11_som")
+controle = NodePath("..")
+sequencia = NodePath("../Sequencia")

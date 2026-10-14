@@ -135,3 +135,26 @@ func test_musicas_existem_e_as_de_fundo_repetem() -> void:
 		assert_not_null(musica, caminho)
 		var laco := musica.loop_mode != AudioStreamWAV.LOOP_DISABLED
 		assert_eq(laco, not caminho.ends_with("prologo_titulo.wav"), "%s: só o título toca uma vez" % caminho)
+
+
+func test_coracao_sobe_em_rampa_continua_pelo_caminho() -> void:
+	var anterior := -1.0
+	for i in SomPrologo.CAMINHO.size() - 1:
+		var a: Vector2 = SomPrologo.CAMINHO[i]
+		var b: Vector2 = SomPrologo.CAMINHO[i + 1]
+		for k in 10:
+			var p := a.lerp(b, k / 10.0)
+			var volume: float = SomPrologo.alvos_explorando(Vector3(p.x, 1, p.y))["coracao"]
+			if anterior >= 0.0:
+				assert_true(volume >= anterior - 0.001, "o coração não pode baixar indo para a duquesa")
+				assert_lt(volume - anterior, 0.06, "sem saltos de volume")
+			anterior = volume
+
+
+func test_vozes_dos_empregados_ja_se_ouvem_no_quarto() -> void:
+	var cama := SomPrologo.alvos_explorando(Vector3(-11.2, 1, 8.6))
+	assert_gte(cama["correria"], 0.5)
+
+
+func test_sem_respiracao_falsa() -> void:
+	assert_false(SomPrologo.CAMADAS.has("respiracao"))

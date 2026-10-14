@@ -27,16 +27,15 @@ const CAMADAS := {
 	"caos": AMBIENTE + "caos.ogg",
 	"correria": AMBIENTE + "correria.ogg",
 	"sussurros": AMBIENTE + "sussurros.ogg",
-	"respiracao": EFEITOS + "respiracao.ogg",
 	"choro": EFEITOS + "choro.ogg",
 }
 
 ## Volume (0 a 1) de cada camada em cada etapa; camada ausente fica muda.
 ## A etapa "" (antes dos aposentos) é calculada por lugar em alvos_explorando().
 const ETAPAS := {
-	"caos": {"caos": 0.85, "coracao": 0.6, "respiracao": 0.55, "fogo": 0.25},
-	# Debaixo do dossel tudo fica abafado: só o coração e a respiração.
-	"dossel": {"correria": 0.55, "coracao": 0.85, "respiracao": 0.7},
+	"caos": {"caos": 0.85, "coracao": 0.8, "fogo": 0.25},
+	# Debaixo do dossel tudo fica abafado: só o coração.
+	"dossel": {"correria": 0.55, "coracao": 0.9},
 	# Althea nasce muda: silêncio total.
 	"muda": {},
 	"nome": {},
@@ -86,30 +85,18 @@ const BPM_CORACAO := {"caos": 145.0, "dossel": 160.0, "muda": 0.0, "nome": 0.0, 
 	"choro": 140.0, "segurar": 125.0, "nos_bracos": 105.0}
 const BPM_PADRAO := 100.0
 ## Do quarto aos aposentos: o coração já bate no quarto, baixinho e calmo, e
-## cresce e acelera conforme Nicholas chega perto da porta da duquesa.
+## cresce e acelera aos poucos pelo caminho até a porta da duquesa.
 const BPM_QUARTO := 88.0
 const BPM_PORTA := 135.0
-const VOLUME_CORACAO_QUARTO := 0.12
-const VOLUME_CORACAO_PORTA := 0.7
-const PORTA_DUQUESA := Vector3(9.0, 0.0, 3.9)
-const DISTANCIA_DA_CAMA := 22.0
-## Quanto de volume por segundo cada camada anda até o alvo.
-const RAPIDEZ := {"muda": 4.0, "final": 0.12, "fim": 0.5}
-const RAPIDEZ_PADRAO := 0.8
-
-## Distância entre um passo e outro (m): passos de criança sem pressa, e mais
-## largos correndo. Cada passo sorteia um entre oito sons, sem repetir o último.
-const PASSO := 0.7
-const PASSO_CORRENDO := 1.0
-const VARIACOES_DE_PASSO := 8
-const PASSOS := {
-	"madeira": EFEITOS + "passo_madeira_%d.ogg",
-	"pedra": EFEITOS + "passo_pedra_%d.ogg",
-}
-const PULO := EFEITOS + "pulo.ogg"
-const ATERRISSAGEM := EFEITOS + "aterrissagem_%s.ogg"
-## Tempo mínimo no ar para a chegada ao chão fazer barulho (descer de um degrau não conta).
-const TEMPO_NO_AR := 0.15
+const VOLUME_CORACAO_QUARTO := 0.15
+const VOLUME_CORACAO_PORTA := 0.75
+## A correria e os gritos dos empregados: já bem audíveis no quarto, mais
+## perto no corredor.
+const VOLUME_CORRERIA_QUARTO := 0.55
+const VOLUME_CORRERIA_PORTA := 0.9
+## O caminho de Nicholas: cama, porta do quarto, corredor e porta da duquesa.
+const CAMINHO: Array[Vector2] = [Vector2(-11.2, 8.6), Vector2(-9.0, 3.9), Vector2(-9.0, 1.8),
+	Vector2(9.0, 1.8), Vector2(9.0, 3.9)]
 
 var etapa := ""
 var _camadas := {}
@@ -131,18 +118,41 @@ var _no_ar := 0.0
 ## tochas, a correria cada vez mais perto e o coração acelerando.
 static func alvos_explorando(posicao: Vector3) -> Dictionary:
 	if posicao.z > 3.9 and posicao.x > 4.0:
-		return {"caos": 0.85, CORACAO: 0.6, "fogo": 0.25}
+		return {"caos": 0.85, CORACAO: 0.8, "fogo": 0.25}
 	var perto := perto_da_duquesa(posicao)
-	var coracao := lerpf(VOLUME_CORACAO_QUARTO, VOLUME_CORACAO_PORTA, perto)
+	var alvos := {
+		CORACAO: lerpf(VOLUME_CORACAO_QUARTO, VOLUME_CORACAO_PORTA, perto),
+		"correria": lerpf(VOLUME_CORRERIA_QUARTO, VOLUME_CORRERIA_PORTA, perto),
+	}
 	if posicao.z > 3.9:
-		return {"vento_mar": 0.35, "correria": 0.3, CORACAO: coracao}
-	return {"vento_mar": 0.12, "fogo": 0.45, "correria": 0.4 + 0.4 * perto, CORACAO: coracao}
+		alvos["vento_mar"] = 0.3
+	else:
+		alvos["vento_mar"] = 0.1
+		alvos["fogo"] = 0.45
+	return alvos
 
 
-## 0 na cama de Nicholas, 1 na porta dos aposentos da duquesa.
+## Quanto do caminho até a duquesa Nicholas já andou: 0 na cama, 1 na porta
+## dela. Segue o caminho (e não a linha reta) para a rampa ser contínua.
 static func perto_da_duquesa(posicao: Vector3) -> float:
-	var distancia := Vector2(posicao.x - PORTA_DUQUESA.x, posicao.z - PORTA_DUQUESA.z).length()
-	return clampf(1.0 - distancia / DISTANCIA_DA_CAMA, 0.0, 1.0)
+	var ponto := Vector2(posicao.x, posicao.z)
+	var total := 0.0
+	for i in CAMINHO.size() - 1:
+		total += CAMINHO[i].distance_to(CAMINHO[i + 1])
+	var melhor := INF
+	var andado := 0.0
+	var resultado := 0.0
+	for i in CAMINHO.size() - 1:
+		var a := CAMINHO[i]
+		var b := CAMINHO[i + 1]
+		var trecho := a.distance_to(b)
+		var t := clampf((ponto - a).dot(b - a) / (trecho * trecho), 0.0, 1.0)
+		var distancia := ponto.distance_to(a.lerp(b, t))
+		if distancia < melhor:
+			melhor = distancia
+			resultado = (andado + t * trecho) / total
+		andado += trecho
+	return clampf(resultado, 0.0, 1.0)
 
 
 static func bpm_explorando(posicao: Vector3) -> float:

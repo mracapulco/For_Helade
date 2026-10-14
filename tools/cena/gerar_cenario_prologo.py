@@ -266,7 +266,8 @@ def tocha(c: Cena, pai, pos, giro, nome_luz, sombra=False):
     return g
 
 
-def vela(c: Cena, pai, pos, altura=0.18, castical=True):
+def vela(c: Cena, pai, pos, altura=0.18, castical=True, acesa=True):
+    """Vela num castiçal. Acesa, tem chama; quem chama precisa pôr a luz ao lado."""
     g = grupo(c, "Vela", pai, pos)
     if castical:
         cilindro(c, "Pires", g, (0, 0.01, 0), 0.07, 0.02, "bronze")
@@ -276,7 +277,8 @@ def vela(c: Cena, pai, pos, altura=0.18, castical=True):
     else:
         base = 0.0
     cilindro(c, "Cera", g, (0, base + altura / 2, 0), 0.022, altura, "cera")
-    chama(c, g, (0, base + altura, 0), 0.05, 0.11)
+    if acesa:
+        chama(c, g, (0, base + altura, 0), 0.05, 0.11)
     return g, base + altura
 
 
@@ -420,7 +422,8 @@ def quarto_nicholas() -> Cena:
         cilindro(c, "Puxador", arm, (x, 1.15, 0.32), 0.015, 0.04, "bronze", rot=(90, 0, 0))
     m = mesa(c, ".", (-7.0, 0, 11.6), 1.0, 0.6, 0.72)
     cadeira(c, ".", (-7.0, 0, 10.95), giro=180)
-    vela(c, m, (0.3, 0.72, 0.1), altura=0.1)
+    _, topo = vela(c, m, (0.3, 0.72, 0.1), altura=0.1)
+    luz(c, "VelaMesa", ".", (-6.7, 0.72 + topo + 0.15, 11.7), 0.7, 3.5)
     caixa(c, "Livro", m, (-0.2, 0.74, 0), (0.22, 0.04, 0.3), "veludo_vermelho", rot=(0, 12, 0))
     return c
 
@@ -522,7 +525,7 @@ def aposentos() -> Cena:
         chama(c, ".", (4.42, 0.1, z), 0.4, a)
     luz(c, "Lareira", ".", (4.95, 0.6, 8.0), 2.2, 9.0, (1, 0.55, 0.25), sombra=True, tremor=0.35)
     for z in (7.1, 8.9):
-        vela(c, ".", (4.5, 1.72, z), altura=0.2)
+        vela(c, ".", (4.5, 1.72, z), altura=0.2, acesa=False)
     pol = grupo(c, "Poltrona", ".", (5.7, 0, 6.3), 143)
     caixa(c, "Assento", pol, (0, 0.42, 0), (0.75, 0.16, 0.7), "veludo_vermelho", True)
     caixa(c, "Encosto", pol, (0, 0.9, 0.31), (0.75, 0.85, 0.12), "veludo_vermelho")
@@ -624,10 +627,7 @@ def exterior() -> Cena:
     mar = c.s("ShaderMaterial", shader=c.e("Shader", "res://assets/shaders/prologo/mar.gdshader"))
     c.no("Mar", "MeshInstance3D", ".", transform=transform((13.5, -12, 160)),
          mesh=c.s("PlaneMesh", material=mar, size=v2(700, 320), subdivide_width=140, subdivide_depth=64))
-    lua = c.s("StandardMaterial3D", albedo_color=cor(0.9, 0.92, 1), disable_fog="true", emission_enabled="true",
-              emission=cor(0.9, 0.92, 1), emission_energy_multiplier="3.0")
-    c.no("LuaNoCeu", "MeshInstance3D", ".", transform=transform((40.5, 76, 169)),
-         mesh=c.s("SphereMesh", material=lua, radius="7.0", height="14.0"))
+    # A lua é desenhada pelo céu (ceu_noite.gdshader), sempre junto do halo e da luz "Lua".
     return c
 
 

@@ -946,12 +946,6 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.205, 0)
 mesh = SubResource("CylinderMesh_17")
 material_override = ExtResource("11_cera")
 
-[node name="Chama" type="MeshInstance3D" parent="Vela"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.305, 0)
-cast_shadow = 0
-mesh = SubResource("QuadMesh_18")
-material_override = ExtResource("12_chama")
-
 [node name="Vela2" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.5, 1.72, 8.9)
 
@@ -974,12 +968,6 @@ material_override = ExtResource("10_bronze")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.205, 0)
 mesh = SubResource("CylinderMesh_17")
 material_override = ExtResource("11_cera")
-
-[node name="Chama" type="MeshInstance3D" parent="Vela2"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.305, 0)
-cast_shadow = 0
-mesh = SubResource("QuadMesh_18")
-material_override = ExtResource("12_chama")
 
 [node name="Poltrona" type="Node3D" parent="."]
 transform = Transform3D(-0.7986, 0, 0.6018, 0, 1, 0, -0.6018, 0, -0.7986, 5.7, 0, 6.3)

@@ -207,3 +207,13 @@ func test_varanda_comeca_ao_passar_pela_porta() -> void:
 	cena.corpo.global_position = Vector3(varanda.global_position.x, 0.0, varanda.global_position.z - varanda.raio_chegada + 0.1)
 	await wait_physics_frames(3)
 	assert_eq(cena.ponto_atual, varanda)
+
+
+func test_aposentos_comecam_ao_passar_pela_porta_mesmo_sem_parar_antes() -> void:
+	# Do meio do corredor direto para dentro dos aposentos, sem passar perto
+	# do ponto em frente à porta.
+	cena.continuar_em(_ponto("Corredor"))
+	var entrada := _ponto("Entrada")
+	cena.corpo.global_position = Vector3(entrada.global_position.x, 0.0, entrada.global_position.z - entrada.raio_chegada + 0.1)
+	await wait_physics_frames(3)
+	assert_eq(cena.ponto_atual, entrada)

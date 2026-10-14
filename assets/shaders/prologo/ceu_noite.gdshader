@@ -9,6 +9,9 @@ uniform float brilho_estrelas = 2.5;
 // Direção até a lua (a mesma da luz "Lua" da cena).
 uniform vec3 direcao_lua = vec3(0.149, 0.419, 0.896);
 uniform vec3 cor_lua : source_color = vec3(0.75, 0.82, 1.0);
+// Tamanho da lua no céu, em graus (a lua de verdade tem uns 0,5).
+uniform float raio_lua_graus = 2.0;
+uniform float brilho_lua = 3.0;
 
 float acaso(vec3 p) {
 	p = fract(p * 0.3183099 + vec3(0.1, 0.2, 0.3));
@@ -33,9 +36,14 @@ void sky() {
 		cor += vec3(0.9, 0.93, 1.0) * perto * forca * brilho_estrelas * smoothstep(0.0, 0.15, d.y);
 	}
 
-	// Halo em volta da lua.
+	// A lua e o halo saem da mesma direção, então ficam sempre juntos.
 	float alinhado = max(dot(d, normalize(direcao_lua)), 0.0);
 	cor += cor_lua * (pow(alinhado, 400.0) * 0.6 + pow(alinhado, 24.0) * 0.06);
+	float angulo = degrees(acos(clamp(alinhado, -1.0, 1.0)));
+	float disco = 1.0 - smoothstep(raio_lua_graus - 0.08, raio_lua_graus, angulo);
+	// Manchas suaves na superfície.
+	float manchas = 0.85 + 0.15 * sin(d.x * 160.0) * sin(d.y * 140.0 + 1.3) * sin(d.z * 150.0);
+	cor = mix(cor, vec3(0.92, 0.94, 1.0) * brilho_lua * manchas, disco);
 
 	COLOR = cor;
 }

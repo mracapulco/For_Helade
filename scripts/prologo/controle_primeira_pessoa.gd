@@ -151,13 +151,32 @@ func _verificar_chegada() -> void:
 	if ponto_atual == null or travado:
 		return
 	for alvo in ponto_atual.alvos():
-		var destino := alvo.destino
-		var diferenca := destino.global_position - corpo.global_position
-		var raio := destino.raio_chegada if destino.raio_chegada > 0.0 else raio_chegada
-		if Vector2(diferenca.x, diferenca.z).length() <= raio:
+		if _perto_de(alvo.destino):
 			_ativar_alvos(ponto_atual, false)
-			_chegar_em(destino)
+			_chegar_em(alvo.destino)
 			return
+	# Quem anda depressa pode passar longe de um ponto do meio (a porta dos
+	# aposentos, por exemplo) e já chegar ao seguinte: vale também.
+	var ponto := ponto_atual
+	for _passo in 6:
+		if ponto.alvos().is_empty():
+			return
+		var proximo := ponto.alvos()[0].destino
+		if proximo == null or proximo == ponto_atual:
+			return
+		if ponto != ponto_atual and _perto_de(proximo):
+			_ativar_alvos(ponto_atual, false)
+			_chegar_em(proximo)
+			return
+		ponto = proximo
+
+
+func _perto_de(destino: PontoDeVista) -> bool:
+	if destino == null:
+		return false
+	var diferenca := destino.global_position - corpo.global_position
+	var raio := destino.raio_chegada if destino.raio_chegada > 0.0 else raio_chegada
+	return Vector2(diferenca.x, diferenca.z).length() <= raio
 
 
 ## Mostra as frases de um trecho do roteiro, que aparecem e somem sozinhas.

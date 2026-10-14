@@ -86,3 +86,10 @@ func test_toda_vela_e_tocha_tem_chama_visivel() -> void:
 			continue # claridade que sai dos aposentos pela porta
 		var perto := chamas.any(func(p: Vector3) -> bool: return p.distance_to(luz.global_position) < 0.8)
 		assert_true(perto, luz.name + " ilumina sem chama")
+	# E o contrário: toda chama acesa ilumina (pedido do Rafael, 14/10/2026).
+	var luzes: Array[Vector3] = []
+	for luz: OmniLight3D in cena.get_node("Cenario").find_children("*", "OmniLight3D", true, false):
+		luzes.append(luz.global_position)
+	for chama in chamas:
+		var perto := luzes.any(func(p: Vector3) -> bool: return p.distance_to(chama) < 0.8)
+		assert_true(perto, "chama sem luz em %s" % chama)

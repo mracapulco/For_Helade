@@ -289,6 +289,37 @@ def cama(com_althea, dossel=False):
     return q.contornar()
 
 
+def armario():
+    # armário de duas portas, de madeira, como o do quarto de Nicholas no prólogo
+    q = Q(28, 50)
+    q.sombra_no_chao(14, 47, 13, 2)
+    q.r(2, 3, 25, 46, 'madeira')
+    q.r(1, 1, 26, 3, 'madeira_luz')                 # remate
+    q.r(2, 3, 3, 46, 'madeira_sombra')
+    q.coluna(13, 5, 44, 'madeira_sombra')           # fresta entre as portas
+    for x0, x1 in ((5, 11), (16, 23)):
+        q.r(x0, 6, x1, 22, 'madeira_luz'); q.r(x0 + 1, 7, x1 - 1, 21, 'madeira')
+        q.r(x0, 26, x1, 42, 'madeira_luz'); q.r(x0 + 1, 27, x1 - 1, 41, 'madeira')
+    q.p(12, 24, 'ouro'); q.p(15, 24, 'ouro')        # puxadores de bronze
+    q.r(3, 46, 5, 47, 'madeira_sombra'); q.r(22, 46, 24, 47, 'madeira_sombra')
+    return q.contornar()
+
+
+def bau():
+    # baú de madeira com cintas de bronze
+    q = Q(26, 22)
+    q.sombra_no_chao(13, 19, 12, 2)
+    q.r(2, 8, 23, 19, 'madeira')
+    q.elipse(12, 7, 11, 4, 'madeira_luz')           # tampa arredondada
+    q.r(1, 7, 24, 9, 'madeira_luz')
+    q.linha(9, 1, 24, 'madeira_sombra')
+    for x in (5, 19):                               # cintas
+        q.r(x, 4, x + 1, 19, 'ouro_sombra')
+    q.r(11, 9, 14, 12, 'ouro'); q.p(12, 11, 'noite')   # fechadura
+    q.r(2, 8, 3, 19, 'madeira_sombra')
+    return q.contornar()
+
+
 def espelho():
     # grande demais para o quarto
     q = Q(22, 44)
@@ -419,6 +450,8 @@ ARTES = {
     'cama_althea.png': lambda: cama(True, dossel=True),
     'cama_althea_vazia.png': lambda: cama(False, dossel=True),
     'espelho.png': espelho,
+    'armario.png': armario,
+    'bau.png': bau,
     'porta.png': lambda: porta(False),
     'porta_aberta.png': lambda: porta(True),
     'mesa_cha.png': mesa_cha,

@@ -38,6 +38,19 @@ PERSONAGENS = {
             calca='#3A3F4C', calca_sombra='#23262F',
         ),
     ),
+    # Nicholas aos 11 de pijama, ao acordar (o jogo troca pela camisa e o
+    # colete no espelho). O livro não descreve o pijama: inferência, uma
+    # camisa de dormir azul-clara, calça clara e pés descalços.
+    'nicholas_11_pijama': dict(
+        topo=14, tronco=9, largura=4, cabelo='rebelde', roupa='colete',
+        cores=dict(
+            cab_luz='#F6EED2', cab='#E3D5AE', cab_sombra='#B9A882', cab_fundo='#8C7C5C',
+            camisa_luz='#E4ECF4', camisa='#C9D6E4', camisa_sombra='#9FB8D2',
+            colete='#C9D6E4', colete_sombra='#9FB8D2',
+            calca='#B7C4D4', calca_sombra='#8A9AAE',
+            sapato='#C8A08E', sapato_sombra='#9E7468',
+        ),
+    ),
     # Althea aos 6: o mesmo loiro-pálido, curto até os ombros, "indomável";
     # bochechas rosadas; olhos azuis saturados, como os da mãe (não os
     # desbotados dos Olympia). Vestido azul simples: inferência a partir do

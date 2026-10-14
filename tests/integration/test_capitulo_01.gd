@@ -23,6 +23,15 @@ func _esperar_etapa(nome: String) -> void:
 	fail_test("não chegou na etapa %s (está em %s)" % [nome, capitulo.etapa])
 
 
+func _vestir() -> void:
+	_interagir("espelho")
+	for i in 60:
+		if capitulo.vestido and not capitulo.jogador.em_dialogo:
+			return
+		await wait_physics_frames(1)
+	fail_test("não terminou de se vestir")
+
+
 func _interagir(nome: String) -> void:
 	var area: Interagivel = capitulo.objetos[nome].get_node("Interagivel")
 	area.interagir()
@@ -40,7 +49,9 @@ func test_a_manha_inteira_na_ordem() -> void:
 	_interagir("porta_sonho")
 	await _esperar_etapa("quarto")
 	assert_false(capitulo.jogador.em_dialogo, "no quarto ele anda de novo")
-	_interagir("espelho")
+	_interagir("porta_quarto")
+	assert_eq(capitulo.etapa, "quarto", "de pijama a porta não abre")
+	await _vestir()
 	assert_true(capitulo.viu_espelho)
 	_interagir("porta_quarto")
 	await _esperar_etapa("corredor")
@@ -73,6 +84,7 @@ func test_fora_de_ordem_nao_avanca() -> void:
 func test_corredor_tem_oito_passos_entre_as_portas() -> void:
 	_interagir("porta_sonho")
 	await _esperar_etapa("quarto")
+	await _vestir()
 	_interagir("porta_quarto")
 	await _esperar_etapa("corredor")
 	var de_nicholas: Vector2 = capitulo.objetos["porta_nicholas"].position
@@ -97,9 +109,36 @@ func test_mansao_tem_a_identidade_do_castelo_do_prologo() -> void:
 	await _esperar_etapa("quarto")
 	assert_false(capitulo.sala.parede_lisa)
 	assert_not_null(capitulo.sala.get_node_or_null("QuadroOlympiaDir"))
+	assert_not_null(capitulo.sala.get_node_or_null("Armario"))
+	assert_not_null(capitulo.sala.get_node_or_null("Bau"))
+	await _vestir()
 	_interagir("porta_quarto")
 	await _esperar_etapa("corredor")
 	assert_eq(capitulo.sala.piso, "passadeira")
 	assert_eq(capitulo.sala.chao.get_cell_atlas_coords(Vector2i(3, 1)).x, SalaMontada.PASSADEIRA_CIMA)
 	assert_not_null(capitulo.sala.get_node_or_null("EspadaPlacaEsq"))
 	assert_not_null(capitulo.sala.get_node_or_null("TochaEsq2"))
+
+
+func test_acorda_de_pijama_e_se_veste_no_espelho() -> void:
+	var visual: AnimatedSprite2D = capitulo.jogador.get_node("Corpo/Visual")
+	assert_string_contains(visual.sprite_frames.resource_path, "pijama")
+	_interagir("porta_sonho")
+	await _esperar_etapa("quarto")
+	await _vestir()
+	assert_string_contains(visual.sprite_frames.resource_path, "nicholas_11_exploracao")
+
+
+func test_nicholas_anda_mais_devagar() -> void:
+	assert_lt(capitulo.jogador.velocidade, 90.0)
+
+
+func test_corredor_comprido_com_outras_portas() -> void:
+	_interagir("porta_sonho")
+	await _esperar_etapa("quarto")
+	await _vestir()
+	_interagir("porta_quarto")
+	await _esperar_etapa("corredor")
+	assert_gte(capitulo.sala.largura, 24)
+	var fechadas := capitulo.objetos.keys().filter(func(k: String) -> bool: return k.begins_with("porta_fechada"))
+	assert_gte(fechadas.size(), 2)

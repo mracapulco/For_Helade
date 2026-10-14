@@ -5,8 +5,8 @@ extends Node2D
 ## Sequência (cada [member etapa] só avança na ordem):
 ## 1. sonho: corredor quente, Nicholas segue a garota até a porta (Enter ou
 ##    toque na porta) e ela se abre para o frio.
-## 2. quarto: Nicholas acorda; o espelho conta quem ele é; a porta leva ao
-##    corredor.
+## 2. quarto: Nicholas acorda de pijama; no espelho ele se veste (camisa
+##    branca e colete azul escuro) e só então a porta leva ao corredor.
 ## 3. corredor: na porta de Althea ele espera; o cortejo de Pany chega com o
 ##    bolo.
 ## 4. quarto_althea: acordar Althea (a cama), os presentes, a mesa de chá.
@@ -19,6 +19,8 @@ signal etapa_mudou(etapa: String)
 
 const ROTEIRO := preload("res://data/dialogos/capitulo_01/manha.dialogue")
 const CENA_JOGADOR := preload("res://scenes/capitulo_01/nicholas_11.tscn")
+const QUADROS_PIJAMA := preload("res://assets/art/personagens/nicholas/nicholas_11_pijama_exploracao.tres")
+const QUADROS_VESTIDO := preload("res://assets/art/personagens/nicholas/nicholas_11_exploracao.tres")
 const QUADROS_ALTHEA := preload("res://assets/art/personagens/althea/althea_6_exploracao.tres")
 const CRIADA := preload("res://assets/art/placeholders/exploracao/criada_provisoria.png")
 const ARTE := "res://assets/art/capitulo_01/"
@@ -43,8 +45,10 @@ var jogador: PersonagemExploracao
 var cena_pedida := ""
 ## Quando falso, o fim só anota a cena pedida, sem trocar (testes).
 var trocar_de_cena := true
-## O espelho já foi visto (não é obrigatório).
+## Nicholas já trocou o pijama pela roupa do dia, no espelho.
 var viu_espelho := false
+## Já está com a roupa do dia (a troca no espelho terminou).
+var vestido := false
 
 ## Objetos da sala atual que a sequência usa.
 var objetos := {}
@@ -56,6 +60,7 @@ var objetos := {}
 func _ready() -> void:
 	jogador = CENA_JOGADOR.instantiate()
 	jogador.name = "Nicholas"
+	_vestir(QUADROS_PIJAMA)
 	cortina.color.a = 1.0
 	comecar()
 
@@ -100,30 +105,44 @@ func abrir_porta_do_sonho() -> void:
 # --- 2. o quarto de Nicholas --------------------------------------------
 
 func montar_quarto() -> void:
-	_nova_sala(6, 6, TOM_MADRUGADA)
-	sala.abrir_vao(Vector2i(4, 0))
+	_nova_sala(7, 6, TOM_MADRUGADA)
+	sala.abrir_vao(Vector2i(6, 0))
 	_objeto("cama", "cama_nicholas.png", Vector2i(2, 2))
+	_objeto("armario", "armario.png", Vector2i(4, 1))
+	_objeto("bau", "bau.png", Vector2i(1, 2))
 	_objeto("espelho", "espelho.png", Vector2i(1, 4), true).get_node("Interagivel") \
 		.interagido.connect(olhar_espelho)
-	_objeto("porta_quarto", "porta.png", Vector2i(4, 0), true).get_node("Interagivel") \
+	_objeto("porta_quarto", "porta.png", Vector2i(6, 0), true).get_node("Interagivel") \
 		.interagido.connect(sair_do_quarto)
+	# Como no quarto dele no castelo: o baú embaixo do quadro de Olympia.
 	_pendurar({"tapecaria_esq": Vector2i(2, 0), "arandela_esq": Vector2i(5, 0),
-		"quadro_olympia_dir": Vector2i(0, 3)})
+		"quadro_olympia_dir": Vector2i(0, 2)})
 	_entrar(Vector2i(3, 3))
+	# A porta só depois de se vestir.
+	_ativar(objetos["porta_quarto"], false)
 	_mudar("quarto")
 	await _clarear()
 	_frases("frases_despertar")
 
 
 func olhar_espelho() -> void:
-	if etapa != "quarto":
+	if etapa != "quarto" or viu_espelho:
 		return
 	viu_espelho = true
+	_ativar(objetos["espelho"], false)
+	_travar(true)
+	# Troca o pijama pela camisa branca e o colete azul escuro.
+	await _escurecer()
+	_vestir(QUADROS_VESTIDO)
+	vestido = true
+	await _clarear()
+	_travar(false)
+	_ativar(objetos["porta_quarto"], true)
 	await _frases("frases_espelho")
 
 
 func sair_do_quarto() -> void:
-	if etapa != "quarto":
+	if etapa != "quarto" or not vestido:
 		return
 	_mudar("saindo_do_quarto")
 	_travar(true)
@@ -134,21 +153,26 @@ func sair_do_quarto() -> void:
 # --- 3. o corredor e o cortejo ------------------------------------------
 
 func montar_corredor() -> void:
-	# Oito passos entre a porta dele e a de Althea.
-	_nova_sala(16, 3, TOM_MADRUGADA)
+	# Um corredor comprido, com outras portas (fechadas); oito passos entre a
+	# porta dele e a de Althea.
+	_nova_sala(26, 3, TOM_MADRUGADA)
 	sala.piso = "passadeira"
-	sala.abrir_vao(Vector2i(14, 0))
-	sala.abrir_vao(Vector2i(6, 0))
-	_objeto("porta_nicholas", "porta.png", Vector2i(14, 0))
-	_objeto("porta_althea", "porta.png", Vector2i(6, 0), true).get_node("Interagivel") \
+	for x in [3, 7, 24]:
+		sala.abrir_vao(Vector2i(x, 0))
+		_objeto("porta_fechada_%d" % x, "porta.png", Vector2i(x, 0))
+	sala.abrir_vao(Vector2i(20, 0))
+	sala.abrir_vao(Vector2i(12, 0))
+	_objeto("porta_nicholas", "porta.png", Vector2i(20, 0))
+	_objeto("porta_althea", "porta.png", Vector2i(12, 0), true).get_node("Interagivel") \
 		.interagido.connect(esperar_cortejo)
 	# Como o corredor do Castelo Olympia no prólogo: tochas, quadros do mapa,
-	# tapeçaria e a espada sobre a placa.
-	_pendurar({"tapecaria_esq": Vector2i(1, 0), "tocha_esq": Vector2i(3, 0),
-		"quadro_atenas_esq": Vector2i(4, 0), "tocha_esq#2": Vector2i(8, 0),
-		"espada_placa_esq": Vector2i(10, 0), "quadro_norte_esq": Vector2i(11, 0),
-		"tocha_esq#3": Vector2i(12, 0), "arandela_dir": Vector2i(0, 1)})
-	_entrar(Vector2i(14, 1))
+	# tapeçarias e a espada sobre a placa.
+	_pendurar({"tapecaria_esq": Vector2i(1, 0), "tocha_esq": Vector2i(5, 0),
+		"quadro_atenas_esq": Vector2i(9, 0), "tocha_esq#2": Vector2i(10, 0),
+		"espada_placa_esq": Vector2i(15, 0), "quadro_norte_esq": Vector2i(17, 0),
+		"tocha_esq#3": Vector2i(18, 0), "tocha_esq#4": Vector2i(22, 0),
+		"arandela_dir": Vector2i(0, 1), "tapecaria_dir": Vector2i(0, 2)})
+	_entrar(Vector2i(20, 1))
 	_mudar("corredor")
 	await _clarear()
 
@@ -162,10 +186,10 @@ func esperar_cortejo() -> void:
 	await _frases("frases_esperando")
 	# O pequeno cortejo surge ao longe e vem até a porta.
 	var chegadas := {
-		"pany": [Vector2i(1, 2), Vector2i(5, 2)],
-		"carrinho": [Vector2i(1, 1), Vector2i(4, 2)],
-		"criada_1": [Vector2i(1, 2), Vector2i(4, 1)],
-		"criada_2": [Vector2i(1, 1), Vector2i(3, 2)],
+		"pany": [Vector2i(1, 2), Vector2i(11, 2)],
+		"carrinho": [Vector2i(1, 1), Vector2i(10, 2)],
+		"criada_1": [Vector2i(1, 2), Vector2i(10, 1)],
+		"criada_2": [Vector2i(1, 1), Vector2i(9, 2)],
 	}
 	var texturas := {
 		"pany": load(ARTE + "pany_provisoria.png"),
@@ -177,7 +201,7 @@ func esperar_cortejo() -> void:
 	for nome: String in chegadas:
 		var objeto := sala.adicionar_objeto(nome.capitalize(), texturas[nome], chegadas[nome][0], false)
 		objetos[nome] = objeto
-		ultimo = _andar(objeto, sala.centro(chegadas[nome][1]), 3.0)
+		ultimo = _andar(objeto, sala.centro(chegadas[nome][1]), 5.0)
 	if ultimo and ultimo.is_running():
 		await ultimo.finished
 	await _falar("cortejo")
@@ -193,6 +217,8 @@ func montar_quarto_althea() -> void:
 	_objeto("porta", "porta.png", Vector2i(5, 0))
 	_objeto("cama_althea", "cama_althea.png", Vector2i(2, 2), true).get_node("Interagivel") \
 		.interagido.connect(acordar_althea)
+	_objeto("armario", "armario.png", Vector2i(3, 1))
+	_objeto("bau", "bau.png", Vector2i(1, 1))
 	_objeto("embrulho", "embrulho.png", Vector2i(1, 3))
 	_objeto("mesa", "mesa_cha.png", Vector2i(4, 4), true).get_node("Interagivel") \
 		.interagido.connect(sentar_a_mesa)
@@ -201,7 +227,7 @@ func montar_quarto_althea() -> void:
 	_objeto("pany", "pany_provisoria.png", Vector2i(5, 2))
 	sala.adicionar_objeto("Criada1", CRIADA, Vector2i(6, 3))
 	sala.adicionar_objeto("Criada2", CRIADA, Vector2i(6, 2))
-	_pendurar({"arandela_esq": Vector2i(1, 0), "quadro_olympia_esq": Vector2i(3, 0),
+	_pendurar({"arandela_esq": Vector2i(2, 0), "quadro_olympia_esq": Vector2i(4, 0),
 		"arandela_esq#2": Vector2i(6, 0), "tapecaria_dir": Vector2i(0, 4)})
 	_entrar(Vector2i(3, 3))
 	_ativar(objetos["mesa"], false)
@@ -265,6 +291,14 @@ func _objeto(nome: String, arquivo: String, casa: Vector2i, interagivel := false
 	var objeto := sala.adicionar_objeto(nome.to_pascal_case(), load(ARTE + arquivo), casa, true, interagivel)
 	objetos[nome] = objeto
 	return objeto
+
+
+## Troca a folha de animação de Nicholas (pijama ou roupa do dia).
+func _vestir(quadros: SpriteFrames) -> void:
+	var visual: AnimatedSprite2D = jogador.get_node("Corpo/Visual")
+	var animacao := visual.animation
+	visual.sprite_frames = quadros
+	visual.play(animacao)
 
 
 ## Enfeites da parede (assets/art/capitulo_01/parede/<nome>.png); "#2" no

@@ -263,11 +263,10 @@ func test_falesias_perto_da_praia() -> void:
 
 func test_cada_acampamento_tem_sua_musica(id: String = use_parameters(IDS)) -> void:
 	await _abrir(id)
-	var musica := acampamento.musica
-	assert_not_null(musica.stream, id)
-	if musica.stream == null:
-		return
-	assert_eq(musica.stream.resource_path, Acampamento.PASTA_MUSICAS + id + ".wav")
-	assert_true(musica.playing, id)
-	assert_eq(musica.bus, Acampamento.BARRAMENTO_MUSICA)
-	assert_eq((musica.stream as AudioStreamWAV).loop_mode, AudioStreamWAV.LOOP_FORWARD, "%s: em loop" % id)
+	var caminho := Acampamento.PASTA_MUSICAS + id + ".wav"
+	assert_eq(acampamento.musica_do_acampamento(), caminho)
+	assert_true(ResourceLoader.exists(caminho), id)
+	assert_eq(Trilha.atual, caminho, "%s: a Trilha toca a música do acampamento" % id)
+	var tocador := Trilha.tocador_atual()
+	assert_eq(tocador.bus, Trilha.BARRAMENTO)
+	assert_eq((tocador.stream as AudioStreamWAV).loop_mode, AudioStreamWAV.LOOP_FORWARD, "%s: em loop" % id)

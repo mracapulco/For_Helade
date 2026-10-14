@@ -15,7 +15,7 @@
 [ext_resource type="PackedScene" path="res://scenes/ui/tela_bolsa.tscn" id="13_bolsa"]
 [ext_resource type="PackedScene" path="res://scenes/ui/aviso_itens.tscn" id="14_aviso"]
 [ext_resource type="Texture2D" path="res://assets/art/placeholders/acampamento/barraca.png" id="15_barraca"]
-[ext_resource type="Texture2D" path="res://assets/art/placeholders/acampamento/fogueira.png" id="16_fogueira"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholders/acampamento/fogueira_anim.png" id="16_fogueira"]
 [ext_resource type="Texture2D" path="res://assets/art/placeholders/acampamento/tronco.png" id="17_tronco"]
 [ext_resource type="Texture2D" path="res://assets/art/placeholders/acampamento/mercador.png" id="18_mercador"]
 [ext_resource type="Texture2D" path="res://assets/art/placeholders/acampamento/banca.png" id="19_banca"]
@@ -130,6 +130,7 @@ position = Vector2(32, 240)
 [node name="Visual" type="Sprite2D" parent="Fogueira"]
 texture = ExtResource("16_fogueira")
 offset = Vector2(0, -10)
+hframes = 4
 
 [node name="Colisao" type="CollisionShape2D" parent="Fogueira"]
 shape = SubResource("Forma_fogueira")

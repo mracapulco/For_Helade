@@ -53,14 +53,15 @@ func _particulas(nome: String, textura: String, quantidade: int, vida: float) ->
 
 
 func _neve(quanto: float) -> CPUParticles2D:
-	var p := _particulas("Neve", "floco_neve.png", int(lerpf(30, 160, quanto)), 9.0)
+	var p := _particulas("Neve", "floco_neve.png", int(lerpf(60, 260, quanto)), 9.0)
 	p.direction = Vector2(0.25, 1)
 	p.spread = 12.0
 	p.gravity = Vector2(0, 6)
 	p.initial_velocity_min = 14.0
 	p.initial_velocity_max = 28.0
-	p.scale_amount_min = 0.6
-	p.scale_amount_max = 1.2
+	# Grandes o bastante para aparecer até sobre o chão branco.
+	p.scale_amount_min = 1.3
+	p.scale_amount_max = 2.4
 	p.color_ramp = _rampa(Color(1, 1, 1, 0.9))
 	return p
 
@@ -77,6 +78,10 @@ func _insetos() -> CPUParticles2D:
 	p.orbit_velocity_min = -0.2
 	p.orbit_velocity_max = 0.2
 	p.color_ramp = _rampa(Color(1, 1, 1, 1))
+	p.scale_amount_min = 1.5
+	p.scale_amount_max = 1.5
+	# Asas claras, para piscarem contra o verde escuro da mata.
+	p.modulate = Color(1.8, 1.8, 1.4)
 	_animar(p, 2, 8.0)
 	return p
 
@@ -85,13 +90,17 @@ func _passaros() -> CPUParticles2D:
 	var p := _particulas("Passaros", "passaro.png", 4, 16.0)
 	# Saem da esquerda, no alto, e cruzam a tela.
 	p.emission_rect_extents = Vector2(10, 70)
-	p.position = Vector2(-ALCANCE.x - 40, -ALCANCE.y + 70)
+	p.position = Vector2(-ALCANCE.x - 40, -ALCANCE.y + 110)
 	p.direction = Vector2(1, -0.08)
 	p.spread = 8.0
 	p.gravity = Vector2.ZERO
 	p.initial_velocity_min = 45.0
 	p.initial_velocity_max = 65.0
 	p.z_index = 10
+	p.scale_amount_min = 2.0
+	p.scale_amount_max = 2.0
+	# Silhueta clara contra a copa escura das árvores.
+	p.modulate = Color(2.2, 2.1, 1.9)
 	_animar(p, 2, 6.0)
 	return p
 

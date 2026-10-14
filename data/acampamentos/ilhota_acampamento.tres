@@ -7,6 +7,7 @@
 [ext_resource type="Texture2D" path="res://assets/art/placeholders/acampamento/conchas.png" id="5"]
 [ext_resource type="Texture2D" path="res://assets/art/placeholders/acampamento/pedrinhas.png" id="6"]
 [ext_resource type="Texture2D" path="res://assets/art/placeholders/acampamento/caranguejo.png" id="7"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholders/acampamento/mercador_ilhota.png" id="m"]
 
 [resource]
 script = ExtResource("1")
@@ -24,3 +25,4 @@ enfeites_margem = Array[Texture2D]([ExtResource("5"), ExtResource("6")])
 semente = 9
 companheiro = ExtResource("7")
 marcador_companheiro = "caranguejo"
+mercador = ExtResource("m")

@@ -15,11 +15,11 @@ TESTE_DIALOGO_INICIAR,Iniciar diálogo de teste
 TESTE_DIALOGO_ZERAR,Zerar valores
 PROLOGO_DICA_TECLADO,"WASD para andar, Shift para correr, espaço para pular, mouse para olhar, Enter para ir até o brilho. Clique para prender o mouse, Esc para soltar."
 MENU_CONTINUAR,Continuar
+MENU_CARREGAR,Carregar jogo
 MENU_NOVO_JOGO,Novo jogo
 MENU_OPCOES,Opções
 MENU_SAIR,Sair
 MENU_VOLTAR,Voltar
-MENU_AVISO_SEM_CAPITULO,"[Provisório] O capítulo 1 ainda não existe. Por enquanto, o jogo termina no prólogo."
 OPCOES_TITULO,Opções
 OPCOES_SECAO_IDIOMA,Idioma
 OPCOES_IDIOMA,Idioma do jogo
@@ -101,6 +101,12 @@ ACAMP_NOME_NT,[Provisório] Acampamento no pinhal nevado
 ACAMP_NOME_AT,[Provisório] Acampamento na mata escura
 ACAMP_NOME_ILHA,[Provisório] Acampamento na praia da ilha
 ACAMP_NOME_ILHOTA,[Provisório] Acampamento na ilhota de pedra
-MENU_CONFIRMAR_NOVO,"Começar um novo jogo apaga o jogo salvo. Quer mesmo começar de novo?"
-MENU_CONFIRMAR_SIM,"Sim, começar"
-MENU_CONFIRMAR_NAO,Não
+ESPACOS_TITULO_SALVAR,Salvar o jogo
+ESPACOS_TITULO_CARREGAR,Carregar jogo
+ESPACOS_ESPACO,Espaço %d
+ESPACOS_VAZIO,Vazio
+ESPACOS_CONFIRMAR_SUBSTITUIR,Este espaço já tem um jogo salvo. Salvar por cima?
+ESPACOS_CONFIRMAR_SIM,"Sim, salvar"
+ESPACOS_CONFIRMAR_NAO,Não
+ETAPA_PROLOGO,Prólogo
+ETAPA_CAPITULO_1,Capítulo 1

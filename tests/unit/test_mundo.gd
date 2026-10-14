@@ -1,18 +1,19 @@
 extends GutTest
 ## Autoload Mundo: dia/noite e lugares descobertos, e o jogo salvo guarda os dois.
 
-var _arquivo_progresso: String
+var _pasta_progresso: String
 
 
 func before_each() -> void:
-	_arquivo_progresso = Progresso.arquivo
-	Progresso.arquivo = "user://teste_progresso_mundo.cfg"
+	_pasta_progresso = Progresso.pasta
+	Progresso.pasta = "user://teste_saves_mundo/"
+	Progresso.apagar_todos()
 	Mundo.limpar()
 
 
 func after_each() -> void:
-	Progresso.apagar()
-	Progresso.arquivo = _arquivo_progresso
+	Progresso.apagar_todos()
+	Progresso.pasta = _pasta_progresso
 	Mundo.limpar()
 
 

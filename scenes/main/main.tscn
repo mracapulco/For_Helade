@@ -64,22 +64,6 @@ OptionButton/styles/hover = SubResource("StyleBoxFlat_hujxm")
 OptionButton/styles/normal = SubResource("StyleBoxFlat_yyfjg")
 OptionButton/styles/pressed = SubResource("StyleBoxFlat_b1x3f")
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ouso4"]
-content_margin_left = 36.0
-content_margin_top = 36.0
-content_margin_right = 36.0
-content_margin_bottom = 36.0
-bg_color = Color(0.03, 0.05, 0.12, 0.96)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.9, 0.7, 0.3, 1)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
-
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_blune"]
 content_margin_left = 40.0
 content_margin_top = 24.0
@@ -96,7 +80,7 @@ corner_radius_top_right = 8
 corner_radius_bottom_right = 8
 corner_radius_bottom_left = 8
 
-[node name="MenuInicial" type="Control" unique_id=676054353 node_paths=PackedStringArray("botao_continuar", "botao_novo_jogo", "botao_opcoes", "botao_sair", "aviso", "painel_principal", "opcoes", "confirmacao", "botao_confirmar_sim", "botao_confirmar_nao", "titulo", "capa", "musica")]
+[node name="MenuInicial" type="Control" unique_id=676054353 node_paths=PackedStringArray("botao_continuar", "botao_carregar", "botao_novo_jogo", "botao_opcoes", "botao_sair", "aviso", "painel_principal", "opcoes", "titulo", "capa", "musica")]
 layout_mode = 3
 anchors_preset = 0
 anchor_right = 1.0
@@ -104,15 +88,13 @@ anchor_bottom = 1.0
 theme = SubResource("Theme_a8run")
 script = ExtResource("1_k2fmo")
 botao_continuar = NodePath("Principal/Botoes/Continuar")
+botao_carregar = NodePath("Principal/Botoes/Carregar")
 botao_novo_jogo = NodePath("Principal/Botoes/NovoJogo")
 botao_opcoes = NodePath("Principal/Botoes/Opcoes")
 botao_sair = NodePath("Principal/Botoes/Sair")
 aviso = NodePath("Principal/Aviso")
 painel_principal = NodePath("Principal")
 opcoes = NodePath("TelaOpcoes")
-confirmacao = NodePath("Confirmacao")
-botao_confirmar_sim = NodePath("Confirmacao/Coluna/Botoes/Sim")
-botao_confirmar_nao = NodePath("Confirmacao/Coluna/Botoes/Nao")
 titulo = NodePath("Principal/Titulo")
 capa = NodePath("Capa")
 musica = NodePath("Musica")
@@ -173,6 +155,12 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 36
 text = "MENU_CONTINUAR"
 
+[node name="Carregar" type="Button" parent="Principal/Botoes" unique_id=1842207391]
+custom_minimum_size = Vector2(420, 84)
+layout_mode = 2
+theme_override_font_sizes/font_size = 36
+text = "MENU_CARREGAR"
+
 [node name="NovoJogo" type="Button" parent="Principal/Botoes" unique_id=594506257]
 custom_minimum_size = Vector2(420, 84)
 layout_mode = 2
@@ -199,48 +187,6 @@ theme_override_colors/font_color = Color(0.95, 0.9, 0.8, 1)
 horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 3
-
-[node name="Confirmacao" type="PanelContainer" parent="." unique_id=1754008824]
-visible = false
-custom_minimum_size = Vector2(760, 0)
-layout_mode = 0
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_ouso4")
-
-[node name="Coluna" type="VBoxContainer" parent="Confirmacao" unique_id=1630673972]
-layout_mode = 2
-theme_override_constants/separation = 28
-
-[node name="Pergunta" type="Label" parent="Confirmacao/Coluna" unique_id=1752710059]
-layout_mode = 2
-theme_override_font_sizes/font_size = 32
-theme_override_colors/font_color = Color(0.95, 0.9, 0.8, 1)
-text = "MENU_CONFIRMAR_NOVO"
-horizontal_alignment = 1
-vertical_alignment = 1
-autowrap_mode = 3
-
-[node name="Botoes" type="HBoxContainer" parent="Confirmacao/Coluna" unique_id=175939358]
-layout_mode = 2
-theme_override_constants/separation = 24
-alignment = 1
-
-[node name="Sim" type="Button" parent="Confirmacao/Coluna/Botoes" unique_id=1113554939]
-custom_minimum_size = Vector2(300, 84)
-layout_mode = 2
-theme_override_font_sizes/font_size = 36
-text = "MENU_CONFIRMAR_SIM"
-
-[node name="Nao" type="Button" parent="Confirmacao/Coluna/Botoes" unique_id=536621884]
-custom_minimum_size = Vector2(300, 84)
-layout_mode = 2
-theme_override_font_sizes/font_size = 36
-text = "MENU_CONFIRMAR_NAO"
 
 [node name="Musica" type="AudioStreamPlayer" parent="." unique_id=284330523]
 bus = &"Musica"

@@ -5,6 +5,7 @@
 # terra, mar e vegetação do mapa (gerar_mapa.py).
 # Nada aqui é do livro: são peças genéricas para testar até a arte final.
 # Uso: python3 tools/arte/gerar_acampamento.py   (rodar na raiz do projeto)
+import math
 import os
 import random
 import sys
@@ -64,7 +65,7 @@ def barraca():
     return q.contornar()
 
 
-def fogueira():
+def base_da_fogueira():
     q = Q(26, 26)
     q.sombra_no_chao(13, 22, 11, 3)
     # pedras em volta
@@ -75,6 +76,11 @@ def fogueira():
     for i in range(10):
         q.p(8 + i, 20 - i // 3, 'madeira'); q.p(8 + i, 21 - i // 3, 'madeira_sombra')
         q.p(18 - i, 20 - i // 3, 'madeira_luz'); q.p(18 - i, 21 - i // 3, 'madeira')
+    return q
+
+
+def fogueira():
+    q = base_da_fogueira()
     # chamas
     q.elipse(13, 13, 5, 5, 'vela_escura')
     q.elipse(13, 14, 4, 4, 'vela')
@@ -645,6 +651,397 @@ def faixa_de_pisos(nome, b):
     return faixa
 
 
+# ---------- animações e peças novas (faixas horizontais, quadros da esquerda para a direita) ----------
+
+C.update(
+    roxo_sombra=H('#3A2440'), roxo=H('#5A3560'), roxo_luz=H('#7A4C7E'),
+    vinho=H('#6A2436'), vinho_luz=H('#8E3446'),
+)
+
+
+def faixa(quadros):
+    w, h = quadros[0].size
+    im = Image.new('RGBA', (w * len(quadros), h), (0, 0, 0, 0))
+    for i, qd in enumerate(quadros):
+        im.paste(qd, (i * w, 0))
+    return im
+
+
+# fogueira acesa: mesmas pedras, lenha e cinzas de fogueira(); só o fogo muda
+QUADROS_FOGO = [
+    # dx: inclinação das chamas; brilho: raios do halo; topo: alto da língua;
+    # ponta, lambidas e faíscas: pixels soltos; miolo: alto do miolo claro
+    dict(dx=0, brilho=(5, 5), topo=4, ponta=[(13, 2), (13, 3)],
+         lambidas=[(9, 8, 'vela_escura'), (10, 7, 'vela_escura'), (17, 9, 'vela_escura'), (16, 6, 'vela')],
+         miolo=9, faiscas=[(8, 3, 'ouro_luz'), (18, 1, 'vela')]),
+    dict(dx=-1, brilho=(5, 4), topo=6, ponta=[(12, 5), (11, 4)],
+         lambidas=[(8, 9, 'vela_escura'), (9, 8, 'vela'), (17, 10, 'vela_escura'), (18, 11, 'vela_escura')],
+         miolo=10, faiscas=[(7, 1, 'vela'), (19, 5, 'ouro_luz')]),
+    dict(dx=0, brilho=(4, 6), topo=3, ponta=[(13, 1), (13, 2)],
+         lambidas=[(10, 9, 'vela_escura'), (16, 8, 'vela_escura'), (15, 5, 'vela')],
+         miolo=8, faiscas=[(16, 6, 'ouro_luz'), (20, 2, 'vela')]),
+    dict(dx=1, brilho=(5, 5), topo=5, ponta=[(14, 4), (15, 3)],
+         lambidas=[(9, 7, 'vela'), (8, 9, 'vela_escura'), (18, 8, 'vela_escura'), (17, 6, 'vela_escura')],
+         miolo=9, faiscas=[(10, 6, 'ouro_luz'), (17, 3, 'vela')]),
+]
+
+
+def fogueira_anim():
+    quadros = []
+    for f in QUADROS_FOGO:
+        q = base_da_fogueira()
+        d = f['dx']
+        q.elipse(13 + d, 13, f['brilho'][0], f['brilho'][1], 'vela_escura')
+        q.elipse(13, 14, 4, 4, 'vela')
+        q.r(12 + d, f['topo'], 14 + d, 10, 'vela')
+        for (x, y) in f['ponta']: q.p(x, y, 'vela')
+        for (x, y, c) in f['lambidas']: q.p(x, y, c)
+        q.r(12, 11, 14, 16, 'ouro_luz'); q.coluna(13 + d, f['miolo'], 11, 'ouro_luz')
+        q.p(13, 15, 'branco')
+        for (x, y, c) in f['faiscas']: q.p(x, y, c)
+        quadros.append(q.contornar())
+    return faixa(quadros)
+
+
+# ---------- mercadores de cada acampamento (4 quadros de 32×48, pés na linha 45) ----------
+# Respiração (tronco e cabeça descem 1 px), piscada num quadro e a mão
+# direita que gesticula. Roupas genéricas de cada bioma; nada do livro.
+
+RESPIRA = (0, 0, 1, 1)      # quanto o tronco desce em cada quadro
+PISCA = (False, True, False, False)
+MAO = (0, 1, 1, 0)          # a mão direita sobe e se abre um pouco
+
+
+def _chapeu_palha(q, x, d, f):
+    q.linha(7 + d, x - 7, x + 7, 'campo_quente'); q.linha(8 + d, x - 6, x + 6, 'ouro_sombra')
+    q.r(x - 4, 3 + d, x + 4, 7 + d, 'ouro_luz'); q.linha(6 + d, x - 4, x + 4, 'telhado')
+    q.r(x - 4, 3 + d, x - 3, 5 + d, 'campo_quente'); q.p(x + 3, 4 + d, 'branco')
+
+
+def _colete(q, x, d, f):
+    for xx in (x - 4, x + 2):
+        q.r(xx, 18 + d, xx + 1, 24 + d, 'terra')
+    q.p(x - 1, 20 + d, 'madeira_luz')
+
+
+def _saco_nas_costas(q, x, d, f):
+    q.r(x - 9, 18 + d, x - 6, 27 + d, 'areia'); q.coluna(x - 9, 18 + d, 27 + d, 'areia_sombra')
+    q.linha(18 + d, x - 9, x - 6, 'madeira')
+
+
+def _chapeu_pescador(q, x, d, f):
+    q.r(x - 5, 7 + d, x + 5, 8 + d, 'areia_sombra')
+    q.r(x - 4, 3 + d, x + 4, 7 + d, 'areia'); q.linha(3 + d, x - 3, x + 3, 'prata')
+    q.p(x - 4, 3 + d, 'contorno')
+
+
+def _rede(q, x, d, f):
+    # rede de pesca no ombro, caindo pelas costas, com boias
+    for y in range(17, 33):
+        for xx in range(x + 6, x + 10):
+            if (xx + y) % 3 == 0 and xx - x - 6 <= (y - 15) // 3:
+                q.p(xx, y + d, 'prata_sombra')
+    q.p(x + 7, 33 + d, 'ouro'); q.p(x + 9, 31 + d, 'ouro')
+
+
+def _camisa_listrada(q, x, d, f):
+    for y in range(19, 31, 3):
+        q.linha(y + d, x - 4, x + 3, 'olho')
+
+
+def _gola_pele(q, x, d, f):
+    q.elipse(x, 17 + d, 7, 2, 'prata'); q.linha(18 + d, x - 6, x + 6, 'prata_sombra')
+    for xx in (x - 5, x - 2, x + 2, x + 5):
+        q.p(xx, 16 + d, 'lua'); q.p(xx + 1, 19 + d, 'prata_sombra')
+
+
+def _gorro_pele(q, x, d, f):
+    q.r(x - 4, 4 + d, x + 4, 8 + d, 'madeira_luz'); q.linha(4 + d, x - 3, x + 3, 'ouro_sombra')
+    q.r(x - 5, 7 + d, x + 5, 9 + d, 'prata'); q.p(x - 3, 8 + d, 'prata_sombra'); q.p(x + 2, 7 + d, 'lua')
+
+
+def _debrum_ouro(q, x, d, f):
+    q.coluna(x - 1, 19 + d, 38 + d, 'ouro')                      # abotoadura
+    for y in (21, 25, 29, 33): q.p(x - 1, y + d, 'ouro_luz')
+    q.linha(38 + d, x - 8, x + 7, 'ouro')                        # barra
+    q.linha(24 + d, x - 5, x + 4, 'vinho_luz'); q.p(x + 2, 24 + d, 'ouro_luz')  # faixa
+
+
+def _boina_veludo(q, x, d, f):
+    q.r(x - 5, 5 + d, x + 4, 8 + d, 'vinho'); q.linha(5 + d, x - 4, x + 3, 'vinho_luz')
+    q.linha(8 + d, x - 4, x + 4, 'ouro')
+    q.p(x + 4, 4 + d, 'prata'); q.p(x + 5, 3 + d, 'prata'); q.p(x + 6, 2 + d, 'lua')  # pluma
+
+
+def _debrum_pele(q, x, d, f):
+    q.coluna(x - 1, 18 + d, 41 + d, 'madeira_luz')
+    q.linha(41 + d, x - 9, x + 8, 'madeira_luz')
+    for y in (22, 28, 34): q.p(x, y + d, 'madeira')
+
+
+def _gorro_la(q, x, d, f):
+    q.elipse(x, 7 + d, 5, 4, 'nuvem'); q.r(x - 5, 7 + d, x + 5, 9 + d, 'azul_luz')
+    q.linha(8 + d, x - 5, x + 5, 'nuvem')
+    q.r(x - 1, 1 + d, x + 1, 2 + d, 'prata'); q.p(x, 1 + d, 'lua')   # pompom
+
+
+def _cachecol(q, x, d, f):
+    q.r(x - 4, 16 + d, x + 4, 18 + d, 'telhado'); q.linha(16 + d, x - 3, x + 3, 'telhado_luz')
+    q.r(x - 4, 19 + d, x - 3, 26 + d, 'telhado'); q.coluna(x - 3, 19 + d, 26 + d, 'telhado_luz')
+    q.linha(27 + d, x - 4, x - 3, 'ouro_sombra')                 # franja
+    for y in (21, 25, 29, 33): q.p(x, y + d, 'ouro_sombra')      # botões
+
+
+def _lanterna(q, x, d, f):
+    # lanterna pendurada na mão esquerda; a chama tremeluz
+    q.coluna(x - 7, 30 + d, 31 + d, 'pedra_sombra')
+    q.r(x - 9, 32 + d, x - 5, 37 + d, 'pedra_sombra'); q.linha(32 + d, x - 9, x - 5, 'pedra')
+    q.r(x - 8, 33 + d, x - 6, 36 + d, 'vela_escura' if f % 2 else 'vela')
+    q.p(x - 7, 34 + d, 'ouro_luz' if f != 2 else 'vela')
+    q.p(x - 7, 35 + d, 'branco' if f in (0, 3) else 'ouro_luz')
+    q.linha(37 + d, x - 9, x - 5, 'pedra')
+
+
+def _lenco_cabeca(q, x, d, f):
+    q.r(x + 3, 9 + d, x + 5, 12 + d, 'vela'); q.p(x + 6, 13 + d, 'vela')   # nó atrás da orelha
+    q.r(x + 5, 13 + d, x + 5, 16 + d, 'vela_escura'); q.p(x + 6, 14 + d, 'vela_escura')
+    q.elipse(x, 7 + d, 4, 3, 'vela'); q.linha(9 + d, x - 4, x + 3, 'vela_escura')
+    q.p(x - 4, 10 + d, 'vela_escura')
+    q.linha(5 + d, x - 2, x + 2, 'ouro_luz'); q.p(x - 1, 7 + d, 'vela_escura'); q.p(x + 2, 8 + d, 'vela_escura')
+
+
+def _faixa_e_colar(q, x, d, f):
+    q.linha(25 + d, x - 6, x + 5, 'olho'); q.p(x - 4, 26 + d, 'olho'); q.p(x - 4, 27 + d, 'olho_luz')
+    q.linha(17 + d, x - 2, x + 2, 'madeira_luz'); q.p(x, 18 + d, 'branco')     # colar de concha
+
+
+def _bone_marinheiro(q, x, d, f):
+    q.r(x - 4, 5 + d, x + 4, 8 + d, 'azul'); q.linha(5 + d, x - 3, x + 3, 'nuvem')
+    q.linha(8 + d, x - 4, x + 6, 'contorno'); q.p(x + 6, 8 + d, 'nuvem')    # pala
+    q.p(x - 1, 6 + d, 'ouro_luz')
+
+
+def _oleado(q, x, d, f):
+    for y in (20, 24, 28, 32): q.p(x, y + d, 'madeira_sombra')
+    q.coluna(x - 1, 18 + d, 39 + d, 'ouro_sombra')
+    q.r(x - 5, 17 + d, x + 4, 18 + d, 'ouro_luz')                # gola levantada
+
+
+def _corda_nas_costas(q, x, d, f):
+    q.elipse(x + 8, 24 + d, 3, 4, 'areia'); q.elipse(x + 8, 24 + d, 1, 2, 'contorno')
+    q.p(x + 10, 22 + d, 'areia_sombra'); q.p(x + 6, 27 + d, 'areia_sombra')
+
+
+ROUPAS = {
+    # campina: chapéu de palha, túnica verde e colete marrom
+    'oa': dict(capa=('grama', 'grama_sombra', 'grama_luz'), barra=36, manga='grama', calca='madeira_luz',
+               bota='madeira_sombra', cinto='madeira', barba='madeira_luz',
+               atras=[_saco_nas_costas], frente=[_colete, _chapeu_palha]),
+    # mata costeira: pescador de camisa azul listrada, calça de lona clara, rede no ombro
+    'ot': dict(capa=('azul_luz', 'nuvem', 'olho'), barra=33, manga='azul_luz', calca='areia',
+               bota='areia_sombra', cinto='areia_sombra', barba='pedra_luz',
+               atras=[_rede], frente=[_camisa_listrada, _chapeu_pescador]),
+    # colinas geladas: manto cinza com gola de pele
+    'og': dict(capa=('pedra', 'pedra_sombra', 'pedra_luz'), barra=40, manga='pedra', calca='madeira',
+               bota='madeira_sombra', cinto=None, barba='madeira_luz',
+               frente=[_gola_pele, _gorro_pele]),
+    # ribeira dos vinhedos: casaca roxa com debrum dourado, boina de veludo
+    'ag': dict(capa=('roxo', 'roxo_sombra', 'roxo_luz'), barra=38, manga='vinho', punho='ouro', calca='azul',
+               bota='madeira_sombra', cinto=None, barba=None,
+               frente=[_debrum_ouro, _boina_veludo]),
+    # passo nevado: casacão de pele claro com capuz, barra marrom, luvas
+    'an': dict(capa=('gelo', 'gelo_sombra', 'branco'), barra=41, largo=1, manga='gelo_sombra', mao='madeira_luz',
+               calca='madeira', bota='madeira', cinto='madeira', barba=None,
+               capuz=('gelo', 'gelo_sombra', 'madeira_luz'), frente=[_debrum_pele]),
+    # pinhal nevado: gorro de lã, casaco verde-escuro, cachecol
+    'nt': dict(capa=('mata', 'mata_escura', 'mata_luz'), barra=38, manga='mata', mao='madeira_luz',
+               calca='madeira', bota='madeira_sombra', cinto=None, barba='ouro_sombra',
+               frente=[_cachecol, _gorro_la]),
+    # mata escura: capa com capuz verde-escuro e marrom, lanterna na mão
+    'at': dict(capa=('mata_escura', 'madeira_sombra', 'mata'), barra=42, manga='mata_escura', calca='madeira_sombra',
+               bota='madeira_sombra', cinto=None, barba=None, rosto='pele_sombra',
+               capuz=('mata_escura', 'madeira_sombra', 'madeira'), frente=[_lanterna]),
+    # ilha: linho claro, lenço na cabeça, sandálias
+    'ilha': dict(capa=('prata', 'prata_sombra', 'branco'), barra=36, manga='prata', calca='pele',
+                 bota='madeira_luz', cinto=None, barba=None,
+                 frente=[_faixa_e_colar, _lenco_cabeca]),
+    # ilhota: casaco de oleado amarelado, boné de marinheiro, corda nas costas
+    'ilhota': dict(capa=('ouro', 'ouro_sombra', 'ouro_luz'), barra=39, manga='ouro', calca='nuvem',
+                   bota='azul', cinto=None, barba='lua',
+                   atras=[_corda_nas_costas], frente=[_oleado, _bone_marinheiro]),
+}
+
+
+def mercador_quadro(r, f):
+    q = Q(32, 48)
+    q.sombra_no_chao(16, 45, 9, 2)
+    x, d, m = 16, RESPIRA[f], MAO[f]
+    for fn in r.get('atras', ()): fn(q, x, d, f)
+    # pernas e botas (paradas: os pés não saem da linha 45)
+    for px in (x - 4, x + 1):
+        q.r(px, 37, px + 2, 41, r['calca'])
+        q.r(px, 42, px + 3, 45, r['bota'])
+    # roupa do tronco, alargando para baixo
+    cor, sombra, luz = r['capa']
+    for y in range(17, r['barra'] + 1):
+        meia = 5 + r.get('largo', 0) + (y - 17) // 6
+        q.linha(y + d, x - meia, x + meia - 1, cor)
+        q.p(x - meia, y + d, sombra); q.p(x - meia + 1, y + d, sombra)
+        q.p(x + meia - 1, y + d, luz)
+    if r.get('cinto'): q.linha(25 + d, x - 6, x + 5, r['cinto'])
+    # braços: o esquerdo parado, o direito gesticula
+    mao = r.get('mao', 'pele')
+    q.r(x - 7, 18 + d, x - 6, 27 + d, r['manga']); q.r(x - 7, 28 + d, x - 6, 29 + d, mao)
+    q.r(x + 5, 18 + d, x + 6, 27 + d - m, r['manga'])
+    q.r(x + 5 + m, 28 + d - m, x + 6 + m, 29 + d - m, mao)
+    if r.get('punho'):
+        q.linha(27 + d, x - 7, x - 6, r['punho']); q.linha(27 + d - m, x + 5, x + 6, r['punho'])
+    # cabeça (com ou sem capuz)
+    rosto = r.get('rosto', 'pele')
+    if r.get('capuz'):
+        c, cs, borda = r['capuz']
+        q.elipse(x, 11 + d, 6, 6, c); q.r(x - 6, 11 + d, x - 5, 17 + d, cs)
+        q.elipse(x, 12 + d, 4, 4, borda)                         # beira do capuz
+        q.elipse(x, 12 + d, 3, 3, rosto)
+        q.linha(9 + d, x - 2, x + 2, cs); q.p(x - 3, 10 + d, cs)   # sombra do capuz na testa
+        q.linha(14 + d, x, x + 1, 'pele_sombra' if rosto == 'pele' else 'madeira')  # boca
+        brilho = ('lua', 'lua') if c == 'gelo' else ('mata_luz', 'mata')
+        q.p(x - 2, 5 + d, brilho[0]); q.p(x - 3, 6 + d, brilho[1])
+    else:
+        q.r(x - 3, 9 + d, x + 3, 15 + d, rosto); q.coluna(x - 3, 9 + d, 15 + d, 'pele_sombra')
+    olho = 'pele_sombra' if PISCA[f] else 'olho_escuro'
+    if r.get('capuz'):
+        q.p(x - 1, 11 + d, olho); q.p(x + 1, 11 + d, olho)
+    else:
+        q.p(x - 1, 11 + d, olho); q.p(x + 2, 11 + d, olho)
+    if r.get('barba'):
+        q.r(x - 3, 13 + d, x + 3, 16 + d, r['barba']); q.p(x, 13 + d, 'pele_sombra')
+    elif not r.get('capuz'):
+        q.linha(14 + d, x, x + 1, 'pele_sombra')
+    for fn in r.get('frente', ()): fn(q, x, d, f)
+    return q.contornar()
+
+
+def mercador_de(id_):
+    return lambda: faixa([mercador_quadro(ROUPAS[id_], f) for f in range(4)])
+
+
+# ---------- falésia (pedaço de penhasco de arenito, base embaixo) ----------
+
+CAMADAS = ['areia', 'prata_sombra', 'areia_sombra', 'rocha_luz', 'prata', 'areia', 'rocha', 'areia_sombra']
+ESCURO = dict(areia='areia_sombra', prata='prata_sombra', prata_sombra='rocha', areia_sombra='terra',
+              rocha_luz='rocha', rocha='rocha_sombra')
+
+
+def _perfil(pontos, u):
+    for (u0, a0), (u1, a1) in zip(pontos, pontos[1:]):
+        if u0 <= u <= u1:
+            return a0 + (a1 - a0) * (u - u0) / (u1 - u0)
+    return pontos[-1][1]
+
+
+def falesia_de(w, h, semente, pontos):
+    rng = random.Random(semente)
+    q = Q(w, h)
+    base = h - 5
+    q.sombra_no_chao(w // 2, base + 1, w // 2 - 2, 3)
+    x0, x1 = 3, w - 4
+    alto = base - 9                                   # sobra espaço para o tampo e o capim
+    topo = {}
+    salto = 0
+    for x in range(x0, x1 + 1):
+        if (x - x0) % 3 == 0: salto = rng.choice((0, 0, 1, -1))
+        topo[x] = base - int(_perfil(pontos, (x - x0) / (x1 - x0)) * alto) + salto
+    sombra_ate = x0 + (x1 - x0) // 5
+    for x in range(x0, x1 + 1):
+        t = topo[x]
+        onda = int(round(2 * math.sin(x / 9.0)))     # camadas levemente onduladas
+        for y in range(t, base + 1):
+            k = (base - y + onda) // 5
+            c = CAMADAS[k % len(CAMADAS)]
+            if (base - y + onda) % 5 == 0 or x < sombra_ate:
+                c = ESCURO.get(c, c)
+            q.p(x, y, c)
+        # tampo de cima, claro, visto de leve
+        q.r(x, t - 3, x, t - 1, 'prata'); q.p(x, t - 3, 'lua')
+        q.p(x, t, 'prata_sombra')
+        q.p(x, base, 'rocha_sombra')
+    # rachaduras
+    for _ in range(w // 12):
+        x = rng.randrange(x0 + 4, x1 - 3)
+        y = topo[x] + rng.randrange(2, 6)
+        for i in range(rng.randrange(6, 14)):
+            if y + i >= base: break
+            if i % 3 == 2: x += rng.choice((-1, 1))
+            if x in topo and y + i > topo[x]: q.p(x, y + i, 'rocha_sombra')
+    # capim por cima, escorrendo um pouco pela beira
+    for _ in range(w // 8):
+        x = rng.randrange(x0 + 2, x1 - 2)
+        for dx in range(rng.randrange(3, 7)):
+            xx = x + dx
+            if xx not in topo: continue
+            t = topo[xx] - 3
+            q.coluna(xx, t - rng.randrange(1, 4), t, 'grama_luz' if dx % 2 else 'grama')
+            if rng.random() < 0.4: q.coluna(xx, t + 1, t + 3 + rng.randrange(2), 'grama_sombra')
+    # pedras soltas no pé
+    for _ in range(w // 16):
+        x = rng.randrange(x0, x1 - 3)
+        q.r(x, base - 2, x + 2, base, 'rocha'); q.p(x, base - 2, 'rocha_luz')
+    return q.contornar()
+
+
+def falesia():
+    return falesia_de(96, 72, 71, [(0, .15), (.06, .8), (.35, .95), (.55, .9), (.62, .62),
+                                   (.85, .58), (.95, .35), (1, .1)])
+
+
+def falesia_b():
+    return falesia_de(80, 60, 72, [(0, .1), (.08, .5), (.25, .55), (.32, .95), (.55, 1.0),
+                                   (.7, .85), (.9, .7), (1, .2)])
+
+
+# ---------- partículas (sem contorno) ----------
+
+def _pixels(w, h, pontos):
+    im = Image.new('RGBA', (w, h), (0, 0, 0, 0)); px = im.load()
+    for (x, y), cor in pontos.items():
+        px[x, y] = cor
+    return im
+
+
+def floco_neve():
+    b, m, c = (244, 239, 232, 255), (244, 239, 232, 150), (201, 206, 216, 60)
+    return _pixels(3, 3, {(1, 1): b, (0, 1): m, (2, 1): m, (1, 0): m, (1, 2): m,
+                          (0, 0): c, (2, 0): c, (0, 2): c, (2, 2): c})
+
+
+def vagalume():
+    pts = {(2, 2): (236, 255, 150, 255)}
+    for (x, y) in [(1, 2), (3, 2), (2, 1), (2, 3)]: pts[(x, y)] = (200, 232, 90, 210)
+    for (x, y) in [(1, 1), (3, 1), (1, 3), (3, 3)]: pts[(x, y)] = (170, 210, 70, 110)
+    for (x, y) in [(0, 2), (4, 2), (2, 0), (2, 4)]: pts[(x, y)] = (150, 200, 60, 60)
+    return _pixels(5, 5, pts)
+
+
+def inseto():
+    corpo, asa = (34, 30, 36, 255), (150, 160, 175, 170)
+    quadros = []
+    for asas in ([(0, 0), (3, 0)], [(0, 2), (3, 2)]):           # asas para cima / para baixo
+        pts = {(1, 1): corpo, (2, 1): corpo, (1, 2): corpo, (2, 2): (60, 52, 58, 255)}
+        for a in asas: pts[a] = asa
+        quadros.append(_pixels(4, 4, pts))
+    return faixa(quadros)
+
+
+def passaro():
+    c = (28, 34, 48, 255)
+    cima = [(0, 0), (9, 0), (1, 1), (8, 1), (2, 2), (3, 2), (5, 2), (6, 2), (7, 2),
+            (3, 3), (4, 3), (5, 3), (6, 3), (4, 4)]
+    baixo = [(5, 2), (2, 3), (3, 3), (4, 3), (5, 3), (6, 3), (7, 3),
+             (1, 4), (2, 4), (4, 4), (7, 4), (8, 4), (0, 5), (9, 5)]
+    return faixa([_pixels(10, 7, {p: c for p in pts}) for pts in (cima, baixo)])
+
+
 ARTES = {
     'barraca': barraca, 'fogueira': fogueira, 'tronco': tronco, 'banca': banca,
     'placa_saida': placa_saida, 'barco': barco,
@@ -658,7 +1055,11 @@ ARTES = {
     'tufo': tufo, 'flores': flores, 'juncos': juncos, 'neve_mancha': neve_mancha,
     'geada_tufo': geada_tufo, 'pedrinhas': pedrinhas, 'cogumelos': cogumelos,
     'folhas': folhas, 'conchas': conchas,
+    # animações, falésias e partículas
+    'fogueira_anim': fogueira_anim, 'falesia': falesia, 'falesia_b': falesia_b,
+    'floco_neve': floco_neve, 'vagalume': vagalume, 'inseto': inseto, 'passaro': passaro,
 }
+ARTES.update({f'mercador_{i}': mercador_de(i) for i in ROUPAS})
 
 if __name__ == '__main__':
     os.makedirs(PASTA, exist_ok=True)

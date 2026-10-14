@@ -8,4 +8,3 @@ id = "templo"
 chave_nome = "MAPA_TEMPLO_NOME"
 chave_regiao = "MAPA_TEMPLO_REGIAO"
 posicao = Vector2(930, 372)
-vizinhos = Array[String](["at_estrada", "nt_estrada"])

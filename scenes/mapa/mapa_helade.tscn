@@ -7,6 +7,7 @@
 [ext_resource type="Script" path="res://scripts/mapa/lamparinas_mapa.gd" id="5_lamparinas"]
 [ext_resource type="Script" path="res://scripts/mapa/nevoa_mapa.gd" id="6_nevoa"]
 [ext_resource type="Shader" path="res://shaders/nevoa_mapa.gdshader" id="7_shader_nevoa"]
+[ext_resource type="SpriteFrames" path="res://assets/art/mapa/barco/nicholas_barco.tres" id="8_barco"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_nevoa"]
 shader = ExtResource("7_shader_nevoa")
@@ -18,6 +19,7 @@ fundo_noite = NodePath("FundoNoite")
 lamparinas = NodePath("Lamparinas")
 nevoa = NodePath("Nevoa")
 botao_periodo = NodePath("Interface/Periodo")
+quadros_barco = ExtResource("8_barco")
 caminhos = NodePath("Caminhos")
 nicholas = NodePath("Nicholas")
 camera = NodePath("Nicholas/Camera")

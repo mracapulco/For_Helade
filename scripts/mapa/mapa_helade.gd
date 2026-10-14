@@ -11,6 +11,8 @@ signal chegou(id: String)
 signal entrada_pedida(id: String)
 
 const ZOOM_PIXEL_ART := 2.0
+## Tamanho do Nicholas no mapa (o desenho é o mesmo da exploração).
+const ESCALA_NICHOLAS := 0.7
 ## Raio, em pixels da arte, em que um toque conta como "no local".
 const RAIO_TOQUE := 24.0
 const RAIO_PONTO := 7.0
@@ -30,6 +32,10 @@ const CENTRO_TITULO := Vector2(1450, 148)
 const DESCIDA_NOME := 30.0
 ## Duração da passagem entre dia e noite, em segundos.
 const TROCA_PERIODO := 1.2
+## Músicas do mapa (tema principal do jogo), em loop; trocam junto com o período.
+const MUSICA_DIA := "res://assets/audio/music/mapa/mapa_dia.wav"
+const MUSICA_NOITE := "res://assets/audio/music/mapa/mapa_noite.wav"
+const VOLUME_MUSICA_DB := -6.0
 ## Tom de Nicholas à noite, para não brilhar mais que o mapa.
 const COR_LUAR := Color(0.72, 0.76, 0.9)
 const ACOES_DIRECAO := {
@@ -60,6 +66,8 @@ const ACOES_DIRECAO := {
 @export var botao_entrar: Button
 ## Provisório, para testar: troca entre dia e noite.
 @export var botao_periodo: Button
+## Nicholas no barquinho, nas rotas por mar (animações barco_frente e barco_costas).
+@export var quadros_barco: SpriteFrames
 
 var grafo: GrafoMapa
 ## Locais liberados (id -> true). É o mesmo dicionário de Mundo.descobertos.
@@ -75,12 +83,17 @@ var _rotulos: Dictionary[Label, Vector2] = {}
 var _camada_rotulos: CanvasLayer
 ## Nome de cada região escrito no mapa: id -> Label.
 var _nomes: Dictionary[String, Label] = {}
+var musica_dia: AudioStreamPlayer
+var musica_noite: AudioStreamPlayer
 var _troca_periodo: Tween
+var _quadros_a_pe: SpriteFrames
+var _de_barco := false
 
 
 func _ready() -> void:
 	grafo = GrafoMapa.da_pasta()
 	liberados = Mundo.descobertos
+	_quadros_a_pe = nicholas.sprite_frames
 	for id: String in grafo.locais:
 		if grafo.local(id).liberado_no_inicio:
 			liberar(id)
@@ -94,18 +107,23 @@ func _ready() -> void:
 	placa.add_to_group(BotoesToque.GRUPO_BLOQUEIA_TOQUE)
 	botao_periodo.add_to_group(BotoesToque.GRUPO_BLOQUEIA_TOQUE)
 	camera.zoom = Vector2.ONE * ZOOM_PIXEL_ART
+	# A câmera é filha do Nicholas: desfaz a escala dele para não aproximar.
+	nicholas.scale = Vector2.ONE * ESCALA_NICHOLAS
+	camera.scale = Vector2.ONE / ESCALA_NICHOLAS
 	if fundo.texture:
 		var tamanho := fundo.texture.get_size()
 		camera.limit_left = 0
 		camera.limit_top = 0
 		camera.limit_right = int(tamanho.x)
 		camera.limit_bottom = int(tamanho.y)
-		nevoa.preparar(tamanho)
+		nevoa.preparar(tamanho, grafo)
 	_revelar(liberados.keys())
 	lamparinas.preparar(grafo, liberados)
 	Mundo.descoberto.connect(_ao_descobrir)
 	Mundo.periodo_mudou.connect(_ao_mudar_periodo)
 	_criar_rotulos()
+	musica_dia = _tocador_de_musica("MusicaDia", MUSICA_DIA)
+	musica_noite = _tocador_de_musica("MusicaNoite", MUSICA_NOITE)
 	_aplicar_periodo(1.0 if Mundo.noite else 0.0)
 	colocar_em(inicio)
 
@@ -223,7 +241,8 @@ func viajar_para(destino: String) -> bool:
 	for i in range(1, trechos.size()):
 		var proximo := grafo.local(trechos[i])
 		var tempo := anterior.distance_to(proximo.posicao) / velocidade
-		_viagem.tween_callback(_olhar_para.bind(proximo.posicao - anterior))
+		var por_mar := grafo.por_mar(trechos[i - 1], trechos[i])
+		_viagem.tween_callback(_olhar_para.bind(proximo.posicao - anterior, por_mar))
 		_viagem.tween_property(nicholas, "position", proximo.posicao, tempo)
 		_viagem.tween_callback(_passar_por.bind(trechos[i]))
 		anterior = proximo.posicao
@@ -286,6 +305,20 @@ func _aplicar_periodo(quanto: float) -> void:
 	lamparinas.acesas = quanto
 	nevoa.definir_noite(quanto)
 	nicholas.modulate = Color.WHITE.lerp(COR_LUAR, quanto)
+	# As duas tocam sempre; o período só cruza os volumes.
+	musica_dia.volume_db = VOLUME_MUSICA_DB + linear_to_db(maxf(1.0 - quanto, 0.0001))
+	musica_noite.volume_db = VOLUME_MUSICA_DB + linear_to_db(maxf(quanto, 0.0001))
+
+
+func _tocador_de_musica(nome: String, caminho: String) -> AudioStreamPlayer:
+	var tocador := AudioStreamPlayer.new()
+	tocador.name = nome
+	tocador.bus = &"Musica"
+	add_child(tocador)
+	if ResourceLoader.exists(caminho):
+		tocador.stream = load(caminho)
+		tocador.play()
+	return tocador
 
 
 func _chegar() -> void:
@@ -301,13 +334,33 @@ func _parar() -> void:
 	aviso.text = ""
 	placa.show()
 	var costas := String(nicholas.animation).ends_with("costas")
-	nicholas.play(&"parado_costas" if costas else &"parado_frente")
+	_trocar_quadros(local.tipo == LocalMapa.Tipo.MAR)
+	if _de_barco:
+		nicholas.play(&"barco_costas" if costas else &"barco_frente")
+	else:
+		nicholas.play(&"parado_costas" if costas else &"parado_frente")
 
 
-func _olhar_para(rumo: Vector2) -> void:
+func _olhar_para(rumo: Vector2, por_mar := false) -> void:
 	if rumo.x != 0.0:
 		nicholas.flip_h = rumo.x < 0.0
-	nicholas.play(&"andando_costas" if rumo.y < 0.0 else &"andando_frente")
+	_trocar_quadros(por_mar)
+	if _de_barco:
+		nicholas.play(&"barco_costas" if rumo.y < 0.0 else &"barco_frente")
+	else:
+		nicholas.play(&"andando_costas" if rumo.y < 0.0 else &"andando_frente")
+
+
+## No mar Nicholas vai no barquinho; em terra, a pé.
+func _trocar_quadros(barco: bool) -> void:
+	_de_barco = barco and quadros_barco != null
+	var quadros := quadros_barco if _de_barco else _quadros_a_pe
+	if nicholas.sprite_frames != quadros:
+		nicholas.sprite_frames = quadros
+
+
+func esta_de_barco() -> bool:
+	return _de_barco
 
 
 func _desenhar_caminhos() -> void:
@@ -348,6 +401,9 @@ func _desenhar_local(local: LocalMapa) -> void:
 			caminhos.draw_colored_polygon(tenda, contorno)
 			caminhos.draw_polyline(tenda + PackedVector2Array([tenda[0]]), COR_PONTO, 1.0)
 			caminhos.draw_line(p + Vector2(0, -8), p + Vector2(0, 3), COR_PONTO, 1.0)
+		LocalMapa.Tipo.MAR:
+			caminhos.draw_circle(p, RAIO_ETAPA, COR_PONTO, false, 3.0)
+			caminhos.draw_circle(p, RAIO_ETAPA, COR_MAR, false, 1.0)
 		LocalMapa.Tipo.PORTO:
 			caminhos.draw_circle(p, RAIO_ETAPA + 2.0, COR_PONTO)
 			caminhos.draw_circle(p, RAIO_ETAPA + 1.0, COR_MAR if liberados.has(local.id) else COR_BLOQUEADO)

@@ -9,3 +9,4 @@ chave_nome = "MAPA_PORTO_NOME"
 chave_regiao = "MAPA_PORTO_OLYMPIA_REGIAO"
 posicao = Vector2(972, 1062)
 tipo = 3
+vizinhos_por_mar = Array[String](["mo_mar_1"])

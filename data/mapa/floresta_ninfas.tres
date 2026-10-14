@@ -8,4 +8,3 @@ id = "floresta_ninfas"
 chave_nome = "MAPA_FLORESTA_NINFAS_NOME"
 chave_regiao = "MAPA_FLORESTA_NINFAS_REGIAO"
 posicao = Vector2(1326, 636)
-vizinhos_por_mar = Array[String](["porto_olympia", "porto_agape"])

@@ -1,7 +1,8 @@
 class_name ControlePrimeiraPessoa
 extends Node3D
 ## Primeira pessoa de Nicholas.
-## No PC: WASD (ou setas) para andar, espaço para pular e mouse para olhar; Enter (ou clicar) com a mira na próxima passagem (uma
+## No PC: WASD (ou setas) para andar, espaço para pular e mouse para olhar
+## (Shift corre só depois de Nicholas segurar Althea); Enter (ou clicar) com a mira na próxima passagem (uma
 ## porta, por exemplo) também leva até ela. Esc solta o mouse.
 ## No toque: tocar na próxima passagem leva a câmera até o próximo ponto.
 ## Chegar perto do próximo ponto, andando ou pelo toque, avança o percurso.
@@ -24,9 +25,15 @@ signal chegou(ponto: PontoDeVista)
 @export var texto_solto: TextoSolto
 ## Trecho do roteiro mostrado na tela preta, antes de os olhos abrirem.
 @export var cena_inicial := "abertura"
-## Passo de criança, em metros por segundo. No prólogo não se corre: o passo
-## acompanha o tempo das frases.
+## Passo de criança, em metros por segundo.
 @export var velocidade := 1.6
+## Velocidade segurando Shift, quando correr está liberado.
+@export var velocidade_correndo := 3.2
+## No começo do prólogo não se corre: o passo acompanha o tempo das frases.
+## A SequenciaPrologo libera depois que Nicholas segura Althea.
+@export var pode_correr := false
+## Segundos que o texto dos controles fica na tela antes de sumir de vez.
+@export var duracao_dica_controles := 20.0
 ## Impulso do pulo (m/s): uma criança pula uns 45 cm, o bastante para subir na cama.
 @export var impulso_pulo := 3.0
 @export var sensibilidade_mouse := 0.0025
@@ -44,6 +51,9 @@ var travado := false
 var cena_tocando := ""
 
 var _cenas_vistas: Array[String] = []
+## O texto dos controles já saiu da tela e não volta mais.
+var _dica_controles_encerrada := false
+var _dica_controles_comecou := false
 
 var _gravidade: float = ProjectSettings.get_setting("physics/3d/default_gravity")
 
@@ -108,8 +118,10 @@ func _physics_process(delta: float) -> void:
 	if not travado:
 		direcao = Input.get_vector("mover_esquerda", "mover_direita", "mover_frente", "mover_tras")
 	var passo := corpo.global_basis * Vector3(direcao.x, 0.0, direcao.y)
-	corpo.velocity.x = passo.x * velocidade
-	corpo.velocity.z = passo.z * velocidade
+	var correndo := pode_correr and not travado and Input.is_action_pressed("correr")
+	var rapidez := velocidade_correndo if correndo else velocidade
+	corpo.velocity.x = passo.x * rapidez
+	corpo.velocity.z = passo.z * rapidez
 	if corpo.is_on_floor():
 		corpo.velocity.y = impulso_pulo if not travado and Input.is_action_just_pressed("pular") else 0.0
 	else:
@@ -236,10 +248,32 @@ func _chegar_em(ponto: PontoDeVista) -> void:
 func _atualizar_dica(ponto: PontoDeVista) -> void:
 	if dica:
 		# Sem brilho para seguir, quem conduz é a SequenciaPrologo.
-		if ponto.alvos().is_empty():
+		if ponto.alvos().is_empty() or _dica_controles_encerrada:
 			dica.text = ""
 		else:
 			dica.text = tr("PROLOGO_DICA_TOQUE") if OS.has_feature("mobile") else tr("PROLOGO_DICA_TECLADO")
+			if not _dica_controles_comecou:
+				_dica_controles_comecou = true
+				_encerrar_dica_controles()
+
+
+## Depois de um tempo na tela, o texto dos controles some devagar e não volta.
+## Conectado (e não com await) para não acordar depois de a cena ser liberada.
+func _encerrar_dica_controles() -> void:
+	get_tree().create_timer(duracao_dica_controles).timeout.connect(_sumir_dica_controles)
+
+
+func _sumir_dica_controles() -> void:
+	_dica_controles_encerrada = true
+	var texto := dica.text
+	if texto != tr("PROLOGO_DICA_TOQUE") and texto != tr("PROLOGO_DICA_TECLADO"):
+		return # outra dica (a de segurar Althea) está na tela: fica.
+	var sumir := create_tween()
+	sumir.tween_property(dica, "modulate:a", 0.0, 1.0)
+	sumir.tween_callback(func() -> void:
+		if dica.text == texto:
+			dica.text = ""
+		dica.modulate.a = 1.0)
 
 
 ## Sensibilidade escolhida nas Opções (1 quando a cena roda sem o menu).

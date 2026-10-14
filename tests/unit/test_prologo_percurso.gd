@@ -89,6 +89,35 @@ func test_shift_nao_corre_no_prologo() -> void:
 	assert_almost_eq(com_shift, andando, andando * 0.15)
 
 
+func test_shift_corre_depois_de_segurar_althea() -> void:
+	cena.pode_correr = true
+	var inicio := cena.corpo.global_position
+	Input.action_press("mover_frente")
+	await wait_physics_frames(20)
+	var andando := cena.corpo.global_position.distance_to(inicio)
+	inicio = cena.corpo.global_position
+	Input.action_press("correr")
+	await wait_physics_frames(20)
+	var correndo := cena.corpo.global_position.distance_to(inicio)
+	Input.action_release("correr")
+	Input.action_release("mover_frente")
+	assert_gt(correndo, andando * 1.5)
+	var fonte := FileAccess.get_file_as_string("res://scripts/prologo/sequencia_prologo.gd")
+	var liberar := fonte.find("controle.pode_correr = true")
+	assert_between(liberar, fonte.find("await _esperar(\"segurar\")"), fonte.find("_mudar(\"depois\")"),
+		"correr volta depois de segurar Althea")
+
+
+func test_texto_dos_controles_some_e_nao_volta() -> void:
+	assert_ne(cena.dica.text, "", "começa mostrando os controles")
+	cena._sumir_dica_controles()
+	await wait_seconds(1.2)
+	assert_eq(cena.dica.text, "")
+	assert_eq(cena.dica.modulate.a, 1.0)
+	await _tocar_proximo()
+	assert_eq(cena.dica.text, "", "não volta no ponto seguinte")
+
+
 func test_espaco_pula_e_volta_ao_chao() -> void:
 	Input.action_release("pular") # outro teste pode ter deixado a tecla "apertada"
 	await wait_physics_frames(5)

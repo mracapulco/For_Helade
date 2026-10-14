@@ -282,6 +282,16 @@ def vela(c: Cena, pai, pos, altura=0.18, castical=True, acesa=True):
     return g, base + altura
 
 
+def arandela(c: Cena, pai, pos, giro, nome_luz, energia=0.9, alcance=5.0):
+    """Castiçal de parede com uma vela acesa; a parede fica no -z local."""
+    g = grupo(c, "Arandela", pai, pos, giro)
+    caixa(c, "Placa", g, (0, 0, 0.015), (0.12, 0.26, 0.03), "bronze")
+    caixa(c, "Braco", g, (0, -0.06, 0.1), (0.03, 0.03, 0.18), "bronze")
+    _, topo = vela(c, g, (0, -0.06, 0.2), altura=0.16)
+    luz(c, nome_luz, g, (0, -0.06 + topo + 0.15, 0.25), energia, alcance)
+    return g
+
+
 def candelabro(c: Cena, pai, pos, nome_luz, sombra=False, energia=1.3):
     g = grupo(c, "Candelabro", pai, pos)
     cilindro(c, "Pe", g, (0, 0.04, 0), 0.2, 0.08, "bronze", raio_topo=0.12)
@@ -457,6 +467,8 @@ def quarto_nicholas() -> Cena:
     jarro(c, criado, (-0.12, 0.6, 0.08))
 
     plano(c, "Tapete", ".", (-8.8, 0.006, 8.6), (3.0, 2.2), "tapete")
+    # O canto da porta, longe das outras velas, ficava escuro.
+    arandela(c, ".", (-6.8, 1.75, z0), 0, "VelaParede")
     bau(c, ".", (-12.15, 0, 10.7), giro=90, largura=0.9, profundidade=0.5)
     # Armário encostado na parede leste.
     armario(c, ".", (-5.82, 0, 6.2), -90)
@@ -500,6 +512,7 @@ def corredor() -> Cena:
 
     tocha(c, ".", (-13.5, 2.3, z0 + 0.16), 0, "Tocha1")
     tocha(c, ".", (-6.5, 2.3, z0 + 0.16), 0, "Tocha2", sombra=True)
+    tocha(c, ".", (0.0, 2.3, z0 + 0.16), 0, "TochaMeio")
     tocha(c, ".", (6.5, 2.3, z0 + 0.16), 0, "Tocha3", sombra=True)
     tocha(c, ".", (13.5, 2.3, z0 + 0.16), 0, "Tocha4")
     luz(c, "LuzPorta", ".", (9.0, 1.8, 3.2), 0.8, 3.0, (1, 0.75, 0.45))

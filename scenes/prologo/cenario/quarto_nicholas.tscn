@@ -104,67 +104,80 @@ rings = 1
 size = Vector2(3, 2.2)
 
 [sub_resource type="BoxMesh" id="BoxMesh_19"]
-size = Vector3(0.92, 0.08, 0.52)
+size = Vector3(0.12, 0.26, 0.03)
 
 [sub_resource type="BoxMesh" id="BoxMesh_20"]
-size = Vector3(0.05, 0.51, 0.52)
+size = Vector3(0.03, 0.03, 0.18)
 
-[sub_resource type="BoxMesh" id="BoxMesh_21"]
-size = Vector3(0.08, 0.12, 0.02)
+[sub_resource type="CylinderMesh" id="CylinderMesh_21"]
+top_radius = 0.022
+bottom_radius = 0.022
+height = 0.16
+radial_segments = 16
+rings = 1
 
 [sub_resource type="BoxMesh" id="BoxMesh_22"]
-size = Vector3(1.5, 0.08, 0.66)
+size = Vector3(0.92, 0.08, 0.52)
 
 [sub_resource type="BoxMesh" id="BoxMesh_23"]
+size = Vector3(0.05, 0.51, 0.52)
+
+[sub_resource type="BoxMesh" id="BoxMesh_24"]
+size = Vector3(0.08, 0.12, 0.02)
+
+[sub_resource type="BoxMesh" id="BoxMesh_25"]
+size = Vector3(1.5, 0.08, 0.66)
+
+[sub_resource type="BoxMesh" id="BoxMesh_26"]
 size = Vector3(0.02, 2, 0.01)
 
-[sub_resource type="CylinderMesh" id="CylinderMesh_24"]
+[sub_resource type="CylinderMesh" id="CylinderMesh_27"]
 top_radius = 0.015
 bottom_radius = 0.015
 height = 0.04
 radial_segments = 16
 rings = 1
 
-[sub_resource type="BoxMesh" id="BoxMesh_25"]
+[sub_resource type="BoxMesh" id="BoxMesh_28"]
 size = Vector3(0.82, 0.08, 0.47)
 
-[sub_resource type="BoxMesh" id="BoxMesh_26"]
+[sub_resource type="BoxMesh" id="BoxMesh_29"]
 size = Vector3(0.05, 0.46, 0.47)
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_27"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_30"]
 albedo_texture = ExtResource("15_olympia")
 roughness = 0.85
 texture_filter = 0
 
-[sub_resource type="PlaneMesh" id="PlaneMesh_28"]
+[sub_resource type="PlaneMesh" id="PlaneMesh_31"]
 size = Vector2(1, 0.75)
 
-[sub_resource type="BoxMesh" id="BoxMesh_29"]
+[sub_resource type="BoxMesh" id="BoxMesh_32"]
 size = Vector3(1.04, 0.79, 0.03)
 
-[sub_resource type="BoxMesh" id="BoxMesh_30"]
+[sub_resource type="BoxMesh" id="BoxMesh_33"]
 size = Vector3(1.14, 0.07, 0.06)
 
-[sub_resource type="BoxMesh" id="BoxMesh_31"]
+[sub_resource type="BoxMesh" id="BoxMesh_34"]
 size = Vector3(0.07, 0.75, 0.06)
 
-[sub_resource type="BoxMesh" id="BoxMesh_32"]
+[sub_resource type="BoxMesh" id="BoxMesh_35"]
 size = Vector3(0.06, 0.67, 0.06)
 
-[sub_resource type="BoxMesh" id="BoxMesh_33"]
+[sub_resource type="BoxMesh" id="BoxMesh_36"]
 size = Vector3(0.04, 0.42, 0.04)
 
-[sub_resource type="BoxMesh" id="BoxMesh_34"]
+[sub_resource type="BoxMesh" id="BoxMesh_37"]
 size = Vector3(0.45, 0.6, 0.04)
 
-[sub_resource type="CylinderMesh" id="CylinderMesh_35"]
+[sub_resource type="CylinderMesh" id="CylinderMesh_38"]
 top_radius = 0.022
 bottom_radius = 0.022
 height = 0.1
 radial_segments = 16
 rings = 1
 
-[sub_resource type="BoxMesh" id="BoxMesh_36"]
+[sub_resource type="BoxMesh" id="BoxMesh_39"]
 size = Vector3(0.22, 0.04, 0.3)
 
 [node name="QuartoNicholas" type="Node3D"]
@@ -396,6 +409,55 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8.8, 0.006, 8.6)
 mesh = SubResource("PlaneMesh_18")
 material_override = ExtResource("12_tapete")
 
+[node name="Arandela" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.8, 1.75, 3.9)
+
+[node name="Placa" type="MeshInstance3D" parent="Arandela"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.015)
+mesh = SubResource("BoxMesh_19")
+material_override = ExtResource("7_bronze")
+
+[node name="Braco" type="MeshInstance3D" parent="Arandela"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.06, 0.1)
+mesh = SubResource("BoxMesh_20")
+material_override = ExtResource("7_bronze")
+
+[node name="Vela" type="Node3D" parent="Arandela"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.06, 0.2)
+
+[node name="Pires" type="MeshInstance3D" parent="Arandela/Vela"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.01, 0)
+mesh = SubResource("CylinderMesh_11")
+material_override = ExtResource("7_bronze")
+
+[node name="Haste" type="MeshInstance3D" parent="Arandela/Vela"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, 0)
+mesh = SubResource("CylinderMesh_12")
+material_override = ExtResource("7_bronze")
+
+[node name="Copo" type="MeshInstance3D" parent="Arandela/Vela"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.095, 0)
+mesh = SubResource("CylinderMesh_13")
+material_override = ExtResource("7_bronze")
+
+[node name="Cera" type="MeshInstance3D" parent="Arandela/Vela"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.185, 0)
+mesh = SubResource("CylinderMesh_21")
+material_override = ExtResource("8_cera")
+
+[node name="Chama" type="MeshInstance3D" parent="Arandela/Vela"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.265, 0)
+cast_shadow = 0
+mesh = SubResource("QuadMesh_15")
+material_override = ExtResource("9_chama")
+
+[node name="VelaParede" type="OmniLight3D" parent="Arandela"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.355, 0.25)
+light_color = Color(1, 0.68, 0.38, 1)
+light_energy = 0.9
+omni_range = 5
+script = ExtResource("10_chama_tremula")
+
 [node name="Bau" type="Node3D" parent="."]
 transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, -12.15, 0, 10.7)
 
@@ -407,22 +469,22 @@ material = ExtResource("3_madeira_movel")
 
 [node name="Tampa" type="MeshInstance3D" parent="Bau"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.46, 0)
-mesh = SubResource("BoxMesh_19")
+mesh = SubResource("BoxMesh_22")
 material_override = ExtResource("3_madeira_movel")
 
 [node name="Cinta" type="MeshInstance3D" parent="Bau"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.315, 0.25, 0)
-mesh = SubResource("BoxMesh_20")
+mesh = SubResource("BoxMesh_23")
 material_override = ExtResource("13_ferro")
 
 [node name="Cinta2" type="MeshInstance3D" parent="Bau"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.315, 0.25, 0)
-mesh = SubResource("BoxMesh_20")
+mesh = SubResource("BoxMesh_23")
 material_override = ExtResource("13_ferro")
 
 [node name="Fecho" type="MeshInstance3D" parent="Bau"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.38, 0.262)
-mesh = SubResource("BoxMesh_21")
+mesh = SubResource("BoxMesh_24")
 material_override = ExtResource("13_ferro")
 
 [node name="Armario" type="Node3D" parent="."]
@@ -436,22 +498,22 @@ material = ExtResource("3_madeira_movel")
 
 [node name="Topo" type="MeshInstance3D" parent="Armario"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.24, 0.02)
-mesh = SubResource("BoxMesh_22")
+mesh = SubResource("BoxMesh_25")
 material_override = ExtResource("3_madeira_movel")
 
 [node name="Fresta" type="MeshInstance3D" parent="Armario"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.1, 0.301)
-mesh = SubResource("BoxMesh_23")
+mesh = SubResource("BoxMesh_26")
 material_override = ExtResource("14_carvao")
 
 [node name="Puxador" type="MeshInstance3D" parent="Armario"]
 transform = Transform3D(1, 0, 0, 0, 0, -1, 0, 1, 0, -0.08, 1.15, 0.32)
-mesh = SubResource("CylinderMesh_24")
+mesh = SubResource("CylinderMesh_27")
 material_override = ExtResource("7_bronze")
 
 [node name="Puxador2" type="MeshInstance3D" parent="Armario"]
 transform = Transform3D(1, 0, 0, 0, 0, -1, 0, 1, 0, 0.08, 1.15, 0.32)
-mesh = SubResource("CylinderMesh_24")
+mesh = SubResource("CylinderMesh_27")
 material_override = ExtResource("7_bronze")
 
 [node name="Bau2" type="Node3D" parent="."]
@@ -465,22 +527,22 @@ material = ExtResource("3_madeira_movel")
 
 [node name="Tampa" type="MeshInstance3D" parent="Bau2"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.41, 0)
-mesh = SubResource("BoxMesh_25")
+mesh = SubResource("BoxMesh_28")
 material_override = ExtResource("3_madeira_movel")
 
 [node name="Cinta" type="MeshInstance3D" parent="Bau2"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.28, 0.225, 0)
-mesh = SubResource("BoxMesh_26")
+mesh = SubResource("BoxMesh_29")
 material_override = ExtResource("13_ferro")
 
 [node name="Cinta2" type="MeshInstance3D" parent="Bau2"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.28, 0.225, 0)
-mesh = SubResource("BoxMesh_26")
+mesh = SubResource("BoxMesh_29")
 material_override = ExtResource("13_ferro")
 
 [node name="Fecho" type="MeshInstance3D" parent="Bau2"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.33, 0.237)
-mesh = SubResource("BoxMesh_21")
+mesh = SubResource("BoxMesh_24")
 material_override = ExtResource("13_ferro")
 
 [node name="Quadro" type="Node3D" parent="."]
@@ -488,32 +550,32 @@ transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, -5.5, 1.75, 8.9)
 
 [node name="Tela" type="MeshInstance3D" parent="Quadro"]
 transform = Transform3D(1, 0, 0, 0, 0, -1, 0, 1, 0, 0, 0, 0.035)
-mesh = SubResource("PlaneMesh_28")
-material_override = SubResource("StandardMaterial3D_27")
+mesh = SubResource("PlaneMesh_31")
+material_override = SubResource("StandardMaterial3D_30")
 
 [node name="Fundo" type="MeshInstance3D" parent="Quadro"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.015)
-mesh = SubResource("BoxMesh_29")
+mesh = SubResource("BoxMesh_32")
 material_override = ExtResource("3_madeira_movel")
 
 [node name="Moldura" type="MeshInstance3D" parent="Quadro"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.41, 0.03)
-mesh = SubResource("BoxMesh_30")
+mesh = SubResource("BoxMesh_33")
 material_override = ExtResource("16_ouro")
 
 [node name="Moldura2" type="MeshInstance3D" parent="Quadro"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.41, 0.03)
-mesh = SubResource("BoxMesh_30")
+mesh = SubResource("BoxMesh_33")
 material_override = ExtResource("16_ouro")
 
 [node name="Moldura3" type="MeshInstance3D" parent="Quadro"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.535, 0, 0.03)
-mesh = SubResource("BoxMesh_31")
+mesh = SubResource("BoxMesh_34")
 material_override = ExtResource("16_ouro")
 
 [node name="Moldura4" type="MeshInstance3D" parent="Quadro"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.535, 0, 0.03)
-mesh = SubResource("BoxMesh_31")
+mesh = SubResource("BoxMesh_34")
 material_override = ExtResource("16_ouro")
 
 [node name="Mesa2" type="Node3D" parent="."]
@@ -527,22 +589,22 @@ material = ExtResource("3_madeira_movel")
 
 [node name="Perna" type="MeshInstance3D" parent="Mesa2"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.44, 0.335, -0.24)
-mesh = SubResource("BoxMesh_32")
+mesh = SubResource("BoxMesh_35")
 material_override = ExtResource("3_madeira_movel")
 
 [node name="Perna2" type="MeshInstance3D" parent="Mesa2"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.44, 0.335, 0.24)
-mesh = SubResource("BoxMesh_32")
+mesh = SubResource("BoxMesh_35")
 material_override = ExtResource("3_madeira_movel")
 
 [node name="Perna3" type="MeshInstance3D" parent="Mesa2"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.44, 0.335, -0.24)
-mesh = SubResource("BoxMesh_32")
+mesh = SubResource("BoxMesh_35")
 material_override = ExtResource("3_madeira_movel")
 
 [node name="Perna4" type="MeshInstance3D" parent="Mesa2"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.44, 0.335, 0.24)
-mesh = SubResource("BoxMesh_32")
+mesh = SubResource("BoxMesh_35")
 material_override = ExtResource("3_madeira_movel")
 
 [node name="Cadeira" type="Node3D" parent="."]
@@ -556,27 +618,27 @@ material = ExtResource("3_madeira_movel")
 
 [node name="Perna" type="MeshInstance3D" parent="Cadeira"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.19, 0.21, -0.19)
-mesh = SubResource("BoxMesh_33")
+mesh = SubResource("BoxMesh_36")
 material_override = ExtResource("3_madeira_movel")
 
 [node name="Perna2" type="MeshInstance3D" parent="Cadeira"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.19, 0.21, 0.19)
-mesh = SubResource("BoxMesh_33")
+mesh = SubResource("BoxMesh_36")
 material_override = ExtResource("3_madeira_movel")
 
 [node name="Perna3" type="MeshInstance3D" parent="Cadeira"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.19, 0.21, -0.19)
-mesh = SubResource("BoxMesh_33")
+mesh = SubResource("BoxMesh_36")
 material_override = ExtResource("3_madeira_movel")
 
 [node name="Perna4" type="MeshInstance3D" parent="Cadeira"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.19, 0.21, 0.19)
-mesh = SubResource("BoxMesh_33")
+mesh = SubResource("BoxMesh_36")
 material_override = ExtResource("3_madeira_movel")
 
 [node name="Encosto" type="MeshInstance3D" parent="Cadeira"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.78, 0.2)
-mesh = SubResource("BoxMesh_34")
+mesh = SubResource("BoxMesh_37")
 material_override = ExtResource("3_madeira_movel")
 
 [node name="Vela" type="Node3D" parent="Mesa2"]
@@ -599,7 +661,7 @@ material_override = ExtResource("7_bronze")
 
 [node name="Cera" type="MeshInstance3D" parent="Mesa2/Vela"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.155, 0)
-mesh = SubResource("CylinderMesh_35")
+mesh = SubResource("CylinderMesh_38")
 material_override = ExtResource("8_cera")
 
 [node name="Chama" type="MeshInstance3D" parent="Mesa2/Vela"]
@@ -617,5 +679,5 @@ script = ExtResource("10_chama_tremula")
 
 [node name="Livro" type="MeshInstance3D" parent="Mesa2"]
 transform = Transform3D(0.9781, 0, 0.2079, 0, 1, 0, -0.2079, 0, 0.9781, -0.2, 0.74, 0)
-mesh = SubResource("BoxMesh_36")
+mesh = SubResource("BoxMesh_39")
 material_override = ExtResource("17_veludo_vermelho")

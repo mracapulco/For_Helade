@@ -992,7 +992,7 @@ tremor = 0.4
 shadow_enabled = true
 
 [node name="Tocha3" type="Node3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.5, 2.3, 0.16)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.3, 0.16)
 
 [node name="Placa" type="MeshInstance3D" parent="Tocha3"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.02)
@@ -1020,17 +1020,16 @@ cast_shadow = 0
 mesh = SubResource("QuadMesh_26")
 material_override = ExtResource("7_chama")
 
-[node name="Tocha3" type="OmniLight3D" parent="Tocha3"]
+[node name="TochaMeio" type="OmniLight3D" parent="Tocha3"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.3, 0.4)
 light_color = Color(1, 0.6, 0.3, 1)
 light_energy = 1.6
 omni_range = 6
 script = ExtResource("8_chama_tremula")
 tremor = 0.4
-shadow_enabled = true
 
 [node name="Tocha4" type="Node3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13.5, 2.3, 0.16)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.5, 2.3, 0.16)
 
 [node name="Placa" type="MeshInstance3D" parent="Tocha4"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.02)
@@ -1058,7 +1057,45 @@ cast_shadow = 0
 mesh = SubResource("QuadMesh_26")
 material_override = ExtResource("7_chama")
 
-[node name="Tocha4" type="OmniLight3D" parent="Tocha4"]
+[node name="Tocha3" type="OmniLight3D" parent="Tocha4"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.3, 0.4)
+light_color = Color(1, 0.6, 0.3, 1)
+light_energy = 1.6
+omni_range = 6
+script = ExtResource("8_chama_tremula")
+tremor = 0.4
+shadow_enabled = true
+
+[node name="Tocha5" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13.5, 2.3, 0.16)
+
+[node name="Placa" type="MeshInstance3D" parent="Tocha5"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.02)
+mesh = SubResource("BoxMesh_22")
+material_override = ExtResource("5_ferro")
+
+[node name="Braco" type="MeshInstance3D" parent="Tocha5"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.08, 0.14)
+mesh = SubResource("BoxMesh_23")
+material_override = ExtResource("5_ferro")
+
+[node name="Cesto" type="MeshInstance3D" parent="Tocha5"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.02, 0.26)
+mesh = SubResource("CylinderMesh_24")
+material_override = ExtResource("5_ferro")
+
+[node name="Cabo" type="MeshInstance3D" parent="Tocha5"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.1, 0.26)
+mesh = SubResource("CylinderMesh_25")
+material_override = ExtResource("3_madeira_movel")
+
+[node name="Chama" type="MeshInstance3D" parent="Tocha5"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.06, 0.26)
+cast_shadow = 0
+mesh = SubResource("QuadMesh_26")
+material_override = ExtResource("7_chama")
+
+[node name="Tocha4" type="OmniLight3D" parent="Tocha5"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.3, 0.4)
 light_color = Color(1, 0.6, 0.3, 1)
 light_energy = 1.6

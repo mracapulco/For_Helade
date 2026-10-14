@@ -78,7 +78,7 @@ func _process(delta: float) -> void:
 	var rapidez := andou / maxf(delta, 0.0001)
 	if rapidez > 8.0:
 		rapidez = 0.0 # teleporte (troca de ponto), não passo
-	_forca_passo = lerpf(_forca_passo, clampf(rapidez / (controle.velocidade * 2.0), 0.0, 1.0), clampf(delta * 6.0, 0.0, 1.0))
+	_forca_passo = lerpf(_forca_passo, clampf(rapidez / controle.velocidade_correndo, 0.0, 1.0), clampf(delta * 6.0, 0.0, 1.0))
 	_fase_passo = fmod(_fase_passo + rapidez / PASSO * PI * delta, TAU)
 
 	var camera := controle.camera

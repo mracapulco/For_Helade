@@ -2,9 +2,9 @@ class_name ControlePrimeiraPessoa
 extends Node3D
 ## Primeira pessoa de Nicholas.
 ## No PC: WASD (ou setas) para andar, Shift para correr, espaço para pular e
-## mouse para olhar; Enter (ou clicar) com a mira no
-## brilho dourado também leva até ele. Esc solta o mouse.
-## No toque: tocar no brilho dourado leva a câmera até o próximo ponto.
+## mouse para olhar; Enter (ou clicar) com a mira na próxima passagem (uma
+## porta, por exemplo) também leva até ela. Esc solta o mouse.
+## No toque: tocar na próxima passagem leva a câmera até o próximo ponto.
 ## Chegar perto do próximo ponto, andando ou pelo toque, avança o percurso.
 
 signal chegou(ponto: PontoDeVista)
@@ -153,7 +153,8 @@ func _verificar_chegada() -> void:
 	for alvo in ponto_atual.alvos():
 		var destino := alvo.destino
 		var diferenca := destino.global_position - corpo.global_position
-		if Vector2(diferenca.x, diferenca.z).length() <= raio_chegada:
+		var raio := destino.raio_chegada if destino.raio_chegada > 0.0 else raio_chegada
+		if Vector2(diferenca.x, diferenca.z).length() <= raio:
 			_ativar_alvos(ponto_atual, false)
 			_chegar_em(destino)
 			return

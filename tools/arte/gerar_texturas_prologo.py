@@ -182,6 +182,72 @@ def reboco(n: int):
     return tingir(tom, (0.82, 0.78, 0.72)), 0.7 * ondas + 0.15 * grao, 0.92 + 0.05 * grao
 
 
+# ---------------------------------------------------------------- tapetes
+# Cores já na textura (o material não tinge): vermelho, azul-noite, dourado, creme.
+VERMELHO = np.array([0.42, 0.07, 0.06])
+AZUL = np.array([0.05, 0.08, 0.22])
+DOURADO = np.array([0.72, 0.52, 0.2])
+CREME = np.array([0.82, 0.75, 0.6])
+
+
+def _faixa_ornamento(u: np.ndarray, v: np.ndarray, periodo: float) -> np.ndarray:
+    """Faixa com losangos e quadradinhos alternados (u ao longo, v de 0 a 1 na largura)."""
+    fase = (u / periodo) % 1.0
+    losango = (np.abs(fase - 0.5) * 2 + np.abs(v - 0.5) * 2) < 0.75
+    quadrado = (np.abs(fase - 0.0) < 0.12) | (np.abs(fase - 1.0) < 0.12)
+    return (losango & ~((np.abs(fase - 0.5) * 2 + np.abs(v - 0.5) * 2) < 0.35)) | (quadrado & (np.abs(v - 0.5) < 0.18))
+
+
+def _la(cor: np.ndarray, n: int) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    fibra = ruido(n, 0.5)
+    gasto = ruido(n, 3.0)
+    tom = (0.85 + 0.25 * (fibra - 0.5)) * (0.92 + 0.16 * gasto)
+    return cor * tom[..., None], 0.5 * fibra + 0.3 * gasto, 0.9 + 0.08 * fibra
+
+
+def tapete(n: int):
+    """Tapete quadrado com borda dos quatro lados (para PlaneMesh de UV 0 a 1)."""
+    y, x = np.mgrid[0:n, 0:n] / n
+    borda = np.minimum(np.minimum(x, 1 - x), np.minimum(y, 1 - y))
+    cor = np.broadcast_to(VERMELHO, (n, n, 3)).copy()
+    # Treliça de losangos no campo.
+    malha = (np.abs(((x - 0.5) * 8 + (y - 0.5) * 8) % 2 - 1) < 0.08) | (np.abs(((x - 0.5) * 8 - (y - 0.5) * 8) % 2 - 1) < 0.08)
+    cor[malha] = DOURADO * 0.8
+    centro = (np.abs(x - 0.5) + np.abs(y - 0.5)) < 0.16
+    cor[centro] = AZUL
+    cor[(np.abs(x - 0.5) + np.abs(y - 0.5)) < 0.08] = DOURADO
+    # Bordas: azul com ornamento creme, filetes dourados.
+    faixa = (borda > 0.03) & (borda < 0.13)
+    cor[faixa] = AZUL
+    u = np.where(np.minimum(x, 1 - x) < np.minimum(y, 1 - y), y, x)
+    orn = _faixa_ornamento(u * 10, (borda - 0.03) / 0.10, 1.0) & faixa
+    cor[orn] = CREME
+    for limite in (0.03, 0.13):
+        cor[np.abs(borda - limite) < 0.006] = DOURADO
+    cor[borda < 0.03] = AZUL * 0.8
+    cor[borda < 0.012] = AZUL * 0.6
+    base, altura, aspereza = _la(cor, n)
+    return base, altura, aspereza
+
+
+def passadeira(n: int):
+    """Passadeira de corredor: borda em cima e embaixo, repete no comprimento (eixo x)."""
+    y, x = np.mgrid[0:n, 0:n] / n
+    borda = np.minimum(y, 1 - y)
+    cor = np.broadcast_to(VERMELHO, (n, n, 3)).copy()
+    malha = (np.abs(((x * 4 + y * 4) % 2) - 1) < 0.06) | (np.abs(((x * 4 - y * 4) % 2) - 1) < 0.06)
+    cor[malha] = DOURADO * 0.75
+    faixa = (borda > 0.04) & (borda < 0.17)
+    cor[faixa] = AZUL
+    orn = _faixa_ornamento(x * 8, (borda - 0.04) / 0.13, 1.0) & faixa
+    cor[orn] = CREME
+    for limite in (0.04, 0.17):
+        cor[np.abs(borda - limite) < 0.007] = DOURADO
+    cor[borda < 0.04] = AZUL * 0.8
+    cor[borda < 0.015] = AZUL * 0.6
+    return _la(cor, n)
+
+
 def main() -> None:
     pasta = Path(sys.argv[1])
     pasta.mkdir(parents=True, exist_ok=True)
@@ -195,6 +261,8 @@ def main() -> None:
         ("linho", lambda: linho(512), 2.0),
         ("marmore", lambda: marmore(1024), 3.0),
         ("reboco", lambda: reboco(512), 2.5),
+        ("tapete", lambda: tapete(1024), 2.0),
+        ("passadeira", lambda: passadeira(512), 2.0),
     ]
     for nome, gerar, forca in feitos:
         cor, altura, aspereza = gerar()

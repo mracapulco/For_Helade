@@ -68,3 +68,21 @@ func test_vinheta_nao_bloqueia_toques() -> void:
 	assert_eq(vinheta.mouse_filter, Control.MOUSE_FILTER_IGNORE)
 	assert_true(vinheta.material is ShaderMaterial)
 	cena.free()
+
+
+func test_toda_vela_e_tocha_tem_chama_visivel() -> void:
+	var cena: Node = CENA.instantiate()
+	cena.abertura = null
+	cena.roteiro = null
+	add_child_autofree(cena)
+	await wait_physics_frames(1)
+	var chamas: Array[Vector3] = []
+	for malha: MeshInstance3D in cena.get_node("Cenario").find_children("*", "MeshInstance3D", true, false):
+		if malha.material_override and malha.material_override.resource_name == "chama":
+			chamas.append(malha.global_position)
+	assert_gt(chamas.size(), 10)
+	for luz: OmniLight3D in cena.get_node("Cenario").find_children("*", "OmniLight3D", true, false):
+		if luz.name == "LuzPorta":
+			continue # claridade que sai dos aposentos pela porta
+		var perto := chamas.any(func(p: Vector3) -> bool: return p.distance_to(luz.global_position) < 0.8)
+		assert_true(perto, luz.name + " ilumina sem chama")

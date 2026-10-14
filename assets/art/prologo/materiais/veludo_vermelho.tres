@@ -1,0 +1,22 @@
+[gd_resource type="StandardMaterial3D" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/art/prologo/texturas/veludo_cor.jpg" id="1_cor"]
+[ext_resource type="Texture2D" path="res://assets/art/prologo/texturas/veludo_normal.png" id="2_normal"]
+[ext_resource type="Texture2D" path="res://assets/art/prologo/texturas/veludo_aspereza.jpg" id="3_aspereza"]
+
+[resource]
+resource_name = "veludo_vermelho"
+texture_filter = 5
+albedo_color = Color(0.3, 0.05, 0.05, 1)
+albedo_texture = ExtResource("1_cor")
+roughness = 1.0
+roughness_texture = ExtResource("3_aspereza")
+roughness_texture_channel = 4
+normal_enabled = true
+normal_texture = ExtResource("2_normal")
+rim_enabled = true
+rim = 0.45
+rim_tint = 0.3
+uv1_scale = Vector3(1.0, 1.0, 1.0)
+uv1_triplanar = true
+uv1_world_triplanar = true

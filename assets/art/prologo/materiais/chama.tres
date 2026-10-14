@@ -1,0 +1,7 @@
+[gd_resource type="ShaderMaterial" format=3]
+
+[ext_resource type="Shader" path="res://assets/shaders/prologo/chama.gdshader" id="1_chama"]
+
+[resource]
+resource_name = "chama"
+shader = ExtResource("1_chama")

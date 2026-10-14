@@ -7,6 +7,10 @@ extends Marker3D
 ## Trecho do roteiro (título no .dialogue) mostrado na primeira vez que
 ## Nicholas chega aqui. Vazio: nenhum texto.
 @export var cena_ao_chegar := ""
+## Distância, no chão, em que Nicholas conta como tendo chegado aqui andando.
+## 0: usa a do ControlePrimeiraPessoa. Maior serve para chegar já ao passar
+## por uma porta (a varanda, por exemplo).
+@export var raio_chegada := 0.0
 
 
 func alvos() -> Array[AlvoToque]:

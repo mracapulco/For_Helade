@@ -1,28 +1,29 @@
 class_name MenuInicial
 extends Control
-## Primeira tela do jogo: Continuar, Novo jogo, Opções e Sair.
+## Primeira tela do jogo: Continuar, Carregar jogo, Novo jogo, Opções e Sair.
 ## Tudo funciona com toque, clique, setas e Enter.
+## Continuar abre o jogo salvo por último; Carregar jogo mostra os 10 espaços.
 
-## Cena de cada parte da história salva no Progresso. Parte sem cena ainda
-## (por exemplo, o capítulo 1) mostra um aviso provisório.
+## Missões com cena própria: quem salvou numa delas volta direto para ela.
+## Qualquer outra parte da história (por exemplo, o capítulo 1, que ainda
+## não tem missão) volta para o mapa, no lugar onde salvou: o último
+## acampamento ou, quando existir, o reino.
 const CENAS := {
 	"prologo": "res://scenes/prologo/prologo.tscn",
 }
+const CENA_MAPA := "res://scenes/mapa/mapa_helade.tscn"
 const CENA_NOVO_JOGO := "res://scenes/prologo/prologo.tscn"
 ## Música do menu. Basta pôr um arquivo neste caminho para ela tocar.
 const MUSICA := "res://assets/audio/music/menu.ogg"
 
 @export var botao_continuar: Button
+@export var botao_carregar: Button
 @export var botao_novo_jogo: Button
 @export var botao_opcoes: Button
 @export var botao_sair: Button
 @export var aviso: Label
 @export var painel_principal: Control
 @export var opcoes: TelaOpcoes
-## Pergunta antes de um jogo novo apagar o jogo salvo.
-@export var confirmacao: Control
-@export var botao_confirmar_sim: Button
-@export var botao_confirmar_nao: Button
 ## Partes que aparecem aos poucos na entrada.
 @export var titulo: Control
 @export var capa: Control
@@ -34,16 +35,23 @@ const MUSICA := "res://assets/audio/music/menu.ogg"
 var cena_pedida := ""
 ## Quando falso, os botões só anotam a cena pedida, sem trocar (testes).
 var trocar_de_cena := true
+## Lista dos 10 espaços, aberta por Carregar jogo.
+var tela_espacos: TelaEspacos
 
 
 func _ready() -> void:
 	botao_continuar.pressed.connect(_continuar)
+	botao_carregar.pressed.connect(_abrir_espacos)
 	botao_novo_jogo.pressed.connect(_novo_jogo)
 	botao_opcoes.pressed.connect(_abrir_opcoes)
 	botao_sair.pressed.connect(func() -> void: get_tree().quit())
 	opcoes.fechou.connect(_fechar_opcoes)
-	botao_confirmar_sim.pressed.connect(_confirmar_novo_jogo)
-	botao_confirmar_nao.pressed.connect(_fechar_confirmacao)
+	tela_espacos = TelaEspacos.new()
+	tela_espacos.name = "TelaEspacos"
+	tela_espacos.pausar = false
+	add_child(tela_espacos)
+	tela_espacos.escolhido.connect(carregar_espaco)
+	tela_espacos.fechou.connect(_fechar_espacos)
 	atualizar()
 	_tocar_musica()
 	if animar_entrada:
@@ -66,57 +74,49 @@ func _unhandled_input(evento: InputEvent) -> void:
 	if opcoes.visible:
 		get_viewport().set_input_as_handled()
 		opcoes.fechar()
-	elif confirmacao.visible:
-		get_viewport().set_input_as_handled()
-		_fechar_confirmacao()
 
 
 ## Mostra ou esconde botões conforme o que existe agora.
 func atualizar() -> void:
 	botao_continuar.visible = Progresso.tem_jogo_salvo()
+	botao_carregar.visible = botao_continuar.visible
 	botao_sair.visible = not (OS.has_feature("mobile") or OS.has_feature("web"))
 	aviso.text = ""
 	opcoes.visible = false
-	confirmacao.visible = false
 	painel_principal.visible = true
 	_focar_primeiro()
 
 
 func _continuar() -> void:
-	if not Progresso.carregar():
+	carregar_espaco(Progresso.espaco_mais_recente())
+
+
+## Abre o jogo do espaço: a missão em que salvou ou, sem missão, o mapa.
+func carregar_espaco(espaco: int) -> void:
+	if not Progresso.carregar(espaco):
 		atualizar()
 		return
-	var cena: String = CENAS.get(Progresso.etapa, "")
-	if cena.is_empty():
-		aviso.text = tr("MENU_AVISO_SEM_CAPITULO")
-		return
-	_ir(cena)
+	_ir(cena_para_continuar(Progresso.etapa))
 
 
+static func cena_para_continuar(etapa: String) -> String:
+	return CENAS.get(etapa, CENA_MAPA)
+
+
+func _abrir_espacos() -> void:
+	aviso.text = ""
+	painel_principal.visible = false
+	tela_espacos.abrir(TelaEspacos.Modo.CARREGAR)
+
+
+func _fechar_espacos() -> void:
+	painel_principal.visible = true
+	botao_carregar.grab_focus()
+
+
+## Novo jogo não apaga nada: os espaços salvos continuam lá, e o primeiro
+## salvamento do jogo novo vai para um espaço livre (ou o escolhido na barraca).
 func _novo_jogo() -> void:
-	if Progresso.tem_jogo_salvo():
-		aviso.text = ""
-		painel_principal.visible = false
-		confirmacao.visible = true
-		botao_confirmar_nao.grab_focus() # o seguro fica selecionado
-		return
-	_comecar()
-
-
-func _confirmar_novo_jogo() -> void:
-	Progresso.apagar()
-	confirmacao.visible = false
-	painel_principal.visible = true
-	_comecar()
-
-
-func _fechar_confirmacao() -> void:
-	confirmacao.visible = false
-	painel_principal.visible = true
-	botao_novo_jogo.grab_focus()
-
-
-func _comecar() -> void:
 	Progresso.novo_jogo()
 	_ir(CENA_NOVO_JOGO)
 
@@ -155,7 +155,7 @@ func _tocar_musica() -> void:
 ## A capa e o título surgem, depois os botões um a um.
 func _animar_entrada() -> void:
 	var partes: Array[CanvasItem] = [capa, titulo]
-	for botao in [botao_continuar, botao_novo_jogo, botao_opcoes, botao_sair]:
+	for botao in [botao_continuar, botao_carregar, botao_novo_jogo, botao_opcoes, botao_sair]:
 		if botao.visible:
 			partes.append(botao)
 	for parte in partes:

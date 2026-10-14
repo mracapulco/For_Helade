@@ -3,7 +3,8 @@ extends Node2D
 ## Acampamento numa rota entre os reinos: o ponto de descanso (e de salvar)
 ## da exploração. A cena base é scenes/exploracao/acampamentos/acampamento_base.tscn;
 ## cada acampamento é uma cena herdada dela que só troca o [member bioma].
-## - Barraca: salva o jogo (fica na mesma etapa da história).
+## - Barraca: abre a lista dos 10 espaços para salvar (fica na mesma etapa da
+##   história).
 ## - Mercador: conversa provisória até existir a loja.
 ## - Companheiro: animal ou viajante, conforme o bioma. O animal faz o seu som
 ##   e um movimento próprio quando o jogador interage ([method reagir]).
@@ -49,6 +50,8 @@ var trocar_de_cena := true
 @onready var visual_companheiro: Sprite2D = $Companheiro/Visual
 
 var vida: VidaAcampamento
+## Lista de espaços aberta pela barraca.
+var tela_espacos: TelaEspacos
 var som_companheiro: AudioStreamPlayer2D
 var som_fogueira: AudioStreamPlayer2D
 ## Movimento do companheiro em andamento (para não sobrepor dois).
@@ -59,6 +62,10 @@ var _tempo_mercador := 0.0
 
 func _ready() -> void:
 	barraca.interagido.connect(descansar)
+	tela_espacos = TelaEspacos.new()
+	tela_espacos.name = "TelaEspacos"
+	add_child(tela_espacos)
+	tela_espacos.escolhido.connect(salvar_no_espaco)
 	companheiro.interagido.connect(reagir)
 	saida.interagido.connect(voltar_ao_mapa)
 	botao_mapa.pressed.connect(voltar_ao_mapa)
@@ -80,9 +87,18 @@ func _ready() -> void:
 	_animar_fogo()
 
 
-## Descansar na barraca: salva o jogo sem mudar a etapa da história.
+## Descansar na barraca: o jogador escolhe em qual espaço salvar.
 func descansar() -> void:
-	Progresso.salvar(Progresso.etapa)
+	tela_espacos.abrir(TelaEspacos.Modo.SALVAR)
+
+
+## Salva sem mudar a etapa da história. O lugar salvo é este acampamento:
+## o Continuar põe Nicholas aqui no mapa (o id do bioma é o mesmo do mapa).
+func salvar_no_espaco(espaco: int) -> void:
+	if bioma and not bioma.id.is_empty():
+		Mundo.local_no_mapa = bioma.id
+	if not Progresso.salvar(Progresso.etapa, espaco):
+		return
 	aviso.mostrar(tr("ACAMP_SALVO"))
 	salvo.emit()
 

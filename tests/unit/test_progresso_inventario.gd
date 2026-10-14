@@ -1,18 +1,19 @@
 extends GutTest
 ## O jogo salvo guarda a bolsa, e Novo jogo a esvazia.
 
-var _arquivo_progresso: String
+var _pasta_progresso: String
 
 
 func before_each() -> void:
-	_arquivo_progresso = Progresso.arquivo
-	Progresso.arquivo = "user://teste_progresso_inventario.cfg"
+	_pasta_progresso = Progresso.pasta
+	Progresso.pasta = "user://teste_saves_inventario/"
+	Progresso.apagar_todos()
 	Inventario.limpar()
 
 
 func after_each() -> void:
-	Progresso.apagar()
-	Progresso.arquivo = _arquivo_progresso
+	Progresso.apagar_todos()
+	Progresso.pasta = _pasta_progresso
 	Inventario.limpar()
 
 

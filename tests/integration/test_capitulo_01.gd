@@ -97,7 +97,7 @@ func test_corredor_tem_oito_passos_entre_as_portas() -> void:
 
 func test_falas_estao_no_elenco() -> void:
 	var roteiro: DialogueResource = load("res://data/dialogos/capitulo_01/manha.dialogue")
-	for marcador in ["cortejo", "acordar_althea", "espada"]:
+	for marcador in ["cortejo", "acordar_althea", "espada", "duque", "planos", "carruagem"]:
 		var linha: DialogueLine = await roteiro.get_next_dialogue_line(marcador)
 		while linha:
 			if linha.character != "":
@@ -144,3 +144,22 @@ func test_corredor_comprido_com_outras_portas() -> void:
 	assert_gte(capitulo.sala.largura, 24)
 	var fechadas := capitulo.objetos.keys().filter(func(k: String) -> bool: return k.begins_with("porta_fechada"))
 	assert_gte(fechadas.size(), 2)
+
+
+func test_o_duque_entra_e_depois_a_carruagem() -> void:
+	_interagir("porta_sonho")
+	await _esperar_etapa("quarto")
+	await _vestir()
+	_interagir("porta_quarto")
+	await _esperar_etapa("corredor")
+	_interagir("porta_althea")
+	await _esperar_etapa("quarto_althea")
+	_interagir("cama_althea")
+	await _esperar_etapa("a_mesa")
+	_interagir("althea")
+	await _esperar_etapa("duque")
+	await _esperar_etapa("carruagem")
+	assert_false(capitulo.objetos.has("apollon"), "o duque já partiu")
+	assert_true(capitulo.sala.parede_madeira, "por dentro da carruagem")
+	assert_true(capitulo.jogador.em_dialogo, "Nicholas fica sentado")
+	await _esperar_etapa("fim")

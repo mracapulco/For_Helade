@@ -162,12 +162,37 @@ def _parede_pedra(q, ox):
             q.p(ox + x, y, cor)
 
 
+def _parede_madeira(q, ox):
+    # lambris escuro do interior da carruagem, com filete dourado
+    for y in range(32):
+        meia = 32 - abs(y - 15.5) * 2
+        for x in range(int(32 - meia), int(32 + meia)):
+            q.p(ox + x, y, 'madeira_sombra')
+    for x in range(64):
+        esquerda = x < 32
+        u = x if esquerda else 63 - x
+        for y in range(16, 64):
+            v = y - _topo(x)
+            if not 0 <= v <= 32:
+                continue
+            cor = 'madeira' if esquerda else 'madeira_sombra'
+            if u % 8 == 0:
+                cor = 'madeira_sombra'
+            if abs(v - 14) < 1:
+                cor = 'ouro_sombra'
+            elif v > 14:
+                cor = 'veludo' if esquerda else 'noite'                # forro de veludo azul
+            q.p(ox + x, y, cor)
+
+
 def parede():
     # bloco de 64×64: topo em losango de 64×32 e a face embaixo
-    # 0 = pedra da Casa Olympia; 1 = a parede lisa do sonho (corredor estranho)
-    q = Q(128, 64)
+    # 0 = pedra da Casa Olympia; 1 = a parede lisa do sonho (corredor
+    # estranho); 2 = madeira e veludo, por dentro da carruagem
+    q = Q(192, 64)
     _parede_pedra(q, 0)
     _parede_antiga(q, 64)
+    _parede_madeira(q, 128)
     return q.im
 
 
@@ -368,6 +393,24 @@ def bau():
     return q.contornar()
 
 
+def banco_carruagem():
+    # assento de veludo azul encostado no fundo da carruagem (linha y = 0)
+    q, frente, _ = caixa_iso(-0.5, 0.5, -0.5, -0.05, 9, 'veludo', 'noite', 'veludo_luz')
+    _riscar(frente, 0.0, 1.0, 0.9, 0.9, 'ouro_sombra')
+    return q.contornar()
+
+
+def janela_carruagem():
+    # janela com cortina presa e a rua de Atenas de manhã
+    q = Q(18, 14)
+    q.r(0, 0, 17, 13, 'ouro_sombra')
+    q.r(2, 2, 15, 11, 'vidro_luz')
+    q.r(2, 7, 5, 11, 'pedra_parede'); q.r(6, 5, 9, 11, 'pedra_parede_luz'); q.r(10, 8, 15, 11, 'pedra_parede')
+    q.r(7, 3, 8, 4, 'pedra_parede_luz')
+    q.r(2, 2, 3, 11, 'veludo_luz'); q.r(14, 2, 15, 11, 'veludo_luz')
+    return q.im
+
+
 def porta_na_parede():
     # porta fechada desenhada na face da parede
     q = Q(14, 26)
@@ -529,6 +572,9 @@ ARTES = {
     'parede/quadro_norte_esq.png': lambda: na_face(quadro('norte'), 'esq', 7, 5),
     'parede/tapecaria_esq.png': lambda: na_face(tapecaria(), 'esq', 9, 3),
     'parede/tapecaria_dir.png': lambda: na_face(tapecaria(), 'dir', 9, 3),
+    'banco_carruagem.png': banco_carruagem,
+    'parede/janela_carruagem_esq.png': lambda: na_face(janela_carruagem(), 'esq', 7, 2),
+    'parede/janela_carruagem_dir.png': lambda: na_face(janela_carruagem(), 'dir', 7, 2),
     'parede/porta_esq.png': lambda: na_face(porta_na_parede(), 'esq', 9, 6),
     'parede/espada_placa_esq.png': lambda: na_face(espada_placa(), 'esq', 3, 10),
 }

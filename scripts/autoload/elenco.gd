@@ -9,6 +9,8 @@ var personagens: Array[Personagem] = [
 	# Capítulo 01: Althea e Pany (governanta da mansão em Atenas).
 	preload("res://data/personagens/althea.tres"),
 	preload("res://data/personagens/pany.tres"),
+	# Capítulo 01, passo 2: o duque Apollon (aparência provisória).
+	preload("res://data/personagens/apollon.tres"),
 	# Provisório: só para a sala de teste da exploração.
 	preload("res://data/personagens/personagem_teste.tres"),
 	# Figurantes genéricos dos acampamentos (não são personagens do livro).

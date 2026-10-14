@@ -51,6 +51,19 @@ PERSONAGENS = {
             sapato='#C8A08E', sapato_sombra='#9E7468',
         ),
     ),
+    # Apollon, duque de Olympia e Conselheiro Imperial (Capítulo 01). O livro
+    # não o descreve: o loiro-pálido dos Olympia, o colete azul escuro da
+    # casa e um casaco longo de duque com botões dourados são inferência,
+    # provisórios até a autora dizer como ele é.
+    'apollon': dict(
+        topo=4, tronco=13, largura=5, cabelo='rebelde', roupa='colete',
+        cores=dict(
+            cab_luz='#ECE4CC', cab='#D6CBA8', cab_sombra='#ADA07E', cab_fundo='#857857',
+            camisa_luz='#F2EFE8', camisa='#13253C', camisa_sombra='#0A1626',
+            colete='#2B3D55', colete_sombra='#13253C',
+            calca='#23262F', calca_sombra='#15171C',
+        ),
+    ),
     # Althea aos 6: o mesmo loiro-pálido, curto até os ombros, "indomável";
     # bochechas rosadas; olhos azuis saturados, como os da mãe (não os
     # desbotados dos Olympia). Vestido azul simples: inferência a partir do

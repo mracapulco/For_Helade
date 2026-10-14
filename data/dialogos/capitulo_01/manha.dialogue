@@ -96,6 +96,57 @@ Por algum tempo, não houve títulos entre eles. [ID:CAP1_061]
 
 ~ frases_duque
 
-## Fim da primeira parte da manhã; Apollon chega no próximo passo.
+## A bolha se rompe: os guardas anunciam o duque.
 O Duque de Olympia. [ID:CAP1_064]
+=> END
+
+~ duque
+
+## Apollon entra no quarto de Althea; a discussão e a tarefa.
+Nicholas: [#retrato=neutro] Bom dia, Duque de Olympia. A que devemos a honra de sua visita? [ID:CAP1_065]
+Apollon: [#retrato=neutro] Não se dirija a mim dessa maneira, Nicholas. Ainda sou seu pai, mesmo que desaprove minhas decisões. [ID:CAP1_066]
+Nicholas: [#retrato=neutro] Casar-se com a melhor amiga da mamãe não foi uma decisão. Foi covardia. [ID:CAP1_067]
+Apollon: [#retrato=neutro] Meu casamento com Danica foi uma condição imposta pelo Imperador. [ID:CAP1_068]
+Nicholas: [#retrato=neutro] Posso estar feliz por voltarmos sem aceitar o preço que pagou por isso. [ID:CAP1_069]
+Althea: [#retrato=neutro] P-parem de brigar... [ID:CAP1_070]
+Apollon: [#retrato=neutro] Não vim para discutir. Vim parabenizar minha filha e incumbir os dois de uma tarefa. [ID:CAP1_071]
+Nicholas: [#retrato=neutro] Que tarefa? [ID:CAP1_072]
+Apollon: [#retrato=neutro] Como uma nova condição para o nosso retorno, levaremos a Princesa Ophelia conosco para Olympia. Vocês deverão ir ao Palácio Imperial e trazê-la até o fim do dia. [ID:CAP1_073]
+Nicholas: [#retrato=neutro] Por que nós? Sendo o duque, não deveria fazer as honras? [ID:CAP1_074]
+Apollon: [#retrato=neutro] O Imperador exigiu por você. [ID:CAP1_075]
+Apollon: [#retrato=neutro] Feliz aniversário, Althea. [ID:CAP1_076]
+=> END
+
+~ planos
+
+## O duque saiu; Nicholas volta à mesa.
+Althea: [#retrato=neutro] Está tudo bem, Nick? [ID:CAP1_077]
+Nicholas: [#retrato=neutro] Teremos que mudar os planos de hoje, Thea. Que tal almoçarmos com a princesa naquele restaurante de que você gosta? [ID:CAP1_078]
+Althea: [#retrato=neutro] É uma ótima ideia! Ah, e eu posso levar minha espada? [ID:CAP1_079]
+Nicholas: [#retrato=neutro] Não. [ID:CAP1_080]
+Althea: [#retrato=neutro] Mas... [ID:CAP1_081]
+Nicholas: [#retrato=neutro] Definitivamente não. [ID:CAP1_082]
+=> END
+
+~ frases_por_que
+
+## O que fica na cabeça de Nicholas.
+Por que o Imperador havia exigido justamente a presença dele? [ID:CAP1_083]
+=> END
+
+~ frases_carruagem
+
+## Na carruagem rumo ao Palácio Imperial.
+Havia dois meses que a Imperatriz Callie falecera. [ID:CAP1_084]
+=> END
+
+~ carruagem
+
+## Os dois na carruagem, em silêncio quebrado.
+Althea: [#retrato=neutro] Está bravo comigo, Nick? [ID:CAP1_085]
+Nicholas: [#retrato=neutro] O quê? Não, Thea, eu jamais conseguiria... [ID:CAP1_086]
+Althea: [#retrato=neutro] Então, por que parece chateado? [ID:CAP1_087]
+Nicholas: [#retrato=neutro] Porque estou. Não gostei que o Duque nos mandou buscar a Princesa. [ID:CAP1_088]
+Althea: [#retrato=neutro] ...Não o chame assim. Ele é o papai. [ID:CAP1_089]
+Silêncio. [ID:CAP1_090]
 => END

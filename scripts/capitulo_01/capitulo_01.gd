@@ -12,8 +12,10 @@ extends Node2D
 ## 4. quarto_althea: acordar Althea (a cama); ela se senta, pula da cama e
 ##    abre o embrulho; depois vai para a mesa de chá, e falar com ela à mesa
 ##    é sentar junto.
-## 5. fim: o duque é anunciado; o passo seguinte (Apollon) ainda não existe,
-##    então o jogo volta ao menu.
+## 5. duque: Apollon entra, discute com Nicholas e manda os dois buscarem a
+##    Princesa Ophelia; depois Althea e Nicholas mudam os planos do dia.
+## 6. carruagem: a caminho do Palácio Imperial ("Está bravo comigo, Nick?").
+## 7. fim: o palácio (passo 3) ainda não existe, então o jogo volta ao menu.
 ## As salas são montadas por código ([SalaMontada]); os textos estão em
 ## data/dialogos/capitulo_01/manha.dialogue.
 
@@ -23,12 +25,17 @@ const ROTEIRO := preload("res://data/dialogos/capitulo_01/manha.dialogue")
 const CENA_JOGADOR := preload("res://scenes/capitulo_01/nicholas_11.tscn")
 const QUADROS_PIJAMA := preload("res://assets/art/personagens/nicholas/nicholas_11_pijama_exploracao.tres")
 const QUADROS_VESTIDO := preload("res://assets/art/personagens/nicholas/nicholas_11_exploracao.tres")
+const QUADROS_APOLLON := preload("res://assets/art/personagens/apollon/apollon_exploracao.tres")
 const QUADROS_ALTHEA := preload("res://assets/art/personagens/althea/althea_6_exploracao.tres")
 const CRIADA := preload("res://assets/art/placeholders/exploracao/criada_provisoria.png")
 const ARTE := "res://assets/art/capitulo_01/"
 ## Móveis em caixa isométrica (armário, baú): o centro da casa fica a esta
 ## altura da base da imagem (tools/arte/gerar_capitulo_01.py, PE_CAIXA).
 const PE_CAIXA := 17.0
+## Onde fica o assento do banco da carruagem, acima do centro da casa, e a
+## linha do quadril nas folhas dos personagens (quadros de 32×48).
+const ALTURA_ASSENTO := 12.0
+const LINHA_QUADRIL := 37
 
 ## Luz de cada momento.
 const TOM_SONHO := Color(1.0, 0.7, 0.5)
@@ -228,8 +235,8 @@ func montar_quarto_althea() -> void:
 	# Pany acende as seis velas enquanto as criadas arrumam o café.
 	_objeto("carrinho", "carrinho_bolo_aceso.png", Vector2i(5, 4))
 	_objeto("pany", "pany_provisoria.png", Vector2i(5, 2))
-	sala.adicionar_objeto("Criada1", CRIADA, Vector2i(6, 3))
-	sala.adicionar_objeto("Criada2", CRIADA, Vector2i(6, 2))
+	objetos["criada_1"] = sala.adicionar_objeto("Criada1", CRIADA, Vector2i(6, 3))
+	objetos["criada_2"] = sala.adicionar_objeto("Criada2", CRIADA, Vector2i(6, 2))
 	_pendurar({"arandela_esq": Vector2i(2, 0), "quadro_olympia_esq": Vector2i(4, 0),
 		"arandela_esq#2": Vector2i(6, 0), "tapecaria_dir": Vector2i(0, 4)})
 	_entrar(Vector2i(3, 3))
@@ -300,6 +307,59 @@ func lado_da_cama_perto_de_nicholas() -> Vector2i:
 	return melhor
 
 
+## Personagem sentado no banco: o quadro parado, de frente, cortado no quadril.
+func _sentado(nome: String, quadros: SpriteFrames, casa: Vector2i) -> Sprite2D:
+	var quadro := quadros.get_frame_texture(&"parado_frente", 0) as AtlasTexture
+	var corte := AtlasTexture.new()
+	corte.atlas = quadro.atlas
+	corte.region = Rect2(quadro.region.position, Vector2(quadro.region.size.x, LINHA_QUADRIL))
+	var sprite := Sprite2D.new()
+	sprite.name = nome
+	sprite.texture = corte
+	sprite.centered = false
+	sprite.position = sala.centro(casa)
+	sprite.offset = Vector2(-quadro.region.size.x / 2.0, -ALTURA_ASSENTO - LINHA_QUADRIL)
+	sala.add_child(sprite)
+	return sprite
+
+
+## Conversa na caixa e, quando ela fecha, Nicholas continua parado (a caixa
+## o solta sozinha um instante depois de fechar).
+func _falar_travado(marcador: String) -> void:
+	await _falar(marcador)
+	if mostrar_dialogos:
+		await get_tree().create_timer(0.25).timeout
+	_travar(true)
+
+
+func _casa_de(no: Node2D) -> Vector2i:
+	return sala.chao.local_to_map(no.position)
+
+
+## Casa do chão ao lado de [param casa] que ninguém ocupa, a mais perto de
+## [param de_onde].
+func _casa_livre_perto(casa: Vector2i, de_onde: Vector2i) -> Vector2i:
+	var ocupadas: Array[Vector2i] = [_casa_de(jogador)]
+	for nome: String in objetos:
+		var objeto: Node2D = objetos[nome]
+		if is_instance_valid(objeto) and objeto.get_parent() == sala and not objeto is Sprite2D:
+			ocupadas.append(_casa_de(objeto))
+	var melhor := casa
+	var menor := INF
+	for passo: Vector2i in [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1),
+			Vector2i(1, 1), Vector2i(-1, -1), Vector2i(1, -1), Vector2i(-1, 1)]:
+		var vizinha := casa + passo
+		if vizinha.x < 1 or vizinha.y < 1 or vizinha.x >= sala.largura or vizinha.y >= sala.profundidade:
+			continue
+		if ocupadas.has(vizinha):
+			continue
+		var distancia := Vector2(vizinha - de_onde).length()
+		if distancia < menor:
+			menor = distancia
+			melhor = vizinha
+	return melhor
+
+
 ## Uma pessoa anda até [param destino], com a animação de andar virada para lá.
 func _caminhar(pessoa: Node2D, destino: Vector2, tempo: float) -> void:
 	var visual: AnimatedSprite2D = pessoa.get_node("Visual")
@@ -333,7 +393,61 @@ func sentar_a_mesa() -> void:
 	_travar(true)
 	await _frases("frases_mesa")
 	await _frases("frases_duque")
+	await chegada_do_duque()
+
+
+# --- 5. o duque ------------------------------------------------------------
+
+func chegada_do_duque() -> void:
+	_mudar("duque")
+	# Apollon entra pela porta e vai até Nicholas.
+	var apollon := sala.adicionar_pessoa("Apollon", QUADROS_APOLLON, Vector2i(5, 1))
+	objetos["apollon"] = apollon
+	apollon.modulate.a = 0.0
+	await create_tween().tween_property(apollon, "modulate:a", 1.0, maxf(0.4 * escala_tempo, 0.01)).finished
+	await _caminhar(apollon, sala.centro(_casa_livre_perto(_casa_de(jogador), Vector2i(5, 1))), 1.4)
+	_virar(apollon, jogador.position)
+	await _falar_travado("duque")
+	# O duque parte quase tão depressa quanto chegou.
+	await _caminhar(apollon, sala.centro(Vector2i(5, 1)), 1.4)
+	await create_tween().tween_property(apollon, "modulate:a", 0.0, maxf(0.4 * escala_tempo, 0.01)).finished
+	objetos.erase("apollon")
+	apollon.queue_free()
+	await _falar_travado("planos")
+	await _frases("frases_por_que")
 	await _escurecer()
+	await montar_carruagem()
+
+
+# --- 6. a carruagem ----------------------------------------------------------
+
+func montar_carruagem() -> void:
+	_nova_sala(4, 3, TOM_AMANHECER)
+	sala.parede_madeira = true
+	_pendurar({"janela_carruagem_esq": Vector2i(2, 0), "janela_carruagem_dir": Vector2i(0, 2)})
+	for x in [1, 2, 3]:
+		var banco := sala.adicionar_objeto("Banco%d" % x, load(ARTE + "banco_carruagem.png"), Vector2i(x, 1),
+			false, false, PE_CAIXA)
+		banco.position.y -= 2.0
+	# Os dois lado a lado no banco do fundo: só da cintura para cima, com o
+	# quadril no assento (o banco cobre as pernas).
+	objetos["althea"] = _sentado("Althea", QUADROS_ALTHEA, Vector2i(1, 1))
+	_entrar(Vector2i(2, 1))
+	_travar(true)
+	jogador.get_node("Corpo").visible = false
+	jogador.get_node("Sombra").visible = false
+	objetos["nicholas_sentado"] = _sentado("NicholasSentado", QUADROS_VESTIDO, Vector2i(2, 1))
+	_mudar("carruagem")
+	var balanco := create_tween().set_loops()
+	balanco.tween_property(sala, "position:y", 1.0, 0.35)
+	balanco.tween_property(sala, "position:y", 0.0, 0.35)
+	await _clarear()
+	await _frases("frases_carruagem")
+	await _falar_travado("carruagem")
+	await _escurecer()
+	balanco.kill()
+	jogador.get_node("Corpo").visible = true
+	jogador.get_node("Sombra").visible = true
 	_mudar("fim")
 	await _frases_soltas([tr("CAP1_PROVISORIO_CONTINUA")])
 	cena_pedida = cena_depois

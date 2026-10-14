@@ -32,6 +32,8 @@ const RAIO_TOQUE := 28.0
 @export var piso := "assoalho"
 ## Parede lisa, sem a pedra da Casa Olympia (o corredor estranho do sonho).
 @export var parede_lisa := false
+## Madeira e veludo, por dentro da carruagem.
+@export var parede_madeira := false
 
 var chao: TileMapLayer
 var obstaculos: TileMapLayer
@@ -61,7 +63,7 @@ func _ready() -> void:
 			chao.set_cell(Vector2i(x, y), FONTE_PISO, Vector2i(_quadro_do_piso(x, y), 0))
 			var parede := x == 0 or y == 0
 			if parede and not _vaos.has(Vector2i(x, y)):
-				obstaculos.set_cell(Vector2i(x, y), FONTE_PAREDE, Vector2i(1 if parede_lisa else 0, 0))
+				obstaculos.set_cell(Vector2i(x, y), FONTE_PAREDE, Vector2i(_quadro_da_parede(), 0))
 	ambiente = CanvasModulate.new()
 	ambiente.name = "Ambiente"
 	ambiente.color = tom
@@ -71,6 +73,12 @@ func _ready() -> void:
 	navegacao.chao = chao
 	navegacao.obstaculos = obstaculos
 	add_child(navegacao)
+
+
+func _quadro_da_parede() -> int:
+	if parede_madeira:
+		return 2
+	return 1 if parede_lisa else 0
 
 
 func _quadro_do_piso(x: int, y: int) -> int:

@@ -50,10 +50,55 @@ func test_d_anda_para_a_direita() -> void:
 	assert_gt(personagem.global_position.x, x_inicial + 10.0)
 
 
-func test_correr_vai_mais_longe() -> void:
-	var andando := await _andar(["mover_direita"], 20)
-	var correndo := await _andar(["mover_direita", "correr"], 20)
-	assert_gt(correndo, andando * 1.5)
+func test_correr_e_mais_rapido_que_andar() -> void:
+	Input.action_press("mover_direita")
+	await wait_physics_frames(4)
+	var andando := personagem.velocity.length()
+	Input.action_press("correr")
+	await wait_physics_frames(30)
+	var correndo := personagem.velocity.length()
+	assert_almost_eq(andando, personagem.velocidade, 1.0)
+	assert_almost_eq(correndo, personagem.velocidade * personagem.multiplicador_corrida, 1.0)
+
+
+func _centro_da_casa_mais_perto() -> Vector2:
+	return personagem.centro_da_casa(personagem.casa_de(personagem.global_position))
+
+
+func test_soltar_a_tecla_termina_o_passo_no_centro_da_casa() -> void:
+	var inicio := personagem.casa_de(personagem.global_position)
+	await _andar(["mover_tras"], 5)
+	assert_true(personagem.indo_para_casa(), "soltou no meio do passo")
+	await wait_seconds(1.0)
+	assert_false(personagem.indo_para_casa())
+	assert_eq(personagem.casa_de(personagem.global_position), inicio + Vector2i(1, 0), "S anda uma casa em x")
+	assert_eq(personagem.global_position, _centro_da_casa_mais_perto())
+
+
+func test_cada_tecla_anda_uma_casa_na_sua_linha() -> void:
+	assert_eq(PersonagemExploracao.passo_na_grade(Vector2(0, -1)), Vector2i(-1, 0), "W")
+	assert_eq(PersonagemExploracao.passo_na_grade(Vector2(0, 1)), Vector2i(1, 0), "S")
+	assert_eq(PersonagemExploracao.passo_na_grade(Vector2(1, 0)), Vector2i(0, -1), "D")
+	assert_eq(PersonagemExploracao.passo_na_grade(Vector2(-1, 0)), Vector2i(0, 1), "A")
+	assert_eq(PersonagemExploracao.passo_na_grade(Vector2(1, -1).normalized()), Vector2i(-1, -1), "W+D sobe reto")
+
+
+func test_nao_entra_na_casa_de_um_figurante() -> void:
+	var guarda: Node2D = sala.get_node("GuardaTeste")
+	var casa_guarda := personagem.casa_de(guarda.global_position)
+	# Na casa logo acima e à esquerda do guarda: S o levaria para a casa dele.
+	personagem.global_position = personagem.centro_da_casa(casa_guarda + Vector2i(-1, 0))
+	await wait_physics_frames(2)
+	await _andar(["mover_tras"], 30)
+	await wait_seconds(0.5)
+	assert_eq(personagem.casa_de(personagem.global_position), casa_guarda + Vector2i(-1, 0), "fica na casa vizinha")
+	assert_eq(personagem.global_position, _centro_da_casa_mais_perto())
+
+
+func test_toque_para_no_centro_de_uma_casa() -> void:
+	personagem.ir_para(personagem.global_position + Vector2(70, 20))
+	await wait_for_signal(personagem.chegou, 5)
+	assert_eq(personagem.global_position, _centro_da_casa_mais_perto())
 
 
 func test_teclado_cancela_o_clique() -> void:

@@ -20,7 +20,6 @@ const PASTA_SONS_ANIMAIS := "res://assets/audio/sfx/animais/"
 const SOM_FOGUEIRA := "res://assets/audio/sfx/fogueira.wav"
 ## Música de fundo de cada acampamento: <id do bioma>.wav (em loop).
 const PASTA_MUSICAS := "res://assets/audio/music/acampamentos/"
-const BARRAMENTO_MUSICA := &"Musica"
 const BARRAMENTO_EFEITOS := &"Efeitos"
 ## Quadros da fogueira e do mercador parado (faixas de 4 quadros).
 const QUADROS_FOGO := 4
@@ -52,7 +51,6 @@ var trocar_de_cena := true
 var vida: VidaAcampamento
 var som_companheiro: AudioStreamPlayer2D
 var som_fogueira: AudioStreamPlayer2D
-var musica: AudioStreamPlayer
 ## Movimento do companheiro em andamento (para não sobrepor dois).
 var _reacao: Tween
 var _tempo_fogo := 0.0
@@ -174,15 +172,13 @@ func _preparar_sons() -> void:
 	if ResourceLoader.exists(SOM_FOGUEIRA):
 		som_fogueira.stream = load(SOM_FOGUEIRA)
 		som_fogueira.play()
-	musica = AudioStreamPlayer.new()
-	musica.name = "Musica"
-	musica.bus = BARRAMENTO_MUSICA
-	musica.volume_db = -6.0
-	add_child(musica)
-	var caminho_musica := PASTA_MUSICAS + (bioma.id if bioma else "") + ".wav"
-	if bioma and ResourceLoader.exists(caminho_musica):
-		musica.stream = load(caminho_musica)
-		musica.play()
+	# O autoload Trilha faz o fade com a música do mapa.
+	if bioma:
+		Trilha.tocar(musica_do_acampamento())
+
+
+func musica_do_acampamento() -> String:
+	return PASTA_MUSICAS + bioma.id + ".wav"
 
 
 func _process(delta: float) -> void:

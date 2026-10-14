@@ -97,6 +97,23 @@ const VOLUME_CORRERIA_PORTA := 0.9
 ## O caminho de Nicholas: cama, porta do quarto, corredor e porta da duquesa.
 const CAMINHO: Array[Vector2] = [Vector2(-11.2, 8.6), Vector2(-9.0, 3.9), Vector2(-9.0, 1.8),
 	Vector2(9.0, 1.8), Vector2(9.0, 3.9)]
+## Quanto de volume por segundo cada camada anda até o alvo.
+const RAPIDEZ := {"muda": 4.0, "final": 0.12, "fim": 0.5}
+const RAPIDEZ_PADRAO := 0.8
+
+## Distância entre um passo e outro (m): passos de criança sem pressa, e mais
+## largos correndo. Cada passo sorteia um entre oito sons, sem repetir o último.
+const PASSO := 0.7
+const PASSO_CORRENDO := 1.0
+const VARIACOES_DE_PASSO := 8
+const PASSOS := {
+	"madeira": EFEITOS + "passo_madeira_%d.ogg",
+	"pedra": EFEITOS + "passo_pedra_%d.ogg",
+}
+const PULO := EFEITOS + "pulo.ogg"
+const ATERRISSAGEM := EFEITOS + "aterrissagem_%s.ogg"
+## Tempo mínimo no ar para a chegada ao chão fazer barulho (descer de um degrau não conta).
+const TEMPO_NO_AR := 0.15
 
 var etapa := ""
 var _camadas := {}

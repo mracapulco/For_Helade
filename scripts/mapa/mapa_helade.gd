@@ -32,6 +32,10 @@ const CENTRO_TITULO := Vector2(1450, 148)
 const DESCIDA_NOME := 30.0
 ## Duração da passagem entre dia e noite, em segundos.
 const TROCA_PERIODO := 1.2
+## Músicas do mapa (tema principal do jogo), em loop; trocam junto com o período.
+const MUSICA_DIA := "res://assets/audio/music/mapa/mapa_dia.wav"
+const MUSICA_NOITE := "res://assets/audio/music/mapa/mapa_noite.wav"
+const VOLUME_MUSICA_DB := -6.0
 ## Tom de Nicholas à noite, para não brilhar mais que o mapa.
 const COR_LUAR := Color(0.72, 0.76, 0.9)
 const ACOES_DIRECAO := {
@@ -79,6 +83,8 @@ var _rotulos: Dictionary[Label, Vector2] = {}
 var _camada_rotulos: CanvasLayer
 ## Nome de cada região escrito no mapa: id -> Label.
 var _nomes: Dictionary[String, Label] = {}
+var musica_dia: AudioStreamPlayer
+var musica_noite: AudioStreamPlayer
 var _troca_periodo: Tween
 var _quadros_a_pe: SpriteFrames
 var _de_barco := false
@@ -116,6 +122,8 @@ func _ready() -> void:
 	Mundo.descoberto.connect(_ao_descobrir)
 	Mundo.periodo_mudou.connect(_ao_mudar_periodo)
 	_criar_rotulos()
+	musica_dia = _tocador_de_musica("MusicaDia", MUSICA_DIA)
+	musica_noite = _tocador_de_musica("MusicaNoite", MUSICA_NOITE)
 	_aplicar_periodo(1.0 if Mundo.noite else 0.0)
 	colocar_em(inicio)
 
@@ -297,6 +305,20 @@ func _aplicar_periodo(quanto: float) -> void:
 	lamparinas.acesas = quanto
 	nevoa.definir_noite(quanto)
 	nicholas.modulate = Color.WHITE.lerp(COR_LUAR, quanto)
+	# As duas tocam sempre; o período só cruza os volumes.
+	musica_dia.volume_db = VOLUME_MUSICA_DB + linear_to_db(maxf(1.0 - quanto, 0.0001))
+	musica_noite.volume_db = VOLUME_MUSICA_DB + linear_to_db(maxf(quanto, 0.0001))
+
+
+func _tocador_de_musica(nome: String, caminho: String) -> AudioStreamPlayer:
+	var tocador := AudioStreamPlayer.new()
+	tocador.name = nome
+	tocador.bus = &"Musica"
+	add_child(tocador)
+	if ResourceLoader.exists(caminho):
+		tocador.stream = load(caminho)
+		tocador.play()
+	return tocador
 
 
 func _chegar() -> void:

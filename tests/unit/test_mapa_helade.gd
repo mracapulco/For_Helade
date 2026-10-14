@@ -220,3 +220,16 @@ func test_nicholas_menor_no_mapa_sem_mudar_a_camera() -> void:
 	assert_almost_eq(mapa.nicholas.scale.x, MapaHelade.ESCALA_NICHOLAS, 0.001)
 	var camera := mapa.nicholas.get_node("Camera") as Camera2D
 	assert_almost_eq(camera.global_scale.x, 1.0, 0.001, "a câmera não aproxima nem afasta")
+
+
+func test_musica_do_mapa_troca_com_o_periodo() -> void:
+	assert_not_null(mapa.musica_dia.stream, "música do dia")
+	assert_not_null(mapa.musica_noite.stream, "música da noite")
+	assert_true(mapa.musica_dia.playing)
+	assert_eq(mapa.musica_dia.bus, &"Musica")
+	assert_gt(mapa.musica_dia.volume_db, mapa.musica_noite.volume_db + 30.0, "de dia toca a do dia")
+	Mundo.definir_noite(true)
+	await wait_seconds(MapaHelade.TROCA_PERIODO + 0.2)
+	assert_gt(mapa.musica_noite.volume_db, mapa.musica_dia.volume_db + 30.0, "de noite toca a da noite")
+	for tocador: AudioStreamPlayer in [mapa.musica_dia, mapa.musica_noite]:
+		assert_eq((tocador.stream as AudioStreamWAV).loop_mode, AudioStreamWAV.LOOP_FORWARD)

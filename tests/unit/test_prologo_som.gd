@@ -16,7 +16,7 @@ func test_toda_etapa_da_sequencia_tem_sons() -> void:
 func test_camadas_das_etapas_existem() -> void:
 	for etapa: String in SomPrologo.ETAPAS:
 		for camada: String in SomPrologo.ETAPAS[etapa]:
-			assert_true(SomPrologo.CAMADAS.has(camada), "%s em %s" % [camada, etapa])
+			assert_true(SomPrologo.CAMADAS.has(camada) or camada == SomPrologo.CORACAO, "%s em %s" % [camada, etapa])
 
 
 func test_quando_althea_nasce_muda_tudo_fica_em_silencio() -> void:
@@ -41,8 +41,8 @@ func test_tudo_toca_no_barramento_efeitos() -> void:
 	await wait_process_frames(2)
 	var som: SomPrologo = cena.get_node("Som")
 	var tocadores := som.find_children("*", "AudioStreamPlayer", false, false)
-	# camadas + passos, aterrissagem por chão + pulo
-	assert_eq(tocadores.size(), SomPrologo.CAMADAS.size() + 2 * SomPrologo.PASSOS.size() + 1)
+	# camadas + passos, aterrissagem por chão + pulo + coração
+	assert_eq(tocadores.size(), SomPrologo.CAMADAS.size() + 2 * SomPrologo.PASSOS.size() + 2)
 	for tocador: AudioStreamPlayer in tocadores:
 		assert_eq(tocador.bus, &"Efeitos", tocador.name)
 	assert_true((som.get_node("Caos") as AudioStreamPlayer).stream.loop, "ambiente em laço")
@@ -53,8 +53,24 @@ func test_no_corredor_a_correria_e_o_coracao_crescem_perto_da_mae() -> void:
 	var perto := SomPrologo.alvos_explorando(Vector3(8, 1, 1.8))
 	assert_gt(perto["correria"], longe["correria"])
 	assert_gt(perto["coracao"], longe["coracao"])
-	assert_gt(SomPrologo.ritmo_explorando(Vector3(8, 1, 1.8)), SomPrologo.ritmo_explorando(Vector3(-9, 1, 1.8)))
-	assert_false(SomPrologo.alvos_explorando(Vector3(-11, 1, 8.6)).has("coracao"), "no quarto o coração ainda está calmo")
+	assert_gt(SomPrologo.bpm_explorando(Vector3(8, 1, 1.8)), SomPrologo.bpm_explorando(Vector3(-9, 1, 1.8)))
+
+
+func test_coracao_ja_bate_baixinho_no_quarto() -> void:
+	var cama := SomPrologo.alvos_explorando(Vector3(-11.2, 1, 8.6))
+	var porta_do_quarto := SomPrologo.alvos_explorando(Vector3(-9, 1, 4.5))
+	var corredor := SomPrologo.alvos_explorando(Vector3(0, 1, 1.8))
+	assert_gt(cama["coracao"], 0.0, "o coração já bate no quarto")
+	assert_lt(cama["coracao"], 0.2, "baixinho")
+	assert_gt(porta_do_quarto["coracao"], cama["coracao"])
+	assert_gt(corredor["coracao"], porta_do_quarto["coracao"])
+	assert_lt(SomPrologo.bpm_explorando(Vector3(-11.2, 1, 8.6)), 95.0, "calmo na cama")
+
+
+func test_batidas_variam_e_existem() -> void:
+	assert_gte(SomPrologo.VARIACOES_DE_BATIDA, 4)
+	for i in range(1, SomPrologo.VARIACOES_DE_BATIDA + 1):
+		assert_not_null(load(SomPrologo.BATIDAS % i))
 
 
 func test_pes_descalcos_soam_diferente_na_pedra_e_no_assoalho() -> void:
@@ -74,6 +90,7 @@ func test_volume_desliza_ate_o_silencio_da_muda() -> void:
 	await wait_seconds(0.4)
 	for camada: String in SomPrologo.CAMADAS:
 		assert_eq(som.volume(camada), 0.0, camada)
+	assert_eq(som.volume(SomPrologo.CORACAO), 0.0, "nem o coração")
 
 
 func test_pulo_tem_som() -> void:

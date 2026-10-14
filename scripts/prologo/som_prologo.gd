@@ -27,7 +27,6 @@ const CAMADAS := {
 	"caos": AMBIENTE + "caos.ogg",
 	"correria": AMBIENTE + "correria.ogg",
 	"sussurros": AMBIENTE + "sussurros.ogg",
-	"coracao": EFEITOS + "coracao.ogg",
 	"respiracao": EFEITOS + "respiracao.ogg",
 	"choro": EFEITOS + "choro.ogg",
 }
@@ -76,7 +75,24 @@ const FADE_MUSICA := {"caos": 0.8, "nos_bracos": 4.0, "varanda": 4.0, "final": 2
 const FADE_MUSICA_PADRAO := 2.0
 
 ## Batimento (velocidade do laço do coração; 1 = 100 por minuto).
-const RITMO_CORACAO := {"caos": 1.4, "dossel": 1.55, "choro": 1.35, "segurar": 1.2}
+## O coração não é um laço: cada batida é tocada na hora, sorteando um entre
+## seis sons e variando um pouco o intervalo, como um coração de verdade.
+## O volume dele segue os alvos como as camadas ("coracao").
+const CORACAO := "coracao"
+const BATIDAS := EFEITOS + "coracao_%d.ogg"
+const VARIACOES_DE_BATIDA := 6
+## Batimentos por minuto de cada etapa (uma criança assustada passa dos 150).
+const BPM_CORACAO := {"caos": 145.0, "dossel": 160.0, "muda": 0.0, "nome": 0.0, "olhares": 0.0,
+	"choro": 140.0, "segurar": 125.0, "nos_bracos": 105.0}
+const BPM_PADRAO := 100.0
+## Do quarto aos aposentos: o coração já bate no quarto, baixinho e calmo, e
+## cresce e acelera conforme Nicholas chega perto da porta da duquesa.
+const BPM_QUARTO := 88.0
+const BPM_PORTA := 135.0
+const VOLUME_CORACAO_QUARTO := 0.12
+const VOLUME_CORACAO_PORTA := 0.7
+const PORTA_DUQUESA := Vector3(9.0, 0.0, 3.9)
+const DISTANCIA_DA_CAMA := 22.0
 ## Quanto de volume por segundo cada camada anda até o alvo.
 const RAPIDEZ := {"muda": 4.0, "final": 0.12, "fim": 0.5}
 const RAPIDEZ_PADRAO := 0.8
@@ -102,6 +118,9 @@ var _passos := {}
 var _andado := 0.0
 var _ultima_posicao := Vector3.ZERO
 var _pulo: AudioStreamPlayer
+var _coracao: AudioStreamPlayer
+var _bpm := BPM_QUARTO
+var _ate_a_batida := 0.0
 var _aterrissagens := {}
 var _no_chao := true
 var _no_ar := 0.0
@@ -112,17 +131,22 @@ var _no_ar := 0.0
 ## tochas, a correria cada vez mais perto e o coração acelerando.
 static func alvos_explorando(posicao: Vector3) -> Dictionary:
 	if posicao.z > 3.9 and posicao.x > 4.0:
-		return {"caos": 0.85, "coracao": 0.6, "fogo": 0.25}
+		return {"caos": 0.85, CORACAO: 0.6, "fogo": 0.25}
+	var perto := perto_da_duquesa(posicao)
+	var coracao := lerpf(VOLUME_CORACAO_QUARTO, VOLUME_CORACAO_PORTA, perto)
 	if posicao.z > 3.9:
-		return {"vento_mar": 0.35, "correria": 0.3}
-	var perto := clampf((posicao.x + 9.0) / 18.0, 0.0, 1.0) # da porta do quarto à dos aposentos
-	return {"vento_mar": 0.12, "fogo": 0.45, "correria": 0.4 + 0.4 * perto, "coracao": 0.25 + 0.35 * perto}
+		return {"vento_mar": 0.35, "correria": 0.3, CORACAO: coracao}
+	return {"vento_mar": 0.12, "fogo": 0.45, "correria": 0.4 + 0.4 * perto, CORACAO: coracao}
 
 
-static func ritmo_explorando(posicao: Vector3) -> float:
-	if posicao.z > 3.9:
-		return 1.0
-	return 1.0 + 0.35 * clampf((posicao.x + 9.0) / 18.0, 0.0, 1.0)
+## 0 na cama de Nicholas, 1 na porta dos aposentos da duquesa.
+static func perto_da_duquesa(posicao: Vector3) -> float:
+	var distancia := Vector2(posicao.x - PORTA_DUQUESA.x, posicao.z - PORTA_DUQUESA.z).length()
+	return clampf(1.0 - distancia / DISTANCIA_DA_CAMA, 0.0, 1.0)
+
+
+static func bpm_explorando(posicao: Vector3) -> float:
+	return lerpf(BPM_QUARTO, BPM_PORTA, perto_da_duquesa(posicao))
 
 
 static func chao_em(posicao: Vector3) -> String:
@@ -154,6 +178,13 @@ func _ready() -> void:
 		_passos[chao] = _novo_tocador("Passos" + chao.capitalize(), sorteio, -9.0)
 		_aterrissagens[chao] = _novo_tocador("Aterrissagem" + chao.capitalize(), load(ATERRISSAGEM % chao), -6.0)
 	_pulo = _novo_tocador("Pulo", load(PULO), -8.0)
+	var batidas := AudioStreamRandomizer.new()
+	batidas.playback_mode = AudioStreamRandomizer.PLAYBACK_RANDOM_NO_REPEATS
+	for i in range(1, VARIACOES_DE_BATIDA + 1):
+		batidas.add_stream(-1, load(BATIDAS % i))
+	batidas.random_pitch = 1.03
+	_coracao = _novo_tocador("Coracao", batidas, SILENCIO_DB)
+	_volumes[CORACAO] = 0.0
 	if sequencia:
 		sequencia.etapa_mudou.connect(_ao_mudar_etapa)
 	_tocar_musica("")
@@ -205,10 +236,25 @@ func _process(delta: float) -> void:
 	for nome: String in _camadas:
 		_volumes[nome] = move_toward(_volumes[nome], alvo.get(nome, 0.0), passo)
 		_camadas[nome].volume_db = maxf(SILENCIO_DB, linear_to_db(_volumes[nome]))
-	var ritmo: float = ritmo_explorando(_posicao()) if etapa.is_empty() else RITMO_CORACAO.get(etapa, 1.0)
-	var coracao: AudioStreamPlayer = _camadas["coracao"]
-	coracao.pitch_scale = move_toward(coracao.pitch_scale, ritmo, delta * 0.2)
+	_volumes[CORACAO] = move_toward(_volumes[CORACAO], alvo.get(CORACAO, 0.0), passo)
+	_bater_coracao(delta)
 	_contar_passos()
+
+
+## Toca a próxima batida quando chega a hora. O ritmo muda aos poucos e cada
+## intervalo varia um pouco, como num coração de verdade.
+func _bater_coracao(delta: float) -> void:
+	var bpm: float = bpm_explorando(_posicao()) if etapa.is_empty() else BPM_CORACAO.get(etapa, BPM_PADRAO)
+	_bpm = move_toward(_bpm, bpm, delta * 12.0)
+	_ate_a_batida -= delta
+	if _ate_a_batida > 0.0:
+		return
+	_ate_a_batida = 60.0 / maxf(_bpm, 40.0) * randf_range(0.96, 1.04)
+	var volume := _volumes[CORACAO] as float
+	if volume <= 0.001 or _bpm <= 0.0:
+		return
+	_coracao.volume_db = linear_to_db(volume * randf_range(0.85, 1.0))
+	_coracao.play()
 
 
 func _contar_passos() -> void:

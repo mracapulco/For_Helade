@@ -6,7 +6,8 @@ arquivo fica num lugar fixo, então trocar por uma gravação é só substituir.
 Os laços são feitos para emendar sem estalo: os filtros trabalham no espectro
 (o que é circular) e o que passa do fim volta para o começo.
 
-Uso: python3 tools/audio/gerar_sons_prologo.py
+Uso: python3 tools/audio/gerar_sons_prologo.py           (todos)
+     python3 tools/audio/gerar_sons_prologo.py coracao   (só as batidas do coração)
 (precisa de numpy e do ffmpeg com libvorbis)
 """
 
@@ -329,15 +330,31 @@ def sussurros() -> np.ndarray:
     return normalizar(eco(faixa(vozes, 300, 9000), 1.4, 0.45), 0.55)
 
 
-def coracao() -> np.ndarray:
-    """Seis batidas a 100 por minuto; a velocidade sobe pelo pitch_scale."""
-    batida = 0.6
-    n = amostras(batida * 6)
-    trilha = np.zeros(n)
-    for i in range(6):
-        colocar(trilha, baque(amostras(0.2), 52, 0.045), amostras(i * batida), 1.0)
-        colocar(trilha, baque(amostras(0.2), 64, 0.035), amostras(i * batida + 0.24), 0.65)
-    return normalizar(faixa(trilha, 0, 250), 0.8)
+def batida_coracao() -> np.ndarray:
+    """Uma batida ("tum-tá") como Nicholas ouve o próprio coração, por dentro:
+    grave, abafada e macia, sem estalo. O ritmo não está no arquivo: o jogo toca
+    cada batida na hora, com pequenas variações, para não soar como relógio.
+    Um pouco de saturação dá harmônicos para a batida aparecer até em alto-falante pequeno."""
+    n = amostras(0.75)
+    t = tempo(n)
+    som = np.zeros(n)
+    for inicio, f, queda, peso in ((0.0, rng.uniform(42, 52), rng.uniform(0.07, 0.09), 1.0),
+                                   (rng.uniform(0.26, 0.31), rng.uniform(55, 68), rng.uniform(0.05, 0.065),
+                                    rng.uniform(0.5, 0.7))):
+        m = n - amostras(inicio)
+        tt = tempo(m)
+        ataque = np.clip(tt / rng.uniform(0.012, 0.02), 0, 1) ** 2
+        corpo = np.sin(2 * np.pi * f * tt * (1 - 0.6 * tt)) * ataque * np.exp(-tt / queda)
+        corpo += 0.5 * np.sin(2 * np.pi * f * 1.9 * tt) * ataque * np.exp(-tt / (queda * 0.6))
+        massa = faixa(ruido(m), 15, 110, 2.0) * ataque * np.exp(-tt / (queda * 1.3))
+        som[amostras(inicio):] += peso * (corpo + 0.6 * massa / max(np.std(massa), 1e-9) * np.std(corpo))
+    # o sangue empurrado depois da batida: um sopro bem grave
+    sopro = faixa(ruido(n), 20, 90, 2.0) * np.exp(-((t - 0.18) / 0.12) ** 2)
+    som += 0.25 * sopro / max(np.max(np.abs(sopro)), 1e-9) * np.max(np.abs(som))
+    som = np.tanh(2.2 * som / max(np.max(np.abs(som)), 1e-9))
+    som = faixa(som, 18, 260, 2.0)
+    som *= np.minimum(1.0, np.linspace(8, 0, n))
+    return normalizar(som, 0.85)
 
 
 def respiracao() -> np.ndarray:
@@ -420,6 +437,11 @@ def um_choro(dur: float, intensidade: float) -> np.ndarray:
 
 
 def main() -> None:
+    import sys
+    if sys.argv[1:] == ["coracao"]:  # refaz só as batidas, sem mexer nos outros sons
+        for i in range(1, 7):
+            salvar(batida_coracao(), EFEITOS / f"coracao_{i}.ogg")
+        return
     salvar(vento_mar(), AMBIENTE / "vento_mar.ogg")
     salvar(ondas(), AMBIENTE / "ondas.ogg")
     salvar(grilos(), AMBIENTE / "grilos.ogg")
@@ -428,7 +450,8 @@ def main() -> None:
     salvar(base, AMBIENTE / "caos.ogg")
     salvar(correria(base), AMBIENTE / "correria.ogg")
     salvar(sussurros(), AMBIENTE / "sussurros.ogg")
-    salvar(coracao(), EFEITOS / "coracao.ogg")
+    for i in range(1, 7):
+        salvar(batida_coracao(), EFEITOS / f"coracao_{i}.ogg")
     salvar(respiracao(), EFEITOS / "respiracao.ogg")
     salvar(choro(), EFEITOS / "choro.ogg")
     for chao in ("madeira", "pedra"):

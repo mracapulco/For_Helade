@@ -16,6 +16,8 @@
 [ext_resource type="SpriteFrames" path="res://assets/art/personagens/nicholas/nicholas_11_exploracao.tres" id="14_nicholas_11"]
 [ext_resource type="SpriteFrames" path="res://assets/art/personagens/althea/althea_6_exploracao.tres" id="15_althea_6"]
 [ext_resource type="SpriteFrames" path="res://assets/art/personagens/ophelia/ophelia_11_exploracao.tres" id="16_ophelia_11"]
+[ext_resource type="SpriteFrames" path="res://assets/art/convidados/rafael/rafael_exploracao.tres" id="17_rafael"]
+[ext_resource type="SpriteFrames" path="res://assets/art/convidados/shara/shara_exploracao.tres" id="18_shara"]
 
 [node name="VitrineArte" type="Node2D"]
 texture_filter = 1
@@ -153,4 +155,32 @@ position = Vector2(-144, 120)
 sprite_frames = ExtResource("16_ophelia_11")
 animation = &"correndo_costas"
 autoplay = "correndo_costas"
+offset = Vector2(0, -22)
+
+[node name="Rafael" type="AnimatedSprite2D" parent="."]
+position = Vector2(224, 64)
+sprite_frames = ExtResource("17_rafael")
+animation = &"andando_frente"
+autoplay = "andando_frente"
+offset = Vector2(0, -22)
+
+[node name="Shara" type="AnimatedSprite2D" parent="."]
+position = Vector2(256, 80)
+sprite_frames = ExtResource("18_shara")
+animation = &"andando_frente"
+autoplay = "andando_frente"
+offset = Vector2(0, -22)
+
+[node name="RafaelCostas" type="AnimatedSprite2D" parent="."]
+position = Vector2(256, 48)
+sprite_frames = ExtResource("17_rafael")
+animation = &"parado_costas"
+autoplay = "parado_costas"
+offset = Vector2(0, -22)
+
+[node name="SharaCostas" type="AnimatedSprite2D" parent="."]
+position = Vector2(288, 64)
+sprite_frames = ExtResource("18_shara")
+animation = &"andando_costas"
+autoplay = "andando_costas"
 offset = Vector2(0, -22)

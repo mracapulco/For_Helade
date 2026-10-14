@@ -18,6 +18,7 @@ Planta (vista de cima):
 Uso: python3 tools/cena/gerar_cenario_prologo.py
 """
 import math
+import random
 from pathlib import Path
 
 RAIZ = Path(__file__).resolve().parents[2]
@@ -248,7 +249,8 @@ def porta_fechada(c: Cena, pai, pos, giro, largura=1.2, altura=2.4, dupla=False)
 
 def folha_aberta(c: Cena, pai, dobradica, giro, largura, altura):
     g = grupo(c, "FolhaAberta", pai, dobradica, giro)
-    caixa(c, "Folha", g, (largura / 2, altura / 2, 0), (largura, altura, 0.07), "madeira_movel")
+    # Com colisão: Nicholas não atravessa a porta aberta.
+    caixa(c, "Folha", g, (largura / 2, altura / 2, 0), (largura, altura, 0.07), "madeira_movel", True)
     for y in (0.35, altura / 2, altura - 0.35):
         caixa(c, "Ferragem", g, (largura / 2, y, 0.04), (largura - 0.06, 0.06, 0.015), "ferro")
     return g
@@ -673,8 +675,36 @@ def aposentos() -> Cena:
 
 def exterior() -> Cena:
     c = Cena("Exterior")
-    # Penhasco: o castelo fica no alto, o mar 12 m abaixo.
-    bloco(c, "Rocha", ".", (-60, -14, -10), (60, -0.2, 12.9), "pedra_escura")
+    # Penhasco: o castelo fica no alto, o mar 12 m abaixo. A costa segue para os
+    # dois lados até longe, para o castelo não parecer solto no ar.
+    bloco(c, "Rocha", ".", (-220, -14, -80), (220, -0.2, 12.9), "pedra_escura")
+    sorte = random.Random(7)
+    # Encosta em degraus irregulares, do pé das paredes até a água.
+    x = -64.0
+    while x < 64.0:
+        largura = sorte.uniform(3.5, 6.5)
+        centro_x = x + largura / 2
+        sob_varanda = 4.5 < centro_x < 13.5
+        topo = sorte.uniform(-4.5, -3.0) if sob_varanda else sorte.uniform(-2.2, -0.6)
+        frente = sorte.uniform(14.0, 15.6)
+        bloco(c, "Encosta", ".", (x, -14, 12.0), (x + largura, topo, frente), "pedra_escura",
+              colisao=False, rot=(0, sorte.uniform(-6, 6), 0))
+        topo2 = sorte.uniform(-8.0, -6.0)
+        bloco(c, "Encosta", ".", (x - 0.4, -14, 13.5), (x + largura + 0.4, topo2, frente + sorte.uniform(2.0, 3.5)),
+              "pedra_escura", colisao=False, rot=(0, sorte.uniform(-8, 8), 0))
+        x += largura * 0.8
+    # Rochedos soltos na beira da água.
+    for _ in range(26):
+        rx = sorte.uniform(-60, 60)
+        rz = sorte.uniform(18.0, 22.5)
+        r = sorte.uniform(0.8, 2.2)
+        esfera(c, "Rochedo", ".", (rx, -12.2 + r * 0.3, rz), r, "pedra_escura",
+               escala=(sorte.uniform(1.0, 1.8), sorte.uniform(0.6, 1.0), sorte.uniform(0.8, 1.4)))
+    # Pontas da costa, dos dois lados, fechando a enseada.
+    for lado in (-1, 1):
+        for i, (dx, dz, giro) in enumerate(((75, 20, 18), (105, 45, 30), (140, 75, 40))):
+            centro = (lado * dx, -6.5 + i * 1.5, dz)
+            caixa(c, "Costa", ".", centro, (60, 15 + i * 3, 40), "pedra_escura", rot=(0, lado * giro, 0))
     # Fachada sul (as paredes sul dos cômodos completam o resto).
     z0, z1 = 12.6, 12.9
     for (xa, xb, ya, yb) in ((-18, -12.8, 0, 9), (-5.2, 3.7, 0, 9), (14.3, 18, 0, 9),
@@ -684,7 +714,9 @@ def exterior() -> Cena:
         x = -17.5 + i * 2.05
         caixa(c, "Ameia", ".", (x, 9.35, 12.75), (1.0, 0.7, 0.5), "parede_pedra")
     for x in (-19.5, 19.5):
-        cilindro(c, "Torre", ".", (x, 6.0, 12.2), 3.0, 12.4, "parede_pedra", lados=24)
+        # A torre desce até a rocha da encosta.
+        cilindro(c, "Torre", ".", (x, 0.6, 12.2), 3.0, 23.2, "parede_pedra", lados=24)
+        cilindro(c, "BaseTorre", ".", (x, -8.0, 12.2), 4.2, 12.0, "pedra_escura", raio_topo=3.2, lados=24)
         cilindro(c, "Telhado", ".", (x, 14.2, 12.2), 3.4, 4.0, "madeira_movel", raio_topo=0.05, lados=24)
     mar = c.s("ShaderMaterial", shader=c.e("Shader", "res://assets/shaders/prologo/mar.gdshader"))
     c.no("Mar", "MeshInstance3D", ".", transform=transform((13.5, -12, 160)),

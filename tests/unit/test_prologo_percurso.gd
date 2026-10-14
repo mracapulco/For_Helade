@@ -247,3 +247,12 @@ func test_aposentos_comecam_ao_passar_pela_porta_mesmo_sem_parar_antes() -> void
 	cena.corpo.global_position = Vector3(entrada.global_position.x, 0.0, entrada.global_position.z - entrada.raio_chegada + 0.1)
 	await wait_physics_frames(3)
 	assert_eq(cena.ponto_atual, entrada)
+
+
+func test_portas_abertas_dos_aposentos_tem_colisao() -> void:
+	var folhas := cena.get_node("Cenario/Aposentos").find_children("FolhaAberta*", "Node3D", false, false)
+	assert_eq(folhas.size(), 2)
+	for folha: Node3D in folhas:
+		var corpo := folha.get_node("Folha") as CSGBox3D
+		assert_not_null(corpo, "a folha da porta precisa ser sólida")
+		assert_true(corpo.use_collision)

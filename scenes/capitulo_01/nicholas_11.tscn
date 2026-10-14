@@ -11,7 +11,7 @@ radius = 7.0
 [node name="Personagem" type="CharacterBody2D"]
 motion_mode = 1
 script = ExtResource("1_pers")
-velocidade = 65.0
+velocidade = 45.0
 
 [node name="Sombra" type="Polygon2D" parent="."]
 color = Color(0, 0, 0, 0.35)

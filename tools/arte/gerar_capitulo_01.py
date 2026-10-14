@@ -289,35 +289,80 @@ def cama(com_althea, dossel=False):
     return q.contornar()
 
 
+# --- móveis em caixa isométrica ------------------------------------------
+# Desenhados na mesma projeção do chão (a anda para baixo e à direita, b para
+# baixo e à esquerda, de -0,5 a 0,5 dentro da casa), para acompanharem as
+# paredes. O centro da casa fica a PE_CAIXA pixels da base da imagem
+# (SalaMontada.adicionar_objeto(..., pe)).
+PE_CAIXA = 17
+
+
+def _tela(a, b, z, oy):
+    return (32 + 32 * (a - b), oy + 16 * (a + b) - z)
+
+
+def caixa_iso(a0, a1, b0, b1, h, frente, lado, topo):
+    from PIL import ImageDraw
+    largura, altura = 64, h + 34
+    oy = h + 17
+    q = Q(largura, altura)
+    d = ImageDraw.Draw(q.im)
+    t = lambda a, b, z: _tela(a, b, z, oy)
+    d.polygon([t(a0, b1, 0), t(a1, b1, 0), t(a1, b1, h), t(a0, b1, h)], fill=C[frente])
+    d.polygon([t(a1, b0, 0), t(a1, b1, 0), t(a1, b1, h), t(a1, b0, h)], fill=C[lado])
+    d.polygon([t(a0, b0, h), t(a1, b0, h), t(a1, b1, h), t(a0, b1, h)], fill=C[topo])
+    q.px = q.im.load()
+
+    def na_frente_b(s_, t_, cor):         # face de frente para +b (paredes da linha y = 0)
+        x, y = t(a0 + s_ * (a1 - a0), b1, t_ * h)
+        q.p(int(round(x)), int(round(y)), cor)
+
+    def na_frente_a(s_, t_, cor):         # face de frente para +a (paredes da coluna x = 0)
+        x, y = t(a1, b0 + s_ * (b1 - b0), t_ * h)
+        q.p(int(round(x)), int(round(y)), cor)
+    return q, na_frente_b, na_frente_a
+
+
+def _riscar(ponto, s0, s1, t0, t1, cor, passos=60):
+    for i in range(passos + 1):
+        k = i / passos
+        ponto(s0 + (s1 - s0) * k, t0 + (t1 - t0) * k, cor)
+
+
 def armario():
-    # armário de duas portas, de madeira, como o do quarto de Nicholas no prólogo
-    q = Q(28, 50)
-    q.sombra_no_chao(14, 47, 13, 2)
-    q.r(2, 3, 25, 46, 'madeira')
-    q.r(1, 1, 26, 3, 'madeira_luz')                 # remate
-    q.r(2, 3, 3, 46, 'madeira_sombra')
-    q.coluna(13, 5, 44, 'madeira_sombra')           # fresta entre as portas
-    for x0, x1 in ((5, 11), (16, 23)):
-        q.r(x0, 6, x1, 22, 'madeira_luz'); q.r(x0 + 1, 7, x1 - 1, 21, 'madeira')
-        q.r(x0, 26, x1, 42, 'madeira_luz'); q.r(x0 + 1, 27, x1 - 1, 41, 'madeira')
-    q.p(12, 24, 'ouro'); q.p(15, 24, 'ouro')        # puxadores de bronze
-    q.r(3, 46, 5, 47, 'madeira_sombra'); q.r(22, 46, 24, 47, 'madeira_sombra')
+    # armário de duas portas encostado na parede do fundo (linha y = 0),
+    # com as portas viradas para o quarto
+    q, frente, _ = caixa_iso(-0.42, 0.42, -0.5, -0.12, 44, 'madeira', 'madeira_sombra', 'madeira_luz')
+    _riscar(frente, 0.5, 0.5, 0.04, 0.92, 'madeira_sombra')            # fresta entre as portas
+    for s0, s1 in ((0.1, 0.42), (0.58, 0.9)):                          # almofadas das portas
+        for t0, t1 in ((0.52, 0.86), (0.1, 0.44)):
+            _riscar(frente, s0, s1, t0, t0, 'madeira_luz'); _riscar(frente, s0, s1, t1, t1, 'madeira_luz')
+            _riscar(frente, s0, s0, t0, t1, 'madeira_luz'); _riscar(frente, s1, s1, t0, t1, 'madeira_luz')
+    _riscar(frente, 0.0, 1.0, 0.95, 0.95, 'madeira_luz')               # remate
+    for s_ in (0.46, 0.54):
+        frente(s_, 0.48, 'ouro')                                       # puxadores
     return q.contornar()
 
 
 def bau():
-    # baú de madeira com cintas de bronze
-    q = Q(26, 22)
-    q.sombra_no_chao(13, 19, 12, 2)
-    q.r(2, 8, 23, 19, 'madeira')
-    q.elipse(12, 7, 11, 4, 'madeira_luz')           # tampa arredondada
-    q.r(1, 7, 24, 9, 'madeira_luz')
-    q.linha(9, 1, 24, 'madeira_sombra')
-    for x in (5, 19):                               # cintas
-        q.r(x, 4, x + 1, 19, 'ouro_sombra')
-    q.r(11, 9, 14, 12, 'ouro'); q.p(12, 11, 'noite')   # fechadura
-    q.r(2, 8, 3, 19, 'madeira_sombra')
+    # baú encostado na parede da esquerda (coluna x = 0), virado para o quarto
+    q, _, frente = caixa_iso(-0.5, -0.05, -0.36, 0.36, 13, 'madeira_sombra', 'madeira', 'madeira_luz')
+    _riscar(frente, 0.0, 1.0, 0.62, 0.62, 'madeira_sombra')            # tampa
+    for s_ in (0.2, 0.8):                                              # cintas de bronze
+        _riscar(frente, s_, s_, 0.0, 1.0, 'ouro_sombra', 20)
+    frente(0.5, 0.5, 'ouro'); frente(0.5, 0.45, 'ouro'); frente(0.52, 0.5, 'ouro')   # fechadura
     return q.contornar()
+
+
+def porta_na_parede():
+    # porta fechada desenhada na face da parede
+    q = Q(14, 26)
+    q.r(0, 0, 13, 25, 'madeira_sombra')
+    q.r(2, 2, 11, 25, 'madeira')
+    q.r(3, 4, 6, 12, 'madeira_luz'); q.r(8, 4, 10, 12, 'madeira_luz')
+    q.r(3, 15, 6, 23, 'madeira_luz'); q.r(8, 15, 10, 23, 'madeira_luz')
+    q.p(10, 14, 'ouro')
+    return q.im
 
 
 def espelho():
@@ -469,6 +514,7 @@ ARTES = {
     'parede/quadro_norte_esq.png': lambda: na_face(quadro('norte'), 'esq', 7, 5),
     'parede/tapecaria_esq.png': lambda: na_face(tapecaria(), 'esq', 9, 3),
     'parede/tapecaria_dir.png': lambda: na_face(tapecaria(), 'dir', 9, 3),
+    'parede/porta_esq.png': lambda: na_face(porta_na_parede(), 'esq', 9, 6),
     'parede/espada_placa_esq.png': lambda: na_face(espada_placa(), 'esq', 3, 10),
 }
 

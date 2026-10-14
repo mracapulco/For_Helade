@@ -24,6 +24,9 @@ const QUADROS_VESTIDO := preload("res://assets/art/personagens/nicholas/nicholas
 const QUADROS_ALTHEA := preload("res://assets/art/personagens/althea/althea_6_exploracao.tres")
 const CRIADA := preload("res://assets/art/placeholders/exploracao/criada_provisoria.png")
 const ARTE := "res://assets/art/capitulo_01/"
+## Móveis em caixa isométrica (armário, baú): o centro da casa fica a esta
+## altura da base da imagem (tools/arte/gerar_capitulo_01.py, PE_CAIXA).
+const PE_CAIXA := 17.0
 
 ## Luz de cada momento.
 const TOM_SONHO := Color(1.0, 0.7, 0.5)
@@ -108,8 +111,8 @@ func montar_quarto() -> void:
 	_nova_sala(7, 6, TOM_MADRUGADA)
 	sala.abrir_vao(Vector2i(6, 0))
 	_objeto("cama", "cama_nicholas.png", Vector2i(2, 2))
-	_objeto("armario", "armario.png", Vector2i(4, 1))
-	_objeto("bau", "bau.png", Vector2i(1, 2))
+	_movel("armario", "armario.png", Vector2i(4, 1))
+	_movel("bau", "bau.png", Vector2i(1, 2))
 	_objeto("espelho", "espelho.png", Vector2i(1, 4), true).get_node("Interagivel") \
 		.interagido.connect(olhar_espelho)
 	_objeto("porta_quarto", "porta.png", Vector2i(6, 0), true).get_node("Interagivel") \
@@ -157,12 +160,12 @@ func montar_corredor() -> void:
 	# porta dele e a de Althea.
 	_nova_sala(26, 3, TOM_MADRUGADA)
 	sala.piso = "passadeira"
-	for x in [3, 7, 24]:
-		sala.abrir_vao(Vector2i(x, 0))
-		_objeto("porta_fechada_%d" % x, "porta.png", Vector2i(x, 0))
-	sala.abrir_vao(Vector2i(20, 0))
+	# Portas fechadas ficam na própria parede; só a de Althea, o destino, é
+	# um vão com a porta.
+	for x in [3, 7, 20, 24]:
+		var nome := "porta_nicholas" if x == 20 else "porta_fechada_%d" % x
+		objetos[nome] = sala.pendurar(nome.to_pascal_case(), load(ARTE + "parede/porta_esq.png"), Vector2i(x, 0))
 	sala.abrir_vao(Vector2i(12, 0))
-	_objeto("porta_nicholas", "porta.png", Vector2i(20, 0))
 	_objeto("porta_althea", "porta.png", Vector2i(12, 0), true).get_node("Interagivel") \
 		.interagido.connect(esperar_cortejo)
 	# Como o corredor do Castelo Olympia no prólogo: tochas, quadros do mapa,
@@ -213,12 +216,11 @@ func esperar_cortejo() -> void:
 
 func montar_quarto_althea() -> void:
 	_nova_sala(7, 6, TOM_AMANHECER)
-	sala.abrir_vao(Vector2i(5, 0))
-	_objeto("porta", "porta.png", Vector2i(5, 0))
+	objetos["porta"] = sala.pendurar("Porta", load(ARTE + "parede/porta_esq.png"), Vector2i(5, 0))
 	_objeto("cama_althea", "cama_althea.png", Vector2i(2, 2), true).get_node("Interagivel") \
 		.interagido.connect(acordar_althea)
-	_objeto("armario", "armario.png", Vector2i(3, 1))
-	_objeto("bau", "bau.png", Vector2i(1, 1))
+	_movel("armario", "armario.png", Vector2i(3, 1))
+	_movel("bau", "bau.png", Vector2i(1, 1))
 	_objeto("embrulho", "embrulho.png", Vector2i(1, 3))
 	_objeto("mesa", "mesa_cha.png", Vector2i(4, 4), true).get_node("Interagivel") \
 		.interagido.connect(sentar_a_mesa)
@@ -308,6 +310,13 @@ func _pendurar(enfeites: Dictionary) -> void:
 		var arquivo := chave.get_slice("#", 0)
 		sala.pendurar(chave.replace("#", "").to_pascal_case(), load(ARTE + "parede/" + arquivo + ".png"),
 			enfeites[chave])
+
+
+## Móvel em caixa isométrica, alinhado com as paredes.
+func _movel(nome: String, arquivo: String, casa: Vector2i) -> Node2D:
+	var objeto := sala.adicionar_objeto(nome.to_pascal_case(), load(ARTE + arquivo), casa, true, false, PE_CAIXA)
+	objetos[nome] = objeto
+	return objeto
 
 
 ## Põe a sala pronta na cena e Nicholas na casa.

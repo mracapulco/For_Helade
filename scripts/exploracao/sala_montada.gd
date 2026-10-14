@@ -98,9 +98,11 @@ func centro(casa: Vector2i) -> Vector2:
 
 ## Põe um objeto parado na casa: o desenho com os pés na base, um corpo que
 ## bloqueia a passagem (se [param bloqueia]) e, com [param interagivel], uma
-## área de interação. Devolve o nó do objeto.
+## área de interação. [param pe]: quantos pixels acima da base da imagem
+## fica o centro da casa (3 para desenhos de frente; os móveis em caixa
+## isométrica usam mais). Devolve o nó do objeto.
 func adicionar_objeto(nome: String, textura: Texture2D, casa: Vector2i,
-		bloqueia := true, interagivel := false) -> Node2D:
+		bloqueia := true, interagivel := false, pe := 3.0) -> Node2D:
 	var objeto: Node2D = StaticBody2D.new() if bloqueia else Node2D.new()
 	objeto.name = nome
 	objeto.position = centro(casa)
@@ -115,7 +117,7 @@ func adicionar_objeto(nome: String, textura: Texture2D, casa: Vector2i,
 	var visual := Sprite2D.new()
 	visual.name = "Visual"
 	visual.texture = textura
-	visual.offset = Vector2(0, -textura.get_height() / 2.0 + 3.0)
+	visual.offset = Vector2(0, -textura.get_height() / 2.0 + pe)
 	objeto.add_child(visual)
 	if interagivel:
 		var area := Interagivel.new()

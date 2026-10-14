@@ -89,3 +89,17 @@ func test_falas_estao_no_elenco() -> void:
 			if linha.character != "":
 				assert_not_null(Elenco.buscar(linha.character), linha.character)
 			linha = await roteiro.get_next_dialogue_line(linha.next_id)
+
+
+func test_mansao_tem_a_identidade_do_castelo_do_prologo() -> void:
+	assert_true(capitulo.sala.parede_lisa, "o corredor do sonho não é da Casa Olympia")
+	_interagir("porta_sonho")
+	await _esperar_etapa("quarto")
+	assert_false(capitulo.sala.parede_lisa)
+	assert_not_null(capitulo.sala.get_node_or_null("QuadroOlympiaDir"))
+	_interagir("porta_quarto")
+	await _esperar_etapa("corredor")
+	assert_eq(capitulo.sala.piso, "passadeira")
+	assert_eq(capitulo.sala.chao.get_cell_atlas_coords(Vector2i(3, 1)).x, SalaMontada.PASSADEIRA_CIMA)
+	assert_not_null(capitulo.sala.get_node_or_null("EspadaPlacaEsq"))
+	assert_not_null(capitulo.sala.get_node_or_null("TochaEsq2"))

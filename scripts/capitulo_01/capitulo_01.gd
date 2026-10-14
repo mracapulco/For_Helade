@@ -70,6 +70,8 @@ func comecar() -> void:
 
 func montar_sonho() -> void:
 	_nova_sala(12, 3, TOM_SONHO)
+	# Um corredor "não familiar": sem a pedra nem os enfeites da Casa Olympia.
+	sala.parede_lisa = true
 	sala.abrir_vao(Vector2i(0, 1))
 	_objeto("porta_sonho", "porta.png", Vector2i(0, 1), true).get_node("Interagivel") \
 		.interagido.connect(abrir_porta_do_sonho)
@@ -105,6 +107,8 @@ func montar_quarto() -> void:
 		.interagido.connect(olhar_espelho)
 	_objeto("porta_quarto", "porta.png", Vector2i(4, 0), true).get_node("Interagivel") \
 		.interagido.connect(sair_do_quarto)
+	_pendurar({"tapecaria_esq": Vector2i(2, 0), "arandela_esq": Vector2i(5, 0),
+		"quadro_olympia_dir": Vector2i(0, 3)})
 	_entrar(Vector2i(3, 3))
 	_mudar("quarto")
 	await _clarear()
@@ -132,11 +136,18 @@ func sair_do_quarto() -> void:
 func montar_corredor() -> void:
 	# Oito passos entre a porta dele e a de Althea.
 	_nova_sala(16, 3, TOM_MADRUGADA)
+	sala.piso = "passadeira"
 	sala.abrir_vao(Vector2i(14, 0))
 	sala.abrir_vao(Vector2i(6, 0))
 	_objeto("porta_nicholas", "porta.png", Vector2i(14, 0))
 	_objeto("porta_althea", "porta.png", Vector2i(6, 0), true).get_node("Interagivel") \
 		.interagido.connect(esperar_cortejo)
+	# Como o corredor do Castelo Olympia no prólogo: tochas, quadros do mapa,
+	# tapeçaria e a espada sobre a placa.
+	_pendurar({"tapecaria_esq": Vector2i(1, 0), "tocha_esq": Vector2i(3, 0),
+		"quadro_atenas_esq": Vector2i(4, 0), "tocha_esq#2": Vector2i(8, 0),
+		"espada_placa_esq": Vector2i(10, 0), "quadro_norte_esq": Vector2i(11, 0),
+		"tocha_esq#3": Vector2i(12, 0), "arandela_dir": Vector2i(0, 1)})
 	_entrar(Vector2i(14, 1))
 	_mudar("corredor")
 	await _clarear()
@@ -190,6 +201,8 @@ func montar_quarto_althea() -> void:
 	_objeto("pany", "pany_provisoria.png", Vector2i(5, 2))
 	sala.adicionar_objeto("Criada1", CRIADA, Vector2i(6, 3))
 	sala.adicionar_objeto("Criada2", CRIADA, Vector2i(6, 2))
+	_pendurar({"arandela_esq": Vector2i(1, 0), "quadro_olympia_esq": Vector2i(3, 0),
+		"arandela_esq#2": Vector2i(6, 0), "tapecaria_dir": Vector2i(0, 4)})
 	_entrar(Vector2i(3, 3))
 	_ativar(objetos["mesa"], false)
 	_mudar("quarto_althea")
@@ -252,6 +265,15 @@ func _objeto(nome: String, arquivo: String, casa: Vector2i, interagivel := false
 	var objeto := sala.adicionar_objeto(nome.to_pascal_case(), load(ARTE + arquivo), casa, true, interagivel)
 	objetos[nome] = objeto
 	return objeto
+
+
+## Enfeites da parede (assets/art/capitulo_01/parede/<nome>.png); "#2" no
+## fim do nome repete o mesmo desenho em outra casa.
+func _pendurar(enfeites: Dictionary) -> void:
+	for chave: String in enfeites:
+		var arquivo := chave.get_slice("#", 0)
+		sala.pendurar(chave.replace("#", "").to_pascal_case(), load(ARTE + "parede/" + arquivo + ".png"),
+			enfeites[chave])
 
 
 ## Põe a sala pronta na cena e Nicholas na casa.

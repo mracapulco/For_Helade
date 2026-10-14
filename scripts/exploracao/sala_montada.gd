@@ -6,11 +6,20 @@ extends Node2D
 ## Uso: crie com [method new], ponha os objetos ([method adicionar_objeto])
 ## e só depois adicione à árvore; a navegação é feita no [method _ready] e só
 ## enxerga os obstáculos que já estiverem na sala.
-## Portas ficam num vão da parede ([method abrir_vao]).
+## Portas ficam num vão da parede ([method abrir_vao]); tochas, quadros e
+## tapeçarias, na face de um bloco da parede ([method pendurar]).
+## O chão e a parede seguem o Castelo Olympia do prólogo (pedra clara,
+## assoalho, passadeira); o sonho usa a parede lisa ([member parede_lisa]).
 
 const TILESET := preload("res://scenes/exploracao/tileset_mansao.tres")
 const FONTE_PISO := 0
 const FONTE_PAREDE := 1
+## Quadros do chão no atlas (tools/arte/gerar_capitulo_01.py).
+const PISO_ASSOALHO := 0
+const PISO_PEDRA := 2
+const PASSADEIRA_CIMA := 4
+const PASSADEIRA_BAIXO := 5
+const PASSADEIRA_MEIO := 6
 const RAIO_CORPO := 9.0
 const RAIO_TOQUE := 28.0
 
@@ -18,6 +27,11 @@ const RAIO_TOQUE := 28.0
 @export var profundidade := 6
 ## Cor da luz (CanvasModulate): noite azulada, amanhecer dourado, sonho quente...
 @export var tom := Color.WHITE
+## Chão: "assoalho" (quartos), "pedra" ou "passadeira" (pedra com a passadeira
+## vermelha de ponta a ponta, como o corredor do prólogo).
+@export var piso := "assoalho"
+## Parede lisa, sem a pedra da Casa Olympia (o corredor estranho do sonho).
+@export var parede_lisa := false
 
 var chao: TileMapLayer
 var obstaculos: TileMapLayer
@@ -44,10 +58,10 @@ func _init() -> void:
 func _ready() -> void:
 	for x in largura:
 		for y in profundidade:
-			chao.set_cell(Vector2i(x, y), FONTE_PISO, Vector2i((x + y) % 2, 0))
+			chao.set_cell(Vector2i(x, y), FONTE_PISO, Vector2i(_quadro_do_piso(x, y), 0))
 			var parede := x == 0 or y == 0
 			if parede and not _vaos.has(Vector2i(x, y)):
-				obstaculos.set_cell(Vector2i(x, y), FONTE_PAREDE, Vector2i.ZERO)
+				obstaculos.set_cell(Vector2i(x, y), FONTE_PAREDE, Vector2i(1 if parede_lisa else 0, 0))
 	ambiente = CanvasModulate.new()
 	ambiente.name = "Ambiente"
 	ambiente.color = tom
@@ -57,6 +71,19 @@ func _ready() -> void:
 	navegacao.chao = chao
 	navegacao.obstaculos = obstaculos
 	add_child(navegacao)
+
+
+func _quadro_do_piso(x: int, y: int) -> int:
+	match piso:
+		"pedra":
+			return PISO_PEDRA + (x + y) % 2
+		"passadeira":
+			if y <= 1:
+				return PASSADEIRA_CIMA
+			if y == profundidade - 1:
+				return PASSADEIRA_BAIXO
+			return PASSADEIRA_MEIO
+	return PISO_ASSOALHO + (x + y) % 2
 
 
 ## Deixa uma casa da parede sem bloco, para pôr uma porta nela.
@@ -103,6 +130,22 @@ func adicionar_objeto(nome: String, textura: Texture2D, casa: Vector2i,
 		objeto.add_child(area)
 	add_child(objeto)
 	return objeto
+
+
+## Pendura algo na face de um bloco da parede ([param casa] na linha y = 0
+## ou na coluna x = 0): a textura tem o tamanho do bloco (64×64) e o desenho
+## já inclinado como a face (assets/art/capitulo_01/parede/).
+func pendurar(nome: String, textura: Texture2D, casa: Vector2i) -> Sprite2D:
+	var enfeite := Sprite2D.new()
+	enfeite.name = nome
+	enfeite.texture = textura
+	enfeite.centered = false
+	# Um pixel abaixo do bloco na ordem de desenho: fica por cima da parede e
+	# por trás de quem anda na frente dela.
+	enfeite.position = centro(casa) + Vector2(0, 1)
+	enfeite.offset = Vector2(-32, -49)
+	add_child(enfeite)
+	return enfeite
 
 
 ## Uma pessoa parada (figurante ou personagem com folha animada).

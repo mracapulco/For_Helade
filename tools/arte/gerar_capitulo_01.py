@@ -6,6 +6,14 @@
 # seis velas, o embrulho comprido, a pelúcia de monstro marinho de Althea, o
 # espelho grande demais para o quarto. O resto (móveis, cores, Pany) é
 # inferência provisória.
+# Identidade visual da Casa Olympia (pedido do Rafael, 14/10/2026): a mansão
+# segue o Castelo Olympia do prólogo (tools/cena/gerar_cenario_prologo.py,
+# branch do prólogo): parede de pedra clara em blocos, assoalho nos quartos,
+# piso de pedra com passadeira vermelha de borda azul e dourada no corredor,
+# tochas e arandelas com chama, quadros que são recortes do mapa de Hélade em
+# moldura dourada, tapeçaria, a espada sobre uma placa de madeira e camas de
+# madeira com coberta azul (a de Althea com dossel azul-escuro, como a cama da
+# duquesa no prólogo).
 # Uso: python3 tools/arte/gerar_capitulo_01.py   (rodar na raiz do projeto)
 import os
 import sys
@@ -25,66 +33,259 @@ C.update(
     pany_vestido=H('#3A2F3C'), pany_vestido_luz=H('#544458'),
     silhueta=H('#1A1210'), silhueta_luz=H('#3A2820'),
     vidro=H('#9FB8D2'), vidro_luz=H('#D4E2EF'),
+    # do castelo do prólogo (cores dos materiais de gerar_texturas_prologo.py)
+    pedra_parede=H('#A0968A'), pedra_parede_luz=H('#B9AFA1'),
+    pedra_parede_sombra=H('#7C7369'), argamassa=H('#5E574F'),
+    pedra_piso=H('#736E68'), pedra_piso_luz=H('#837D76'), pedra_piso_sombra=H('#5A5550'),
+    assoalho=H('#7A5236'), assoalho_luz=H('#8A5F3F'), assoalho_sombra=H('#5E3F2A'),
+    tapete=H('#6B1210'), tapete_luz=H('#82201C'), tapete_azul=H('#0D143A'),
+    creme=H('#D1BF99'), ferro=H('#3A3D42'), ferro_luz=H('#6E737A'),
+    veludo=H('#0F1A3A'), veludo_luz=H('#1F2E58'),
 )
 PASTA = 'assets/art/capitulo_01'
 
 
+def _losango(ox):
+    """Pixels do losango de 64×32 que começa em ox, com as coordenadas da
+    grade: a anda para baixo e à direita (eixo x do mapa), b para baixo e à
+    esquerda (eixo y); as duas vão de -0,5 a 0,5 dentro da casa."""
+    for y in range(32):
+        meia = 32 - abs(y - 15.5) * 2
+        for x in range(int(32 - meia), int(32 + meia)):
+            dx = x - 31.5; dy = y - 15.5
+            a = (dx / 32 + dy / 16) / 2
+            b = (dy / 16 - dx / 32) / 2
+            yield ox + x, y, a, b
+
+
+def _assoalho(q, ox, escuro):
+    # tábuas ao longo do eixo x, emendas desencontradas
+    for x, y, a, b in _losango(ox):
+        faixa = int((b + 0.5) * 6)
+        cor = 'assoalho_sombra' if escuro and faixa % 2 else 'assoalho'
+        if abs(((b + 0.5) * 6) % 1) < 0.12:
+            cor = 'assoalho_sombra'
+        elif abs(((a + 0.5 + faixa * 0.37) * 2) % 1) < 0.04:
+            cor = 'assoalho_sombra'
+        elif (x * 7 + y * 3) % 23 == 0:
+            cor = 'assoalho_luz'
+        q.p(x, y, cor)
+
+
+def _pedra(q, ox, variante):
+    # lajes de pedra, duas por lado da casa
+    for x, y, a, b in _losango(ox):
+        la = int((a + 0.5) * 2); lb = int((b + 0.5) * 2)
+        cor = ('pedra_piso', 'pedra_piso_luz', 'pedra_piso', 'pedra_piso_sombra')[(la + lb * 2 + variante) % 4]
+        if abs(((a + 0.5) * 2) % 1) < 0.05 or abs(((b + 0.5) * 2) % 1) < 0.05:
+            cor = 'argamassa'
+        q.p(x, y, cor)
+
+
+def _passadeira(q, ox, borda):
+    # passadeira do corredor do prólogo: vermelha, treliça dourada fraca,
+    # faixa azul com ornamentos creme e filetes dourados nas bordas
+    for x, y, a, b in _losango(ox):
+        d = None                                    # distância até a borda da passadeira
+        if borda == 'cima':
+            d = b + 0.5 - 0.22
+        elif borda == 'baixo':
+            d = 0.5 - 0.22 - b
+        if d is not None and d < 0:
+            cor = 'argamassa' if abs(((a + 0.5) * 2) % 1) < 0.05 else 'pedra_piso'
+        elif d is not None and d < 0.03:
+            cor = 'ouro'
+        elif d is not None and d < 0.16:
+            cor = 'tapete_azul'
+            if abs(d - 0.095) < 0.03 and abs(((a + 0.5) * 4) % 1 - 0.5) < 0.16:
+                cor = 'creme'
+        elif d is not None and d < 0.19:
+            cor = 'ouro_sombra'
+        else:
+            cor = 'tapete'
+            if abs(((a * 4 + b * 4) % 1)) < 0.06 or abs(((a * 4 - b * 4) % 1)) < 0.06:
+                cor = 'ouro_sombra'
+        q.p(x, y, cor)
+
+
 def piso():
-    # dois losangos de 64×32 lado a lado (tábuas claras e escuras)
-    q = Q(128, 32)
-    for i, (base, luz) in enumerate((('piso', 'piso_luz'), ('piso_sombra', 'piso'))):
-        ox = i * 64
-        for y in range(32):
-            meia = 32 - abs(y - 15.5) * 2
-            x0 = int(ox + 32 - meia); x1 = int(ox + 32 + meia) - 1
-            for x in range(x0, x1 + 1):
-                q.p(x, y, base)
-            # tábuas na diagonal
-            for x in range(x0, x1 + 1):
-                if (x - ox + y * 2) % 16 == 0:
-                    q.p(x, y, luz)
+    # 0-1 assoalho dos quartos, 2-3 pedra, 4-6 passadeira (borda em cima,
+    # borda embaixo, meio): como o castelo do prólogo
+    q = Q(64 * 7, 32)
+    _assoalho(q, 0, False)
+    _assoalho(q, 64, True)
+    _pedra(q, 128, 0)
+    _pedra(q, 192, 1)
+    _passadeira(q, 256, 'cima')
+    _passadeira(q, 320, 'baixo')
+    _passadeira(q, 384, None)
     return q.im
+
+
+def _topo(x):
+    # altura onde a face da parede começa, na coluna x do bloco
+    return 31.5 - abs(x - 31.5) / 2
+
+
+def _parede_antiga(q, ox):
+    for y in range(32):
+        meia = 32 - abs(y - 15.5) * 2
+        for x in range(int(32 - meia), int(32 + meia)):
+            q.p(ox + x, y, 'parede_luz')
+    for y in range(16, 64):
+        for x in range(64):
+            if _topo(x) <= y <= _topo(x) + 32:
+                q.p(ox + x, y, 'parede' if x < 32 else 'parede_sombra')
+
+
+def _parede_pedra(q, ox):
+    # pedra clara em blocos, como as paredes do Castelo Olympia
+    for y in range(32):
+        meia = 32 - abs(y - 15.5) * 2
+        for x in range(int(32 - meia), int(32 + meia)):
+            borda = abs(y - 15.5) * 2 + 2 >= 32 - abs(x - 31.5)
+            q.p(ox + x, y, 'pedra_parede_sombra' if borda else 'pedra_parede_luz')
+    for x in range(64):
+        esquerda = x < 32
+        u = x if esquerda else 63 - x
+        for y in range(16, 64):
+            v = y - _topo(x)
+            if not 0 <= v <= 32:
+                continue
+            fileira = int(v // 6)
+            cor = 'pedra_parede' if esquerda else 'pedra_parede_sombra'
+            if v % 6 < 1 or (u + fileira * 5) % 11 == 0:
+                cor = 'argamassa'
+            elif v > 29:
+                cor = 'pedra_parede_sombra' if esquerda else 'argamassa'
+            q.p(ox + x, y, cor)
 
 
 def parede():
     # bloco de 64×64: topo em losango de 64×32 e a face embaixo
-    q = Q(64, 64)
-    for y in range(32):
-        meia = 32 - abs(y - 15.5) * 2
-        for x in range(int(32 - meia), int(32 + meia)):
-            q.p(x, y, 'parede_luz')
-    for y in range(16, 64):
-        for x in range(64):
-            # face esquerda e direita abaixo do losango
-            topo = 31.5 - abs(x - 31.5) / 2
-            fundo = topo + 32
-            if topo <= y <= fundo:
-                q.p(x, y, 'parede' if x < 32 else 'parede_sombra')
-    for x in range(4, 60, 8):                       # frisos dourados no rodapé
-        y = int(31.5 - abs(x - 31.5) / 2) + 30
-        q.p(x, y, 'ouro_sombra')
+    # 0 = pedra da Casa Olympia; 1 = a parede lisa do sonho (corredor estranho)
+    q = Q(128, 64)
+    _parede_pedra(q, 0)
+    _parede_antiga(q, 64)
     return q.im
 
 
-def cama(com_althea):
-    q = Q(48, 34)
-    q.sombra_no_chao(24, 31, 22, 3)
-    q.r(3, 10, 44, 30, 'madeira')                   # estrado
-    q.r(3, 10, 5, 30, 'madeira_sombra')
-    q.r(4, 2, 12, 12, 'madeira_luz')                # cabeceira
-    q.linha(2, 4, 12, 'ouro')
-    q.r(7, 12, 44, 24, 'lencol')                    # colchão
-    q.r(9, 13, 16, 17, 'perola')                    # travesseiro
-    q.r(18, 14, 44, 26, 'colcha')                   # cobertor
-    q.linha(14, 18, 44, 'colcha_luz')
-    q.linha(26, 18, 44, 'ouro_sombra')
+# --- coisas penduradas nas paredes --------------------------------------
+# Cada uma é um bloco de 64×64 transparente, alinhado ao bloco da parede,
+# com o desenho na face da esquerda (paredes da linha y = 0) ou da direita
+# (coluna x = 0), inclinado como a face.
+
+def na_face(plano, lado, u0, v0):
+    q = Q(64, 64)
+    largura, altura = plano.size
+    px = plano.load()
+    for i in range(largura):
+        x = u0 + i if lado == 'esq' else 63 - u0 - (largura - 1 - i)
+        topo = int(round(_topo(x)))
+        for j in range(altura):
+            cor = px[i, j]
+            if cor[3] and 0 <= x < 64 and 0 <= topo + v0 + j < 64:
+                q.px[x, topo + v0 + j] = cor
+    return q.im
+
+
+def tocha():
+    q = Q(9, 18)
+    q.r(3, 10, 5, 17, 'ferro')                      # suporte de ferro
+    q.r(2, 15, 6, 15, 'ferro_luz')
+    q.r(3, 8, 5, 10, 'madeira')                     # tocha
+    q.elipse(4, 4, 2, 3, 'vela_escura')             # chama visível
+    q.elipse(4, 5, 1, 2, 'vela')
+    q.p(4, 5, 'ouro_luz'); q.p(4, 0, 'vela_escura')
+    return q.im
+
+
+def arandela():
+    q = Q(7, 14)
+    q.r(1, 11, 5, 12, 'ouro_sombra'); q.r(3, 9, 3, 13, 'ouro')
+    q.r(2, 6, 4, 10, 'perola')                      # vela
+    q.elipse(3, 3, 1, 2, 'vela'); q.p(3, 3, 'ouro_luz'); q.p(3, 0, 'vela_escura')
+    return q.im
+
+
+MAPA = 'assets/art/mapa/mapa_helade.png'
+# Os mesmos recortes do mapa usados nos quadros do prólogo
+# (tools/arte/gerar_quadros_prologo.py).
+RECORTES = {
+    'olympia': (600, 900, 960, 1170),
+    'atenas': (250, 565, 610, 835),
+    'norte': (230, 150, 710, 510),
+}
+
+
+def quadro(nome):
+    from PIL import Image
+    tela = Image.open(MAPA).convert('RGBA').crop(RECORTES[nome]).resize((14, 10), Image.BOX)
+    q = Q(18, 14)
+    q.r(0, 0, 17, 13, 'ouro'); q.r(0, 13, 17, 13, 'ouro_sombra'); q.r(17, 0, 17, 13, 'ouro_sombra')
+    q.r(0, 0, 17, 0, 'ouro_luz')
+    q.im.paste(tela, (2, 2))
+    return q.im
+
+
+def tapecaria():
+    q = Q(14, 24)
+    q.r(0, 0, 13, 0, 'ferro')                       # varão
+    q.r(1, 1, 12, 22, 'tapete')
+    q.r(1, 1, 12, 2, 'tapete_azul'); q.r(1, 20, 12, 22, 'tapete_azul')
+    q.r(1, 1, 2, 22, 'tapete_azul'); q.r(11, 1, 12, 22, 'tapete_azul')
+    for y in (3, 19):
+        q.linha(y, 3, 10, 'ouro')
+    q.elipse(6, 11, 3, 4, 'ouro_sombra'); q.elipse(6, 11, 2, 3, 'tapete_azul')
+    q.p(6, 11, 'creme'); q.p(6, 8, 'creme'); q.p(6, 14, 'creme')
+    for x in range(2, 12, 2):
+        q.p(x, 23, 'ouro')                          # franja
+    return q.im
+
+
+def espada_placa():
+    # espada deitada sobre uma placa de madeira, sem brasão (como no prólogo)
+    q = Q(26, 7)
+    q.r(0, 0, 25, 6, 'madeira'); q.r(0, 6, 25, 6, 'madeira_sombra'); q.r(0, 0, 25, 0, 'madeira_luz')
+    q.r(9, 3, 23, 3, 'ferro_luz'); q.r(9, 4, 22, 4, 'ferro'); q.p(24, 3, 'ferro_luz')   # lâmina
+    q.r(8, 1, 8, 5, 'ouro')                         # guarda
+    q.r(4, 3, 7, 4, 'madeira_sombra')               # punho
+    q.r(2, 3, 3, 4, 'ouro_sombra')                  # pomo
+    return q.im
+
+
+def cama(com_althea, dossel=False):
+    # cama de madeira com colunas e pinhas na cabeceira e coberta azul, como
+    # a de Nicholas no prólogo; com dossel azul-escuro, como a da duquesa
+    alto = 22 if dossel else 0
+    q = Q(48, 34 + alto)
+    y = alto
+    q.sombra_no_chao(24, 31 + y, 22, 3)
+    if dossel:
+        for x in (3, 43):                           # colunas do dossel
+            q.r(x, 2, x + 1, 30 + y, 'madeira_luz')
+        q.r(1, 0, 46, 4, 'veludo')                  # dossel
+        q.r(1, 5, 46, 7, 'veludo_luz')              # sanefa
+        q.linha(7, 1, 46, 'ouro_sombra')
+        q.r(0, 0, 3, 26, 'veludo'); q.r(44, 0, 47, 26, 'veludo')   # cortinas presas
+        q.coluna(1, 2, 25, 'veludo_luz'); q.coluna(46, 2, 25, 'veludo_luz')
+    q.r(3, 10 + y, 44, 30 + y, 'madeira')                   # estrado
+    q.r(3, 10 + y, 5, 30 + y, 'madeira_sombra')
+    q.r(4, 2 + y, 12, 12 + y, 'madeira_luz')                # cabeceira
+    for x in (4, 12):                                       # colunas com pinhas
+        q.r(x, 0 + y, x, 12 + y, 'madeira_sombra')
+        q.p(x, y, 'madeira_luz')
+    q.r(7, 12 + y, 44, 24 + y, 'lencol')                    # colchão
+    q.r(9, 13 + y, 16, 17 + y, 'perola')                    # travesseiro
+    q.r(18, 14 + y, 44, 26 + y, 'colcha')                   # coberta azul
+    q.linha(14 + y, 18, 44, 'colcha_luz')
     if com_althea:
-        q.elipse(13, 15, 3, 3, 'cab_althea')        # cabeça no travesseiro
-        q.p(12, 13, 'cab_althea_luz'); q.p(14, 13, 'cab_althea_luz')
-        q.r(16, 15, 21, 18, 'monstro')              # a pelúcia abraçada
-        q.p(21, 15, 'monstro_luz'); q.p(18, 15, 'monstro_luz')
-        q.r(19, 17, 34, 22, 'colcha_luz')           # volume do corpo sob a colcha
-    q.r(42, 12, 45, 30, 'madeira_luz')              # pé da cama
+        q.elipse(13, 15 + y, 3, 3, 'cab_althea')            # cabeça no travesseiro
+        q.p(12, 13 + y, 'cab_althea_luz'); q.p(14, 13 + y, 'cab_althea_luz')
+        q.r(16, 15 + y, 21, 18 + y, 'monstro')              # a pelúcia abraçada
+        q.p(21, 15 + y, 'monstro_luz'); q.p(18, 15 + y, 'monstro_luz')
+        q.r(19, 17 + y, 34, 22 + y, 'colcha_luz')           # volume do corpo sob a colcha
+    q.r(42, 12 + y, 45, 30 + y, 'madeira_luz')              # pé da cama
     return q.contornar()
 
 
@@ -215,8 +416,8 @@ ARTES = {
     'piso_mansao.png': piso,
     'parede_mansao.png': parede,
     'cama_nicholas.png': lambda: cama(False),
-    'cama_althea.png': lambda: cama(True),
-    'cama_althea_vazia.png': lambda: cama(False),
+    'cama_althea.png': lambda: cama(True, dossel=True),
+    'cama_althea_vazia.png': lambda: cama(False, dossel=True),
     'espelho.png': espelho,
     'porta.png': lambda: porta(False),
     'porta_aberta.png': lambda: porta(True),
@@ -226,11 +427,21 @@ ARTES = {
     'embrulho.png': embrulho,
     'pany_provisoria.png': pany,
     'garota_visao.png': garota_visao,
+    'parede/tocha_esq.png': lambda: na_face(tocha(), 'esq', 12, 4),
+    'parede/arandela_esq.png': lambda: na_face(arandela(), 'esq', 13, 8),
+    'parede/arandela_dir.png': lambda: na_face(arandela(), 'dir', 13, 8),
+    'parede/quadro_olympia_dir.png': lambda: na_face(quadro('olympia'), 'dir', 7, 5),
+    'parede/quadro_olympia_esq.png': lambda: na_face(quadro('olympia'), 'esq', 7, 5),
+    'parede/quadro_atenas_esq.png': lambda: na_face(quadro('atenas'), 'esq', 7, 5),
+    'parede/quadro_norte_esq.png': lambda: na_face(quadro('norte'), 'esq', 7, 5),
+    'parede/tapecaria_esq.png': lambda: na_face(tapecaria(), 'esq', 9, 3),
+    'parede/tapecaria_dir.png': lambda: na_face(tapecaria(), 'dir', 9, 3),
+    'parede/espada_placa_esq.png': lambda: na_face(espada_placa(), 'esq', 3, 10),
 }
 
 if __name__ == '__main__':
-    os.makedirs(PASTA, exist_ok=True)
     for nome, desenhar in ARTES.items():
         caminho = os.path.join(PASTA, nome)
+        os.makedirs(os.path.dirname(caminho), exist_ok=True)
         desenhar().save(caminho)
         print(caminho)

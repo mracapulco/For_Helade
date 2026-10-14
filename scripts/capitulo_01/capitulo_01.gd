@@ -9,7 +9,9 @@ extends Node2D
 ##    branca e colete azul escuro) e só então a porta leva ao corredor.
 ## 3. corredor: na porta de Althea ele espera; o cortejo de Pany chega com o
 ##    bolo.
-## 4. quarto_althea: acordar Althea (a cama), os presentes, a mesa de chá.
+## 4. quarto_althea: acordar Althea (a cama); ela se senta, pula da cama e
+##    abre o embrulho; depois vai para a mesa de chá, e falar com ela à mesa
+##    é sentar junto.
 ## 5. fim: o duque é anunciado; o passo seguinte (Apollon) ainda não existe,
 ##    então o jogo volta ao menu.
 ## As salas são montadas por código ([SalaMontada]); os textos estão em
@@ -222,8 +224,7 @@ func montar_quarto_althea() -> void:
 	_movel("armario", "armario.png", Vector2i(3, 1))
 	_movel("bau", "bau.png", Vector2i(1, 1))
 	_objeto("embrulho", "embrulho.png", Vector2i(1, 3))
-	_objeto("mesa", "mesa_cha.png", Vector2i(4, 4), true).get_node("Interagivel") \
-		.interagido.connect(sentar_a_mesa)
+	_objeto("mesa", "mesa_cha.png", Vector2i(4, 4))
 	# Pany acende as seis velas enquanto as criadas arrumam o café.
 	_objeto("carrinho", "carrinho_bolo_aceso.png", Vector2i(5, 4))
 	_objeto("pany", "pany_provisoria.png", Vector2i(5, 2))
@@ -232,7 +233,6 @@ func montar_quarto_althea() -> void:
 	_pendurar({"arandela_esq": Vector2i(2, 0), "quadro_olympia_esq": Vector2i(4, 0),
 		"arandela_esq#2": Vector2i(6, 0), "tapecaria_dir": Vector2i(0, 4)})
 	_entrar(Vector2i(3, 3))
-	_ativar(objetos["mesa"], false)
 	_mudar("quarto_althea")
 	await _clarear()
 	_frases("frases_quarto_althea")
@@ -242,19 +242,74 @@ func acordar_althea() -> void:
 	if etapa != "quarto_althea":
 		return
 	_mudar("aniversario")
-	await _falar("acordar_althea")
-	(objetos["cama_althea"].get_node("Visual") as Sprite2D).texture = load(ARTE + "cama_althea_vazia.png")
 	_ativar(objetos["cama_althea"], false)
+	await _falar("acordar_althea")
+	await _levantar_althea()
+	await _falar("espada")
 	objetos["embrulho"].visible = false
-	objetos["althea"] = sala.adicionar_pessoa("Althea", QUADROS_ALTHEA, Vector2i(2, 4))
 	_mudar("presentes")
-	_ativar(objetos["mesa"], true)
-	_frases("frases_presentes")
+	await _frases("frases_presentes")
+	# Quando a agitação diminui, Althea vai para a mesa de chá; falar com ela
+	# é sentar junto.
+	var althea: Node2D = objetos["althea"]
+	await _caminhar(althea, sala.centro(Vector2i(3, 4)), 1.6)
+	_virar(althea, sala.centro(Vector2i(4, 4)))
+	_ativar(althea, true)
+	_mudar("a_mesa")
+
+
+## Althea se senta na cama, pula para o chão e vai até o embrulho.
+func _levantar_althea() -> void:
+	var cama: Sprite2D = objetos["cama_althea"].get_node("Visual")
+	cama.texture = load(ARTE + "cama_althea_sentada.png")
+	await _esperar(0.6)
+	cama.texture = load(ARTE + "cama_althea_vazia.png")
+	var althea := sala.adicionar_pessoa("Althea", QUADROS_ALTHEA, Vector2i(2, 2), true)
+	objetos["althea"] = althea
+	_ativar(althea, false)
+	althea.get_node("Interagivel").interagido.connect(sentar_a_mesa)
+	# O pulo: sobe e desce enquanto vai da cama para o chão ao lado.
+	var visual: AnimatedSprite2D = althea.get_node("Visual")
+	var destino := sala.centro(Vector2i(1, 2))
+	_virar(althea, destino)
+	var tempo := maxf(0.45 * escala_tempo, 0.01)
+	var pulo := create_tween().set_parallel()
+	pulo.tween_property(althea, "position", destino, tempo)
+	pulo.tween_method(func(t: float) -> void: visual.offset.y = -22.0 - sin(t * PI) * 10.0, 0.0, 1.0, tempo)
+	await pulo.finished
+	visual.offset.y = -22.0
+	_virar(althea, objetos["embrulho"].position)
+
+
+## Uma pessoa anda até [param destino], com a animação de andar virada para lá.
+func _caminhar(pessoa: Node2D, destino: Vector2, tempo: float) -> void:
+	var visual: AnimatedSprite2D = pessoa.get_node("Visual")
+	_virar(pessoa, destino)
+	visual.play(visual.animation.replace("parado", "andando"))
+	await _andar(pessoa, destino, tempo).finished
+	visual.play(visual.animation.replace("andando", "parado"))
+
+
+## Vira a pessoa para o ponto: frente (para baixo) ou costas, espelhada para a esquerda.
+func _virar(pessoa: Node2D, alvo: Vector2) -> void:
+	var visual := pessoa.get_node("Visual") as AnimatedSprite2D
+	if visual == null:
+		return
+	var direcao := alvo - pessoa.position
+	var acao := visual.animation.get_slice("_", 0)
+	visual.play("%s_%s" % [acao, "frente" if direcao.y >= 0.0 else "costas"])
+	visual.flip_h = direcao.x < 0.0
+
+
+func _esperar(segundos: float) -> void:
+	if escala_tempo > 0.0:
+		await get_tree().create_timer(segundos * escala_tempo).timeout
 
 
 func sentar_a_mesa() -> void:
-	if etapa != "presentes":
+	if etapa != "a_mesa":
 		return
+	_ativar(objetos["althea"], false)
 	_mudar("mesa")
 	_travar(true)
 	await _frases("frases_mesa")

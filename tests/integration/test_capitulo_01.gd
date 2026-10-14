@@ -57,13 +57,15 @@ func test_a_manha_inteira_na_ordem() -> void:
 	await _esperar_etapa("corredor")
 	_interagir("porta_althea")
 	await _esperar_etapa("quarto_althea")
-	_interagir("mesa")
+	capitulo.sentar_a_mesa()
 	assert_eq(capitulo.etapa, "quarto_althea", "a mesa só depois de acordar Althea")
 	_interagir("cama_althea")
-	await _esperar_etapa("presentes")
+	await _esperar_etapa("a_mesa")
 	assert_true(capitulo.objetos.has("althea"), "Althea de pé depois de acordar")
 	assert_false(capitulo.objetos["embrulho"].visible)
-	_interagir("mesa")
+	var na_mesa: Vector2i = capitulo.sala.chao.local_to_map(capitulo.objetos["althea"].position)
+	assert_eq(na_mesa, Vector2i(3, 4), "Althea espera à mesa de chá")
+	_interagir("althea")
 	await _esperar_etapa("fim")
 	for i in 10:
 		if capitulo.cena_pedida != "":
@@ -95,7 +97,7 @@ func test_corredor_tem_oito_passos_entre_as_portas() -> void:
 
 func test_falas_estao_no_elenco() -> void:
 	var roteiro: DialogueResource = load("res://data/dialogos/capitulo_01/manha.dialogue")
-	for marcador in ["cortejo", "acordar_althea"]:
+	for marcador in ["cortejo", "acordar_althea", "espada"]:
 		var linha: DialogueLine = await roteiro.get_next_dialogue_line(marcador)
 		while linha:
 			if linha.character != "":

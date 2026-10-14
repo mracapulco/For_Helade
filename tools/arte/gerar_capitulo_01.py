@@ -27,6 +27,7 @@ C.update(
     colcha=H('#2B3D55'), colcha_luz=H('#3E5470'),
     bolo=H('#7FA2C8'), bolo_luz=H('#A9C4E0'), bolo_sombra=H('#55779E'),
     perola=H('#F4EFE8'),
+    vestido_althea=H('#D8E2EE'),
     cab_althea=H('#E3D5AE'), cab_althea_luz=H('#F6EED2'),
     monstro=H('#3F7C78'), monstro_luz=H('#5FA39C'),
     embrulho=H('#8E1F25'), embrulho_luz=H('#B8343A'),
@@ -254,7 +255,7 @@ def espada_placa():
     return q.im
 
 
-def cama(com_althea, dossel=False):
+def cama(com_althea, dossel=False, sentada=False):
     # cama de madeira com colunas e pinhas na cabeceira e coberta azul, como
     # a de Nicholas no prólogo; com dossel azul-escuro, como a da duquesa
     alto = 22 if dossel else 0
@@ -285,6 +286,15 @@ def cama(com_althea, dossel=False):
         q.r(16, 15 + y, 21, 18 + y, 'monstro')              # a pelúcia abraçada
         q.p(21, 15 + y, 'monstro_luz'); q.p(18, 15 + y, 'monstro_luz')
         q.r(19, 17 + y, 34, 22 + y, 'colcha_luz')           # volume do corpo sob a colcha
+    if sentada:
+        # Althea sentada na cama, ainda com a pelúcia, antes de pular para o chão
+        q.r(19, 17 + y, 34, 22 + y, 'colcha_luz')           # pernas sob a colcha
+        q.r(10, 8 + y, 16, 16 + y, 'vestido_althea')        # camisola
+        q.elipse(13, 4 + y, 3, 3, 'pele_luz')               # rosto
+        q.r(10, 1 + y, 16, 3 + y, 'cab_althea')             # cabelo curto
+        q.r(10, 3 + y, 10, 6 + y, 'cab_althea'); q.r(16, 3 + y, 16, 6 + y, 'cab_althea')
+        q.p(12, 4 + y, 'azul'); q.p(14, 4 + y, 'azul')
+        q.r(16, 11 + y, 20, 14 + y, 'monstro'); q.p(19, 11 + y, 'monstro_luz')
     q.r(42, 12 + y, 45, 30 + y, 'madeira_luz')              # pé da cama
     return q.contornar()
 
@@ -493,6 +503,7 @@ ARTES = {
     'parede_mansao.png': parede,
     'cama_nicholas.png': lambda: cama(False),
     'cama_althea.png': lambda: cama(True, dossel=True),
+    'cama_althea_sentada.png': lambda: cama(False, dossel=True, sentada=True),
     'cama_althea_vazia.png': lambda: cama(False, dossel=True),
     'espelho.png': espelho,
     'armario.png': armario,

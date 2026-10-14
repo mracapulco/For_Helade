@@ -52,7 +52,7 @@ Finalmente, ouviu cochichos e risos abafados. [ID:CAP1_034]
 
 ## Pany e as criadas chegam com o bolo.
 Pany: [#retrato=neutro] Jovem Mestre! Pensamos que acordaria mais tarde. [ID:CAP1_037]
-Nicholas: [#retrato=neutro] Hoje é o aniversário da Thea e nosso último dia em Atenas. Ninguém vai estragá-lo. [ID:CAP1_040]
+Nicholas: [#retrato=neutro] Deixemos isso para lá. Hoje é o aniversário da Thea e nosso último dia em Atenas. Ninguém vai estragá-lo. [ID:CAP1_040]
 => END
 
 ~ frases_quarto_althea
@@ -108,6 +108,7 @@ Apollon: [#retrato=neutro] Não se dirija a mim dessa maneira, Nicholas. Ainda s
 Nicholas: [#retrato=neutro] Casar-se com a melhor amiga da mamãe não foi uma decisão. Foi covardia. [ID:CAP1_067]
 Apollon: [#retrato=neutro] Meu casamento com Danica foi uma condição imposta pelo Imperador. [ID:CAP1_068]
 Nicholas: [#retrato=neutro] Posso estar feliz por voltarmos sem aceitar o preço que pagou por isso. [ID:CAP1_069]
+Apollon: [#retrato=neutro] Pense o que quiser. Apenas mantenha a postura diante dos empregados e aprenda a se comportar de acordo com sua posição. [ID:CAP1_101]
 Althea: [#retrato=neutro] P-parem de brigar... [ID:CAP1_070]
 Apollon: [#retrato=neutro] Não vim para discutir. Vim parabenizar minha filha e incumbir os dois de uma tarefa. [ID:CAP1_071]
 Nicholas: [#retrato=neutro] Que tarefa? [ID:CAP1_072]
@@ -122,7 +123,7 @@ Apollon: [#retrato=neutro] Feliz aniversário, Althea. [ID:CAP1_076]
 ## O duque saiu; Nicholas volta à mesa.
 Althea: [#retrato=neutro] Está tudo bem, Nick? [ID:CAP1_077]
 Nicholas: [#retrato=neutro] Teremos que mudar os planos de hoje, Thea. Que tal almoçarmos com a princesa naquele restaurante de que você gosta? [ID:CAP1_078]
-Althea: [#retrato=neutro] É uma ótima ideia! Ah, e eu posso levar minha espada? [ID:CAP1_079]
+Althea: [#retrato=neutro] É uma ótima ideia! Depois podemos passar na livraria. E naquela loja de doces. E talvez naquela praça com os músicos. Ah, e eu posso levar minha espada? [ID:CAP1_079]
 Nicholas: [#retrato=neutro] Não. [ID:CAP1_080]
 Althea: [#retrato=neutro] Mas... [ID:CAP1_081]
 Nicholas: [#retrato=neutro] Definitivamente não. [ID:CAP1_082]
@@ -146,7 +147,7 @@ Havia dois meses que a Imperatriz Callie falecera. [ID:CAP1_084]
 Althea: [#retrato=neutro] Está bravo comigo, Nick? [ID:CAP1_085]
 Nicholas: [#retrato=neutro] O quê? Não, Thea, eu jamais conseguiria... [ID:CAP1_086]
 Althea: [#retrato=neutro] Então, por que parece chateado? [ID:CAP1_087]
-Nicholas: [#retrato=neutro] Porque estou. Não gostei que o Duque nos mandou buscar a Princesa. [ID:CAP1_088]
+Nicholas: [#retrato=neutro] Porque estou. Não gostei que o Duque nos mandou buscar a Princesa. Não vamos aproveitar seu aniversário como eu tinha planejado. [ID:CAP1_088]
 Althea: [#retrato=neutro] ...Não o chame assim. Ele é o papai. [ID:CAP1_089]
 Silêncio. [ID:CAP1_090]
 => END

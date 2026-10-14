@@ -27,8 +27,9 @@ func _process(_delta: float) -> void:
 	if personagem == null or sprite_frames == null:
 		return
 	var movimento := personagem.velocity
-	if movimento.length() > 1.0:
-		olhar_para(movimento)
+	# Vira para onde o personagem olha (a última direção em que andou), que
+	# é também para onde o golpe sai.
+	olhar_para(personagem.direcao_olhar)
 	var acao := escolher_acao(movimento.length(), personagem.velocidade, interagindo,
 		personagem.golpeando)
 	var nome := StringName("%s_%s" % [acao, direcao])

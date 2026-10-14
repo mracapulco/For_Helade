@@ -12,6 +12,9 @@ extends CharacterBody2D
 ## perto, na frente dele, reage ao golpe (ReacaoAoGolpe).
 ## Tocar num Interagivel: anda até ele e interage ao chegar.
 ## Durante uma conversa o personagem fica parado e ignora toques e teclas.
+## Com uma [member grade], ele anda de casa em casa do chão e sempre para no
+## centro de uma casa, pelo teclado ou pelo toque; assim fica claro quando
+## está alinhado com alguém.
 
 signal destino_definido(destino: Vector2)
 signal chegou
@@ -20,9 +23,11 @@ signal golpeou
 ## O golpe chegou ao corte e pegou estes alvos (pode ser vazio).
 signal acertou(alvos: Array[ReacaoAoGolpe])
 
-@export var velocidade := 120.0
+@export var velocidade := 90.0
 ## Quanto mais rápido fica ao correr.
-@export var multiplicador_corrida := 1.75
+@export var multiplicador_corrida := 1.5
+## Camada do chão cujas casas o movimento segue. Sem ela, anda livre.
+@export var grade: TileMapLayer
 @export var altura_pulo := 20.0
 @export var duracao_pulo := 0.45
 ## Id do personagem no Inventario, para saber se está armado.
@@ -47,6 +52,10 @@ var alvo_interacao: Interagivel
 
 var _tempo_pulo := 0.0
 var _tempo_golpe := 0.0
+## Centro da casa para onde está indo pelo teclado (INF = nenhuma).
+var _casa_destino := Vector2.INF
+var _casa_origem := Vector2.ZERO
+var _golpe_pendente := false
 
 @onready var agente: NavigationAgent2D = $Agente
 @onready var corpo: Node2D = $Corpo
@@ -153,8 +162,14 @@ func interagir_com(alvo: Interagivel) -> void:
 ## Leva o personagem ao ponto andável mais próximo de `destino`.
 func ir_para(destino: Vector2) -> void:
 	var mapa := agente.get_navigation_map()
-	if NavigationServer2D.map_get_iteration_id(mapa) > 0:
+	var na_grade := Vector2.INF
+	if grade:
+		na_grade = casa_livre_perto(destino)
+	if na_grade != Vector2.INF:
+		destino = na_grade
+	elif NavigationServer2D.map_get_iteration_id(mapa) > 0:
 		destino = NavigationServer2D.map_get_closest_point(mapa, destino)
+	_casa_destino = Vector2.INF
 	agente.target_position = destino
 	andando = true
 	destino_definido.emit(destino)
@@ -180,6 +195,10 @@ func armado() -> bool:
 func golpear() -> bool:
 	if em_dialogo or golpeando or not armado():
 		return false
+	if indo_para_casa():
+		# Termina o passo antes, para golpear sempre do centro de uma casa.
+		_golpe_pendente = true
+		return true
 	golpeando = true
 	_tempo_golpe = 0.0
 	andando = false
@@ -209,7 +228,64 @@ static func pega_no_golpe(origem: Vector2, olhar: Vector2, alvo: Vector2, alcanc
 		return false
 	if ate_alvo.length() < 1.0:
 		return true
-	return olhar.normalized().dot(ate_alvo.normalized()) >= 0.25
+	return olhar.normalized().dot(ate_alvo.normalized()) >= 0.7
+
+
+## Está no meio de um passo de uma casa para outra (teclado).
+func indo_para_casa() -> bool:
+	return _casa_destino != Vector2.INF
+
+
+## Casa do chão onde fica este ponto do mundo.
+func casa_de(ponto: Vector2) -> Vector2i:
+	return grade.local_to_map(grade.to_local(ponto))
+
+
+## Centro, no mundo, de uma casa do chão.
+func centro_da_casa(casa: Vector2i) -> Vector2:
+	return grade.to_global(grade.map_to_local(casa))
+
+
+## Quantas casas as teclas andam em cada eixo do chão: S anda +1 em x e W
+## -1; A anda +1 em y e D -1. Duas teclas juntas andam na diagonal da grade
+## (as direções retas da tela).
+static func passo_na_grade(direcao_teclas: Vector2) -> Vector2i:
+	var passo := Vector2i.ZERO
+	if absf(direcao_teclas.y) > 0.3:
+		passo.x = signi(roundi(signf(direcao_teclas.y)))
+	if absf(direcao_teclas.x) > 0.3:
+		passo.y = -signi(roundi(signf(direcao_teclas.x)))
+	return passo
+
+
+## O centro da casa é chão andável (na navegação da sala).
+func casa_andavel(centro: Vector2) -> bool:
+	var mapa := agente.get_navigation_map()
+	if NavigationServer2D.map_get_iteration_id(mapa) == 0:
+		return true
+	return NavigationServer2D.map_get_closest_point(mapa, centro).distance_to(centro) < 2.0
+
+
+## O centro de casa andável mais perto de [param destino]: a própria casa ou,
+## se ela estiver ocupada (um objeto, alguém), a vizinha livre mais perto
+## dela, desempatando pela mais perto do personagem. INF se não houver.
+func casa_livre_perto(destino: Vector2) -> Vector2:
+	var casa := casa_de(destino)
+	var centro := centro_da_casa(casa)
+	if casa_andavel(centro):
+		return centro
+	var melhor := Vector2.INF
+	var melhor_nota := INF
+	for passo: Vector2i in [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1),
+			Vector2i(1, 1), Vector2i(-1, -1)]:
+		var vizinha := centro_da_casa(casa + passo)
+		if not casa_andavel(vizinha):
+			continue
+		var nota := roundf(vizinha.distance_to(destino)) * 1000.0 + vizinha.distance_to(global_position)
+		if nota < melhor_nota:
+			melhor = vizinha
+			melhor_nota = nota
+	return melhor
 
 
 ## Converte a direção das teclas para as linhas do quadriculado isométrico:
@@ -251,6 +327,9 @@ func _physics_process(delta: float) -> void:
 		rapidez *= multiplicador_corrida
 
 	var teclas := Input.get_vector("mover_esquerda", "mover_direita", "mover_frente", "mover_tras")
+	if grade and (indo_para_casa() or teclas != Vector2.ZERO):
+		_andar_na_grade(teclas, rapidez, delta)
+		return
 	if teclas != Vector2.ZERO:
 		alvo_interacao = null
 		if andando:
@@ -265,6 +344,8 @@ func _physics_process(delta: float) -> void:
 		velocity = Vector2.ZERO
 		return
 	if agente.is_navigation_finished():
+		if grade and global_position.distance_to(agente.target_position) < 6.0:
+			global_position = agente.target_position
 		andando = false
 		velocity = Vector2.ZERO
 		chegou.emit()
@@ -276,6 +357,43 @@ func _physics_process(delta: float) -> void:
 	if velocity.length() > 1.0:
 		direcao_olhar = velocity.normalized()
 	move_and_slide()
+
+
+## Teclado com grade: anda uma casa por vez e só para no centro de uma casa.
+## Soltar a tecla no meio do caminho termina o passo.
+func _andar_na_grade(teclas: Vector2, rapidez: float, delta: float) -> void:
+	if not indo_para_casa():
+		var passo := passo_na_grade(teclas)
+		if passo == Vector2i.ZERO:
+			velocity = Vector2.ZERO
+			return
+		alvo_interacao = null
+		if andando:
+			andando = false
+			chegou.emit()
+		var proxima := centro_da_casa(casa_de(global_position) + passo)
+		direcao_olhar = direcao_isometrica(teclas)
+		if not test_move(global_transform, proxima - global_position) and casa_andavel(proxima):
+			_casa_origem = centro_da_casa(casa_de(global_position))
+			_casa_destino = proxima
+		else:
+			velocity = Vector2.ZERO
+			return
+	var falta := _casa_destino - global_position
+	var anda := rapidez * delta
+	velocity = falta.normalized() * rapidez
+	if falta.length() <= anda:
+		global_position = _casa_destino
+		_casa_destino = Vector2.INF
+		if _golpe_pendente:
+			_golpe_pendente = false
+			golpear()
+		return
+	var antes := global_position
+	move_and_slide()
+	if global_position.distance_to(antes) < anda * 0.1:
+		# Algo entrou no caminho: volta para a casa de onde saiu.
+		_casa_destino = _casa_origem
 
 
 func _atualizar_golpe(delta: float) -> void:

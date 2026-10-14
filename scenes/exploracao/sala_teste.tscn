@@ -85,10 +85,11 @@ z_index = -1
 script = ExtResource("5_marc")
 personagem = NodePath("../Personagem")
 
-[node name="Personagem" type="CharacterBody2D" parent="." unique_id=997458425]
+[node name="Personagem" type="CharacterBody2D" parent="." unique_id=997458425 node_paths=PackedStringArray("grade")]
 position = Vector2(-128, 192)
 motion_mode = 1
 script = ExtResource("4_pers")
+grade = NodePath("../Chao")
 
 [node name="Sombra" type="Polygon2D" parent="Personagem" unique_id=615637889]
 color = Color(0, 0, 0, 0.35)

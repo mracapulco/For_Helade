@@ -12,6 +12,7 @@
 [ext_resource type="Script" path="res://scripts/prologo/duquesa_na_cama.gd" id="13_duquesa"]
 [ext_resource type="Script" path="res://scripts/prologo/bebe_althea.gd" id="14_althea"]
 [ext_resource type="Script" path="res://scripts/prologo/corpo_nicholas.gd" id="15_corpo"]
+[ext_resource type="Script" path="res://scripts/prologo/passagens_prologo.gd" id="16_passagens"]
 [ext_resource type="Shader" path="res://assets/shaders/prologo/ceu_noite.gdshader" id="s_ceu"]
 [ext_resource type="Shader" path="res://assets/shaders/prologo/vinheta.gdshader" id="s_vinheta"]
 [ext_resource type="Script" path="res://scripts/prologo/sensacao_primeira_pessoa.gd" id="10_sensacao"]
@@ -171,6 +172,89 @@ altura = 1.55
 [node name="Duquesa" type="Node3D" parent="." unique_id=1844210931]
 transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 12.75, 0.72, 8.1)
 script = ExtResource("13_duquesa")
+
+[node name="Passagens" type="Node3D" parent="." node_paths=PackedStringArray("controle", "sequencia")]
+script = ExtResource("16_passagens")
+controle = NodePath("..")
+sequencia = NodePath("../Sequencia")
+gatilhos = {
+"Correria1": "PortaQuarto",
+"Correria2": "PortaQuarto",
+"Correria3": "Corredor"
+}
+velocidades = {
+"Correria1": 3.2,
+"Correria2": 2.9,
+"Correria3": 2.7
+}
+atrasos = {
+"Correria1": 0.6,
+"Correria2": 2.2
+}
+
+[node name="Correria1" type="Node3D" parent="Passagens"]
+script = ExtResource("12_pessoa")
+roupa = 1
+cor_roupa = Color(0.33, 0.27, 0.2, 1)
+cor_cabelo = Color(0.2, 0.14, 0.09, 1)
+semente = 11
+altura = 1.72
+
+[node name="Correria2" type="Node3D" parent="Passagens"]
+script = ExtResource("12_pessoa")
+cor_roupa = Color(0.3, 0.29, 0.31, 1)
+semente = 12
+altura = 1.6
+
+[node name="Correria3" type="Node3D" parent="Passagens"]
+script = ExtResource("12_pessoa")
+cor_roupa = Color(0.38, 0.32, 0.26, 1)
+touca = false
+cor_cabelo = Color(0.24, 0.16, 0.1, 1)
+semente = 13
+altura = 1.57
+
+[node name="CaminhoCorreria1" type="Node3D" parent="Passagens"]
+
+[node name="P0" type="Marker3D" parent="Passagens/CaminhoCorreria1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.0, 0, 5.6)
+
+[node name="P1" type="Marker3D" parent="Passagens/CaminhoCorreria1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.0, 0, 3.0)
+
+[node name="P2" type="Marker3D" parent="Passagens/CaminhoCorreria1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.8, 0, 1.3)
+
+[node name="P3" type="Marker3D" parent="Passagens/CaminhoCorreria1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14.7, 0, 1.3)
+
+[node name="CaminhoCorreria2" type="Node3D" parent="Passagens"]
+
+[node name="P0" type="Marker3D" parent="Passagens/CaminhoCorreria2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14.7, 0, 1.5)
+
+[node name="P1" type="Marker3D" parent="Passagens/CaminhoCorreria2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.4, 0, 1.5)
+
+[node name="P2" type="Marker3D" parent="Passagens/CaminhoCorreria2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.0, 0, 3.0)
+
+[node name="P3" type="Marker3D" parent="Passagens/CaminhoCorreria2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.0, 0, 5.6)
+
+[node name="CaminhoCorreria3" type="Node3D" parent="Passagens"]
+
+[node name="P0" type="Marker3D" parent="Passagens/CaminhoCorreria3"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.0, 0, 5.6)
+
+[node name="P1" type="Marker3D" parent="Passagens/CaminhoCorreria3"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.0, 0, 3.0)
+
+[node name="P2" type="Marker3D" parent="Passagens/CaminhoCorreria3"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.8, 0, 0.9)
+
+[node name="P3" type="Marker3D" parent="Passagens/CaminhoCorreria3"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14.7, 0, 1.0)
 
 [node name="Pontos" type="Node3D" parent="." unique_id=1031558735]
 

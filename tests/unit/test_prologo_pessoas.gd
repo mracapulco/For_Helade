@@ -245,3 +245,48 @@ func test_no_colo_as_maos_ficam_junto_de_althea() -> void:
 	var althea := cena.camera.global_transform * Vector3(0.0, -0.22, -0.43)
 	for pulso in corpo.pulsos:
 		assert_lt(pulso.global_position.distance_to(althea), 0.3)
+
+
+# --- Correria no corredor (planos/prologo-npcs.md, etapa 3) ---
+
+func _passagens() -> PassagensPrologo:
+	return cena.get_node("Passagens")
+
+
+func test_empregados_so_aparecem_quando_nicholas_sai_do_quarto() -> void:
+	var passagens := _passagens()
+	assert_eq(passagens.pessoas().size(), 3)
+	for pessoa in passagens.pessoas():
+		assert_false(pessoa.visible, pessoa.name + " ainda não passou")
+	cena.continuar_em(_ponto("PortaQuarto"))
+	await wait_until(func() -> bool: return passagens.em_caminho.size() >= 2, 4.0)
+	for pessoa: PessoaPrologo in passagens.em_caminho.keys():
+		assert_true(pessoa.visible)
+		assert_eq(pessoa.atividade, "correndo")
+
+
+func test_correm_para_frente_e_somem_no_fim() -> void:
+	var passagens := _passagens()
+	cena.continuar_em(_ponto("PortaQuarto"))
+	var correria: PessoaPrologo = passagens.get_node("Correria1")
+	await wait_until(func() -> bool: return correria.visible, 2.0)
+	var antes := correria.global_position
+	await wait_seconds(0.3)
+	var andou := correria.global_position - antes
+	assert_gt(andou.length(), 0.5, "corre")
+	var frente := -correria.global_basis.z
+	assert_gt(frente.dot(andou.normalized()), 0.8, "olha para onde corre")
+	await wait_until(func() -> bool: return not correria.visible, 10.0)
+	assert_false(correria.visible, "saiu do corredor")
+	assert_false(passagens.em_caminho.has(correria))
+
+
+func test_ninguem_corre_mais_depois_que_nicholas_entra() -> void:
+	var passagens := _passagens()
+	cena.continuar_em(_ponto("Corredor"))
+	await wait_until(func() -> bool: return not passagens.em_caminho.is_empty(), 2.0)
+	await _entrar_nos_aposentos()
+	await _ate_a_etapa("caos")
+	assert_true(passagens.em_caminho.is_empty())
+	for pessoa in passagens.pessoas():
+		assert_false(pessoa.visible, pessoa.name)

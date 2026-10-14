@@ -291,10 +291,68 @@ def criada():
     return q.contornar()
 
 
+# ---------- itens na mão do personagem ----------
+
+# Ponto da espada que fica dentro do punho (canto de cima à esquerda da mão
+# 2×2). O mesmo número vai no .tres do item, em "pega_na_mao".
+PEGA_ESPADA = (2, 3)
+
+
+def espada_na_mao():
+    # Espada baixa, de ponta para baixo e um pouco para a frente. O punho
+    # (2×2) fica vazio: a mão do personagem aparece por cima do cabo.
+    q = Q(8, 20)
+    gx, gy = PEGA_ESPADA
+    q.r(gx, gy - 2, gx + 1, gy - 2, 'ouro')                 # pomo
+    q.p(gx + 1, gy - 2, 'ouro_luz')
+    q.r(gx, gy - 1, gx + 1, gy - 1, 'madeira')              # cabo
+    q.r(gx - 2, gy + 2, gx + 3, gy + 2, 'ouro')             # guarda
+    q.p(gx - 2, gy + 2, 'ouro_luz'); q.p(gx + 3, gy + 2, 'ouro_sombra')
+    # lâmina: dois pixels de largura, um passo para a frente a cada 4 linhas
+    for i in range(11):
+        x = gx + i // 4
+        y = gy + 3 + i
+        q.p(x, y, 'branco' if i < 3 else 'lua')
+        q.p(x + 1, y, 'pedra_luz')
+    q.p(gx + 3, gy + 14, 'lua')                             # ponta
+    punho = {(gx + dx, gy + dy) for dx in (0, 1) for dy in (0, 1)}
+    cheios = {(x, y) for x in range(q.w) for y in range(q.h) if q.px[x, y][3] == 255}
+    for (x, y) in list(cheios):
+        for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+            n = (x + dx, y + dy)
+            if n not in cheios and n not in punho and 0 <= n[0] < q.w and 0 <= n[1] < q.h:
+                q.px[n] = C['contorno']
+    return q.im
+
+
+# Rastro do golpe: arco claro do alto até a frente, com o centro no ombro.
+# O centro do círculo fica no pixel CENTRO_RASTRO da imagem.
+CENTRO_RASTRO = (0, 15)
+
+
+def rastro_golpe():
+    import math
+    q = Q(18, 26)
+    cx, cy = CENTRO_RASTRO
+    for passo in range(0, 101):
+        ang = math.radians(-75 + passo * 0.95)       # de quase em cima até um pouco abaixo da frente
+        forca = math.sin(math.pi * passo / 100)      # mais grosso no meio do arco
+        for raio, cor, minimo in ((16, 'branco', 0.0), (15, 'lua', 0.25), (14, 'olho_luz', 0.6), (13, 'olho', 0.85)):
+            if forca < minimo:
+                continue
+            x = round(cx + raio * math.cos(ang)); y = round(cy + raio * math.sin(ang))
+            if 0 <= x < q.w and 0 <= y < q.h:
+                r, g, b, _ = C[cor]
+                q.px[x, y] = (r, g, b, int(255 * (0.45 + 0.5 * forca)))
+    return q.im
+
+
 ARTES = {
     'assets/art/placeholders/itens/icone_espada.png': icone_espada,
     'assets/art/placeholders/itens/icone_pocao.png': icone_pocao,
     'assets/art/placeholders/itens/icone_carta.png': icone_carta,
+    'assets/art/placeholders/itens/espada_na_mao.png': espada_na_mao,
+    'assets/art/placeholders/itens/rastro_golpe.png': rastro_golpe,
     'assets/art/placeholders/exploracao/bau_fechado.png': lambda: bau(False),
     'assets/art/placeholders/exploracao/bau_aberto.png': lambda: bau(True),
     'assets/art/placeholders/exploracao/anfora.png': anfora,

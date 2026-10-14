@@ -91,14 +91,13 @@ func _montar() -> void:
 		MalhaCorpo.peca(cotovelo, "Antebraco", MalhaCorpo.membro(0.185, [0.026, 0.023, 0.02]), pele)
 		var pulso := MalhaCorpo.junta(cotovelo, "Pulso", Vector3(0, -0.18, 0))
 		# Dedos meio dobrados, como uma mão solta de criança.
-		var mao := MalhaCorpo.mao(pulso, pele, 0.68, true, 0.6)
-		mao.rotation.y = -PI / 2.0 * lado
+		var mao := MalhaCorpo.mao(pulso, pele, 0.68, true, 0.6, lado)
 		# Mão de criança: palma mais cheia, começando já no pulso, e o polegar
 		# junto da palma (aberto, de cima ele parecia um espinho).
 		var palma: Node3D = mao.get_node("Palma")
 		palma.scale.z *= 1.5
 		palma.position.y += 0.008
-		(mao.get_node("Polegar") as Node3D).rotation = Vector3(0.35, 0.0, 0.18)
+		(mao.get_node("Polegar") as Node3D).rotation = Vector3(0.35, 0.0, 0.18 * lado)
 		ombros.append(ombro)
 		cotovelos.append(cotovelo)
 		pulsos.append(pulso)

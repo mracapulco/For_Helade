@@ -144,10 +144,14 @@ static func sangue() -> StandardMaterial3D:
 
 
 ## Mão com dedos, para quem a vê de perto (Nicholas olhando as próprias mãos).
-## Pende para -Y a partir do pulso, com a palma virada para -X·lado.
-## `curva` dobra os dedos (0 = abertos, 1.2 = mão fechada).
-static func mao(pai: Node3D, material: Material, tamanho := 1.0, detalhada := false, curva := 0.25) -> Node3D:
+## Pende para -Y a partir do pulso, com a palma virada para dentro (para o
+## corpo) e o polegar para a frente. `lado` é -1 na mão esquerda e 1 na
+## direita. `curva` dobra os dedos para a palma (0 = abertos, 1.2 = fechada).
+static func mao(pai: Node3D, material: Material, tamanho := 1.0, detalhada := false, curva := 0.25, lado := 1) -> Node3D:
 	var m := junta(pai, "Mao")
+	# Feita com a palma para a frente (-Z), onde os dedos dobram; o giro a
+	# vira para o corpo. A esquerda é espelhada pelo polegar.
+	m.rotation.y = PI / 2.0 * lado
 	var s := tamanho
 	peca(m, "Palma", elipsoide(Vector3(0.042, 0.05, 0.016) * s), material, Vector3(0, -0.045 * s, 0))
 	if not detalhada:
@@ -159,7 +163,7 @@ static func mao(pai: Node3D, material: Material, tamanho := 1.0, detalhada := fa
 			var dedo := junta(m, "Dedo%d" % i, Vector3(x, -0.088 * s, 0))
 			dedo.rotation.x = curva
 			peca(dedo, "Falanges", membro(comprimentos[i] * s, [0.0095 * s, 0.008 * s, 0.0065 * s], 8), material)
-	var polegar := junta(m, "Polegar", Vector3(0.038 * s, -0.035 * s, -0.008 * s))
-	polegar.rotation = Vector3(0.5, 0.0, 0.55)
+	var polegar := junta(m, "Polegar", Vector3(0.038 * s * lado, -0.035 * s, -0.008 * s))
+	polegar.rotation = Vector3(0.5, 0.0, 0.55 * lado)
 	peca(polegar, "Falanges", membro(0.055 * s, [0.011 * s, 0.009 * s, 0.007 * s], 8), material)
 	return m

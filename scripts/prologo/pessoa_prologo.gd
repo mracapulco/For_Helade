@@ -286,8 +286,7 @@ func _braco(lado: int, roupa_mat: Material, largura: float) -> void:
 		MalhaCorpo.peca(cotovelo, "Antebraco", MalhaCorpo.membro(0.24, [0.042, 0.04, 0.036]), roupa_mat)
 		MalhaCorpo.peca(cotovelo, "Pulso", MalhaCorpo.membro(0.03, [0.025, 0.024]), _material_pele, Vector3(0, -0.23, 0))
 	var pulso := MalhaCorpo.junta(cotovelo, "Pulso", Vector3(0, -0.25, 0))
-	var mao := MalhaCorpo.mao(pulso, _material_pele, 0.95)
-	mao.rotation.y = -PI / 2.0 * lado
+	MalhaCorpo.mao(pulso, _material_pele, 0.95, false, 0.25, lado)
 	if sangue > 0.0 and mangas_arregacadas:
 		MalhaCorpo.peca(cotovelo, "Mancha", MalhaCorpo.elipsoide(Vector3(0.03, 0.04, 0.03)), MalhaCorpo.sangue(), Vector3(0, -0.2, -0.008))
 	ombros.append(ombro)

@@ -146,7 +146,7 @@ func _aposentos() -> void:
 	var perto := controle.corpo.global_position + Vector3(frente.x, 0.0, frente.z).normalized() * 1.1
 	var passo := create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	passo.tween_property(parteira, "global_position", Vector3(perto.x, parteira.global_position.y, perto.z), _t(2.0))
-	_atividade(parteira, "andando")
+	_atividade(parteira, "andando_com_bebe")
 	await passo.finished
 	_atividade(parteira, "segurando_bebe")
 	_mudar("segurar")

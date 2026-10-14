@@ -138,6 +138,8 @@ func test_a_duquesa_parte_e_depois_e_levada() -> void:
 	seq.botao_nome.pressed.emit()
 	await _ate_a_etapa("choro")
 	assert_true((seq.althea as BebeAlthea).chorando)
+	await wait_until(func() -> bool: return seq.parteira.atividade != "segurando_bebe", 3.0)
+	assert_eq(seq.parteira.atividade, "andando_com_bebe", "vem até Nicholas sem soltar Althea")
 	await wait_until(func() -> bool: return seq.duquesa.partiu, 3.0)
 	assert_eq(seq.duquesa.pessoa.atividade, "deitada_partiu")
 	assert_gt(seq.duquesa.pessoa.palidez, 0.5, "mais pálida")
@@ -306,7 +308,7 @@ func test_janet_so_aparece_no_quarto_vazio_e_sai_com_as_roupas() -> void:
 	seq.alvo_althea.tocado.emit(seq.alvo_althea)
 	await _ate_a_etapa("quarto_vazio")
 	assert_true(janet.visible, "já no quarto quando a tela clareia")
-	assert_eq(janet.atividade, "parada")
+	assert_eq(janet.atividade, "carregando", "já aparece segurando as roupas")
 	await wait_until(func() -> bool: return janet.atividade == "levando_roupas", 5.0)
 	var antes := janet.global_position
 	await wait_seconds(0.5)

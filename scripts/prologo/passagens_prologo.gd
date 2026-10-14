@@ -90,6 +90,8 @@ func _partir(pessoa: PessoaPrologo) -> void:
 	pessoa.atividade = atividades.get(String(pessoa.name), "correndo" if rapidez > 2.0 else "andando")
 	em_caminho[pessoa] = {"pontos": pontos.slice(1), "rapidez": rapidez}
 	_virar(pessoa, pontos[1] if pontos.size() > 1 else pontos[0])
+	if not String(pessoa.name) in aparecem_antes:
+		pessoa.posar_agora()
 
 
 func _mostrar_no_comeco(pessoa: PessoaPrologo) -> void:
@@ -98,8 +100,10 @@ func _mostrar_no_comeco(pessoa: PessoaPrologo) -> void:
 		return
 	pessoa.global_position = (caminho.get_child(0) as Node3D).global_position
 	pessoa.visible = true
-	pessoa.atividade = "parada"
+	# Quem leva algo já aparece segurando, não com as mãos vazias.
+	pessoa.atividade = "carregando" if pessoa.roupas_dobradas else "parada"
 	_virar(pessoa, (caminho.get_child(1) as Node3D).global_position)
+	pessoa.posar_agora()
 
 
 func _physics_process(delta: float) -> void:

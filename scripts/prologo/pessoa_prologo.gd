@@ -11,7 +11,7 @@ extends Node3D
 enum Roupa { VESTIDO, TUNICA }
 
 ## O que a pessoa está fazendo. As juntas vão aos poucos até a pose dela.
-const ATIVIDADES := ["parada", "trabalhando", "carregando", "segurando_bebe", "andando", "levando_roupas", "correndo", "deitada_parto", "deitada_exausta", "deitada_chorando", "deitada_partiu"]
+const ATIVIDADES := ["parada", "trabalhando", "carregando", "segurando_bebe", "andando", "levando_roupas", "andando_com_bebe", "correndo", "deitada_parto", "deitada_exausta", "deitada_chorando", "deitada_partiu"]
 
 @export var roupa := Roupa.VESTIDO:
 	set(valor):
@@ -64,7 +64,7 @@ const ATIVIDADES := ["parada", "trabalhando", "carregando", "segurando_bebe", "a
 	set(valor):
 		deitada = valor
 		_remontar()
-@export_enum("parada", "trabalhando", "carregando", "segurando_bebe", "andando", "levando_roupas", "correndo", "deitada_parto", "deitada_exausta", "deitada_chorando", "deitada_partiu") var atividade := "parada"
+@export_enum("parada", "trabalhando", "carregando", "segurando_bebe", "andando", "levando_roupas", "andando_com_bebe", "correndo", "deitada_parto", "deitada_exausta", "deitada_chorando", "deitada_partiu") var atividade := "parada"
 ## Roupas dobradas nos braços: as que Janet leva para a duquesa.
 @export var roupas_dobradas := false:
 	set(valor):
@@ -384,12 +384,13 @@ func _pose(nome: String, t: float) -> Dictionary:
 		"segurando_bebe":
 			return {"inclina": -0.05, "ombro_e": 0.5, "ombro_d": 0.4, "cotovelo_e": 1.45, "cotovelo_d": 1.35,
 				"abre_e": -0.3, "abre_d": -0.22, "cabeca": -0.3, "respiracao": 0.4, "folego": 0.01}
-		"levando_roupas":
-			# Andando devagar, com as roupas dobradas junto ao peito.
+		"levando_roupas", "andando_com_bebe":
+			# Andando sem soltar o que leva: as roupas dobradas junto ao peito
+			# (Janet) ou Althea no colo (a parteira indo até Nicholas).
 			var passo := _pose("andando", t)
 			for chave in ["ombro_e", "ombro_d", "cotovelo_e", "cotovelo_d"]:
 				passo.erase(chave)
-			passo.merge(_pose("carregando", t))
+			passo.merge(_pose("carregando" if nome == "levando_roupas" else "segurando_bebe", t))
 			return passo
 		"andando", "correndo":
 			var correndo := nome == "correndo"

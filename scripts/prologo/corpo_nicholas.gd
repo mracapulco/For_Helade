@@ -23,6 +23,8 @@ extends Node3D
 var pose := "parado"
 
 var quadril: Node3D
+## A barra da camisola, que se abre para a frente com a perna que sobe.
+var camisola: Node3D
 var coxas: Array[Node3D] = []
 var joelhos: Array[Node3D] = []
 var bracos: Node3D
@@ -51,7 +53,7 @@ func _montar() -> void:
 	pele.rim_enabled = false # de perto, o brilho de borda parecia plástico
 	var linho := MalhaCorpo.tecido(cor_camisola, 9.0)
 	# O corpo fica um pouco atrás dos olhos, para olhar para baixo e ver o peito e os pés.
-	var corpo := MalhaCorpo.junta(self, "Corpo", Vector3(0, 0, 0.12))
+	var corpo := MalhaCorpo.junta(self, "Corpo", Vector3(0, 0, 0.08))
 	quadril = MalhaCorpo.junta(corpo, "Quadril", Vector3(0, 0.55, 0))
 	# Do peito para cima o corpo só faz sombra: visto de dentro, ele taparia a
 	# visão das pernas e dos pés.
@@ -59,11 +61,11 @@ func _montar() -> void:
 		Vector4(0.38, 0.05, 0.045, 0), Vector4(0.36, 0.1, 0.07, 0), Vector4(0.33, 0.125, 0.08, 0),
 		Vector4(0.2, 0.11, 0.065, 0.0), Vector4(0.03, 0.11, 0.07, 0.0)], -PI, PI, 22), linho)
 	peito.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_SHADOWS_ONLY
-	MalhaCorpo.peca(quadril, "Camisola", MalhaCorpo.anel([
+	camisola = MalhaCorpo.peca(quadril, "Camisola", MalhaCorpo.anel([
 		Vector4(0.04, 0.0, 0.0, 0.0), Vector4(0.03, 0.11, 0.07, 0.0), Vector4(-0.05, 0.12, 0.082, -0.02),
-		Vector4(-0.15, 0.13, 0.095, -0.04), Vector4(-0.165, 0.13, 0.095, -0.04)], -PI, PI, 22), linho)
+		Vector4(-0.1, 0.13, 0.092, -0.005), Vector4(-0.115, 0.13, 0.092, -0.005)], -PI, PI, 22), linho)
 	for lado in [-1, 1]:
-		var coxa := MalhaCorpo.junta(quadril, "Coxa" + ("D" if lado > 0 else "E"), Vector3(0.06 * lado, -0.03, -0.12))
+		var coxa := MalhaCorpo.junta(quadril, "Coxa" + ("D" if lado > 0 else "E"), Vector3(0.06 * lado, -0.03, 0.0))
 		MalhaCorpo.peca(coxa, "Perna", MalhaCorpo.membro(0.26, [0.05, 0.042, 0.035]), pele)
 		var joelho := MalhaCorpo.junta(coxa, "Joelho", Vector3(0, -0.26, 0))
 		MalhaCorpo.peca(joelho, "Canela", MalhaCorpo.membro(0.24, [0.036, 0.03, 0.024]), pele)
@@ -80,15 +82,23 @@ func _montar() -> void:
 	bracos = MalhaCorpo.junta(self, "Bracos", Vector3(0, ALTURA_OLHOS, 0))
 	for lado in [-1, 1]:
 		var ombro := MalhaCorpo.junta(bracos, "Ombro" + ("D" if lado > 0 else "E"), Vector3(0.13 * lado, -0.16, 0.02))
-		MalhaCorpo.peca(ombro, "Manga", MalhaCorpo.membro(0.12, [0.045, 0.04]), linho)
+		# A manga afina até o braço, sem borda que pareça um corte.
+		MalhaCorpo.peca(ombro, "Manga", MalhaCorpo.membro(0.13, [0.045, 0.041, 0.036, 0.031]), linho)
 		MalhaCorpo.peca(ombro, "Braco", MalhaCorpo.membro(0.2, [0.032, 0.028, 0.025]), pele, Vector3(0, -0.02, 0))
 		# Braços um pouco mais longos que os de uma criança: na primeira pessoa,
 		# senão as mãos nunca chegam à tela.
 		var cotovelo := MalhaCorpo.junta(ombro, "Cotovelo", Vector3(0, -0.2, 0))
-		MalhaCorpo.peca(cotovelo, "Antebraco", MalhaCorpo.membro(0.18, [0.026, 0.023, 0.019]), pele)
+		MalhaCorpo.peca(cotovelo, "Antebraco", MalhaCorpo.membro(0.185, [0.026, 0.023, 0.02]), pele)
 		var pulso := MalhaCorpo.junta(cotovelo, "Pulso", Vector3(0, -0.18, 0))
-		var mao := MalhaCorpo.mao(pulso, pele, 0.68, true, 0.9)
+		# Dedos meio dobrados, como uma mão solta de criança.
+		var mao := MalhaCorpo.mao(pulso, pele, 0.68, true, 0.6)
 		mao.rotation.y = -PI / 2.0 * lado
+		# Mão de criança: palma mais cheia, começando já no pulso, e o polegar
+		# junto da palma (aberto, de cima ele parecia um espinho).
+		var palma: Node3D = mao.get_node("Palma")
+		palma.scale.z *= 1.5
+		palma.position.y += 0.008
+		(mao.get_node("Polegar") as Node3D).rotation = Vector3(0.35, 0.0, 0.18)
 		ombros.append(ombro)
 		cotovelos.append(cotovelo)
 		pulsos.append(pulso)
@@ -170,17 +180,20 @@ func _posar(mistura: float) -> void:
 	match pose:
 		"andando", "correndo":
 			var forte := pose == "correndo"
-			var amplo := 0.7 if forte else 0.38
+			# Balanço contido: em primeira pessoa, braços altos demais passavam
+			# na frente do rosto e as pernas subiam até a câmera.
+			var amplo := 0.55 if forte else 0.35
 			p = {"coxa_e": -amplo * balanco, "coxa_d": amplo * balanco,
-				"joelho_e": maxf(0.0, -sin(_fase - 0.8)) * (1.2 if forte else 0.6),
-				"joelho_d": maxf(0.0, sin(_fase - 0.8)) * (1.2 if forte else 0.6),
-				"ombro_e": (0.95 if forte else 0.55) * balanco + (0.35 if forte else 0.15),
-				"ombro_d": -(0.95 if forte else 0.55) * balanco + (0.35 if forte else 0.15),
-				"cotovelo_e": 1.3 if forte else 0.5, "cotovelo_d": 1.3 if forte else 0.5,
+				"joelho_e": maxf(0.0, -sin(_fase - 0.8)) * (0.95 if forte else 0.55),
+				"joelho_d": maxf(0.0, sin(_fase - 0.8)) * (0.95 if forte else 0.55),
+				"ombro_e": (0.5 if forte else 0.3) * balanco + (0.1 if forte else 0.05),
+				"ombro_d": -(0.5 if forte else 0.3) * balanco + (0.1 if forte else 0.05),
+				"cotovelo_e": 0.95 if forte else 0.4, "cotovelo_d": 0.95 if forte else 0.4,
 				"abre_e": 0.12, "abre_d": 0.12}
 		"no_ar":
-			p = {"coxa_e": 0.7, "coxa_d": 0.45, "joelho_e": 1.2, "joelho_d": 1.0,
-				"ombro_e": 1.15, "ombro_d": 1.0, "abre_e": 0.45, "abre_d": 0.45, "cotovelo_e": 0.5, "cotovelo_d": 0.6}
+			# Braços abertos para os lados, para o equilíbrio, e joelhos dobrados.
+			p = {"coxa_e": 0.45, "coxa_d": 0.3, "joelho_e": 0.85, "joelho_d": 0.7,
+				"ombro_e": 0.45, "ombro_d": 0.4, "abre_e": 0.75, "abre_d": 0.75, "cotovelo_e": 0.45, "cotovelo_d": 0.5}
 		"travado":
 			# "Eu congelei": braços colados ao corpo, mãos fechadas.
 			p = {"ombro_e": 0.02, "ombro_d": 0.02, "abre_e": 0.03, "abre_d": 0.03, "cotovelo_e": 0.2, "cotovelo_d": 0.2}
@@ -192,8 +205,13 @@ func _posar(mistura: float) -> void:
 				p["joelho_e"] = maxf(0.0, -sin(_fase - 0.8)) * 0.9
 				p["joelho_d"] = maxf(0.0, sin(_fase - 0.8)) * 0.9
 		_:
-			p = {"ombro_e": 0.06, "ombro_d": 0.06, "abre_e": 0.08, "abre_d": 0.08, "cotovelo_e": 0.15, "cotovelo_d": 0.15}
+			# Pés um pouco à frente, para aparecerem além da barra da camisola.
+			p = {"coxa_e": 0.16, "coxa_d": 0.16, "joelho_e": 0.1, "joelho_d": 0.1,
+				"ombro_e": 0.06, "ombro_d": 0.06, "abre_e": 0.08, "abre_d": 0.08, "cotovelo_e": 0.15, "cotovelo_d": 0.15}
 	quadril.position.y = 0.55 - 0.06 * _queda
+	# A perna da frente empurra o pano: sem isso, a coxa atravessava a camisola.
+	var perna_a_frente := maxf(maxf(float(p.get("coxa_e", 0.0)), float(p.get("coxa_d", 0.0))) + 0.5 * _queda, 0.0)
+	camisola.rotation.x = lerp_angle(camisola.rotation.x, perna_a_frente * 0.75, mistura)
 	for i in 2:
 		var lado := -1 if i == 0 else 1
 		var chave := "e" if i == 0 else "d"
@@ -206,7 +224,8 @@ func _posar(mistura: float) -> void:
 		ombros[i].basis = ombros[i].basis.slerp(alvo_ombro, mistura)
 		var alvo_cotovelo := Basis.from_euler(Vector3(float(p.get("cotovelo_" + chave, 0.15)), 0.0, 0.0))
 		cotovelos[i].basis = cotovelos[i].basis.slerp(alvo_cotovelo, mistura)
-	var segue := 1.0 if pose == "segurando" else braco_segue_olhar
+	# Olhando para baixo, os braços seguirem o olhar os jogava para trás do corpo.
+	var segue := 1.0 if pose == "segurando" else (braco_segue_olhar if controle.camera and controle.camera.rotation.x > 0.0 else 0.0)
 	if controle.camera:
 		bracos.rotation.x = lerp_angle(bracos.rotation.x, controle.camera.rotation.x * segue, mistura)
 		bracos.position.y = controle.camera.position.y

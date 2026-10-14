@@ -10,8 +10,14 @@ pontos = {
 &"andando_frente": PackedVector2Array(21, 29, 21, 29, 21, 31, 21, 29),
 &"correndo_frente": PackedVector2Array(22, 26, 22, 26, 22, 30, 22, 26),
 &"interagindo_frente": PackedVector2Array(21, 29, 24, 22, 26, 22),
+&"golpe_frente": PackedVector2Array(22, 13, 28, 23, 22, 31),
 &"parado_costas": PackedVector2Array(21, 29, 21, 30),
 &"andando_costas": PackedVector2Array(21, 29, 21, 29, 21, 31, 21, 29),
 &"correndo_costas": PackedVector2Array(22, 26, 22, 26, 22, 30, 22, 26),
-&"interagindo_costas": PackedVector2Array(21, 29, 24, 21, 26, 21)
+&"interagindo_costas": PackedVector2Array(21, 29, 24, 21, 26, 21),
+&"golpe_costas": PackedVector2Array(22, 13, 28, 22, 22, 31)
+}
+angulos = {
+&"golpe_frente": PackedFloat32Array(180, -90, 0),
+&"golpe_costas": PackedFloat32Array(180, -90, 0)
 }

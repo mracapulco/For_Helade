@@ -6,26 +6,37 @@ extends CharacterBody2D
 ## projeto emula toque com o mouse).
 ## Teclado (PC): WASD ou setas para andar, Shift para correr, Espaço para pular,
 ## Enter para interagir com o interagível mais próximo ao alcance.
+## Golpe: com uma arma equipada, o clique esquerdo golpeia na direção do mouse
+## (clicar num interagível continua interagindo) e, no celular, o botão Golpe
+## golpeia para onde ele está olhando. Sem arma, o clique continua andando.
 ## Tocar num Interagivel: anda até ele e interage ao chegar.
 ## Durante uma conversa o personagem fica parado e ignora toques e teclas.
 
 signal destino_definido(destino: Vector2)
 signal chegou
+## Começou um golpe; [param direcao] é para onde (zero = para onde já olhava).
+signal golpeou(direcao: Vector2)
 
 @export var velocidade := 120.0
 ## Quanto mais rápido fica ao correr.
 @export var multiplicador_corrida := 1.75
 @export var altura_pulo := 20.0
 @export var duracao_pulo := 0.45
+## Id do personagem no Inventario, para saber se está armado.
+@export var id_inventario := "nicholas"
+## Quanto dura um golpe (o tempo da animação). Enquanto isso ele não anda.
+@export var duracao_golpe := 0.35
 
 var andando := false
 var pulando := false
+var golpeando := false
 ## Verdadeiro enquanto uma conversa está aberta.
 var em_dialogo := false
 ## Interagível para onde o personagem está indo, se houver.
 var alvo_interacao: Interagivel
 
 var _tempo_pulo := 0.0
+var _tempo_golpe := 0.0
 
 @onready var agente: NavigationAgent2D = $Agente
 @onready var corpo: Node2D = $Corpo
@@ -44,6 +55,16 @@ func _unhandled_input(event: InputEvent) -> void:
 	var na_tela: bool = event is InputEventScreenTouch or event is InputEventScreenDrag
 	if na_tela and BotoesToque.toque_em_botao(get_tree(), event.position):
 		return
+	# No PC armado, o clique golpeia: o toque que o Godot cria a partir do
+	# mouse não anda, só interage se cair num interagível.
+	var do_mouse: bool = na_tela and event.device == InputEvent.DEVICE_ID_EMULATION
+	if do_mouse and armado():
+		if event is InputEventScreenTouch and event.pressed:
+			var alvo := interagivel_em(tela_para_mundo(event.position))
+			if alvo:
+				interagir_com(alvo)
+		get_viewport().set_input_as_handled()
+		return
 	var toque: bool = event is InputEventScreenTouch and event.pressed
 	if toque:
 		tocar(tela_para_mundo(event.position))
@@ -51,6 +72,14 @@ func _unhandled_input(event: InputEvent) -> void:
 	elif event is InputEventScreenDrag:
 		alvo_interacao = null
 		ir_para(tela_para_mundo(event.position))
+		get_viewport().set_input_as_handled()
+	elif event.is_action_pressed("golpear") and armado():
+		if event is InputEventMouseButton:
+			var ponto := tela_para_mundo(event.position)
+			if interagivel_em(ponto) == null:
+				golpear(ponto)
+		else:
+			golpear()
 		get_viewport().set_input_as_handled()
 	elif event.is_action_pressed("pular"):
 		pular()
@@ -134,6 +163,29 @@ func pular() -> void:
 	_tempo_pulo = 0.0
 
 
+## Tem uma arma equipada no Inventario.
+func armado() -> bool:
+	return not Inventario.equipado(id_inventario, Item.Encaixe.ARMA).is_empty()
+
+
+## Golpe com a arma equipada, virado para [param alvo_mundo] (sem alvo, para
+## onde já está olhando). Para de andar. Devolve false se não puder golpear
+## agora (sem arma, em conversa ou no meio de outro golpe).
+func golpear(alvo_mundo: Vector2 = Vector2.INF) -> bool:
+	if em_dialogo or golpeando or not armado():
+		return false
+	golpeando = true
+	_tempo_golpe = 0.0
+	andando = false
+	alvo_interacao = null
+	velocity = Vector2.ZERO
+	var direcao := Vector2.ZERO
+	if alvo_mundo != Vector2.INF:
+		direcao = global_position.direction_to(alvo_mundo)
+	golpeou.emit(direcao)
+	return true
+
+
 ## Converte a direção das teclas para as linhas do quadriculado isométrico:
 ## W sobe para a esquerda, S desce para a direita, D sobe para a direita e
 ## A desce para a esquerda. Duas teclas juntas fazem as direções retas da
@@ -164,7 +216,9 @@ func _ao_terminar_dialogo(_recurso: DialogueResource) -> void:
 
 func _physics_process(delta: float) -> void:
 	_atualizar_pulo(delta)
-	if em_dialogo:
+	_atualizar_golpe(delta)
+	if em_dialogo or golpeando:
+		velocity = Vector2.ZERO
 		return
 	var rapidez := velocidade
 	if Input.is_action_pressed("correr"):
@@ -193,6 +247,14 @@ func _physics_process(delta: float) -> void:
 		return
 	velocity = global_position.direction_to(agente.get_next_path_position()) * rapidez
 	move_and_slide()
+
+
+func _atualizar_golpe(delta: float) -> void:
+	if not golpeando:
+		return
+	_tempo_golpe += delta
+	if _tempo_golpe >= duracao_golpe:
+		golpeando = false
 
 
 func _atualizar_pulo(delta: float) -> void:

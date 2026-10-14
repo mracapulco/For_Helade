@@ -15,6 +15,7 @@
 [ext_resource type="Script" path="res://scripts/exploracao/animacao_personagem.gd" id="11_anim"]
 [ext_resource type="Script" path="res://scripts/exploracao/item_na_mao.gd" id="23_item_mao"]
 [ext_resource type="Resource" path="res://assets/art/personagens/nicholas/nicholas_maos.tres" id="24_maos"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholders/itens/rastro_golpe.png" id="25_rastro"]
 [ext_resource type="Texture2D" path="res://assets/art/placeholders/exploracao/caixa_provisoria.png" id="9_caixa"]
 [ext_resource type="Texture2D" path="res://assets/art/placeholders/exploracao/personagem_provisorio.png" id="10_personagem"]
 [ext_resource type="Texture2D" path="res://assets/art/placeholders/exploracao/bau_fechado.png" id="15_bau_fechado"]
@@ -100,10 +101,16 @@ animation = &"parado_frente"
 offset = Vector2(0, -22)
 script = ExtResource("11_anim")
 
-[node name="ItemNaMao" type="Sprite2D" parent="Personagem/Corpo/Visual"]
+[node name="ItemNaMao" type="Sprite2D" parent="Personagem/Corpo/Visual" node_paths=PackedStringArray("rastro")]
 centered = false
 script = ExtResource("23_item_mao")
 maos = ExtResource("24_maos")
+rastro = NodePath("../Rastro")
+
+[node name="Rastro" type="Sprite2D" parent="Personagem/Corpo/Visual"]
+visible = false
+texture = ExtResource("25_rastro")
+centered = false
 
 [node name="Colisao" type="CollisionShape2D" parent="Personagem" unique_id=2084710673]
 shape = SubResource("CircleShape2D_pn2jv")

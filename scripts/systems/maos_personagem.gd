@@ -18,3 +18,16 @@ func ponto(animacao: StringName, quadro: int) -> Vector2:
 	if quadro < 0 or quadro >= lista.size():
 		return Vector2(-1, -1)
 	return lista[quadro]
+
+
+## Animação -> giro do item na mão em cada quadro, em graus (0 = como o
+## desenho do item, ponta para baixo; 180 = para cima; -90 = para a frente).
+## Animações fora daqui não giram o item.
+@export var angulos: Dictionary[StringName, PackedFloat32Array] = {}
+
+
+func angulo(animacao: StringName, quadro: int) -> float:
+	var lista: PackedFloat32Array = angulos.get(animacao, PackedFloat32Array())
+	if quadro < 0 or quadro >= lista.size():
+		return 0.0
+	return lista[quadro]

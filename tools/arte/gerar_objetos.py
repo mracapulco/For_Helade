@@ -325,11 +325,34 @@ def espada_na_mao():
     return q.im
 
 
+# Rastro do golpe: arco claro do alto até a frente, com o centro no ombro.
+# O centro do círculo fica no pixel CENTRO_RASTRO da imagem.
+CENTRO_RASTRO = (0, 15)
+
+
+def rastro_golpe():
+    import math
+    q = Q(18, 26)
+    cx, cy = CENTRO_RASTRO
+    for passo in range(0, 101):
+        ang = math.radians(-75 + passo * 0.95)       # de quase em cima até um pouco abaixo da frente
+        forca = math.sin(math.pi * passo / 100)      # mais grosso no meio do arco
+        for raio, cor, minimo in ((16, 'branco', 0.0), (15, 'lua', 0.25), (14, 'olho_luz', 0.6), (13, 'olho', 0.85)):
+            if forca < minimo:
+                continue
+            x = round(cx + raio * math.cos(ang)); y = round(cy + raio * math.sin(ang))
+            if 0 <= x < q.w and 0 <= y < q.h:
+                r, g, b, _ = C[cor]
+                q.px[x, y] = (r, g, b, int(255 * (0.45 + 0.5 * forca)))
+    return q.im
+
+
 ARTES = {
     'assets/art/placeholders/itens/icone_espada.png': icone_espada,
     'assets/art/placeholders/itens/icone_pocao.png': icone_pocao,
     'assets/art/placeholders/itens/icone_carta.png': icone_carta,
     'assets/art/placeholders/itens/espada_na_mao.png': espada_na_mao,
+    'assets/art/placeholders/itens/rastro_golpe.png': rastro_golpe,
     'assets/art/placeholders/exploracao/bau_fechado.png': lambda: bau(False),
     'assets/art/placeholders/exploracao/bau_aberto.png': lambda: bau(True),
     'assets/art/placeholders/exploracao/anfora.png': anfora,

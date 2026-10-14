@@ -28,15 +28,14 @@ func test_espada_tem_desenho_na_mao() -> void:
 	assert_not_null(espada.visual_na_mao)
 
 
-func test_posicao_espelhada_fica_do_outro_lado() -> void:
+func test_centro_da_mao_espelhado_fica_do_outro_lado() -> void:
 	var quadro := Vector2(32, 48)
 	var offset := Vector2(0, -22)
-	var normal := ItemNaMao.posicao_na_mao(Vector2(21, 29), Vector2(2, 3), Vector2(8, 20), quadro, offset, false)
-	var espelhada := ItemNaMao.posicao_na_mao(Vector2(21, 29), Vector2(2, 3), Vector2(8, 20), quadro, offset, true)
-	assert_eq(normal, Vector2(3, -20))
-	# Espelhado: o desenho inteiro reflete em torno do centro do quadro.
-	assert_eq(espelhada.x, -(normal.x + 8))
-	assert_eq(espelhada.y, normal.y)
+	var normal := ItemNaMao.centro_da_mao(Vector2(21, 29), quadro, offset, false)
+	var espelhado := ItemNaMao.centro_da_mao(Vector2(21, 29), quadro, offset, true)
+	# Mão 2×2 em (21, 29): centro em (22, 30) no quadro, (6, 6) do centro.
+	assert_eq(normal, Vector2(6, -16))
+	assert_eq(espelhado, Vector2(-6, -16))
 
 
 func test_equipar_mostra_e_desequipar_esconde() -> void:
@@ -65,9 +64,9 @@ func test_espada_acompanha_a_mao_ao_andar_e_ao_virar() -> void:
 	personagem.ir_para(personagem.global_position + Vector2(-60, -30))
 	await wait_physics_frames(10)
 	assert_eq(visual.animation, &"andando_costas")
-	assert_eq(na_mao.flip_h, visual.flip_h, "a espada espelha junto com o desenho")
-	var esperado := ItemNaMao.posicao_na_mao(na_mao.maos.ponto(visual.animation, visual.frame),
-		Vector2(2, 3), na_mao.texture.get_size(), Vector2(32, 48), visual.offset, visual.flip_h)
+	assert_eq(na_mao.scale.x < 0.0, visual.flip_h, "a espada espelha junto com o desenho")
+	var esperado := ItemNaMao.centro_da_mao(na_mao.maos.ponto(visual.animation, visual.frame),
+		Vector2(32, 48), visual.offset, visual.flip_h)
 	assert_eq(na_mao.position, esperado)
 
 

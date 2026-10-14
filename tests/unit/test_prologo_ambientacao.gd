@@ -53,11 +53,14 @@ func test_materiais_realistas_tem_relevo_e_nao_esticam() -> void:
 	for nome in nomes:
 		if not nome.ends_with(".tres"):
 			continue
-		var material: StandardMaterial3D = load(MATERIAIS + nome)
-		if material.albedo_texture == null:
+		var material := load(MATERIAIS + nome) as StandardMaterial3D
+		if material == null or material.albedo_texture == null:
 			continue
 		com_textura += 1
 		assert_true(material.normal_enabled and material.normal_texture != null, nome + " sem relevo")
+		# Tapete e passadeira vão em planos com UV de 0 a 1 (borda desenhada na textura).
+		if nome in ["tapete.tres", "passadeira.tres"]:
+			continue
 		assert_true(material.uv1_triplanar and material.uv1_world_triplanar, nome + " estica nas caixas")
 	assert_gt(com_textura, 6)
 

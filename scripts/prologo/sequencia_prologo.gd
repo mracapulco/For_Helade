@@ -19,8 +19,10 @@ signal terminou
 ## Para onde Nicholas olha: a cama da duquesa e o dossel azul-escuro.
 @export var cama: Node3D
 @export var dossel: Node3D
-## Parteiras e empregadas (figuras provisórias).
+## Parteiras e empregadas (PessoaPrologo).
 @export var figuras: Node3D
+## A duquesa Neola na cama. Pode ficar vazio (cenas de teste antigas).
+@export var duquesa: DuquesaNaCama
 ## A parteira que entrega Althea a Nicholas.
 @export var parteira: Node3D
 @export var althea: Node3D
@@ -67,7 +69,9 @@ func _process(delta: float) -> void:
 	_tempo += delta
 	var i := 0
 	for figura: Node3D in figuras.get_children():
-		figura.rotation.y = _bases[figura] + 0.35 * sin(_tempo * 2.3 + i * 1.7)
+		if figura is PessoaPrologo and figura.congelada:
+			continue
+		figura.rotation.y = _bases[figura] + 0.12 * sin(_tempo * 1.3 + i * 1.7)
 		i += 1
 
 
@@ -98,9 +102,13 @@ func _aposentos() -> void:
 	await controle.tocar_cena("dossel")
 
 	_mudar("muda")
-	await controle.olhar_para(cama.global_position, _t(1.5))
-	_agitadas = false
+	# "um puxão certeiro da parteira, Althea saiu. Muda." Todos param na hora.
+	_atividade(parteira, "segurando_bebe", true)
 	althea.visible = true
+	_agitadas = false
+	for pessoa in _pessoas():
+		pessoa.congelar()
+	await controle.olhar_para(cama.global_position, _t(1.5))
 	await controle.tocar_cena("muda")
 
 	_mudar("nome")
@@ -117,23 +125,35 @@ func _aposentos() -> void:
 	var giro := create_tween().set_parallel()
 	for figura: Node3D in figuras.get_children():
 		giro.tween_property(figura, "rotation:y", _giro_para_nicholas(figura), _t(0.25))
+	for pessoa in _pessoas():
+		pessoa.descongelar()
+		if pessoa != parteira:
+			_atividade(pessoa, "parada")
+	# Depois do giro do corpo, a cabeça acerta o olhar no menino.
+	giro.finished.connect(func() -> void:
+		for pessoa in _pessoas():
+			pessoa.olhar_para(controle.camera.global_position, _t(0.15)))
 	await controle.tocar_cena("olhares")
 	var energia := _energia(vela_cama)
 	create_tween().tween_property(vela_cama, energia, vela_cama.get(energia) * 0.3, _t(4.0))
 	_mudar("choro")
+	_choro(true)
 	await controle.tocar_cena("choro")
 
 	var frente := -controle.corpo.global_basis.z
 	var perto := controle.corpo.global_position + Vector3(frente.x, 0.0, frente.z).normalized() * 1.1
 	var passo := create_tween().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	passo.tween_property(parteira, "global_position", Vector3(perto.x, parteira.global_position.y, perto.z), _t(2.0))
+	_atividade(parteira, "andando")
 	await passo.finished
+	_atividade(parteira, "segurando_bebe")
 	_mudar("segurar")
 	alvo_althea.ativo = true
 	_dica(tr("PROLOGO_DICA_SEGURAR_TOQUE") if OS.has_feature("mobile") else tr("PROLOGO_DICA_SEGURAR_TECLADO"))
 	await _esperar("segurar")
 	alvo_althea.ativo = false
 	_dica("")
+	_atividade(parteira, "parada")
 	# Nos braços de Nicholas, logo abaixo do olhar.
 	althea.reparent(controle.camera, false)
 	althea.position = Vector3(0.0, -0.3, -0.5)
@@ -152,6 +172,7 @@ func _aposentos() -> void:
 	await controle.tocar_cena("depois")
 	figuras.visible = false
 	althea.visible = false
+	_choro(false)
 	vela_cama.set(_energia(vela_cama), vela_cama.get(_energia(vela_cama)) / 0.3)
 	controle.colocar_em(ponto_quarto_vazio)
 	# Nicholas não dormiu: a tela só clareia, sem os olhos abrindo.
@@ -211,7 +232,30 @@ func _energia(luz: OmniLight3D) -> String:
 
 func _mudar(nova: String) -> void:
 	etapa = nova
+	if duquesa:
+		duquesa.mudar_etapa(nova, escala_tempo)
 	etapa_mudou.emit(nova)
+
+
+func _pessoas() -> Array[PessoaPrologo]:
+	var lista: Array[PessoaPrologo] = []
+	for figura in figuras.get_children():
+		if figura is PessoaPrologo:
+			lista.append(figura)
+	return lista
+
+
+## Troca o que uma pessoa faz; `na_hora` pula a transição (para congelar já na pose).
+func _atividade(pessoa: Node3D, nova: String, na_hora := false) -> void:
+	if pessoa is PessoaPrologo:
+		pessoa.atividade = nova
+		if na_hora:
+			pessoa.posar_agora()
+
+
+func _choro(chorando: bool) -> void:
+	if althea is BebeAlthea:
+		althea.chorando = chorando
 
 
 func _dica(texto: String) -> void:

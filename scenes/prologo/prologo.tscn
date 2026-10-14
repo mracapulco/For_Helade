@@ -8,8 +8,9 @@
 [ext_resource type="Script" path="res://scripts/prologo/texto_solto.gd" id="6_uawdr"]
 [ext_resource type="Script" path="res://scripts/prologo/tela_final.gd" id="7_rnfgu"]
 [ext_resource type="Script" path="res://scripts/prologo/sequencia_prologo.gd" id="8_q2utl"]
-[ext_resource type="Material" path="res://assets/art/prologo/materiais/roupa_clara.tres" id="m_roupa_clara"]
-[ext_resource type="Material" path="res://assets/art/prologo/materiais/roupa_escura.tres" id="m_roupa_escura"]
+[ext_resource type="Script" path="res://scripts/prologo/pessoa_prologo.gd" id="12_pessoa"]
+[ext_resource type="Script" path="res://scripts/prologo/duquesa_na_cama.gd" id="13_duquesa"]
+[ext_resource type="Script" path="res://scripts/prologo/bebe_althea.gd" id="14_althea"]
 [ext_resource type="Shader" path="res://assets/shaders/prologo/ceu_noite.gdshader" id="s_ceu"]
 [ext_resource type="Shader" path="res://assets/shaders/prologo/vinheta.gdshader" id="s_vinheta"]
 [ext_resource type="Script" path="res://scripts/prologo/sensacao_primeira_pessoa.gd" id="10_sensacao"]
@@ -51,28 +52,6 @@ shader_parameter/vinheta = 0.35
 shader_parameter/desfoque = 0.0
 shader_parameter/granulacao = 0.03
 
-[sub_resource type="CapsuleMesh" id="CapsuleMesh_rs64o"]
-material = ExtResource("m_roupa_clara")
-radius = 0.2
-height = 1.6
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_fvi6q"]
-albedo_color = Color(0.78, 0.66, 0.56, 1)
-roughness = 0.9
-
-[sub_resource type="BoxMesh" id="BoxMesh_cyt0c"]
-material = SubResource("StandardMaterial3D_fvi6q")
-size = Vector3(0.16, 0.18, 0.04)
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_uwdfn"]
-albedo_color = Color(0.92, 0.88, 0.8, 1)
-roughness = 0.9
-
-[sub_resource type="SphereMesh" id="SphereMesh_3yxbc"]
-material = SubResource("StandardMaterial3D_uwdfn")
-radius = 0.12
-height = 0.24
-
 [sub_resource type="BoxShape3D" id="BoxShape3D_828km"]
 size = Vector3(0.7, 0.7, 0.7)
 
@@ -87,42 +66,6 @@ emission_energy_multiplier = 0.9
 material = SubResource("StandardMaterial3D_oda66")
 radius = 0.08
 height = 0.16
-
-[sub_resource type="CapsuleMesh" id="CapsuleMesh_sipn0"]
-material = ExtResource("m_roupa_clara")
-radius = 0.2
-height = 1.6
-
-[sub_resource type="BoxMesh" id="BoxMesh_tw5at"]
-material = SubResource("StandardMaterial3D_fvi6q")
-size = Vector3(0.16, 0.18, 0.04)
-
-[sub_resource type="CapsuleMesh" id="CapsuleMesh_1u7dh"]
-material = ExtResource("m_roupa_escura")
-radius = 0.2
-height = 1.6
-
-[sub_resource type="BoxMesh" id="BoxMesh_bfywl"]
-material = SubResource("StandardMaterial3D_fvi6q")
-size = Vector3(0.16, 0.18, 0.04)
-
-[sub_resource type="CapsuleMesh" id="CapsuleMesh_vu7pa"]
-material = ExtResource("m_roupa_escura")
-radius = 0.2
-height = 1.6
-
-[sub_resource type="BoxMesh" id="BoxMesh_4is6p"]
-material = SubResource("StandardMaterial3D_fvi6q")
-size = Vector3(0.16, 0.18, 0.04)
-
-[sub_resource type="CapsuleMesh" id="CapsuleMesh_6lm4u"]
-material = ExtResource("m_roupa_escura")
-radius = 0.2
-height = 1.6
-
-[sub_resource type="BoxMesh" id="BoxMesh_elmdc"]
-material = SubResource("StandardMaterial3D_fvi6q")
-size = Vector3(0.16, 0.18, 0.04)
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_mfwf1"]
 radius = 0.25
@@ -165,22 +108,18 @@ directional_shadow_max_distance = 40.0
 [node name="Pessoas" type="Node3D" parent="." unique_id=1572308870]
 
 [node name="Parteira" type="Node3D" parent="Pessoas" unique_id=2063827996]
-transform = Transform3D(6.12323e-17, 0, -1, 0, 1, 0, 1, 0, 6.12323e-17, 10.7, 0, 8.1)
-
-[node name="Corpo" type="MeshInstance3D" parent="Pessoas/Parteira" unique_id=502136178]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
-mesh = SubResource("CapsuleMesh_rs64o")
-
-[node name="Rosto" type="MeshInstance3D" parent="Pessoas/Parteira" unique_id=328816597]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.42, -0.19)
-mesh = SubResource("BoxMesh_cyt0c")
+transform = Transform3D(0.0, 0, -1.0, 0, 1, 0, 1.0, 0, 0.0, 10.75, 0, 8.1)
+script = ExtResource("12_pessoa")
+cor_roupa = Color(0.36, 0.3, 0.25, 1)
+mangas_arregacadas = true
+sangue = 0.5
+atividade = "trabalhando"
+semente = 1
+altura = 1.6
 
 [node name="Althea" type="Node3D" parent="Pessoas/Parteira" unique_id=1233187584]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.95, -0.32)
-
-[node name="Manta" type="MeshInstance3D" parent="Pessoas/Parteira/Althea" unique_id=486613686]
-transform = Transform3D(1, 0, 0, 0, 0.8, 0, 0, 0, 1.5, 0, 0, 0)
-mesh = SubResource("SphereMesh_3yxbc")
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.0, -0.36)
+script = ExtResource("14_althea")
 
 [node name="AlvoAlthea" type="Area3D" parent="Pessoas/Parteira/Althea" unique_id=2022474918]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.18, 0)
@@ -193,48 +132,44 @@ shape = SubResource("BoxShape3D_828km")
 mesh = SubResource("SphereMesh_e2xxx")
 
 [node name="Parteira2" type="Node3D" parent="Pessoas" unique_id=1329276407]
-transform = Transform3D(-0.752577, 0, -0.658505, 0, 1, 0, 0.658505, 0, -0.752577, 11.2, 0, 6.5)
-
-[node name="Corpo" type="MeshInstance3D" parent="Pessoas/Parteira2" unique_id=298613538]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
-mesh = SubResource("CapsuleMesh_sipn0")
-
-[node name="Rosto" type="MeshInstance3D" parent="Pessoas/Parteira2" unique_id=442131582]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.42, -0.19)
-mesh = SubResource("BoxMesh_tw5at")
+transform = Transform3D(-1.0, 0, 0.0, 0, 1, 0, -0.0, 0, -1.0, 12.35, 0, 6.45)
+script = ExtResource("12_pessoa")
+cor_roupa = Color(0.32, 0.29, 0.26, 1)
+mangas_arregacadas = true
+sangue = 0.3
+atividade = "trabalhando"
+semente = 2
+altura = 1.66
 
 [node name="Empregada1" type="Node3D" parent="Pessoas" unique_id=2105177422]
-transform = Transform3D(0.685365, 0, -0.7282, 0, 1, 0, 0.7282, 0, 0.685365, 10.9, 0, 9.7)
-
-[node name="Corpo" type="MeshInstance3D" parent="Pessoas/Empregada1" unique_id=1630933588]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
-mesh = SubResource("CapsuleMesh_1u7dh")
-
-[node name="Rosto" type="MeshInstance3D" parent="Pessoas/Empregada1" unique_id=894667897]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.42, -0.19)
-mesh = SubResource("BoxMesh_bfywl")
+transform = Transform3D(1.0, 0, 0.0, 0, 1, 0, -0.0, 0, 1.0, 13.0, 0, 9.75)
+script = ExtResource("12_pessoa")
+cor_roupa = Color(0.27, 0.27, 0.3, 1)
+atividade = "trabalhando"
+semente = 3
+altura = 1.58
 
 [node name="Empregada2" type="Node3D" parent="Pessoas" unique_id=1407864402]
-transform = Transform3D(-0.402739, 0, -0.915315, 0, 1, 0, 0.915315, 0, -0.402739, 10.1, 0, 7.0)
-
-[node name="Corpo" type="MeshInstance3D" parent="Pessoas/Empregada2" unique_id=171694005]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
-mesh = SubResource("CapsuleMesh_vu7pa")
-
-[node name="Rosto" type="MeshInstance3D" parent="Pessoas/Empregada2" unique_id=1845760345]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.42, -0.19)
-mesh = SubResource("BoxMesh_4is6p")
+transform = Transform3D(-0.707107, 0, 0.707107, 0, 1, 0, -0.707107, 0, -0.707107, 11.0, 0, 5.6)
+script = ExtResource("12_pessoa")
+cor_roupa = Color(0.4, 0.34, 0.27, 1)
+atividade = "trabalhando"
+semente = 4
+altura = 1.63
+touca = false
+cor_cabelo = Color(0.3, 0.2, 0.12, 1)
 
 [node name="Empregada3" type="Node3D" parent="Pessoas" unique_id=657885039]
-transform = Transform3D(-1, 0, -1.22465e-16, 0, 1, 0, 1.22465e-16, 0, -1, 12.6, 0, 6.2)
+transform = Transform3D(0.866025, 0, 0.5, 0, 1, 0, -0.5, 0, 0.866025, 11.3, 0, 9.85)
+script = ExtResource("12_pessoa")
+cor_roupa = Color(0.26, 0.24, 0.23, 1)
+atividade = "carregando"
+semente = 5
+altura = 1.55
 
-[node name="Corpo" type="MeshInstance3D" parent="Pessoas/Empregada3" unique_id=544818314]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
-mesh = SubResource("CapsuleMesh_6lm4u")
-
-[node name="Rosto" type="MeshInstance3D" parent="Pessoas/Empregada3" unique_id=543466011]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.42, -0.19)
-mesh = SubResource("BoxMesh_elmdc")
+[node name="Duquesa" type="Node3D" parent="." unique_id=1844210931]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 12.75, 0.72, 8.1)
+script = ExtResource("13_duquesa")
 
 [node name="Pontos" type="Node3D" parent="." unique_id=1031558735]
 
@@ -467,7 +402,7 @@ theme_override_font_sizes/font_size = 72
 theme_override_colors/font_color = Color(0.9, 0.7, 0.3, 1)
 horizontal_alignment = 1
 
-[node name="Sequencia" type="Node" parent="." unique_id=805272105 node_paths=PackedStringArray("controle", "ponto_entrada", "ponto_quarto_vazio", "ponto_varanda", "cama", "dossel", "figuras", "parteira", "althea", "alvo_althea", "vela_cama", "escuro", "botao_nome", "tela_final")]
+[node name="Sequencia" type="Node" parent="." unique_id=805272105 node_paths=PackedStringArray("controle", "ponto_entrada", "ponto_quarto_vazio", "ponto_varanda", "cama", "dossel", "figuras", "duquesa", "parteira", "althea", "alvo_althea", "vela_cama", "escuro", "botao_nome", "tela_final")]
 script = ExtResource("8_q2utl")
 controle = NodePath("..")
 ponto_entrada = NodePath("../Pontos/Entrada")
@@ -476,6 +411,7 @@ ponto_varanda = NodePath("../Pontos/Varanda")
 cama = NodePath("../Cenario/Aposentos/CamaDuquesa")
 dossel = NodePath("../Cenario/Aposentos/Dossel")
 figuras = NodePath("../Pessoas")
+duquesa = NodePath("../Duquesa")
 parteira = NodePath("../Pessoas/Parteira")
 althea = NodePath("../Pessoas/Parteira/Althea")
 alvo_althea = NodePath("../Pessoas/Parteira/Althea/AlvoAlthea")

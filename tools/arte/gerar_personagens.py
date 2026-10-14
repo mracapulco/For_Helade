@@ -30,7 +30,7 @@ PERSONAGENS = {
     # olhos quase brancos dos Olympia, camisa branca e colete azul escuro
     # simples, "parecidas com as usadas pelos filhos dos comerciantes".
     'nicholas_11': dict(
-        topo=14, tronco=9, largura=4, cabelo='rebelde', roupa='colete',
+        topo=17, tronco=9, largura=4, cabelo='rebelde', roupa='colete',
         cores=dict(
             cab_luz='#F6EED2', cab='#E3D5AE', cab_sombra='#B9A882', cab_fundo='#8C7C5C',
             camisa_luz='#F2EFE8', camisa='#D9D4CA', camisa_sombra='#A9A398',
@@ -42,7 +42,7 @@ PERSONAGENS = {
     # colete no espelho). O livro não descreve o pijama: inferência, uma
     # camisa de dormir azul-clara, calça clara e pés descalços.
     'nicholas_11_pijama': dict(
-        topo=14, tronco=9, largura=4, cabelo='rebelde', roupa='colete',
+        topo=17, tronco=9, largura=4, cabelo='rebelde', roupa='colete',
         cores=dict(
             cab_luz='#F6EED2', cab='#E3D5AE', cab_sombra='#B9A882', cab_fundo='#8C7C5C',
             camisa_luz='#E4ECF4', camisa='#C9D6E4', camisa_sombra='#9FB8D2',

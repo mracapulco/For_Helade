@@ -25,6 +25,7 @@ Progresso="*res://scripts/autoload/progresso.gd"
 TrocaCena="*res://scripts/autoload/troca_cena.gd"
 Inventario="*res://scripts/autoload/inventario.gd"
 Mundo="*res://scripts/autoload/mundo.gd"
+Codice="*res://scripts/autoload/codice.gd"
 Trilha="*res://scripts/autoload/trilha.gd"
 
 [dialogue_manager]

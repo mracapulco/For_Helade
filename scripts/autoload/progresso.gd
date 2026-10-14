@@ -2,7 +2,7 @@ extends Node
 ## Jogos salvos (autoload "Progresso"): 10 espaços, cada um em
 ## user://saves/espaco_NN.cfg. Cada espaço guarda em que parte da história o
 ## jogador está, mais os valores de [Relacoes] e [Influencia], a bolsa
-## ([code]Inventario[/code]) e o mapa ([code]Mundo[/code]), com o lugar onde
+## ([code]Inventario[/code]), o mapa ([code]Mundo[/code]) e o [code]Codice[/code], com o lugar onde
 ## ele salvou (o acampamento; depois, o reino).
 
 const PASTA := "user://saves/"
@@ -82,6 +82,7 @@ func novo_jogo() -> void:
 	Influencia.limpar()
 	Inventario.limpar()
 	Mundo.limpar()
+	Codice.limpar()
 
 
 ## Salva em [param espaco]. Sem espaço, usa o do jogo em andamento ou, num
@@ -100,6 +101,7 @@ func salvar(nova_etapa: String, espaco := 0) -> bool:
 	cfg.set_value("jogo", "influencia", Influencia.para_dados())
 	cfg.set_value("jogo", "inventario", Inventario.para_dados())
 	cfg.set_value("jogo", "mundo", Mundo.para_dados())
+	cfg.set_value("jogo", "codice", Codice.para_dados())
 	DirAccess.make_dir_recursive_absolute(pasta)
 	if cfg.save(caminho(espaco)) != OK:
 		return false
@@ -120,6 +122,7 @@ func carregar(espaco := 0) -> bool:
 	Influencia.de_dados(cfg.get_value("jogo", "influencia", {}))
 	Inventario.de_dados(cfg.get_value("jogo", "inventario", {}))
 	Mundo.de_dados(cfg.get_value("jogo", "mundo", {}))
+	Codice.de_dados(cfg.get_value("jogo", "codice", {}))
 	espaco_atual = espaco
 	return true
 

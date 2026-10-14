@@ -6,6 +6,9 @@ extends Node
 var personagens: Array[Personagem] = [
 	preload("res://data/personagens/nicholas.tres"),
 	preload("res://data/personagens/janet.tres"),
+	# Capítulo 01: Althea e Pany (governanta da mansão em Atenas).
+	preload("res://data/personagens/althea.tres"),
+	preload("res://data/personagens/pany.tres"),
 	# Provisório: só para a sala de teste da exploração.
 	preload("res://data/personagens/personagem_teste.tres"),
 	# Figurantes genéricos dos acampamentos (não são personagens do livro).

@@ -1,0 +1,134 @@
+## Capítulo 01 de "Pelos Olhos Dele" ("A garota do corredor"), primeira parte:
+## o pesadelo e a manhã do aniversário de Althea na Mansão Olympia, em Atenas.
+## Falas e frases tiradas do livro, sem mudar as palavras; só se cortam os
+## trechos de narração entre as falas. Os marcadores "frases_..." aparecem e
+## somem sozinhos na tela; os outros abrem a caixa de diálogo.
+
+~ frases_abertura
+
+## Tela preta, antes do sonho.
+Mansão Olympia, capital Atenas. [ID:CAP1_001]
+Início da Primavera. 12º ano do 20º Ciclo. [ID:CAP1_002]
+=> END
+
+~ frases_sonho
+
+## O corredor quente do sonho; Nicholas segue a garota.
+Tic. [ID:CAP1_003]
+Tac. [ID:CAP1_004]
+Por um corredor não familiar ele seguia uma garota. [ID:CAP1_005]
+Ela era mais baixa que ele, e isso, por algum motivo, o prendia. [ID:CAP1_006]
+Mas havia algo errado. Um aperto. [ID:CAP1_007]
+Ainda assim, a seguia. Sem hesitar. [ID:CAP1_008]
+A música vinha de algum lugar, alta demais, distante demais. [ID:CAP1_009]
+=> END
+
+~ frases_porta_do_sonho
+
+## A porta do fim do corredor se abre para o frio.
+O calor do corredor o envolvia, sufocante, até que a porta se abriu. [ID:CAP1_010]
+O impacto foi imediato. O ar gélido cortou seu rosto, seco, brusco, como um aviso tardio. [ID:CAP1_011]
+À sua frente, ela parou. E nada disse. [ID:CAP1_012]
+O silêncio não era vazio, era pesado. Incômodo. Errado. [ID:CAP1_013]
+Tic. [ID:CAP1_014]
+Tac. [ID:CAP1_015]
+=> END
+
+~ frases_despertar
+
+## Nicholas acorda no próprio quarto, antes do amanhecer.
+Nicholas despertou em um salto. [ID:CAP1_016]
+Não havia ninguém. [ID:CAP1_017]
+Apenas o silêncio da Mansão Olympia antes do amanhecer. [ID:CAP1_018]
+Não tinha tempo para pensar naquilo. Era o aniversário de Thea. [ID:CAP1_019]
+=> END
+
+~ espelho
+
+## Diante do espelho, grande demais para o quarto.
+Vestiu uma camisa branca e o colete azul escuro que havia separado na noite anterior. [ID:CAP1_020]
+Eram roupas simples para o herdeiro de um ducado. Simples demais, segundo o pai. [ID:CAP1_021]
+Nicholas preferia assim. [ID:CAP1_022]
+O espelho devolveu os olhos quase brancos dos Olympia e um rosto ainda corado pelo calor do pesadelo. [ID:CAP1_023]
+Nascido no quinto dia do oitavo mês. [ID:CAP1_024]
+Abençoado por Apolo do Vigésimo Ciclo. [ID:CAP1_025]
+Herdeiro da Casa Olympia. [ID:CAP1_026]
+Filho do duque Apollon e da falecida duquesa Neola. [ID:CAP1_027]
+=> END
+
+~ frases_corredor
+
+## Corredor dos aposentos da família, ainda escuro.
+O corredor dos aposentos da família permanecia mergulhado em sombras azuladas. [ID:CAP1_028]
+=> END
+
+~ frases_esperando
+
+## Diante da porta de Althea, ninguém chegou ainda.
+Quando chegou à porta de Althea, não havia bolo. Também não havia criados. [ID:CAP1_029]
+Nicholas cruzou os braços e esperou. [ID:CAP1_030]
+Uma faixa dourada começou a surgir no horizonte. [ID:CAP1_031]
+Nada. [ID:CAP1_032]
+Bateu o pé no chão. [ID:CAP1_033]
+Finalmente, ouviu cochichos e risos abafados. [ID:CAP1_034]
+=> END
+
+~ cortejo
+
+## Pany e as criadas chegam com o bolo.
+Pany: [#retrato=neutro] Silêncio. [ID:CAP1_035]
+Nicholas: [#retrato=neutro] Pany, por que demoraram tanto? Mais um pouco e Althea debutaria antes de vocês chegarem. [ID:CAP1_036]
+Pany: [#retrato=neutro] Jovem Mestre! Pensamos que acordaria mais tarde. [ID:CAP1_037]
+Nicholas: [#retrato=neutro] Se digo que quero todos aqui antes do nascer do Sol, significa que devem estar aqui muito antes dele. [ID:CAP1_038]
+As criadas abaixaram a cabeça. Nicholas soltou o ar pelo nariz. [ID:CAP1_039]
+Nicholas: [#retrato=neutro] Deixemos isso para lá. Hoje é o aniversário da Thea e nosso último dia em Atenas. Ninguém vai estragá-lo. [ID:CAP1_040]
+Pany assentiu e fez sinal para que abrissem a porta. [ID:CAP1_041]
+=> END
+
+~ frases_quarto_althea
+
+## Entram no quarto de Althea na ponta dos pés.
+Para quase todos, ele era o herdeiro de Olympia. [ID:CAP1_042]
+Para Althea, era apenas Nick. [ID:CAP1_043]
+=> END
+
+~ acordar_althea
+
+## Nicholas tira a pelúcia de monstro marinho dos braços da irmã.
+Nicholas: [#retrato=neutro] Ei... [ID:CAP1_044]
+— Feliz aniversário! — anunciaram todos, em coro. [ID:CAP1_045]
+Althea: [#retrato=neutro] Nick! [ID:CAP1_046]
+Nicholas: [#retrato=neutro] Eu também senti sua falta nesses oito passos entre os nossos quartos. [ID:CAP1_047]
+Althea: [#retrato=neutro] Aquilo é meu? [ID:CAP1_048]
+Nicholas: [#retrato=neutro] Não. Pedi que embrulhassem um presente para mim e o deixassem no seu quarto. [ID:CAP1_049]
+Althea mostrou a língua e rasgou o tecido sem qualquer cuidado. [ID:CAP1_050]
+Dentro dele havia uma espada de madeira, esculpida para o tamanho de suas mãos. [ID:CAP1_051]
+Depois subiu na cama e golpeou o ar. [ID:CAP1_052]
+Pany: [#retrato=neutro] Lady Althea! [ID:CAP1_053]
+Nicholas: [#retrato=neutro] Veja só. Seis anos e já pretende assassinar o próprio irmão. [ID:CAP1_054]
+Althea: [#retrato=neutro] Você disse que me ensinaria! [ID:CAP1_055]
+Nicholas: [#retrato=neutro] Eu disse que lhe ensinaria a usar uma espada. Não que poderia começar por mim. [ID:CAP1_056]
+=> END
+
+~ frases_presentes
+
+## Os empregados entregam os outros presentes.
+Os presentes seguintes foram entregues por eles. [ID:CAP1_057]
+Althea abriu cada um com o mesmo entusiasmo e agradeceu a todos pelo nome. [ID:CAP1_058]
+Nicholas a observou com orgulho. [ID:CAP1_059]
+=> END
+
+~ mesa_de_cha
+
+## Todos à mesa de chá, sem títulos entre eles.
+Quando a agitação diminuiu, acomodaram-se ao redor da mesa de chá. [ID:CAP1_060]
+Por algum tempo, não houve títulos entre eles. [ID:CAP1_061]
+Momentos assim eram raros. [ID:CAP1_062]
+=> END
+
+~ frases_duque
+
+## Fim da primeira parte da manhã; Apollon chega no próximo passo.
+A bolha se rompeu quando os guardas anunciaram [ID:CAP1_063]
+O Duque de Olympia. [ID:CAP1_064]
+=> END

@@ -1,0 +1,16 @@
+[remap]
+
+importer="dialogue_manager"
+importer_version=18
+type="Resource"
+uid="uid://b3debqcfxnmo4"
+path="res://.godot/imported/manha.dialogue-c12ac0e8ea881e2f1128be6cfd9a9935.tres"
+
+[deps]
+
+source_file="res://data/dialogos/capitulo_01/manha.dialogue"
+dest_files=["res://.godot/imported/manha.dialogue-c12ac0e8ea881e2f1128be6cfd9a9935.tres"]
+
+[params]
+
+defaults=true

@@ -8,6 +8,8 @@ Jogo baseado no livro *Pelos Olhos Dele*, de Shara M. Schwartz. Contexto e decis
 
 ## Rodar
 
+Mapa de Hélade: abra `scenes/mapa/mapa_helade.tscn` e aperte F6.
+
 Para testar o diálogo: abra `scenes/testes/teste_dialogo.tscn` no Godot e aperte F6 (rodar a cena atual).
 
 ## Pastas
@@ -16,9 +18,13 @@ Para testar o diálogo: abra `scenes/testes/teste_dialogo.tscn` no Godot e apert
 | --- | --- |
 | `data/dialogos/` | Cenas de roteiro em `.dialogue`, uma pasta por capítulo |
 | `data/personagens/` | Um `.tres` por personagem (nome no roteiro e retratos por expressão) |
-| `scripts/autoload/` | `Relacoes`, `Influencia` e `Elenco` |
-| `scripts/systems/` | `Medidor` (base de relações e influência) e `Personagem` |
-| `scenes/ui/` + `scripts/ui/` | Caixa de diálogo com retrato e escolhas |
+| `data/acampamentos/` + `scenes/exploracao/acampamentos/` | Um `BiomaAcampamento` (.tres) por acampamento do mapa; as cenas herdam `acampamento_base.tscn` e só trocam o bioma. Arte provisória: `tools/arte/gerar_acampamento.py` |
+| `data/mapa/` | Um `.tres` por local do mapa de Hélade (`LocalMapa`): tipo (região, estrada, acampamento, porto), posição no desenho, ligações por estrada e por mar, cena ao entrar |
+| `tools/arte/gerar_mapa.py` | Gera a arte do mapa de dia e de noite (`assets/art/mapa/mapa_helade.png` e `mapa_helade_noite.png`) a partir dos pontos de `data/mapa/`. Rodar de novo ao mudar um ponto ou uma estrada |
+| `data/itens/` | Um `.tres` por item (`Item`); o nome do arquivo é o id. Entra sozinho no `Inventario` |
+| `scripts/autoload/` | `Relacoes`, `Influencia`, `Elenco`, `Inventario` e `Mundo` (dia/noite e lugares descobertos no mapa) |
+| `scripts/systems/` | `Medidor` (base de relações e influência), `Personagem` e `Item` |
+| `scenes/ui/` + `scripts/ui/` | Caixa de diálogo com retrato e escolhas; tela da bolsa (`tela_bolsa.tscn`, abre com I/Tab ou o botão Bolsa) |
 | `scenes/testes/` + `scripts/testes/` | Telas provisórias de teste |
 | `i18n/strings.csv` | Textos de interface por chave |
 | `tests/` | Testes GUT (`unit/`, `integration/`) |
@@ -41,6 +47,7 @@ Nicholas: Toda escolha volta para a linha principal. [ID:CAP1_003]
 => END
 ```
 
+- **Itens:** `$> Inventario.adicionar("id_do_item")`, `$> Inventario.remover("id_do_item")`, `$> Inventario.ganhar_dinheiro(10)` e `if Inventario.tem("id_do_item")`. Itens da história (tipo HISTORIA) só saem pelo roteiro; o jogador não consegue largá-los.
 - **Retrato:** `[#retrato=expressao]`. Sem a etiqueta, usa `neutro`. Sem arte, aparece um quadro provisório com nome e expressão.
 - **Quem fala** precisa estar no `Elenco` (`scripts/autoload/elenco.gd`), senão o quadro aparece em vermelho com "FORA DO ELENCO".
 - **Escolhas não mudam o rumo:** toda opção volta para a mesma fala principal.

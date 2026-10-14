@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="LocalMapa" format=3]
+
+[ext_resource type="Script" path="res://scripts/systems/local_mapa.gd" id="1_local"]
+
+[resource]
+script = ExtResource("1_local")
+id = "og_acampamento"
+chave_nome = "MAPA_ACAMPAMENTO_NOME"
+chave_regiao = "MAPA_ROTA_OLYMPIA_AGAPE"
+posicao = Vector2(838, 904)
+tipo = 2
+vizinhos = Array[String](["og_estrada_2"])
+cena = "res://scenes/exploracao/acampamentos/og_acampamento.tscn"

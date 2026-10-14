@@ -1,0 +1,283 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/exploracao/acampamento.gd" id="1_acamp"]
+[ext_resource type="Resource" path="res://data/acampamentos/oa_acampamento.tres" id="2_bioma"]
+[ext_resource type="Script" path="res://scripts/exploracao/cenario_acampamento.gd" id="3_cenario"]
+[ext_resource type="Script" path="res://scripts/exploracao/navegacao_sala.gd" id="4_nav"]
+[ext_resource type="Script" path="res://scripts/exploracao/marcador_destino.gd" id="5_marc"]
+[ext_resource type="Script" path="res://scripts/exploracao/personagem_exploracao.gd" id="6_pers"]
+[ext_resource type="SpriteFrames" path="res://assets/art/personagens/nicholas/nicholas_exploracao.tres" id="7_nicholas"]
+[ext_resource type="Script" path="res://scripts/exploracao/animacao_personagem.gd" id="8_anim"]
+[ext_resource type="Script" path="res://scripts/exploracao/camera_exploracao.gd" id="9_camera"]
+[ext_resource type="Script" path="res://scripts/exploracao/interagivel.gd" id="10_inter"]
+[ext_resource type="Resource" path="res://data/dialogos/acampamentos/acampamento.dialogue" id="11_dialogo"]
+[ext_resource type="PackedScene" path="res://scenes/ui/botoes_toque.tscn" id="12_botoes"]
+[ext_resource type="PackedScene" path="res://scenes/ui/tela_bolsa.tscn" id="13_bolsa"]
+[ext_resource type="PackedScene" path="res://scenes/ui/aviso_itens.tscn" id="14_aviso"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholders/acampamento/barraca.png" id="15_barraca"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholders/acampamento/fogueira_anim.png" id="16_fogueira"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholders/acampamento/tronco.png" id="17_tronco"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholders/acampamento/mercador.png" id="18_mercador"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholders/acampamento/banca.png" id="19_banca"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholders/acampamento/viajante.png" id="20_viajante"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholders/acampamento/placa_saida.png" id="21_placa"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholders/acampamento/barco.png" id="22_barco"]
+
+[sub_resource type="CircleShape2D" id="Forma_personagem"]
+radius = 7.0
+
+[sub_resource type="CircleShape2D" id="Forma_fogueira"]
+radius = 10.0
+
+[sub_resource type="CircleShape2D" id="Forma_tronco"]
+radius = 8.0
+
+[sub_resource type="CircleShape2D" id="Forma_barraca"]
+radius = 18.0
+
+[sub_resource type="CircleShape2D" id="Toque_barraca"]
+radius = 32.0
+
+[sub_resource type="CircleShape2D" id="Forma_figurante"]
+radius = 9.0
+
+[sub_resource type="CircleShape2D" id="Toque_figurante"]
+radius = 28.0
+
+[sub_resource type="CircleShape2D" id="Forma_banca"]
+radius = 14.0
+
+[sub_resource type="CircleShape2D" id="Forma_saida"]
+radius = 8.0
+
+[sub_resource type="Gradient" id="Gradiente_luz"]
+colors = PackedColorArray(1, 0.78, 0.5, 1, 1, 0.6, 0.3, 0)
+
+[sub_resource type="GradientTexture2D" id="Textura_luz"]
+gradient = SubResource("Gradiente_luz")
+width = 256
+height = 256
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(0.5, 0)
+
+[node name="Acampamento" type="Node2D"]
+texture_filter = 1
+y_sort_enabled = true
+script = ExtResource("1_acamp")
+bioma = ExtResource("2_bioma")
+
+[node name="Ambiente" type="CanvasModulate" parent="."]
+
+[node name="Fundo" type="TileMapLayer" parent="."]
+z_index = -2
+
+[node name="Chao" type="TileMapLayer" parent="."]
+z_index = -1
+
+[node name="Cenario" type="Node2D" parent="." node_paths=PackedStringArray("chao", "fundo", "reservados", "saida", "companheiro")]
+y_sort_enabled = true
+script = ExtResource("3_cenario")
+chao = NodePath("../Chao")
+fundo = NodePath("../Fundo")
+reservados = [NodePath("../Fogueira"), NodePath("../Barraca"), NodePath("../Mercador"), NodePath("../Banca"), NodePath("../Companheiro"), NodePath("../Personagem")]
+saida = NodePath("../Saida")
+companheiro = NodePath("../Companheiro")
+textura_placa = ExtResource("21_placa")
+textura_barco = ExtResource("22_barco")
+
+[node name="Navegacao" type="NavigationRegion2D" parent="." node_paths=PackedStringArray("chao")]
+script = ExtResource("4_nav")
+chao = NodePath("../Chao")
+
+[node name="MarcadorDestino" type="Node2D" parent="." node_paths=PackedStringArray("personagem")]
+z_index = -1
+script = ExtResource("5_marc")
+personagem = NodePath("../Personagem")
+
+[node name="Personagem" type="CharacterBody2D" parent="."]
+position = Vector2(96, 304)
+motion_mode = 1
+script = ExtResource("6_pers")
+
+[node name="Sombra" type="Polygon2D" parent="Personagem"]
+color = Color(0, 0, 0, 0.35)
+polygon = PackedVector2Array(10, 0, 9.6593, 1.2941, 8.6603, 2.5, 7.0711, 3.5355, 5, 4.3301, 2.5882, 4.8296, 0, 5, -2.5882, 4.8296, -5, 4.3301, -7.0711, 3.5355, -8.6603, 2.5, -9.6593, 1.2941, -10, 0, -9.6593, -1.2941, -8.6603, -2.5, -7.0711, -3.5355, -5, -4.3301, -2.5882, -4.8296, -0, -5, 2.5882, -4.8296, 5, -4.3301, 7.0711, -3.5355, 8.6603, -2.5, 9.6593, -1.2941)
+
+[node name="Corpo" type="Node2D" parent="Personagem"]
+
+[node name="Visual" type="AnimatedSprite2D" parent="Personagem/Corpo"]
+sprite_frames = ExtResource("7_nicholas")
+animation = &"parado_frente"
+offset = Vector2(0, -22)
+script = ExtResource("8_anim")
+
+[node name="Colisao" type="CollisionShape2D" parent="Personagem"]
+shape = SubResource("Forma_personagem")
+
+[node name="Camera" type="Camera2D" parent="Personagem" node_paths=PackedStringArray("mapa")]
+script = ExtResource("9_camera")
+mapa = NodePath("../../Chao")
+
+[node name="Agente" type="NavigationAgent2D" parent="Personagem"]
+path_desired_distance = 4.0
+target_desired_distance = 4.0
+radius = 7.0
+
+[node name="Fogueira" type="StaticBody2D" parent="." groups=["navegacao_obstaculos"]]
+position = Vector2(32, 240)
+
+[node name="Visual" type="Sprite2D" parent="Fogueira"]
+texture = ExtResource("16_fogueira")
+offset = Vector2(0, -10)
+hframes = 4
+
+[node name="Colisao" type="CollisionShape2D" parent="Fogueira"]
+shape = SubResource("Forma_fogueira")
+
+[node name="Luz" type="PointLight2D" parent="Fogueira"]
+position = Vector2(0, -8)
+enabled = false
+color = Color(1, 0.75, 0.45, 1)
+texture = SubResource("Textura_luz")
+texture_scale = 1.4
+
+[node name="TroncoEsquerda" type="StaticBody2D" parent="." groups=["navegacao_obstaculos"]]
+position = Vector2(-4, 222)
+
+[node name="Visual" type="Sprite2D" parent="TroncoEsquerda"]
+texture = ExtResource("17_tronco")
+offset = Vector2(0, -4)
+
+[node name="Colisao" type="CollisionShape2D" parent="TroncoEsquerda"]
+shape = SubResource("Forma_tronco")
+
+[node name="TroncoDireita" type="StaticBody2D" parent="." groups=["navegacao_obstaculos"]]
+position = Vector2(68, 222)
+
+[node name="Visual" type="Sprite2D" parent="TroncoDireita"]
+texture = ExtResource("17_tronco")
+flip_h = true
+offset = Vector2(0, -4)
+
+[node name="Colisao" type="CollisionShape2D" parent="TroncoDireita"]
+shape = SubResource("Forma_tronco")
+
+[node name="Barraca" type="StaticBody2D" parent="." groups=["navegacao_obstaculos"]]
+position = Vector2(32, 176)
+
+[node name="Visual" type="Sprite2D" parent="Barraca"]
+texture = ExtResource("15_barraca")
+offset = Vector2(0, -19)
+
+[node name="Colisao" type="CollisionShape2D" parent="Barraca"]
+shape = SubResource("Forma_barraca")
+
+[node name="Interagivel" type="Area2D" parent="Barraca"]
+script = ExtResource("10_inter")
+alcance = 52.0
+
+[node name="AreaDeToque" type="CollisionShape2D" parent="Barraca/Interagivel"]
+position = Vector2(0, -18)
+shape = SubResource("Toque_barraca")
+
+[node name="Mercador" type="StaticBody2D" parent="." groups=["navegacao_obstaculos"]]
+position = Vector2(160, 208)
+
+[node name="Visual" type="Sprite2D" parent="Mercador"]
+texture = ExtResource("18_mercador")
+offset = Vector2(0, -21)
+
+[node name="Colisao" type="CollisionShape2D" parent="Mercador"]
+shape = SubResource("Forma_figurante")
+
+[node name="Interagivel" type="Area2D" parent="Mercador"]
+script = ExtResource("10_inter")
+dialogo = ExtResource("11_dialogo")
+marcador = "mercador"
+
+[node name="AreaDeToque" type="CollisionShape2D" parent="Mercador/Interagivel"]
+position = Vector2(0, -14)
+shape = SubResource("Toque_figurante")
+
+[node name="Banca" type="StaticBody2D" parent="." groups=["navegacao_obstaculos"]]
+position = Vector2(216, 196)
+
+[node name="Visual" type="Sprite2D" parent="Banca"]
+texture = ExtResource("19_banca")
+offset = Vector2(0, -17)
+
+[node name="Colisao" type="CollisionShape2D" parent="Banca"]
+shape = SubResource("Forma_banca")
+
+[node name="Companheiro" type="StaticBody2D" parent="." groups=["navegacao_obstaculos"]]
+position = Vector2(-128, 224)
+
+[node name="Visual" type="Sprite2D" parent="Companheiro"]
+texture = ExtResource("20_viajante")
+offset = Vector2(0, -21)
+
+[node name="Colisao" type="CollisionShape2D" parent="Companheiro"]
+shape = SubResource("Forma_figurante")
+
+[node name="Interagivel" type="Area2D" parent="Companheiro"]
+script = ExtResource("10_inter")
+dialogo = ExtResource("11_dialogo")
+marcador = "viajante"
+
+[node name="AreaDeToque" type="CollisionShape2D" parent="Companheiro/Interagivel"]
+position = Vector2(0, -10)
+shape = SubResource("Toque_figurante")
+
+[node name="Saida" type="StaticBody2D" parent="." groups=["navegacao_obstaculos"]]
+position = Vector2(192, 320)
+
+[node name="Visual" type="Sprite2D" parent="Saida"]
+texture = ExtResource("21_placa")
+offset = Vector2(0, -13)
+
+[node name="Colisao" type="CollisionShape2D" parent="Saida"]
+shape = SubResource("Forma_saida")
+
+[node name="Interagivel" type="Area2D" parent="Saida"]
+script = ExtResource("10_inter")
+
+[node name="AreaDeToque" type="CollisionShape2D" parent="Saida/Interagivel"]
+position = Vector2(0, -12)
+shape = SubResource("Toque_figurante")
+
+[node name="BotoesToque" parent="." instance=ExtResource("12_botoes")]
+
+[node name="TelaBolsa" parent="." instance=ExtResource("13_bolsa")]
+
+[node name="AvisoItens" parent="." instance=ExtResource("14_aviso")]
+
+[node name="Interface" type="CanvasLayer" parent="."]
+layer = 5
+
+[node name="BotaoMapa" type="Button" parent="Interface"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(240, 72)
+offset_left = 32.0
+offset_top = 32.0
+offset_right = 272.0
+offset_bottom = 104.0
+focus_mode = 0
+text = "ACAMP_BOTAO_MAPA"
+
+[node name="FundoTitulo" type="PanelContainer" parent="Interface"]
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 32.0
+offset_top = -76.0
+offset_right = 72.0
+offset_bottom = -32.0
+grow_vertical = 0
+mouse_filter = 2
+
+[node name="Titulo" type="Label" parent="Interface/FundoTitulo"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "ACAMP_NOME_OA"

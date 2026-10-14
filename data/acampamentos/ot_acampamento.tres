@@ -1,0 +1,35 @@
+[gd_resource type="Resource" script_class="BiomaAcampamento" format=3]
+
+[ext_resource type="Script" path="res://scripts/exploracao/bioma_acampamento.gd" id="1"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholders/acampamento/chao_mata_costeira.png" id="2"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholders/acampamento/arvore_escura.png" id="3"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholders/acampamento/arvore_campo.png" id="4"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholders/acampamento/arbusto.png" id="5"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholders/acampamento/rochedo.png" id="6"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholders/acampamento/folhas.png" id="7"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholders/acampamento/cogumelos.png" id="8"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholders/acampamento/tufo.png" id="9"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholders/acampamento/pedrinhas.png" id="10"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholders/acampamento/viajante.png" id="11"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholders/acampamento/mercador_ot.png" id="m"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholders/acampamento/falesia.png" id="f1"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholders/acampamento/falesia_b.png" id="f2"]
+
+[resource]
+script = ExtResource("1")
+id = "ot_acampamento"
+chave_nome = "ACAMP_NOME_OT"
+pisos = ExtResource("2")
+lados_agua = Array[int]([3])
+largura_agua = 2
+cor_dia = Color(0.88, 0.93, 0.95, 1)
+obstaculos = Array[Texture2D]([ExtResource("3"), ExtResource("3"), ExtResource("4"), ExtResource("5"), ExtResource("6")])
+densidade_borda = 0.75
+enfeites = Array[Texture2D]([ExtResource("7"), ExtResource("8"), ExtResource("9")])
+densidade_enfeites = 0.2
+enfeites_margem = Array[Texture2D]([ExtResource("10")])
+semente = 2
+companheiro = ExtResource("11")
+marcador_companheiro = "viajante"
+mercador = ExtResource("m")
+falesias = Array[Texture2D]([ExtResource("f1"), ExtResource("f2")])

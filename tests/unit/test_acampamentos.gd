@@ -259,3 +259,15 @@ func test_falesias_perto_da_praia() -> void:
 	var inicio := acampamento.get_node("Personagem").global_position as Vector2
 	var caminho := NavigationServer2D.map_get_path(mapa, inicio, praia, true)
 	assert_lt(caminho[caminho.size() - 1].distance_to(praia), 20.0, "dá para chegar na praia")
+
+
+func test_cada_acampamento_tem_sua_musica(id: String = use_parameters(IDS)) -> void:
+	await _abrir(id)
+	var musica := acampamento.musica
+	assert_not_null(musica.stream, id)
+	if musica.stream == null:
+		return
+	assert_eq(musica.stream.resource_path, Acampamento.PASTA_MUSICAS + id + ".wav")
+	assert_true(musica.playing, id)
+	assert_eq(musica.bus, Acampamento.BARRAMENTO_MUSICA)
+	assert_eq((musica.stream as AudioStreamWAV).loop_mode, AudioStreamWAV.LOOP_FORWARD, "%s: em loop" % id)

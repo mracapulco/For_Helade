@@ -18,6 +18,10 @@ const CENA_MAPA := "res://scenes/mapa/mapa_helade.tscn"
 ## Som de cada animal: <marcador>.wav (cao, ovelha, cabra...).
 const PASTA_SONS_ANIMAIS := "res://assets/audio/sfx/animais/"
 const SOM_FOGUEIRA := "res://assets/audio/sfx/fogueira.wav"
+## Música de fundo de cada acampamento: <id do bioma>.wav (em loop).
+const PASTA_MUSICAS := "res://assets/audio/music/acampamentos/"
+const BARRAMENTO_MUSICA := &"Musica"
+const BARRAMENTO_EFEITOS := &"Efeitos"
 ## Quadros da fogueira e do mercador parado (faixas de 4 quadros).
 const QUADROS_FOGO := 4
 const QUADROS_MERCADOR := 4
@@ -48,6 +52,7 @@ var trocar_de_cena := true
 var vida: VidaAcampamento
 var som_companheiro: AudioStreamPlayer2D
 var som_fogueira: AudioStreamPlayer2D
+var musica: AudioStreamPlayer
 ## Movimento do companheiro em andamento (para não sobrepor dois).
 var _reacao: Tween
 var _tempo_fogo := 0.0
@@ -154,6 +159,7 @@ func _descansar_companheiro() -> void:
 func _preparar_sons() -> void:
 	som_companheiro = AudioStreamPlayer2D.new()
 	som_companheiro.name = "Som"
+	som_companheiro.bus = BARRAMENTO_EFEITOS
 	$Companheiro.add_child(som_companheiro)
 	var marcador := bioma.marcador_companheiro if bioma else ""
 	var caminho := PASTA_SONS_ANIMAIS + marcador + ".wav"
@@ -162,11 +168,21 @@ func _preparar_sons() -> void:
 	som_fogueira = AudioStreamPlayer2D.new()
 	som_fogueira.name = "Som"
 	som_fogueira.volume_db = -8.0
+	som_fogueira.bus = BARRAMENTO_EFEITOS
 	som_fogueira.max_distance = 500.0
 	$Fogueira.add_child(som_fogueira)
 	if ResourceLoader.exists(SOM_FOGUEIRA):
 		som_fogueira.stream = load(SOM_FOGUEIRA)
 		som_fogueira.play()
+	musica = AudioStreamPlayer.new()
+	musica.name = "Musica"
+	musica.bus = BARRAMENTO_MUSICA
+	musica.volume_db = -6.0
+	add_child(musica)
+	var caminho_musica := PASTA_MUSICAS + (bioma.id if bioma else "") + ".wav"
+	if bioma and ResourceLoader.exists(caminho_musica):
+		musica.stream = load(caminho_musica)
+		musica.play()
 
 
 func _process(delta: float) -> void:

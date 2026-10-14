@@ -11,6 +11,8 @@ signal chegou(id: String)
 signal entrada_pedida(id: String)
 
 const ZOOM_PIXEL_ART := 2.0
+## Tamanho do Nicholas no mapa (o desenho é o mesmo da exploração).
+const ESCALA_NICHOLAS := 0.7
 ## Raio, em pixels da arte, em que um toque conta como "no local".
 const RAIO_TOQUE := 24.0
 const RAIO_PONTO := 7.0
@@ -99,6 +101,9 @@ func _ready() -> void:
 	placa.add_to_group(BotoesToque.GRUPO_BLOQUEIA_TOQUE)
 	botao_periodo.add_to_group(BotoesToque.GRUPO_BLOQUEIA_TOQUE)
 	camera.zoom = Vector2.ONE * ZOOM_PIXEL_ART
+	# A câmera é filha do Nicholas: desfaz a escala dele para não aproximar.
+	nicholas.scale = Vector2.ONE * ESCALA_NICHOLAS
+	camera.scale = Vector2.ONE / ESCALA_NICHOLAS
 	if fundo.texture:
 		var tamanho := fundo.texture.get_size()
 		camera.limit_left = 0

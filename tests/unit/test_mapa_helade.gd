@@ -214,3 +214,9 @@ func test_no_mar_vai_de_barco() -> void:
 	mapa.terminar_viagem()
 	assert_false(mapa.esta_de_barco())
 	assert_eq(String(mapa.nicholas.animation), "parado_frente")
+
+
+func test_nicholas_menor_no_mapa_sem_mudar_a_camera() -> void:
+	assert_almost_eq(mapa.nicholas.scale.x, MapaHelade.ESCALA_NICHOLAS, 0.001)
+	var camera := mapa.nicholas.get_node("Camera") as Camera2D
+	assert_almost_eq(camera.global_scale.x, 1.0, 0.001, "a câmera não aproxima nem afasta")

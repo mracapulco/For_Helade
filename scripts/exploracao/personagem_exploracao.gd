@@ -1,16 +1,16 @@
 class_name PersonagemExploracao
 extends CharacterBody2D
 ## Personagem da exploração.
-## Toque ou clique: anda até o ponto, desviando dos obstáculos; segurar e
-## arrastar atualiza o destino. Mouse e toque passam pelo mesmo caminho (o
-## projeto emula toque com o mouse).
+## Clicar ou tocar no chão não anda (Rafael, 14/10: ficou ruim; o celular
+## terá outro controle depois). Clicar ou tocar num interagível ao alcance
+## interage com ele. Mouse e toque passam pelo mesmo caminho (o projeto emula
+## toque com o mouse).
 ## Teclado (PC): WASD ou setas para andar, Shift para correr, Espaço para pular,
 ## Enter para interagir com o interagível mais próximo ao alcance.
 ## Golpe: com uma arma equipada, o clique esquerdo (ou o botão Golpe, no
 ## celular) golpeia para onde ele andou por último. Clicar num interagível
 ## continua interagindo; sem arma, o clique continua andando. Quem estiver
 ## perto, na frente dele, reage ao golpe (ReacaoAoGolpe).
-## Tocar num Interagivel: anda até ele e interage ao chegar.
 ## Durante uma conversa o personagem fica parado e ignora toques e teclas.
 ## Com uma [member grade], ele anda de casa em casa do chão e sempre para no
 ## centro de uma casa, pelo teclado ou pelo toque; assim fica claro quando
@@ -88,10 +88,6 @@ func _unhandled_input(event: InputEvent) -> void:
 	if toque:
 		tocar(tela_para_mundo(event.position))
 		get_viewport().set_input_as_handled()
-	elif event is InputEventScreenDrag:
-		alvo_interacao = null
-		ir_para(tela_para_mundo(event.position))
-		get_viewport().set_input_as_handled()
 	elif event.is_action_pressed("golpear") and armado():
 		if not (event is InputEventMouseButton and interagivel_em(tela_para_mundo(event.position))):
 			golpear()
@@ -111,15 +107,12 @@ func tela_para_mundo(posicao_tela: Vector2) -> Vector2:
 	return get_canvas_transform().affine_inverse() * posicao_tela
 
 
-## O jogador tocou neste ponto do mundo: interage se for um Interagivel,
-## senão anda até lá.
+## O jogador tocou neste ponto do mundo: interage se for um Interagivel ao
+## alcance. Tocar no chão não faz nada.
 func tocar(posicao_mundo: Vector2) -> void:
 	var alvo := interagivel_em(posicao_mundo)
-	if alvo:
+	if alvo and alvo.ao_alcance(global_position):
 		interagir_com(alvo)
-	else:
-		alvo_interacao = null
-		ir_para(posicao_mundo)
 
 
 ## O Interagivel cuja área de toque cobre esse ponto, ou null.

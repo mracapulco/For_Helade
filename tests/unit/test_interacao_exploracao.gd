@@ -60,14 +60,12 @@ func test_objeto_bloqueia_a_navegacao() -> void:
 	assert_gt(mais_perto.distance_to(centro), 15.0)
 
 
-func test_tocar_de_longe_anda_e_interage_ao_chegar() -> void:
+func test_tocar_de_longe_nao_faz_nada() -> void:
 	watch_signals(objeto)
 	assert_false(objeto.ao_alcance(personagem.global_position))
 	personagem.tocar(objeto.global_position)
-	assert_eq(personagem.alvo_interacao, objeto)
-	await wait_for_signal(objeto.interagido, 10)
-	assert_signal_emitted(objeto, "interagido")
-	assert_true(objeto.ao_alcance(personagem.global_position))
+	assert_false(personagem.andando)
+	assert_signal_not_emitted(objeto, "interagido")
 
 
 func test_tocar_de_perto_interage_na_hora() -> void:

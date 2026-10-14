@@ -115,7 +115,7 @@ func olhar_espelho() -> void:
 	if etapa != "quarto":
 		return
 	viu_espelho = true
-	await _falar("espelho")
+	await _frases("frases_espelho")
 
 
 func sair_do_quarto() -> void:
@@ -140,7 +140,6 @@ func montar_corredor() -> void:
 	_entrar(Vector2i(14, 1))
 	_mudar("corredor")
 	await _clarear()
-	_frases("frases_corredor")
 
 
 func esperar_cortejo() -> void:
@@ -216,11 +215,8 @@ func sentar_a_mesa() -> void:
 	if etapa != "presentes":
 		return
 	_mudar("mesa")
-	await _falar("mesa_de_cha")
-	if mostrar_dialogos:
-		# O personagem se destrava um instante depois de a conversa fechar.
-		await get_tree().create_timer(0.25).timeout
 	_travar(true)
+	await _frases("frases_mesa")
 	await _frases("frases_duque")
 	await _escurecer()
 	_mudar("fim")

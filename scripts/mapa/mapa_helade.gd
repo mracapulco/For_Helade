@@ -46,7 +46,7 @@ const ACOES_DIRECAO := {
 }
 
 ## Pixels da arte por segundo ao andar pelo mapa.
-@export var velocidade := 120.0
+@export var velocidade := 84.0 # 70% dos 120 de antes
 ## Onde Nicholas começa num jogo novo (depois vale o Mundo.local_no_mapa).
 @export var local_inicial := "olympia"
 ## Quando falso, Entrar só avisa (testes).

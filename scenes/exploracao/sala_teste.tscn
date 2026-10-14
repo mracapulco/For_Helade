@@ -16,6 +16,7 @@
 [ext_resource type="Script" path="res://scripts/exploracao/item_na_mao.gd" id="23_item_mao"]
 [ext_resource type="Resource" path="res://assets/art/personagens/nicholas/nicholas_maos.tres" id="24_maos"]
 [ext_resource type="Texture2D" path="res://assets/art/placeholders/itens/rastro_golpe.png" id="25_rastro"]
+[ext_resource type="Script" path="res://scripts/exploracao/reacao_golpe.gd" id="26_reacao"]
 [ext_resource type="Texture2D" path="res://assets/art/placeholders/exploracao/caixa_provisoria.png" id="9_caixa"]
 [ext_resource type="Texture2D" path="res://assets/art/placeholders/exploracao/personagem_provisorio.png" id="10_personagem"]
 [ext_resource type="Texture2D" path="res://assets/art/placeholders/exploracao/bau_fechado.png" id="15_bau_fechado"]
@@ -112,6 +113,10 @@ visible = false
 texture = ExtResource("25_rastro")
 centered = false
 
+[node name="ReacaoAoGolpe" type="Node2D" parent="Personagem" node_paths=PackedStringArray("visual")]
+script = ExtResource("26_reacao")
+visual = NodePath("../Corpo/Visual")
+
 [node name="Colisao" type="CollisionShape2D" parent="Personagem" unique_id=2084710673]
 shape = SubResource("CircleShape2D_pn2jv")
 
@@ -149,6 +154,10 @@ position = Vector2(32, 400)
 [node name="Visual" type="Sprite2D" parent="PersonagemTeste" unique_id=542798467]
 texture = ExtResource("10_personagem")
 offset = Vector2(0, -20)
+
+[node name="ReacaoAoGolpe" type="Node2D" parent="PersonagemTeste" node_paths=PackedStringArray("visual")]
+script = ExtResource("26_reacao")
+visual = NodePath("../Visual")
 
 [node name="Colisao" type="CollisionShape2D" parent="PersonagemTeste" unique_id=1782629014]
 shape = SubResource("CircleShape2D_mm362")
@@ -196,6 +205,10 @@ position = Vector2(256, 320)
 texture = ExtResource("17_guarda")
 offset = Vector2(0, -22)
 
+[node name="ReacaoAoGolpe" type="Node2D" parent="GuardaTeste" node_paths=PackedStringArray("visual")]
+script = ExtResource("26_reacao")
+visual = NodePath("../Visual")
+
 [node name="Colisao" type="CollisionShape2D" parent="GuardaTeste"]
 shape = SubResource("CircleShape2D_figurante")
 
@@ -214,6 +227,10 @@ position = Vector2(-192, 320)
 [node name="Visual" type="Sprite2D" parent="CriadaTeste"]
 texture = ExtResource("18_criada")
 offset = Vector2(0, -22)
+
+[node name="ReacaoAoGolpe" type="Node2D" parent="CriadaTeste" node_paths=PackedStringArray("visual")]
+script = ExtResource("26_reacao")
+visual = NodePath("../Visual")
 
 [node name="Colisao" type="CollisionShape2D" parent="CriadaTeste"]
 shape = SubResource("CircleShape2D_figurante")

@@ -6,16 +6,19 @@ extends CharacterBody2D
 ## projeto emula toque com o mouse).
 ## Teclado (PC): WASD ou setas para andar, Shift para correr, Espaço para pular,
 ## Enter para interagir com o interagível mais próximo ao alcance.
-## Golpe: com uma arma equipada, o clique esquerdo golpeia na direção do mouse
-## (clicar num interagível continua interagindo) e, no celular, o botão Golpe
-## golpeia para onde ele está olhando. Sem arma, o clique continua andando.
+## Golpe: com uma arma equipada, o clique esquerdo (ou o botão Golpe, no
+## celular) golpeia para onde ele andou por último. Clicar num interagível
+## continua interagindo; sem arma, o clique continua andando. Quem estiver
+## perto, na frente dele, reage ao golpe (ReacaoAoGolpe).
 ## Tocar num Interagivel: anda até ele e interage ao chegar.
 ## Durante uma conversa o personagem fica parado e ignora toques e teclas.
 
 signal destino_definido(destino: Vector2)
 signal chegou
-## Começou um golpe; [param direcao] é para onde (zero = para onde já olhava).
-signal golpeou(direcao: Vector2)
+## Começou um golpe, para onde ele está olhando.
+signal golpeou
+## O golpe chegou ao corte e pegou estes alvos (pode ser vazio).
+signal acertou(alvos: Array[ReacaoAoGolpe])
 
 @export var velocidade := 120.0
 ## Quanto mais rápido fica ao correr.
@@ -26,10 +29,17 @@ signal golpeou(direcao: Vector2)
 @export var id_inventario := "nicholas"
 ## Quanto dura um golpe (o tempo da animação). Enquanto isso ele não anda.
 @export var duracao_golpe := 0.35
+## Quando o corte acontece dentro do golpe (o quadro com o rastro).
+@export var momento_do_corte := 0.12
+## Até onde o golpe pega, a partir dos pés dele, em pixels.
+@export var alcance_golpe := 40.0
 
 var andando := false
 var pulando := false
 var golpeando := false
+## Para onde ele olha: a última direção em que andou (começa olhando para
+## baixo e para a direita, como o desenho).
+var direcao_olhar := Vector2(2, 1).normalized()
 ## Verdadeiro enquanto uma conversa está aberta.
 var em_dialogo := false
 ## Interagível para onde o personagem está indo, se houver.
@@ -74,11 +84,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		ir_para(tela_para_mundo(event.position))
 		get_viewport().set_input_as_handled()
 	elif event.is_action_pressed("golpear") and armado():
-		if event is InputEventMouseButton:
-			var ponto := tela_para_mundo(event.position)
-			if interagivel_em(ponto) == null:
-				golpear(ponto)
-		else:
+		if not (event is InputEventMouseButton and interagivel_em(tela_para_mundo(event.position))):
 			golpear()
 		get_viewport().set_input_as_handled()
 	elif event.is_action_pressed("pular"):
@@ -168,10 +174,10 @@ func armado() -> bool:
 	return not Inventario.equipado(id_inventario, Item.Encaixe.ARMA).is_empty()
 
 
-## Golpe com a arma equipada, virado para [param alvo_mundo] (sem alvo, para
-## onde já está olhando). Para de andar. Devolve false se não puder golpear
-## agora (sem arma, em conversa ou no meio de outro golpe).
-func golpear(alvo_mundo: Vector2 = Vector2.INF) -> bool:
+## Golpe com a arma equipada, para onde ele está olhando ([member direcao_olhar]).
+## Para de andar. Devolve false se não puder golpear agora (sem arma, em
+## conversa ou no meio de outro golpe).
+func golpear() -> bool:
 	if em_dialogo or golpeando or not armado():
 		return false
 	golpeando = true
@@ -179,11 +185,31 @@ func golpear(alvo_mundo: Vector2 = Vector2.INF) -> bool:
 	andando = false
 	alvo_interacao = null
 	velocity = Vector2.ZERO
-	var direcao := Vector2.ZERO
-	if alvo_mundo != Vector2.INF:
-		direcao = global_position.direction_to(alvo_mundo)
-	golpeou.emit(direcao)
+	golpeou.emit()
 	return true
+
+
+## Quem o golpe pega agora: está perto e na frente dele.
+func alvos_do_golpe() -> Array[ReacaoAoGolpe]:
+	var alvos: Array[ReacaoAoGolpe] = []
+	for no in get_tree().get_nodes_in_group(ReacaoAoGolpe.GRUPO):
+		var alvo := no as ReacaoAoGolpe
+		if alvo == null or is_ancestor_of(alvo):
+			continue
+		if pega_no_golpe(global_position, direcao_olhar, alvo.global_position, alcance_golpe):
+			alvos.append(alvo)
+	return alvos
+
+
+## O golpe de quem está em [param origem], olhando para [param olhar], pega
+## quem está em [param alvo]? Perto o bastante e num leque à frente.
+static func pega_no_golpe(origem: Vector2, olhar: Vector2, alvo: Vector2, alcance: float) -> bool:
+	var ate_alvo := alvo - origem
+	if ate_alvo.length() > alcance:
+		return false
+	if ate_alvo.length() < 1.0:
+		return true
+	return olhar.normalized().dot(ate_alvo.normalized()) >= 0.25
 
 
 ## Converte a direção das teclas para as linhas do quadriculado isométrico:
@@ -231,6 +257,7 @@ func _physics_process(delta: float) -> void:
 			andando = false
 			chegou.emit()
 		velocity = direcao_isometrica(teclas) * rapidez
+		direcao_olhar = velocity.normalized()
 		move_and_slide()
 		return
 
@@ -246,13 +273,21 @@ func _physics_process(delta: float) -> void:
 		alvo_interacao = null
 		return
 	velocity = global_position.direction_to(agente.get_next_path_position()) * rapidez
+	if velocity.length() > 1.0:
+		direcao_olhar = velocity.normalized()
 	move_and_slide()
 
 
 func _atualizar_golpe(delta: float) -> void:
 	if not golpeando:
 		return
+	var antes := _tempo_golpe
 	_tempo_golpe += delta
+	if antes < momento_do_corte and _tempo_golpe >= momento_do_corte:
+		var alvos := alvos_do_golpe()
+		for alvo in alvos:
+			alvo.receber_golpe(global_position.direction_to(alvo.global_position))
+		acertou.emit(alvos)
 	if _tempo_golpe >= duracao_golpe:
 		golpeando = false
 

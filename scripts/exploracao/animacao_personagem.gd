@@ -60,9 +60,7 @@ static func escolher_acao(rapidez: float, velocidade_normal: float, em_interacao
 	return "parado"
 
 
-func _ao_golpear(direcao: Vector2) -> void:
-	if direcao != Vector2.ZERO:
-		olhar_para(direcao)
+func _ao_golpear() -> void:
 	# Recomeça do primeiro quadro mesmo se o golpe anterior acabou de terminar.
 	if String(animation).begins_with("golpe"):
 		frame = 0
@@ -73,6 +71,7 @@ func _ao_comecar_dialogo(_recurso: DialogueResource) -> void:
 	var alvo := personagem.interagivel_ao_alcance() if personagem else null
 	if alvo:
 		olhar_para(alvo.global_position - personagem.global_position)
+		personagem.direcao_olhar = personagem.global_position.direction_to(alvo.global_position)
 	interagindo = true
 
 

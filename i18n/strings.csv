@@ -110,3 +110,12 @@ ESPACOS_CONFIRMAR_SIM,"Sim, salvar"
 ESPACOS_CONFIRMAR_NAO,Não
 ETAPA_PROLOGO,Prólogo
 ETAPA_CAPITULO_1,Capítulo 1
+PAUSA_TITULO,Pausa
+PAUSA_BOTAO,Pausa
+PAUSA_VOLTAR_AO_JOGO,Voltar ao jogo
+PAUSA_MENU_INICIAL,Menu inicial
+PAUSA_SAIR,Sair do jogo
+PAUSA_CONFIRMAR_MENU,"Voltar ao menu inicial? O que não foi salvo será perdido."
+PAUSA_CONFIRMAR_SAIR,"Sair do jogo? O que não foi salvo será perdido."
+PAUSA_CONFIRMAR_SIM,Sim
+PAUSA_CONFIRMAR_NAO,Não

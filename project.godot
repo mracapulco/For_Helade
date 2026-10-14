@@ -26,6 +26,7 @@ TrocaCena="*res://scripts/autoload/troca_cena.gd"
 Inventario="*res://scripts/autoload/inventario.gd"
 Mundo="*res://scripts/autoload/mundo.gd"
 Trilha="*res://scripts/autoload/trilha.gd"
+Pausa="*res://scripts/autoload/pausa.gd"
 
 [dialogue_manager]
 

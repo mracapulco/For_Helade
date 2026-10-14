@@ -97,3 +97,24 @@ func _cena_rapida() -> Node:
 	cena.abertura = null
 	cena.roteiro = null
 	return cena
+
+
+func test_toda_etapa_tem_musica_ou_silencio() -> void:
+	for etapa: String in SomPrologo.ETAPAS:
+		assert_true(SomPrologo.MUSICAS.has(etapa), "sem música definida para " + etapa)
+	assert_true(SomPrologo.MUSICAS.has(""), "a abertura tem música")
+
+
+func test_nos_aposentos_nao_ha_musica() -> void:
+	for etapa in ["caos", "dossel", "muda", "nome", "olhares", "choro", "segurar"]:
+		assert_eq(SomPrologo.MUSICAS[etapa], "", etapa)
+
+
+func test_musicas_existem_e_as_de_fundo_repetem() -> void:
+	for caminho: String in SomPrologo.MUSICAS.values():
+		if caminho.is_empty():
+			continue
+		var musica: AudioStreamWAV = load(caminho)
+		assert_not_null(musica, caminho)
+		var laco := musica.loop_mode != AudioStreamWAV.LOOP_DISABLED
+		assert_eq(laco, not caminho.ends_with("prologo_titulo.wav"), "%s: só o título toca uma vez" % caminho)

@@ -7,6 +7,9 @@ extends Node
 ## aposentos, o alvo depende de onde Nicholas está (quarto ou corredor).
 ## Tudo toca no barramento Efeitos, que respeita o volume das Opções.
 ## Os sons são provisórios, feitos por tools/audio/gerar_sons_prologo.py.
+##
+## A música vai pelo autoload Trilha (barramento Musica), trocando com fade
+## conforme a etapa. Nos aposentos não há música, só os sons.
 
 @export var controle: ControlePrimeiraPessoa
 @export var sequencia: SequenciaPrologo
@@ -50,6 +53,28 @@ const ETAPAS := {
 	"final": {"sussurros": 0.85, "ondas": 0.39},
 	"fim": {},
 }
+const MUSICA := "res://assets/audio/music/prologo/"
+## Música de cada etapa ("" para o silêncio). Feitas por tools/audio/compor_prologo.py.
+const MUSICAS := {
+	"": MUSICA + "prologo_abertura.wav",
+	"caos": "",
+	"dossel": "",
+	"muda": "",
+	"nome": "",
+	"olhares": "",
+	"choro": "",
+	"segurar": "",
+	"nos_bracos": MUSICA + "prologo_althea.wav",
+	"depois": MUSICA + "prologo_althea.wav",
+	"quarto_vazio": MUSICA + "prologo_althea.wav",
+	"varanda": MUSICA + "prologo_varanda.wav",
+	"final": MUSICA + "prologo_titulo.wav",
+	"fim": MUSICA + "prologo_titulo.wav",
+}
+## Segundos de fade ao trocar de música; a da varanda e a do título entram devagar.
+const FADE_MUSICA := {"caos": 0.8, "nos_bracos": 4.0, "varanda": 4.0, "final": 2.5}
+const FADE_MUSICA_PADRAO := 2.0
+
 ## Batimento (velocidade do laço do coração; 1 = 100 por minuto).
 const RITMO_CORACAO := {"caos": 1.4, "dossel": 1.55, "choro": 1.35, "segurar": 1.2}
 ## Quanto de volume por segundo cada camada anda até o alvo.
@@ -130,7 +155,8 @@ func _ready() -> void:
 		_aterrissagens[chao] = _novo_tocador("Aterrissagem" + chao.capitalize(), load(ATERRISSAGEM % chao), -6.0)
 	_pulo = _novo_tocador("Pulo", load(PULO), -8.0)
 	if sequencia:
-		sequencia.etapa_mudou.connect(func(nova: String) -> void: etapa = nova)
+		sequencia.etapa_mudou.connect(_ao_mudar_etapa)
+	_tocar_musica("")
 	if controle and controle.corpo:
 		_ultima_posicao = controle.corpo.global_position
 
@@ -143,6 +169,23 @@ func _novo_tocador(nome: String, som: AudioStream, volume_db: float) -> AudioStr
 	tocador.volume_db = volume_db
 	add_child(tocador)
 	return tocador
+
+
+func _ao_mudar_etapa(nova: String) -> void:
+	etapa = nova
+	_tocar_musica(nova)
+
+
+func _tocar_musica(de_etapa: String) -> void:
+	var trilha := get_node_or_null("/root/Trilha")
+	if trilha == null or not MUSICAS.has(de_etapa):
+		return
+	var caminho: String = MUSICAS[de_etapa]
+	var fade: float = FADE_MUSICA.get(de_etapa, FADE_MUSICA_PADRAO)
+	if caminho.is_empty():
+		trilha.parar(fade)
+	else:
+		trilha.tocar(caminho, fade)
 
 
 ## Volume que cada camada busca agora.

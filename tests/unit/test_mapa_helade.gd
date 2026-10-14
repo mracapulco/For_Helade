@@ -229,3 +229,7 @@ func test_musica_do_mapa_troca_com_o_periodo() -> void:
 	for caminho: String in [MapaHelade.MUSICA_DIA, MapaHelade.MUSICA_NOITE]:
 		var musica: AudioStreamWAV = load(caminho)
 		assert_eq(musica.loop_mode, AudioStreamWAV.LOOP_FORWARD, caminho)
+
+
+func test_anda_a_70_por_cento_da_velocidade_antiga() -> void:
+	assert_almost_eq(mapa.velocidade, 120.0 * 0.7, 0.01)

@@ -270,3 +270,21 @@ func test_cada_acampamento_tem_sua_musica(id: String = use_parameters(IDS)) -> v
 	var tocador := Trilha.tocador_atual()
 	assert_eq(tocador.bus, Trilha.BARRAMENTO)
 	assert_eq((tocador.stream as AudioStreamWAV).loop_mode, AudioStreamWAV.LOOP_FORWARD, "%s: em loop" % id)
+
+
+func test_anda_de_casa_em_casa_como_na_sala() -> void:
+	await _abrir("oa_acampamento")
+	var personagem := acampamento.get_node("Personagem") as PersonagemExploracao
+	assert_eq(personagem.grade, acampamento.get_node("Chao"))
+	var inicio := personagem.casa_de(personagem.global_position)
+	assert_eq(personagem.global_position, personagem.centro_da_casa(inicio), "começa no centro de uma casa")
+	Input.action_press("mover_tras")
+	await wait_physics_frames(5)
+	Input.action_release("mover_tras")
+	await wait_seconds(1.0)
+	assert_eq(personagem.casa_de(personagem.global_position), inicio + Vector2i(1, 0), "S anda uma casa")
+	assert_eq(personagem.global_position, personagem.centro_da_casa(inicio + Vector2i(1, 0)))
+	personagem.ir_para(personagem.global_position + Vector2(70, -20))
+	await wait_for_signal(personagem.chegou, 5)
+	var casa := personagem.casa_de(personagem.global_position)
+	assert_eq(personagem.global_position, personagem.centro_da_casa(casa), "o toque também para no centro")

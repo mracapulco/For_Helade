@@ -23,6 +23,9 @@ Viajante: [#retrato=neutro] [Provisório] A estrada é longa. Melhor dormir ante
 if Inventario.ja_coletado("charada_proskopos")
 	Próskopos: [#retrato=neutro] Sempre alerta, viajante! Uma boa ação por dia, lembre-se. [ID:ACAMP_RAFAEL_010]
 	=> END
+if not (Inventario.cabe("bordao_proskopos") and Inventario.cabe("racao_trilha", 3))
+	Próskopos: [#retrato=neutro] Sempre alerta, viajante! Tenho uma charada com prêmio, mas sua bolsa está cheia. Abra espaço e volte. [ID:ACAMP_RAFAEL_019]
+	=> END
 Próskopos: [#retrato=neutro] Sempre alerta, viajante! [ID:ACAMP_RAFAEL_001]
 Próskopos: Armei a barraca antes de escurecer e deixei lenha seca de reserva. [ID:ACAMP_RAFAEL_002]
 Próskopos: Quem para no meu fogo ganha uma charada. Acerte e leve algo útil para a estrada. [ID:ACAMP_RAFAEL_011]
@@ -31,8 +34,8 @@ Próskopos: Como de tudo e cresço. Dê-me água e eu morro. O que sou? [ID:ACAM
 	=> rafael_segunda
 - O fogo [ID:ACAMP_RAFAEL_OPC_FOGO]
 	$> Inventario.marcar_coletado("charada_proskopos")
-	$> Inventario.adicionar("pederneira_viajante")
-	Próskopos: Isso mesmo! Fique com a minha pederneira. Acende fogo até com lenha úmida. [ID:ACAMP_RAFAEL_013]
+	$> Inventario.adicionar("bordao_proskopos")
+	Próskopos: Isso mesmo! Fique com o meu bordão. Ele já me tirou de muita enrascada na trilha. [ID:ACAMP_RAFAEL_013]
 	Próskopos: E, ao partir, deixe o acampamento melhor do que o encontrou. [ID:ACAMP_RAFAEL_004]
 - A sombra [ID:ACAMP_RAFAEL_OPC_SOMBRA]
 	=> rafael_segunda
@@ -48,14 +51,17 @@ Próskopos: Quanto mais se tira de mim, maior eu fico. O que sou? [ID:ACAMP_RAFA
 - A fogueira [ID:ACAMP_RAFAEL_OPC_FOGUEIRA]
 	Próskopos: Também não. A estrada ensina, viajante. Boa trilha! [ID:ACAMP_RAFAEL_017]
 - O buraco [ID:ACAMP_RAFAEL_OPC_BURACO]
-	$> Inventario.adicionar("corda_trancada")
-	Próskopos: Agora sim! Leve esta corda trançada. Firme e leve. [ID:ACAMP_RAFAEL_018]
+	$> Inventario.adicionar("racao_trilha", 3)
+	Próskopos: Agora sim! Leve um pouco da minha ração de trilha. [ID:ACAMP_RAFAEL_018]
 => END
 
 ~ shara
 
 if Inventario.ja_coletado("charada_chymeia")
 	Chymeía: [#retrato=neutro] Livros e poções! Não é magia, é química: estudo e paciência. [ID:ACAMP_SHARA_010]
+	=> END
+if not (Inventario.cabe("elixir_chymeia") and Inventario.cabe("pocao_cura", 2))
+	Chymeía: [#retrato=neutro] Livros e poções! Tenho uma charada com prêmio, mas sua bolsa está cheia. Abra espaço e volte. [ID:ACAMP_SHARA_019]
 	=> END
 Chymeía: [#retrato=neutro] Livros e poções! Tudo preparado com cuidado. [ID:ACAMP_SHARA_001]
 Chymeía: E este livro foi escrito com muito carinho. Dizem que vale cada página. [ID:ACAMP_SHARA_003]
@@ -67,8 +73,8 @@ Chymeía: Fujo da água quando o fogo a abraça, subo sem asas e volto em gotas.
 	=> shara_segunda
 - O vapor [ID:ACAMP_SHARA_OPC_VAPOR]
 	$> Inventario.marcar_coletado("charada_chymeia")
-	$> Inventario.adicionar("agua_luminosa_agape")
-	Chymeía: Exato! Leve um frasco das águas de Ágape. À noite, ele brilha. [ID:ACAMP_SHARA_013]
+	$> Inventario.adicionar("elixir_chymeia")
+	Chymeía: Exato! Leve o meu elixir. Só faço um de cada vez: três poções numa só. [ID:ACAMP_SHARA_013]
 	Chymeía: Cada poção leva a medida exata. Não é magia, é química. [ID:ACAMP_SHARA_002]
 => END
 
@@ -78,8 +84,8 @@ $> Inventario.marcar_coletado("charada_chymeia")
 Chymeía: [#retrato=neutro] Quase! Tudo bem, tenho outra, mas o prêmio é menor. [ID:ACAMP_SHARA_014]
 Chymeía: Nasço do mar, a água me desfaz, dou sabor e guardo a carne do tempo. O que sou? [ID:ACAMP_SHARA_015]
 - O sal [ID:ACAMP_SHARA_OPC_SAL]
-	$> Inventario.adicionar("sal_do_mar")
-	Chymeía: Isso! Um saquinho de sal do mar, então. [ID:ACAMP_SHARA_016]
+	$> Inventario.adicionar("pocao_cura", 2)
+	Chymeía: Isso! Duas poções de cura, então. [ID:ACAMP_SHARA_016]
 - A areia [ID:ACAMP_SHARA_OPC_AREIA]
 	Chymeía: Não foi dessa vez. Estude mais e volte para comprar um livro! [ID:ACAMP_SHARA_017]
 - A espuma [ID:ACAMP_SHARA_OPC_ESPUMA]

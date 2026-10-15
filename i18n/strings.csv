@@ -191,14 +191,6 @@ CODICE_ATENAS_TITULO,Atenas
 CODICE_ATENAS_TEXTO,"Capital do Império de Hélade, fundada para educar os Abençoados."
 CODICE_PALACIO_IMPERIAL_TITULO,Palácio Imperial
 CODICE_PALACIO_IMPERIAL_TEXTO,"Morada do Imperador Varsélios, em Atenas."
-ITEM_PEDERNEIRA_VIAJANTE_NOME,Pederneira do viajante
-ITEM_PEDERNEIRA_VIAJANTE_DESC,"Presente de Próskopos, por acertar a charada. Acende fogo até com lenha úmida."
-ITEM_CORDA_TRANCADA_NOME,Corda trançada
-ITEM_CORDA_TRANCADA_DESC,"Presente de Próskopos, pela segunda charada. Firme e leve."
-ITEM_AGUA_LUMINOSA_AGAPE_NOME,Frasco de água luminosa de Ágape
-ITEM_AGUA_LUMINOSA_AGAPE_DESC,"Presente de Chymeía, por acertar a charada. A água brilha no escuro."
-ITEM_SAL_DO_MAR_NOME,Saquinho de sal do mar
-ITEM_SAL_DO_MAR_DESC,"Presente de Chymeía, pela segunda charada."
 PAUSA_TITULO,Pausa
 PAUSA_BOTAO,Pausa
 PAUSA_VOLTAR_AO_JOGO,Voltar ao jogo
@@ -208,3 +200,9 @@ PAUSA_CONFIRMAR_MENU,"Voltar ao menu inicial? O que não foi salvo será perdido
 PAUSA_CONFIRMAR_SAIR,"Sair do jogo? O que não foi salvo será perdido."
 PAUSA_CONFIRMAR_SIM,Sim
 PAUSA_CONFIRMAR_NAO,Não
+ITEM_BORDAO_PROSKOPOS_NOME,Bordão de Próskopos
+ITEM_BORDAO_PROSKOPOS_DESC,"Raro. Prêmio da charada de Próskopos. Duas mãos: golpeia duas casas à frente, é leve e ajuda a aparar golpes."
+ITEM_ELIXIR_CHYMEIA_NOME,Elixir de Chymeía
+ITEM_ELIXIR_CHYMEIA_DESC,"Raro. Prêmio da charada de Chymeía. Cura toda a vida e, por um minuto, dá vigor e rapidez."
+ITEM_RACAO_TRILHA_NOME,Ração de trilha
+ITEM_RACAO_TRILHA_DESC,Pão e frutas secas para a estrada. Recupera um pouco de vida.

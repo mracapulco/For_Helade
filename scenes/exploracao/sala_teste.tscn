@@ -439,7 +439,7 @@ offset = Vector2(0, -13)
 [node name="Colisao" type="CollisionShape2D" parent="Braseiro2"]
 shape = SubResource("CircleShape2D_enfeite")
 
-[node name="Bandido" type="CharacterBody2D" parent="." node_paths=PackedStringArray("visual", "vida", "reacao")]
+[node name="Bandido" type="CharacterBody2D" parent="." node_paths=PackedStringArray("visual", "vida", "reacao", "grade")]
 position = Vector2(288, 240)
 motion_mode = 1
 script = ExtResource("33_inimigo")
@@ -448,6 +448,7 @@ moedas = 5
 visual = NodePath("Visual")
 vida = NodePath("Vida")
 reacao = NodePath("ReacaoAoGolpe")
+grade = NodePath("../Chao")
 
 [node name="Sombra" type="Polygon2D" parent="Bandido"]
 color = Color(0, 0, 0, 0.35)
@@ -474,12 +475,7 @@ vida = NodePath("../Vida")
 [node name="Colisao" type="CollisionShape2D" parent="Bandido"]
 shape = SubResource("CircleShape2D_figurante")
 
-[node name="Agente" type="NavigationAgent2D" parent="Bandido"]
-path_desired_distance = 4.0
-target_desired_distance = 4.0
-radius = 7.0
-
-[node name="BandidoEscudo" type="CharacterBody2D" parent="." node_paths=PackedStringArray("visual", "vida", "reacao")]
+[node name="BandidoEscudo" type="CharacterBody2D" parent="." node_paths=PackedStringArray("visual", "vida", "reacao", "grade")]
 position = Vector2(320, 256)
 motion_mode = 1
 script = ExtResource("33_inimigo")
@@ -488,6 +484,7 @@ moedas = 8
 visual = NodePath("Visual")
 vida = NodePath("Vida")
 reacao = NodePath("ReacaoAoGolpe")
+grade = NodePath("../Chao")
 
 [node name="Sombra" type="Polygon2D" parent="BandidoEscudo"]
 color = Color(0, 0, 0, 0.35)
@@ -513,11 +510,6 @@ vida = NodePath("../Vida")
 
 [node name="Colisao" type="CollisionShape2D" parent="BandidoEscudo"]
 shape = SubResource("CircleShape2D_figurante")
-
-[node name="Agente" type="NavigationAgent2D" parent="BandidoEscudo"]
-path_desired_distance = 4.0
-target_desired_distance = 4.0
-radius = 7.0
 
 [node name="BauPocoes" type="StaticBody2D" parent="." groups=["navegacao_obstaculos"]]
 position = Vector2(-96, 272)

@@ -50,6 +50,9 @@ signal derrotado
 ## Até onde o golpe pega, a partir dos pés dele, em pixels, quando a arma
 ## não tem alcance próprio.
 @export var alcance_golpe := 40.0
+## Com [member grade]: apertar uma direção diferente da que ele olha só vira
+## o corpo; segurando a tecla por este tempo (ou apertando de novo), anda.
+@export var tempo_para_andar := 0.12
 ## Vida do personagem (opcional). Sem ela, não há derrota.
 @export var vida: Vida
 ## Efeitos de poções (opcional): a rapidez soma na velocidade.
@@ -72,6 +75,8 @@ var _tempo_golpe := 0.0
 var _casa_destino := Vector2.INF
 var _casa_origem := Vector2.ZERO
 var _golpe_pendente := false
+## Quanto falta segurar a tecla, depois de virar, para começar a andar.
+var _espera_virar := 0.0
 ## Multiplicador de velocidade do equipamento e das poções (1 = sem bônus).
 var _ritmo := 1.0
 ## Onde ele entrou na cena: volta para cá ao ser derrotado.
@@ -385,6 +390,9 @@ func _physics_process(delta: float) -> void:
 		rapidez *= multiplicador_corrida
 
 	var teclas := Input.get_vector("mover_esquerda", "mover_direita", "mover_frente", "mover_tras")
+	if teclas == Vector2.ZERO:
+		# Soltou: apertar de novo na mesma direção já anda.
+		_espera_virar = 0.0
 	if grade and (indo_para_casa() or teclas != Vector2.ZERO):
 		_andar_na_grade(teclas, rapidez, delta)
 		return
@@ -418,7 +426,8 @@ func _physics_process(delta: float) -> void:
 
 
 ## Teclado com grade: anda uma casa por vez e só para no centro de uma casa.
-## Soltar a tecla no meio do caminho termina o passo.
+## Soltar a tecla no meio do caminho termina o passo. Numa direção nova, o
+## primeiro aperto só vira (veja [member tempo_para_andar]).
 func _andar_na_grade(teclas: Vector2, rapidez: float, delta: float) -> void:
 	if not indo_para_casa():
 		var passo := passo_na_grade(teclas)
@@ -429,8 +438,18 @@ func _andar_na_grade(teclas: Vector2, rapidez: float, delta: float) -> void:
 		if andando:
 			andando = false
 			chegou.emit()
+		var rumo := direcao_isometrica(teclas)
+		if rumo.dot(direcao_olhar) < 0.99:
+			direcao_olhar = rumo
+			_espera_virar = tempo_para_andar
+			velocity = Vector2.ZERO
+			return
+		if _espera_virar > 0.0:
+			_espera_virar -= delta
+			velocity = Vector2.ZERO
+			return
 		var proxima := centro_da_casa(casa_de(global_position) + passo)
-		direcao_olhar = direcao_isometrica(teclas)
+		direcao_olhar = rumo
 		if not test_move(global_transform, proxima - global_position) and casa_andavel(proxima):
 			_casa_origem = centro_da_casa(casa_de(global_position))
 			_casa_destino = proxima

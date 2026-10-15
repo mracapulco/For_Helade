@@ -41,8 +41,10 @@ const PE_CAIXA := 17.0
 ## linha do quadril nas folhas dos personagens (quadros de 32×48).
 const ALTURA_ASSENTO := 12.0
 const LINHA_QUADRIL := 37
+## Comprimento da coxa de quem está sentado, em casas.
+const COXA := 0.25
 ## Centro da carruagem no chão, dentro das imagens dela, e a altura do piso.
-const CARRO_ORIGEM := Vector2(144, 116)
+const CARRO_ORIGEM := Vector2(150, 128)
 const CARRO_CHAO := 18.0
 
 ## Luz de cada momento.
@@ -405,23 +407,52 @@ func lado_da_cama_perto_de_nicholas() -> Vector2i:
 
 
 ## Personagem sentado no banco: o quadro parado, de frente, cortado no quadril.
-func _sentado(nome: String, quadros: SpriteFrames, casa: Vector2i) -> Sprite2D:
-	return _sentado_em(nome, quadros, sala, sala.centro(casa))
-
-
 func _sentado_em(nome: String, quadros: SpriteFrames, pai: Node2D, posicao: Vector2) -> Sprite2D:
-	var quadro := quadros.get_frame_texture(&"parado_frente", 0) as AtlasTexture
-	var corte := AtlasTexture.new()
-	corte.atlas = quadro.atlas
-	corte.region = Rect2(quadro.region.position, Vector2(quadro.region.size.x, LINHA_QUADRIL))
 	var sprite := Sprite2D.new()
 	sprite.name = nome
-	sprite.texture = corte
+	sprite.texture = imagem_sentada(quadros)
 	sprite.centered = false
 	sprite.position = posicao
-	sprite.offset = Vector2(-quadro.region.size.x / 2.0, -ALTURA_ASSENTO - LINHA_QUADRIL)
+	# Os pés no meio da largura do quadro em pé, à esquerda da imagem.
+	var meio := (sprite.texture.get_width() - 2 * roundi(16.0 * COXA)) / 2.0
+	sprite.offset = Vector2(-meio, -sprite.texture.get_height())
 	pai.add_child(sprite)
 	return sprite
+
+
+## A pessoa sentada, montada do quadro em pé: o tronco até o quadril, as coxas
+## indo para a frente (para +b, que na tela é para baixo e à esquerda) e as
+## canelas descendo até o chão. A base da imagem é o chão sob os pés, no meio
+## dos pés; o quadril fica [constant COXA] casa para trás e
+## [constant ALTURA_ASSENTO] pixels acima do chão.
+static func imagem_sentada(quadros: SpriteFrames) -> ImageTexture:
+	var quadro := quadros.get_frame_texture(&"parado_frente", 0) as AtlasTexture
+	var folha := quadro.atlas.get_image()
+	if folha.is_compressed():
+		folha.decompress()
+	folha.convert(Image.FORMAT_RGBA8)
+	var corpo := folha.get_region(Rect2i(quadro.region))
+	var largura := corpo.get_width()
+	var pe := corpo.get_used_rect().end.y - 1
+	# A coxa, em pixels da tela: anda COXA casa em +b (2 px para a esquerda a
+	# cada 1 para baixo).
+	var desce := int(round(16.0 * COXA))
+	var recua := 2 * desce
+	var canela := int(ALTURA_ASSENTO)
+	var altura := LINHA_QUADRIL + desce + canela
+	var sentada := Image.create(largura + recua, altura, false, Image.FORMAT_RGBA8)
+	sentada.blit_rect(corpo, Rect2i(0, 0, largura, LINHA_QUADRIL), Vector2i(recua, 0))
+	# Coxas: a linha do quadril, deslizando para baixo e para a esquerda.
+	for k in desce:
+		var linha := LINHA_QUADRIL + mini(k, 1)
+		sentada.blit_rect(corpo, Rect2i(0, linha, largura, 1), Vector2i(recua - 2 * (k + 1), LINHA_QUADRIL + k))
+	# Canelas e pés: o resto das pernas, esticado até o chão.
+	var origem := LINHA_QUADRIL + 2
+	var fonte := pe - origem + 1
+	for i in canela:
+		var linha := origem + int(float(i) * fonte / canela)
+		sentada.blit_rect(corpo, Rect2i(0, linha, largura, 1), Vector2i(0, LINHA_QUADRIL + desce + i))
+	return ImageTexture.create_from_image(sentada)
 
 
 ## Conversa na caixa e, quando ela fecha, Nicholas continua parado (a caixa
@@ -536,11 +567,11 @@ func montar_carruagem() -> void:
 	carro.position = sala.centro(casa)
 	sala.add_child(carro)
 	carro.add_child(_parte_do_carro("Fundo", "carruagem_fundo.png", 1))
-	# Os dois lado a lado no banco: só da cintura para cima, com o quadril no
-	# assento (a borda da frente cobre as pernas).
-	objetos["althea"] = _sentado_em("Althea", QUADROS_ALTHEA, carro, ponto_carruagem(-0.55, -0.59, CARRO_CHAO))
+	# Os dois lado a lado no banco, sentados, com os pés no chão da carruagem
+	# rente à beira do assento.
+	objetos["althea"] = _sentado_em("Althea", QUADROS_ALTHEA, carro, ponto_carruagem(-0.7, -0.38 + COXA, CARRO_CHAO))
 	objetos["nicholas_sentado"] = _sentado_em("NicholasSentado", QUADROS_VESTIDO, carro,
-		ponto_carruagem(0.55, -0.59, CARRO_CHAO))
+		ponto_carruagem(0.3, -0.38 + COXA, CARRO_CHAO))
 	var frente := _parte_do_carro("Frente", "carruagem_frente.png", 3)
 	carro.add_child(frente)
 	_entrar(casa)

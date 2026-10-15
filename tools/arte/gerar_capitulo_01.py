@@ -545,23 +545,36 @@ def garota_visao():
     return q.contornar()
 
 
-# --- carruagem por fora, em corte (pedido do Rafael, 15/10/2026: a sala de
-# paredes grossas não parecia um veículo). Paredes finas de madeira, rodas
-# raiadas e a parte da frente baixa, para ver Nicholas e Althea no banco.
+# --- carruagem por fora, em corte (Rafael, 15/10/2026: a sala de paredes
+# grossas não parecia um veículo; depois: inspirar nas carruagens antigas,
+# gregas, romanas e medievais, e pôr os animais de tração). Caixa baixa de
+# madeira com friso grego dourado, cobertura em arco de tecido sobre arcos de
+# madeira (como o carpentum romano e a carruagem medieval), rodas grandes
+# raiadas, varal, dois cavalos e o cocheiro no banco da frente (o livro cita o
+# cocheiro). Parede da frente e metade da cobertura "cortadas" para ver
+# Nicholas e Althea no banco.
 # Duas imagens com a mesma origem: o fundo (rodas de trás, chão, paredes do
-# fundo e da esquerda, banco) e a frente (borda baixa e rodas da frente, três
-# quadros das rodas girando). Os dois sentados ficam entre elas.
+# fundo e da esquerda, cobertura, banco) e a frente (borda baixa, rodas da
+# frente, cavalos e cocheiro, três quadros: rodas girando e cavalos a trote).
 # A origem (CARRO_O) é o centro da carruagem no chão; o jogo usa a mesma conta
-# (Capitulo01.ponto_carruagem). Desenho provisório: o livro não descreve a
-# carruagem.
-CARRO_W, CARRO_H = 288, 168
-CARRO_O = (144, 116)
+# (Capitulo01.ponto_carruagem). Tudo provisório: o livro não descreve a
+# carruagem nem os cavalos.
+import math
+CARRO_W, CARRO_H = 420, 216
+CARRO_O = (150, 128)
 CARRO_A, CARRO_B = 1.5, 0.8          # meio comprimento e meia largura, em casas
-CARRO_CHAO, CARRO_TOPO, CARRO_BORDA = 18, 64, 34
-CARRO_RAIO, CARRO_EIXO = 13, 13
+CARRO_CHAO, CARRO_TOPO, CARRO_BORDA = 18, 58, 34
+CARRO_ARCO = 22                      # altura do arco da cobertura acima do topo
+CARRO_RAIO, CARRO_EIXO = 15, 15
+CASA = 35.8                          # pixels de uma casa ao longo de um eixo
 C.update(
     carro=H('#3A2418'), carro_luz=H('#5A3A26'), carro_sombra=H('#24160F'),
     lambris=H('#2E1C14'), lambris_luz=H('#4A2E20'), roda=H('#1E1410'),
+    lona=H('#1B2A4C'), lona_luz=H('#2C3F68'), lona_sombra=H('#111B33'),
+    cavalo=H('#D9D2C6'), cavalo_luz=H('#F0EBE2'), cavalo_sombra=H('#A79E92'),
+    cavalo2=H('#B9B0A3'), cavalo2_sombra=H('#8A8277'),
+    crina=H('#6E665C'), couro=H('#4A2A1A'),
+    cocheiro=H('#2A2F3A'), cocheiro_luz=H('#3E4656'), pele_cocheiro=H('#D8A882'),
 )
 
 
@@ -573,22 +586,51 @@ def _carro_quad(d, pts, cor):
     d.polygon([_carro_t(*p) for p in pts], fill=C[cor])
 
 
+def _perfil(a0, b, pontos):
+    """Pontos (u, v) de um desenho de perfil num plano vertical ao longo de a:
+    u em pixels para a frente (+a), v em pixels para cima."""
+    return [_carro_t(a0 + u / CASA, b, v) for u, v in pontos]
+
+
+def _elipse_perfil(a0, b, cu, cv, ru, rv, n=24):
+    return _perfil(a0, b, [(cu + ru * math.cos(k * 2 * math.pi / n), cv + rv * math.sin(k * 2 * math.pi / n))
+                           for k in range(n)])
+
+
 def _roda(d, a_c, b, giro):
     """Roda num plano vertical ao longo de a (lado da carruagem)."""
-    import math
     r = CARRO_RAIO
     def ponto(ang, raio):
-        return _carro_t(a_c + raio * math.cos(ang) / 35.8, b, CARRO_EIXO + raio * math.sin(ang))
+        return _carro_t(a_c + raio * math.cos(ang) / CASA, b, CARRO_EIXO + raio * math.sin(ang))
     aro = [ponto(k * math.pi / 16, r) for k in range(32)]
     d.polygon(aro, fill=C['roda'])
-    dentro = [ponto(k * math.pi / 16, r - 2.5) for k in range(32)]
-    d.polygon(dentro, fill=C['carro_sombra'])
-    for k in range(6):
-        ang = giro + k * math.pi / 3
-        d.line([ponto(ang, 0), ponto(ang, r - 2)], fill=C['ouro_sombra'], width=1)
+    d.polygon([ponto(k * math.pi / 16, r - 1.5) for k in range(32)], fill=C['carro_luz'])
+    d.polygon([ponto(k * math.pi / 16, r - 3) for k in range(32)], fill=C['carro_sombra'])
+    for k in range(8):
+        ang = giro + k * math.pi / 4
+        d.line([ponto(ang, 2), ponto(ang, r - 2)], fill=C['carro_luz'], width=1)
     cx, cy = ponto(0, 0)
     d.ellipse([cx - 2, cy - 2, cx + 2, cy + 2], fill=C['ouro'])
     d.polygon(aro, outline=C['contorno'])
+
+
+def _arco_h(b):
+    """Altura da cobertura em arco sobre a largura da carruagem."""
+    k = max(0.0, 1 - (b / CARRO_B) ** 2)
+    return CARRO_TOPO + CARRO_ARCO * math.sqrt(k)
+
+
+def _friso_grego(d, b, a0, a1, h0):
+    """Friso grego (meandro) dourado ao longo da borda, no plano b."""
+    passo = 7
+    u = 0.0
+    comp = (a1 - a0) * CASA
+    while u + passo <= comp:
+        pts = [(u, h0), (u, h0 + 5), (u + 4, h0 + 5), (u + 4, h0 + 2), (u + 2, h0 + 2)]
+        d.line(_perfil(a0, b, pts), fill=C['ouro'], width=1)
+        u += passo
+    d.line(_perfil(a0, b, [(0, h0 - 2), (comp, h0 - 2)]), fill=C['ouro_sombra'])
+    d.line(_perfil(a0, b, [(0, h0 + 7), (comp, h0 + 7)]), fill=C['ouro_sombra'])
 
 
 def carruagem_fundo():
@@ -599,42 +641,99 @@ def carruagem_fundo():
     ch, tp = CARRO_CHAO, CARRO_TOPO
     # rodas do outro lado (quase escondidas pela caixa)
     _roda(d, -0.95, -B - 0.06, 0.3)
-    _roda(d, 0.95, -B - 0.06, 0.3)
+    _roda(d, 1.0, -B - 0.06, 0.3)
+    # metade de trás da cobertura em arco: tecido azul-escuro sobre arcos
+    for i in range(24):
+        b0 = -B + i * B / 24
+        b1 = -B + (i + 1) * B / 24
+        cor = 'lona_luz' if i % 6 in (0, 1) else 'lona'
+        _carro_quad(d, [(-A, b0, _arco_h(b0)), (A, b0, _arco_h(b0)), (A, b1, _arco_h(b1)), (-A, b1, _arco_h(b1))], cor)
+    for a in (-A, -0.5, 0.5, A):
+        d.line([_carro_t(a, -B + i * B / 24, _arco_h(-B + i * B / 24)) for i in range(25)],
+               fill=C['carro_luz'], width=2)
+    d.line([_carro_t(-A, 0, _arco_h(0)), _carro_t(A, 0, _arco_h(0))], fill=C['ouro_sombra'])
+    # ponta da esquerda da cobertura (o pano fecha o arco)
+    d.polygon([_carro_t(-A, -B + i * B / 24, _arco_h(-B + i * B / 24)) for i in range(25)]
+              + [_carro_t(-A, 0, tp), _carro_t(-A, -B, tp)], fill=C['lona_sombra'])
     # chão de tábuas
     _carro_quad(d, [(-A, -B, ch), (A, -B, ch), (A, B, ch), (-A, B, ch)], 'carro_luz')
     for k in range(1, 6):
         b = -B + k * 2 * B / 6
         d.line([_carro_t(-A, b, ch), _carro_t(A, b, ch)], fill=C['carro'])
-    # parede do fundo (b = -B), face de dentro, com espessura fina no topo
+    # parede do fundo (b = -B) e da esquerda (a = -A), de dentro, finas
     _carro_quad(d, [(-A, -B, ch), (A, -B, ch), (A, -B, tp), (-A, -B, tp)], 'lambris')
-    _carro_quad(d, [(-A, -B - 0.07, tp), (A, -B - 0.07, tp), (A, -B, tp), (-A, -B, tp)], 'ouro_sombra')
-    # parede da esquerda (a = -A), face de dentro
     _carro_quad(d, [(-A, -B, ch), (-A, B, ch), (-A, B, tp), (-A, -B, tp)], 'lambris_luz')
-    _carro_quad(d, [(-A - 0.07, -B, tp), (-A, -B, tp), (-A, B, tp), (-A - 0.07, B, tp)], 'ouro_sombra')
-    # almofadas do lambris e filete dourado
-    for a0 in (-1.3, -0.45, 0.4):
-        _carro_quad(d, [(a0, -B, ch + 30), (a0 + 0.75, -B, ch + 30), (a0 + 0.75, -B, ch + 10), (a0, -B, ch + 10)], 'lambris_luz')
-    d.line([_carro_t(-A, -B, tp - 4), _carro_t(A, -B, tp - 4)], fill=C['ouro'])
-    d.line([_carro_t(-A, -B, tp - 4), _carro_t(-A, B, tp - 4)], fill=C['ouro'])
-    # janelas com cortina (a da esquerda e a do fundo)
-    _carro_quad(d, [(-0.45, -B, ch + 24), (0.45, -B, ch + 24), (0.45, -B, tp - 7), (-0.45, -B, tp - 7)], 'vidro_luz')
-    _carro_quad(d, [(-0.45, -B, ch + 24), (-0.3, -B, ch + 24), (-0.3, -B, tp - 7), (-0.45, -B, tp - 7)], 'veludo_luz')
-    _carro_quad(d, [(0.3, -B, ch + 24), (0.45, -B, ch + 24), (0.45, -B, tp - 7), (0.3, -B, tp - 7)], 'veludo_luz')
-    _carro_quad(d, [(-A, -0.35, ch + 24), (-A, 0.35, ch + 24), (-A, 0.35, tp - 7), (-A, -0.35, tp - 7)], 'vidro')
-    _carro_quad(d, [(-A, 0.22, ch + 24), (-A, 0.35, ch + 24), (-A, 0.35, tp - 7), (-A, 0.22, tp - 7)], 'veludo_luz')
+    d.line([_carro_t(-A, -B, tp), _carro_t(A, -B, tp)], fill=C['ouro'])
+    d.line([_carro_t(-A, -B, tp), _carro_t(-A, B, tp)], fill=C['ouro'])
+    # janelas abertas com cortina presa
+    for a0, a1 in ((-1.15, -0.55), (0.55, 1.15)):
+        _carro_quad(d, [(a0, -B, ch + 22), (a1, -B, ch + 22), (a1, -B, tp - 5), (a0, -B, tp - 5)], 'vidro_luz')
+        _carro_quad(d, [(a0, -B, ch + 22), (a0 + 0.12, -B, ch + 22), (a0 + 0.12, -B, tp - 5), (a0, -B, tp - 5)], 'veludo_luz')
+    _carro_quad(d, [(-A, -0.3, ch + 22), (-A, 0.3, ch + 22), (-A, 0.3, tp - 5), (-A, -0.3, tp - 5)], 'vidro')
+    _carro_quad(d, [(-A, 0.18, ch + 22), (-A, 0.3, ch + 22), (-A, 0.3, tp - 5), (-A, 0.18, tp - 5)], 'veludo_luz')
     # banco de veludo encostado no fundo: assento e encosto
     s0, s1, sa = -B, -B + 0.42, ch + 12
-    _carro_quad(d, [(-A, s1, ch), (A, s1, ch), (A, s1, sa), (-A, s1, sa)], 'veludo')
-    _carro_quad(d, [(-A, s0, sa), (A, s0, sa), (A, s1, sa), (-A, s1, sa)], 'veludo_luz')
-    _carro_quad(d, [(-A, s0, sa), (A, s0, sa), (A, s0, sa + 16), (-A, s0, sa + 16)], 'veludo')
+    _carro_quad(d, [(-A, s1, ch), (A, s1, ch), (A, s1, sa), (-A, s1, sa)], 'lona_luz')
+    _carro_quad(d, [(-A, s0, sa), (A, s0, sa), (A, s1, sa), (-A, s1, sa)], 'bolo_sombra')
+    _carro_quad(d, [(-A, s0, sa), (A, s0, sa), (A, s0, sa + 14), (-A, s0, sa + 14)], 'lona_luz')
     d.line([_carro_t(-A, s1, sa), _carro_t(A, s1, sa)], fill=C['ouro_sombra'])
-    q.px = q.im.load()
     return q.im
 
 
+def _cavalo(d, a0, b, quadro, claro):
+    """Cavalo de perfil a trote, virado para +a; a0 = meio do corpo."""
+    E = 1.45                       # cavalo maior que o desenho-base
+    def _pc(pts):
+        return _perfil(a0, b, [(u * E, v * E) for u, v in pts])
+    pele, sombra = ('cavalo', 'cavalo_sombra') if claro else ('cavalo2', 'cavalo2_sombra')
+    # pernas: pares diagonais a trote (3 quadros)
+    passo = (-3, 0, 3)[quadro]
+    pernas = [(-11, passo), (-7, -passo), (9, -passo), (13, passo)]
+    for i, (u, dx) in enumerate(pernas):
+        cor = sombra if i in (0, 2) else pele
+        d.line(_pc([(u, 20), (u + dx * 0.5, 9), (u + dx, 1)]), fill=C[cor], width=4)
+        d.line(_pc([(u + dx - 1, 0), (u + dx + 1, 0)]), fill=C['roda'], width=2)
+    # cauda
+    d.polygon(_pc([(-16, 27), (-19, 24), (-21, 12), (-18, 13), (-15, 23)]), fill=C['crina'])
+    # corpo, peito e garupa
+    d.polygon(_elipse_perfil(a0, b, 0, 24 * E, 17 * E, 7.5 * E), fill=C[pele])
+    d.polygon(_elipse_perfil(a0, b, 0, 21 * E, 15 * E, 3 * E), fill=C[sombra])
+    # pescoço e cabeça
+    d.polygon(_pc([(10, 27), (15, 21), (24, 33), (21, 39), (16, 38)]), fill=C[pele])
+    d.polygon(_pc([(19, 39), (24, 40), (33, 31), (32, 28), (28, 29), (22, 34)]), fill=C[pele])
+    d.polygon(_pc([(29, 30), (33, 31), (32, 28)]), fill=C[sombra])
+    d.polygon(_pc([(20, 40), (21, 43), (23, 40)]), fill=C[pele])        # orelha
+    d.line(_pc([(10, 30), (16, 38), (20, 41)]), fill=C['crina'], width=2)   # crina
+    x, y = _pc([(26, 35)])[0]
+    d.point((x, y), fill=C['contorno'])                                              # olho
+    # arreio: coleira, cilha e rédeas
+    d.line(_pc([(13, 21), (17, 30)]), fill=C['couro'], width=2)
+    d.line(_pc([(-2, 17), (-2, 31)]), fill=C['couro'], width=2)
+    d.line(_pc([(-2, 30), (4, 31), (13, 28)]), fill=C['couro'])
+    xs, ys = _pc([(-2, 31)])[0]
+    d.point((xs, ys), fill=C['ouro'])
+
+
+def _cocheiro(d):
+    """O cocheiro no banco da frente, de perfil, virado para os cavalos."""
+    A = CARRO_A
+    a0, b = A + 0.25, 0.0
+    # banco alto do cocheiro
+    _carro_quad(d, [(A, -0.4, 30), (A + 0.42, -0.4, 30), (A + 0.42, 0.4, 30), (A, 0.4, 30)], 'carro_luz')
+    _carro_quad(d, [(A, 0.4, 6), (A + 0.42, 0.4, 6), (A + 0.42, 0.4, 30), (A, 0.4, 30)], 'carro')
+    _carro_quad(d, [(A + 0.42, -0.4, 6), (A + 0.42, 0.4, 6), (A + 0.42, 0.4, 30), (A + 0.42, -0.4, 30)], 'carro_sombra')
+    # corpo sentado: capa, pernas para a frente, cabeça e chapéu
+    d.polygon(_perfil(a0, b, [(-5, 30), (5, 30), (4, 46), (-3, 47), (-6, 40)]), fill=C['cocheiro'])
+    d.polygon(_perfil(a0, b, [(2, 30), (11, 29), (11, 22), (8, 22), (8, 26), (2, 26)]), fill=C['cocheiro_luz'])
+    d.polygon(_elipse_perfil(a0, b, 1, 50, 3, 3.5), fill=C['pele_cocheiro'])
+    d.polygon(_perfil(a0, b, [(-4, 52), (6, 52), (6, 54), (2, 54), (2, 58), (-2, 58), (-2, 54), (-4, 54)]),
+              fill=C['cocheiro'])
+    d.line(_perfil(a0, b, [(4, 40), (12, 36)]), fill=C['cocheiro_luz'], width=2)   # braço nas rédeas
+
+
 def carruagem_frente():
-    """Três quadros lado a lado: a borda baixa da frente e as rodas girando."""
-    import math
+    """Três quadros lado a lado: a borda baixa da frente, as rodas girando, o
+    varal, os dois cavalos a trote e o cocheiro."""
     from PIL import Image, ImageDraw
     tira = Image.new('RGBA', (CARRO_W * 3, CARRO_H), (0, 0, 0, 0))
     A, B = CARRO_A, CARRO_B
@@ -642,33 +741,38 @@ def carruagem_frente():
         q = Q(CARRO_W, CARRO_H)
         d = ImageDraw.Draw(q.im)
         bd = CARRO_BORDA
-        # lado da direita (a = A): a frente do carro, também baixa em corte
+        # cavalo do outro lado, varal e cocheiro (atrás da borda de perto)
+        _cavalo(d, A + 1.95, -0.38, (i + 1) % 3, False)
+        d.line([_carro_t(A, 0.0, 12), _carro_t(A + 2.9, 0.0, 26)], fill=C['carro_luz'], width=2)
+        # lado da frente (a = A), baixo em corte, e o cocheiro do lado de fora
         _carro_quad(d, [(A, -B, 6), (A, B, 6), (A, B, bd), (A, -B, bd)], 'carro_sombra')
-        _carro_quad(d, [(A, -B, bd), (A + 0.07, -B, bd), (A + 0.07, B, bd), (A, B, bd)], 'ouro_sombra')
-        _carro_quad(d, [(A, -B, 6), (A, -B, CARRO_TOPO), (A, -B + 0.08, CARRO_TOPO), (A, -B + 0.08, 6)], 'carro_luz')
-        # lado de perto (b = B): borda baixa, com porta e filete dourado
+        _carro_quad(d, [(A, -B, bd), (A + 0.06, -B, bd), (A + 0.06, B, bd), (A, B, bd)], 'ouro_sombra')
+        _cocheiro(d)
+        # lado de perto (b = B): borda baixa com friso grego e porta
         _carro_quad(d, [(-A, B, 6), (A, B, 6), (A, B, bd), (-A, B, bd)], 'carro')
-        _carro_quad(d, [(-A, B, bd), (A, B, bd), (A, B + 0.07, bd), (-A, B + 0.07, bd)], 'ouro_sombra')
-        d.line([_carro_t(-A, B, bd - 3), _carro_t(A, B, bd - 3)], fill=C['ouro'])
-        d.line([_carro_t(-A, B, 10), _carro_t(A, B, 10)], fill=C['ouro_sombra'])
-        for a in (-0.35, 0.35):
-            d.line([_carro_t(a, B, 10), _carro_t(a, B, bd - 3)], fill=C['carro_sombra'])
-        hx, hy = _carro_t(0.25, B, 22)
-        d.rectangle([hx - 1, hy - 1, hx, hy], fill=C['ouro_luz'])
-        # quina da frente, alta (o resto da parede da frente foi "cortado")
-        _carro_quad(d, [(A, B, 6), (A, B, CARRO_TOPO), (A - 0.08, B, CARRO_TOPO), (A - 0.08, B, 6)], 'carro_luz')
-        d.line([_carro_t(-A, -B, CARRO_TOPO), _carro_t(A, -B, CARRO_TOPO)], fill=C['ouro'])
-        _carro_quad(d, [(-A, B, 6), (-A, B, CARRO_TOPO), (-A + 0.08, B, CARRO_TOPO), (-A + 0.08, B, 6)], 'carro_luz')
-        d.line([_carro_t(A, -B, bd - 3), _carro_t(A, B, bd - 3)], fill=C['ouro'])
+        _carro_quad(d, [(-A, B, bd), (A, B, bd), (A, B + 0.06, bd), (-A, B + 0.06, bd)], 'ouro_sombra')
+        _friso_grego(d, B, -A, A, 21)
+        for a in (-0.3, 0.3):
+            d.line([_carro_t(a, B, 8), _carro_t(a, B, 18)], fill=C['carro_sombra'])
+        # cantos com pilares finos até a cobertura (só as quinas)
+        for a in (-A, A):
+            _carro_quad(d, [(a, B, 6), (a, B, CARRO_TOPO), (a - 0.06 if a > 0 else a + 0.06, B, CARRO_TOPO),
+                            (a - 0.06 if a > 0 else a + 0.06, B, 6)], 'carro_luz')
         # lanternas nas quinas de perto
         for la in (A + 0.05, -A - 0.05):
-            lx, ly = _carro_t(la, B + 0.05, CARRO_TOPO - 6)
+            lx, ly = _carro_t(la, B + 0.05, CARRO_TOPO - 4)
             d.rectangle([lx - 2, ly - 4, lx + 2, ly + 3], fill=C['ouro'])
             d.rectangle([lx - 1, ly - 3, lx + 1, ly + 2], fill=C['vidro_luz'])
-        # rodas de perto
-        giro = i * math.pi / 9
+        # rodas de perto e o cavalo de perto
+        giro = i * math.pi / 12
         _roda(d, -0.95, B + 0.08, giro)
-        _roda(d, 0.95, B + 0.08, giro)
+        _roda(d, 1.0, B + 0.08, giro)
+        _cavalo(d, A + 1.95, 0.38, i, True)
+        # rédeas: da boca de cada cavalo até as mãos do cocheiro
+        mao = _carro_t(A + 0.25 + 12 / CASA, 0.0, 36)
+        for b in (-0.38, 0.38):
+            boca = _carro_t(A + 1.95 + 31 * 1.45 / CASA, b, 31 * 1.45)
+            d.line([boca, mao], fill=C['couro'])
         tira.paste(q.im, (i * CARRO_W, 0))
     return tira
 

@@ -85,6 +85,10 @@ var viu_espelho := false
 var vestido := false
 ## Extremidades do corredor para onde Nicholas já olhou, esperando o cortejo.
 var extremidades_vistas: Array[String] = []
+## Onde fica o desenho de Nicholas sentado (para ele se inclinar e voltar).
+var _offset_sentado_x := 0.0
+## Brilho das janelas das pontas do corredor, até ele olhar por elas.
+var brilhos := {}
 ## Quantas vezes Nicholas já tocou Althea na cama.
 var toques_na_cama := 0
 
@@ -224,7 +228,11 @@ func montar_corredor() -> void:
 		"quadro_atenas_esq": Vector2i(9, 0), "tocha_esq#2": Vector2i(10, 0),
 		"espada_placa_esq": Vector2i(15, 0), "quadro_norte_esq": Vector2i(17, 0),
 		"tocha_esq#3": Vector2i(18, 0), "tocha_esq#4": Vector2i(22, 0),
-		"arandela_dir": Vector2i(0, 1), "tapecaria_dir": Vector2i(0, 2)})
+		"tapecaria_dir": Vector2i(0, 2)})
+	# As duas pontas do corredor terminam numa janela, para onde ele olha
+	# enquanto espera (a faixa dourada do amanhecer entra por elas).
+	objetos["janela_esq"] = sala.pendurar("JanelaEsq", load(ARTE + "parede/janela_alta_dir.png"), Vector2i(0, 1))
+	objetos["janela_dir"] = sala.pendurar("JanelaDir", load(ARTE + "parede/janela_alta_esq.png"), Vector2i(25, 0))
 	# Para onde ele olha enquanto espera: as duas extremidades do corredor.
 	for nome: String in EXTREMIDADES:
 		_ponto(nome, EXTREMIDADES[nome]).get_node("Interagivel").interagido \
@@ -246,6 +254,12 @@ func esperar_cortejo() -> void:
 	_frases("frases_esperando")
 	for nome: String in EXTREMIDADES:
 		_ativar(objetos[nome], true)
+	# As janelas das pontas brilham até ele olhar por elas.
+	for janela: String in ["janela_esq", "janela_dir"]:
+		var brilho := create_tween().set_loops()
+		brilho.tween_property(objetos[janela], "modulate", Color(1.6, 1.4, 1.0), 0.6)
+		brilho.tween_property(objetos[janela], "modulate", Color.WHITE, 0.6)
+		brilhos[janela] = brilho
 
 
 ## "Ele olhou para uma das extremidades do corredor. Depois para a outra.
@@ -255,6 +269,12 @@ func olhar_extremidade(nome: String) -> void:
 		return
 	extremidades_vistas.append(nome)
 	_ativar(objetos[nome], false)
+	var janela := "janela_esq" if nome == "extremidade_esq" else "janela_dir"
+	if brilhos.has(janela):
+		brilhos[janela].kill()
+		brilhos.erase(janela)
+		objetos[janela].modulate = Color.WHITE
+	jogador.direcao_olhar = (objetos[janela].position - jogador.position).normalized()
 	if extremidades_vistas.size() == 1:
 		Codice.anotar("faixa_dourada")
 	if extremidades_vistas.size() < EXTREMIDADES.size():
@@ -429,13 +449,14 @@ func _sentado_em(nome: String, quadros: SpriteFrames, pai: Node2D, posicao: Vect
 ## canelas descendo até o chão. A base da imagem é o chão sob os pés, no meio
 ## dos pés; o quadril fica [constant COXA] casa para trás e
 ## [constant ALTURA_ASSENTO] pixels acima do chão.
-static func imagem_sentada(quadros: SpriteFrames) -> ImageTexture:
-	var quadro := quadros.get_frame_texture(&"parado_frente", 0) as AtlasTexture
-	var folha := quadro.atlas.get_image()
-	if folha.is_compressed():
-		folha.decompress()
-	folha.convert(Image.FORMAT_RGBA8)
-	var corpo := folha.get_region(Rect2i(quadro.region))
+## [param tronco]: de qual animação vem o tronco (de costas, para olhar pela
+## janela de trás); [param espelhar] vira só o tronco para a esquerda (as
+## pernas continuam para a frente, como quem gira no banco).
+static func imagem_sentada(quadros: SpriteFrames, tronco := &"parado_frente", espelhar := false) -> ImageTexture:
+	var corpo := _quadro_parado(quadros, &"parado_frente")
+	var de_cima := _quadro_parado(quadros, tronco)
+	if espelhar:
+		de_cima.flip_x()
 	var largura := corpo.get_width()
 	var pe := corpo.get_used_rect().end.y - 1
 	# A coxa, em pixels da tela: anda COXA casa em +b (2 px para a esquerda a
@@ -445,7 +466,7 @@ static func imagem_sentada(quadros: SpriteFrames) -> ImageTexture:
 	var canela := int(ALTURA_ASSENTO)
 	var altura := LINHA_QUADRIL + desce + canela
 	var sentada := Image.create(largura + recua, altura, false, Image.FORMAT_RGBA8)
-	sentada.blit_rect(corpo, Rect2i(0, 0, largura, LINHA_QUADRIL), Vector2i(recua, 0))
+	sentada.blit_rect(de_cima, Rect2i(0, 0, largura, LINHA_QUADRIL), Vector2i(recua, 0))
 	# Coxas: a linha do quadril, deslizando para baixo e para a esquerda.
 	for k in desce:
 		var linha := LINHA_QUADRIL + mini(k, 1)
@@ -457,6 +478,63 @@ static func imagem_sentada(quadros: SpriteFrames) -> ImageTexture:
 		var linha := origem + int(float(i) * fonte / canela)
 		sentada.blit_rect(corpo, Rect2i(0, linha, largura, 1), Vector2i(0, LINHA_QUADRIL + desce + i))
 	return ImageTexture.create_from_image(sentada)
+
+
+static func _quadro_parado(quadros: SpriteFrames, animacao: StringName) -> Image:
+	var quadro := quadros.get_frame_texture(animacao, 0) as AtlasTexture
+	var folha := quadro.atlas.get_image()
+	if folha.is_compressed():
+		folha.decompress()
+	folha.convert(Image.FORMAT_RGBA8)
+	return folha.get_region(Rect2i(quadro.region))
+
+
+## Muda a pose de quem está sentado na carruagem.
+func _pose(nome: String, quadros: SpriteFrames, tronco: StringName, espelhar: bool) -> void:
+	var sprite: Sprite2D = objetos.get(nome)
+	if sprite:
+		sprite.texture = imagem_sentada(quadros, tronco, espelhar)
+
+
+## Na carruagem, cada fala do menu da janela move a cena: Nicholas gira no
+## banco para a janela escolhida e a câmera vai junto; de volta ao menu, ele
+## volta a olhar para a frente.
+func _ao_ver_fala_na_carruagem(linha: DialogueLine) -> void:
+	match linha.static_id:
+		"CAP1_104":
+			_olhar_janela(true)
+		"CAP1_105":
+			_olhar_janela(false)
+		_:
+			if not linha.responses.is_empty():
+				_olhar_janela_fim()
+
+
+func _olhar_janela(esquerda: bool) -> void:
+	# A janela da esquerda fica na parede da esquerda (acima e à esquerda na
+	# tela); a da direita, na parede do fundo, atrás do banco.
+	_pose("nicholas_sentado", QUADROS_VESTIDO, &"parado_costas", esquerda)
+	var lado := Vector2(-1, -0.5) if esquerda else Vector2(1, -0.5)
+	_mover_suave(objetos["nicholas_sentado"], "offset:x", _offset_sentado_x + lado.x * 2.0)
+	_mover_suave(jogador.get_node("Camera"), "offset", lado * 28.0)
+
+
+func _olhar_janela_fim() -> void:
+	_pose("nicholas_sentado", QUADROS_VESTIDO, &"parado_frente", false)
+	_mover_suave(objetos["nicholas_sentado"], "offset:x", _offset_sentado_x)
+	_mover_suave(jogador.get_node("Camera"), "offset", Vector2.ZERO)
+
+
+## "Voltar-se para Althea": os dois se viram um para o outro.
+func _voltar_para_althea() -> void:
+	_olhar_janela_fim()
+	_pose("nicholas_sentado", QUADROS_VESTIDO, &"parado_frente", true)
+	_pose("althea", QUADROS_ALTHEA, &"parado_frente", false)
+	await _esperar(0.4)
+
+
+func _mover_suave(no: Node, propriedade: String, valor: Variant) -> void:
+	create_tween().set_trans(Tween.TRANS_SINE).tween_property(no, propriedade, valor, 0.35)
 
 
 ## Conversa na caixa e, quando ela fecha, Nicholas continua parado (a caixa
@@ -604,7 +682,11 @@ func montar_carruagem() -> void:
 	Codice.anotar("imperatriz_callie")
 	await _frases("frases_carruagem")
 	# Antes da conversa, Nicholas olha pelas janelas (até se voltar para Althea).
+	_offset_sentado_x = objetos["nicholas_sentado"].offset.x
+	DialogueManager.got_dialogue.connect(_ao_ver_fala_na_carruagem)
 	await _falar_travado("janela")
+	DialogueManager.got_dialogue.disconnect(_ao_ver_fala_na_carruagem)
+	await _voltar_para_althea()
 	await _falar_travado("carruagem")
 	await _escurecer()
 	balanco.kill()

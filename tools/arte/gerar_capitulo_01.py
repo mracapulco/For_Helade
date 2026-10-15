@@ -434,6 +434,24 @@ def janela_carruagem():
     return q.im
 
 
+def janela_alta():
+    # janela alta em arco, com o céu do amanhecer e a faixa dourada (o livro:
+    # "uma faixa dourada começou a surgir no horizonte, avançando pelas
+    # janelas"); nas duas pontas do corredor
+    q = Q(16, 34)
+    q.r(0, 4, 15, 33, 'pedra_parede_sombra')
+    q.r(1, 2, 14, 3, 'pedra_parede_sombra'); q.r(3, 0, 12, 1, 'pedra_parede_sombra')
+    ceu = ('veludo', 'veludo_luz', 'veludo_luz', 'vidro', 'vidro', 'vidro_luz', 'ouro_luz', 'ouro', 'ouro_sombra')
+    for y in range(2, 32):
+        cor = ceu[min(len(ceu) - 1, (y - 2) * len(ceu) // 30)]
+        x0 = 2 if y > 4 else 4
+        q.r(x0, y, 15 - x0, y, cor)
+    q.coluna(7, 2, 31, 'pedra_parede_sombra'); q.coluna(8, 2, 31, 'pedra_parede_sombra')
+    q.linha(16, 2, 13, 'pedra_parede_sombra')
+    q.r(0, 32, 15, 33, 'pedra_parede_luz')
+    return q.im
+
+
 def porta_na_parede():
     # porta fechada desenhada na face da parede
     q = Q(14, 26)
@@ -905,6 +923,8 @@ ARTES = {
     'carruagem_frente.png': carruagem_frente,
     'parede/janela_carruagem_esq.png': lambda: na_face(janela_carruagem(), 'esq', 7, 2),
     'parede/janela_carruagem_dir.png': lambda: na_face(janela_carruagem(), 'dir', 7, 2),
+    'parede/janela_alta_esq.png': lambda: na_face(janela_alta(), 'esq', 24, 6),
+    'parede/janela_alta_dir.png': lambda: na_face(janela_alta(), 'dir', 24, 6),
     'parede/porta_esq.png': lambda: na_face(porta_na_parede(), 'esq', 9, 6),
     'parede/espada_placa_esq.png': lambda: na_face(espada_placa(), 'esq', 3, 10),
 }

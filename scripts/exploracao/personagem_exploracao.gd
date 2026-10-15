@@ -364,14 +364,23 @@ func _andar_na_grade(teclas: Vector2, rapidez: float, delta: float) -> void:
 		if andando:
 			andando = false
 			chegou.emit()
-		var proxima := centro_da_casa(casa_de(global_position) + passo)
 		direcao_olhar = direcao_isometrica(teclas)
-		if not test_move(global_transform, proxima - global_position) and casa_andavel(proxima):
-			_casa_origem = centro_da_casa(casa_de(global_position))
-			_casa_destino = proxima
-		else:
+		# Na diagonal da grade, se a casa estiver fechada (parede de um lado,
+		# como num corredor), escorrega pelo eixo que estiver livre.
+		var tentativas: Array[Vector2i] = [passo]
+		if passo.x != 0 and passo.y != 0:
+			tentativas.append_array([Vector2i(passo.x, 0), Vector2i(0, passo.y)])
+		var proxima := Vector2.INF
+		for tentativa in tentativas:
+			var casa := centro_da_casa(casa_de(global_position) + tentativa)
+			if not test_move(global_transform, casa - global_position) and casa_andavel(casa):
+				proxima = casa
+				break
+		if proxima == Vector2.INF:
 			velocity = Vector2.ZERO
 			return
+		_casa_origem = centro_da_casa(casa_de(global_position))
+		_casa_destino = proxima
 	var falta := _casa_destino - global_position
 	var anda := rapidez * delta
 	velocity = falta.normalized() * rapidez

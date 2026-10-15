@@ -11,7 +11,7 @@
 [ext_resource type="Texture2D" path="res://assets/art/placeholders/acampamento/tufo.png" id="9"]
 [ext_resource type="Texture2D" path="res://assets/art/placeholders/acampamento/pedrinhas.png" id="10"]
 [ext_resource type="Texture2D" path="res://assets/art/convidados/rafael/rafael_parado.png" id="11"]
-[ext_resource type="Texture2D" path="res://assets/art/convidados/shara/shara_figurante.png" id="m"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholders/acampamento/mercador_ot.png" id="m"]
 [ext_resource type="Texture2D" path="res://assets/art/placeholders/acampamento/falesia.png" id="f1"]
 [ext_resource type="Texture2D" path="res://assets/art/placeholders/acampamento/falesia_b.png" id="f2"]
 

@@ -48,11 +48,11 @@ func test_retratos_em_pixel_art_com_boca_falando() -> void:
 		assert_true(personagem.pixel_art, nome)
 		var parado := personagem.retrato("neutro")
 		assert_not_null(parado, nome)
-		assert_eq(Vector2i(parado.get_size()), Vector2i(48, 48), nome)
+		assert_eq(Vector2i(parado.get_size()), Vector2i(64, 64), nome)
 		var quadros := personagem.quadros_fala("neutro")
 		assert_eq(quadros.size(), 3, nome)
 		for quadro in quadros:
-			assert_eq(Vector2i(quadro.get_size()), Vector2i(48, 48), nome)
+			assert_eq(Vector2i(quadro.get_size()), Vector2i(64, 64), nome)
 		# O quadro de boca fechada é o próprio retrato parado.
 		var fechada := (quadros[0] as AtlasTexture).atlas.get_image().get_region(Rect2i((quadros[0] as AtlasTexture).region))
 		assert_eq(fechada.get_data(), parado.get_image().get_data(), nome)

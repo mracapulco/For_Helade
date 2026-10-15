@@ -16,7 +16,7 @@ var personagens: Array[Personagem] = [
 	# Figurantes genéricos dos acampamentos (não são personagens do livro).
 	preload("res://data/personagens/mercador.tres"),
 	preload("res://data/personagens/viajante.tres"),
-	# Convidados (easter egg, pessoas reais): no acampamento da mata costeira.
+	# Convidados (easter egg, pessoas reais), cada um em um acampamento.
 	preload("res://data/personagens/rafael.tres"),
 	preload("res://data/personagens/shara.tres"),
 ]

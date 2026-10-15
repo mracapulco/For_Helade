@@ -9,7 +9,7 @@
 [ext_resource type="Texture2D" path="res://assets/art/placeholders/acampamento/tufo.png" id="7"]
 [ext_resource type="Texture2D" path="res://assets/art/placeholders/acampamento/juncos.png" id="8"]
 [ext_resource type="Texture2D" path="res://assets/art/placeholders/acampamento/burro.png" id="9"]
-[ext_resource type="Texture2D" path="res://assets/art/placeholders/acampamento/mercador_ag.png" id="m"]
+[ext_resource type="Texture2D" path="res://assets/art/convidados/shara/shara_figurante.png" id="m"]
 
 [resource]
 script = ExtResource("1")

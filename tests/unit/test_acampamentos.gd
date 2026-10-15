@@ -330,23 +330,25 @@ func test_anda_de_casa_em_casa_como_na_sala() -> void:
 	assert_eq(personagem.global_position, personagem.centro_da_casa(casa), "o toque também para no centro")
 
 
-func test_rafael_e_shara_no_acampamento_da_mata_costeira() -> void:
+func test_rafael_na_mata_costeira_e_shara_no_rio_de_agape() -> void:
 	await _abrir("ot_acampamento")
-	var mercador := acampamento.get_node("Mercador/Interagivel") as Interagivel
 	var companheiro := acampamento.get_node("Companheiro/Interagivel") as Interagivel
-	assert_eq(mercador.marcador, "shara")
 	assert_eq(companheiro.marcador, "rafael")
-	var linha: DialogueLine = await mercador.dialogo.get_next_dialogue_line("shara")
-	assert_eq(linha.character, "Shara")
-	linha = await companheiro.dialogo.get_next_dialogue_line("rafael")
+	var linha: DialogueLine = await companheiro.dialogo.get_next_dialogue_line("rafael")
 	assert_eq(linha.character, "Rafael")
+	assert_eq((acampamento.get_node("Mercador/Interagivel") as Interagivel).marcador, "mercador")
 	# A barraca com toldo é só dele, ao lado, e o cenário não a cobre.
 	var barraca := acampamento.get_node("BarracaRafael") as Node2D
 	assert_lt(barraca.global_position.distance_to(acampamento.get_node("Companheiro").global_position), 96.0)
-	var cenario := acampamento.get_node("Cenario") as CenarioAcampamento
-	assert_has(cenario.reservados, barraca)
+	assert_has((acampamento.get_node("Cenario") as CenarioAcampamento).reservados, barraca)
+	acampamento.free()
+	await _abrir("ag_acampamento")
+	var mercador := acampamento.get_node("Mercador/Interagivel") as Interagivel
+	assert_eq(mercador.marcador, "shara")
+	linha = await mercador.dialogo.get_next_dialogue_line("shara")
+	assert_eq(linha.character, "Shara")
+	assert_false(acampamento.has_node("BarracaRafael"))
 	# Os outros acampamentos continuam com o mercador genérico.
 	acampamento.free()
 	await _abrir("oa_acampamento")
 	assert_eq((acampamento.get_node("Mercador/Interagivel") as Interagivel).marcador, "mercador")
-	assert_false(acampamento.has_node("BarracaRafael"))

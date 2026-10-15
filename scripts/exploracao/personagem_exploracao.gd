@@ -18,6 +18,9 @@ extends CharacterBody2D
 ## na cena, com a vida cheia, sem perder nada.
 ## Tocar num Interagivel: anda até ele e interage ao chegar.
 ## Durante uma conversa o personagem fica parado e ignora toques e teclas.
+## Na grade, cada casa tem um personagem só (GradeOcupacao): ele não entra
+## na casa de um inimigo, e o golpe pega só quem está na casa da frente (a
+## flecha, o primeiro da linha).
 ## Com uma [member grade], ele anda de casa em casa do chão e sempre para no
 ## centro de uma casa, pelo teclado ou pelo toque; assim fica claro quando
 ## está alinhado com alguém.
@@ -30,6 +33,12 @@ signal golpeou
 signal acertou(alvos: Array[ReacaoAoGolpe])
 ## A vida chegou a zero; ele já voltou ao ponto de entrada.
 signal derrotado
+
+## As 8 casas vizinhas, no sistema de casas do chão.
+const PASSOS: Array[Vector2i] = [
+	Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1),
+	Vector2i(1, 1), Vector2i(-1, -1), Vector2i(1, -1), Vector2i(-1, 1),
+]
 
 ## Velocidade de andar sem equipamento. O equipamento aumenta ou diminui
 ## (veja [method velocidade_andando]).
@@ -276,9 +285,22 @@ func golpear() -> bool:
 	return true
 
 
-## Quem o golpe pega agora: está perto e na frente dele.
+## Quem o golpe pega agora. Na grade: quem está na casa da frente ou, com
+## arma de longo alcance, o primeiro na linha para onde ele olha. Sem grade:
+## quem está perto e na frente dele.
 func alvos_do_golpe() -> Array[ReacaoAoGolpe]:
 	var alvos: Array[ReacaoAoGolpe] = []
+	if grade:
+		var passo := passo_do_olhar()
+		var casa := casa_de(global_position)
+		for i in casas_do_golpe():
+			casa += passo
+			var achados := atingiveis_na_casa(casa)
+			if not achados.is_empty():
+				return achados
+			if not casa_andavel(centro_da_casa(casa)):
+				break   # parede ou objeto: a flecha para
+		return alvos
 	for no in get_tree().get_nodes_in_group(ReacaoAoGolpe.GRUPO):
 		var alvo := no as ReacaoAoGolpe
 		if alvo == null or is_ancestor_of(alvo):
@@ -297,6 +319,51 @@ static func pega_no_golpe(origem: Vector2, olhar: Vector2, alvo: Vector2, alcanc
 	if ate_alvo.length() < 1.0:
 		return true
 	return olhar.normalized().dot(ate_alvo.normalized()) >= 0.7
+
+
+## Quantas casas o golpe alcança na grade: 1 de perto; o arco, mais.
+func casas_do_golpe() -> int:
+	return maxi(1, roundi(alcance_do_golpe() / Balanceamento.ALCANCE_PADRAO))
+
+
+## Quem pode ser atingido nesta casa (fora ele mesmo).
+func atingiveis_na_casa(casa: Vector2i) -> Array[ReacaoAoGolpe]:
+	var achados: Array[ReacaoAoGolpe] = []
+	for no in get_tree().get_nodes_in_group(ReacaoAoGolpe.GRUPO):
+		var alvo := no as ReacaoAoGolpe
+		if alvo == null or is_ancestor_of(alvo):
+			continue
+		var dono := alvo.get_parent() as Node2D
+		var onde := dono.global_position if dono else alvo.global_position
+		if casa_de(onde) == casa:
+			achados.append(alvo)
+	return achados
+
+
+## O passo da grade (entre as 8 vizinhas) que mais combina com
+## [member direcao_olhar]: a casa "da frente".
+func passo_do_olhar() -> Vector2i:
+	var aqui := casa_de(global_position)
+	var origem := centro_da_casa(aqui)
+	var melhor := Vector2i(1, 0)
+	var maior := -INF
+	for passo in PASSOS:
+		var nota := (centro_da_casa(aqui + passo) - origem).normalized().dot(direcao_olhar)
+		if nota > maior:
+			maior = nota
+			melhor = passo
+	return melhor
+
+
+## Registra a casa onde ele está parado (depois de chegar, de ser levado
+## para o ponto de entrada etc.).
+func _sincronizar_casa() -> void:
+	var casa := casa_de(global_position)
+	var minhas := GradeOcupacao.casas_de(self)
+	if minhas.size() == 1 and minhas[0] == casa:
+		return
+	GradeOcupacao.liberar_tudo(self)
+	GradeOcupacao.ocupar(casa, self)
 
 
 ## Está no meio de um passo de uma casa para outra (teclado).
@@ -384,7 +451,13 @@ func _ao_terminar_dialogo(_recurso: DialogueResource) -> void:
 	em_dialogo = false
 
 
+func _exit_tree() -> void:
+	GradeOcupacao.liberar_tudo(self)
+
+
 func _physics_process(delta: float) -> void:
+	if grade and not indo_para_casa():
+		_sincronizar_casa()
 	if indo_para_casa():
 		_tempo_parado = 0.0
 	else:
@@ -459,7 +532,8 @@ func _andar_na_grade(teclas: Vector2, rapidez: float, delta: float) -> void:
 			return
 		var proxima := centro_da_casa(casa_de(global_position) + passo)
 		direcao_olhar = rumo
-		if not test_move(global_transform, proxima - global_position) and casa_andavel(proxima):
+		if (not test_move(global_transform, proxima - global_position) and casa_andavel(proxima)
+				and GradeOcupacao.ocupar(casa_de(proxima), self)):
 			_casa_origem = centro_da_casa(casa_de(global_position))
 			_casa_destino = proxima
 		else:
@@ -471,6 +545,7 @@ func _andar_na_grade(teclas: Vector2, rapidez: float, delta: float) -> void:
 	if falta.length() <= anda:
 		global_position = _casa_destino
 		_casa_destino = Vector2.INF
+		_sincronizar_casa()
 		if _golpe_pendente:
 			_golpe_pendente = false
 			golpear()

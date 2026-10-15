@@ -1,8 +1,10 @@
 class_name Inimigo
 extends CharacterBody2D
 ## Inimigo provisório da exploração: fica parado até ver o jogador, vai atrás
-## dele desviando dos obstáculos e, quando chega perto, avisa (pisca e se
-## ergue) e golpeia. Usa as mesmas regras do jogador: itens do Inventario
+## dele de casa em casa do chão (como o Nicholas, nas linhas, colunas e
+## diagonais da grade), desviando dos obstáculos, e, quando está numa casa
+## vizinha, avisa (pisca e se ergue) e golpeia. Cada casa tem um personagem
+## só (GradeOcupacao): dois inimigos nunca ficam um em cima do outro. Usa as mesmas regras do jogador: itens do Inventario
 ## como equipamento (Balanceamento), Vida e ReacaoAoGolpe.
 ## Quando o jogador foge para longe, volta para o lugar onde estava.
 ## Ao morrer some aos poucos e deixa moedas.
@@ -20,8 +22,6 @@ enum Estado { PARADO, PERSEGUINDO, PREPARANDO, DESCANSANDO, VOLTANDO, MORTO }
 @export var raio_visao := 150.0
 ## ...e desiste quando ele passa desta.
 @export var raio_desistir := 260.0
-## Distância do golpe, a partir dos pés.
-@export var alcance := 36.0
 ## Tempo do aviso antes do golpe (dá para fugir ou bater antes).
 @export var preparo := 0.45
 ## Descanso depois de cada golpe.
@@ -32,6 +32,11 @@ enum Estado { PARADO, PERSEGUINDO, PREPARANDO, DESCANSANDO, VOLTANDO, MORTO }
 @export var visual: Node2D
 @export var vida: Vida
 @export var reacao: ReacaoAoGolpe
+## O chão da sala (TileMapLayer): as casas onde ele anda.
+@export var grade: TileMapLayer
+
+## Até quantas casas ele procura um caminho.
+const LIMITE_BUSCA := 800
 
 var estado := Estado.PARADO
 var alvo: PersonagemExploracao
@@ -39,12 +44,11 @@ var alvo: PersonagemExploracao
 var _itens: Array[Item] = []
 var _atributos := {}
 var _tempo := 0.0
-var _tempo_caminho := 0.0
 var _posicao_visual := Vector2.ZERO
-## Onde ele fica de guarda.
-var _posto := Vector2.ZERO
-
-@onready var agente: NavigationAgent2D = get_node_or_null("Agente")
+## Casa onde ele fica de guarda.
+var _posto := Vector2i.ZERO
+## Centro da casa para onde está andando, ou INF parado num centro.
+var _destino := Vector2.INF
 
 
 func _ready() -> void:
@@ -60,7 +64,19 @@ func _ready() -> void:
 		vida.morreu.connect(_morrer)
 	if visual:
 		_posicao_visual = visual.position
-	_posto = global_position
+	# Quem separa os personagens é a grade, não a física.
+	collision_layer = 0
+	collision_mask = 0
+	if grade == null:
+		push_error("Inimigo '%s' sem grade." % name)
+		return
+	_posto = casa_de(global_position)
+	global_position = centro_da_casa(_posto)
+	GradeOcupacao.ocupar(_posto, self)
+
+
+func _exit_tree() -> void:
+	GradeOcupacao.liberar_tudo(self)
 
 
 ## Ataque, defesa e velocidade do equipamento (com o ataque base).
@@ -72,17 +88,46 @@ func velocidade_andando() -> float:
 	return velocidade * Balanceamento.multiplicador_velocidade(int(_atributos.velocidade))
 
 
+func casa_de(ponto: Vector2) -> Vector2i:
+	return grade.local_to_map(grade.to_local(ponto))
+
+
+func centro_da_casa(casa: Vector2i) -> Vector2:
+	return grade.to_global(grade.map_to_local(casa))
+
+
+## Chão andável (na navegação da sala) no centro da casa.
+func casa_andavel(casa: Vector2i) -> bool:
+	var mapa := get_world_2d().navigation_map
+	if NavigationServer2D.map_get_iteration_id(mapa) == 0:
+		return false
+	var centro := centro_da_casa(casa)
+	return NavigationServer2D.map_get_closest_point(mapa, centro).distance_to(centro) < 2.0
+
+
+## Está numa casa vizinha à do jogador (nas 8 direções).
+func vizinho_do_alvo() -> bool:
+	return _vizinhas(casa_de(global_position), casa_de(alvo.global_position))
+
+
+func andando() -> bool:
+	return _destino != Vector2.INF
+
+
 func _physics_process(delta: float) -> void:
-	if estado == Estado.MORTO:
+	if estado == Estado.MORTO or grade == null:
+		return
+	if andando():
+		_dar_passo(delta)
 		return
 	if alvo == null or not is_instance_valid(alvo):
 		alvo = _procurar_jogador()
 		if alvo == null:
 			return
-	var distancia := global_position.distance_to(alvo.global_position)
 	if alvo.em_dialogo:
 		_parar()
 		return
+	var distancia := global_position.distance_to(alvo.global_position)
 	match estado:
 		Estado.PARADO:
 			if distancia <= raio_visao:
@@ -90,28 +135,98 @@ func _physics_process(delta: float) -> void:
 		Estado.VOLTANDO:
 			if distancia <= raio_visao:
 				estado = Estado.PERSEGUINDO
-			elif global_position.distance_to(_posto) <= 4.0:
+			elif casa_de(global_position) == _posto:
 				_parar()
 			else:
-				_andar_ate(_posto, delta)
+				_comecar_passo([_posto])
 		Estado.PERSEGUINDO:
 			if distancia > raio_desistir:
-				_desistir()
-			elif distancia <= alcance:
+				estado = Estado.VOLTANDO
+			elif vizinho_do_alvo():
 				_preparar()
 			else:
-				_andar_ate(alvo.global_position, delta)
+				_comecar_passo(_casas_em_volta_do_alvo())
 		Estado.PREPARANDO:
-			velocity = Vector2.ZERO
 			_tempo += delta
 			if _tempo >= preparo:
 				_golpear()
 		Estado.DESCANSANDO:
-			velocity = Vector2.ZERO
 			_tempo += delta
 			if _tempo >= intervalo:
 				estado = Estado.PERSEGUINDO
 	_virar()
+
+
+static func _vizinhas(a: Vector2i, b: Vector2i) -> bool:
+	return a != b and absi(a.x - b.x) <= 1 and absi(a.y - b.y) <= 1
+
+
+func _casas_em_volta_do_alvo() -> Array[Vector2i]:
+	var centro := casa_de(alvo.global_position)
+	var casas: Array[Vector2i] = []
+	for passo in PersonagemExploracao.PASSOS:
+		casas.append(centro + passo)
+	return casas
+
+
+## Dá o primeiro passo do caminho mais curto até uma das [param objetivos].
+## Sem caminho (tudo ocupado), espera.
+func _comecar_passo(objetivos: Array[Vector2i]) -> void:
+	var passo := proximo_passo(casa_de(global_position), objetivos)
+	if passo == Vector2i.ZERO:
+		velocity = Vector2.ZERO
+		return
+	var proxima := casa_de(global_position) + passo
+	if not GradeOcupacao.ocupar(proxima, self):
+		return
+	_destino = centro_da_casa(proxima)
+	velocity = global_position.direction_to(_destino) * velocidade_andando()
+
+
+func _dar_passo(delta: float) -> void:
+	global_position = global_position.move_toward(_destino, velocidade_andando() * delta)
+	_virar()
+	if global_position == _destino:
+		_destino = Vector2.INF
+		velocity = Vector2.ZERO
+		GradeOcupacao.liberar_tudo(self)
+		GradeOcupacao.ocupar(casa_de(global_position), self)
+
+
+## Busca em largura pelas casas livres e andáveis: o passo (uma das 8
+## vizinhas) que leva mais rápido a uma das [param objetivos]. ZERO se já
+## estiver numa delas ou se não houver caminho.
+func proximo_passo(inicio: Vector2i, objetivos: Array[Vector2i]) -> Vector2i:
+	if inicio in objetivos:
+		return Vector2i.ZERO
+	var de_onde := {inicio: inicio}
+	var fila: Array[Vector2i] = [inicio]
+	var lidas := 0
+	while not fila.is_empty() and lidas < LIMITE_BUSCA:
+		var casa: Vector2i = fila.pop_front()
+		lidas += 1
+		for passo in PersonagemExploracao.PASSOS:
+			var vizinha: Vector2i = casa + passo
+			if de_onde.has(vizinha) or not _pode_entrar(casa, passo):
+				continue
+			de_onde[vizinha] = casa
+			if vizinha in objetivos:
+				while de_onde[vizinha] != inicio:
+					vizinha = de_onde[vizinha]
+				return vizinha - inicio
+			fila.append(vizinha)
+	return Vector2i.ZERO
+
+
+## Pode ir de [param casa] para a vizinha em [param passo]: ela é chão livre
+## e, na diagonal da grade, não corta o canto de um obstáculo.
+func _pode_entrar(casa: Vector2i, passo: Vector2i) -> bool:
+	var vizinha := casa + passo
+	if not casa_andavel(vizinha) or not GradeOcupacao.livre_para(vizinha, self):
+		return false
+	if passo.x != 0 and passo.y != 0:
+		return casa_andavel(casa + Vector2i(passo.x, 0)) and casa_andavel(casa + Vector2i(0, passo.y))
+	return true
 
 
 ## Olha para onde anda ou, parado no combate, para o jogador.
@@ -121,7 +236,7 @@ func _virar() -> void:
 	var desenho := visual as Sprite2D
 	if absf(velocity.x) > 1.0:
 		desenho.flip_h = velocity.x < 0.0
-	elif estado == Estado.PREPARANDO or estado == Estado.DESCANSANDO:
+	elif alvo and (estado == Estado.PREPARANDO or estado == Estado.DESCANSANDO):
 		desenho.flip_h = alvo.global_position.x < global_position.x
 
 
@@ -135,23 +250,6 @@ func _procurar_jogador() -> PersonagemExploracao:
 func _parar() -> void:
 	estado = Estado.PARADO
 	velocity = Vector2.ZERO
-
-
-func _desistir() -> void:
-	estado = Estado.VOLTANDO
-	_tempo_caminho = 0.0
-
-
-func _andar_ate(destino: Vector2, delta: float) -> void:
-	if agente:
-		_tempo_caminho -= delta
-		if _tempo_caminho <= 0.0 or agente.target_position.distance_to(destino) > 24.0:
-			agente.target_position = destino
-			_tempo_caminho = 0.25
-		if not agente.is_navigation_finished():
-			destino = agente.get_next_path_position()
-	velocity = global_position.direction_to(destino) * velocidade_andando()
-	move_and_slide()
 
 
 func _preparar() -> void:
@@ -175,7 +273,7 @@ func _golpear() -> void:
 		bote.tween_property(visual, "modulate", Color.WHITE, 0.0)
 		bote.tween_property(visual, "position", _posicao_visual + direcao * 5.0, 0.06)
 		bote.tween_property(visual, "position", _posicao_visual, 0.15)
-	if global_position.distance_to(alvo.global_position) <= alcance * 1.2:
+	if vizinho_do_alvo():
 		var reacao_alvo := alvo.get_node_or_null("ReacaoAoGolpe") as ReacaoAoGolpe
 		if reacao_alvo:
 			reacao_alvo.receber_golpe(direcao, int(_atributos.ataque))
@@ -184,8 +282,7 @@ func _golpear() -> void:
 func _morrer() -> void:
 	estado = Estado.MORTO
 	velocity = Vector2.ZERO
-	collision_layer = 0
-	collision_mask = 0
+	GradeOcupacao.liberar_tudo(self)
 	if reacao:
 		reacao.remove_from_group(ReacaoAoGolpe.GRUPO)
 	if moedas > 0:

@@ -2,6 +2,8 @@ extends GutTest
 ## Tela do mapa: Nicholas anda entre os locais por toque, setas e Enter;
 ## névoa sobre o que não foi descoberto; dia e noite.
 
+const FasesHistoria := preload("res://scripts/systems/fases_historia.gd")
+
 var mapa: MapaHelade
 
 

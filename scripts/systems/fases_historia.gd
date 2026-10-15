@@ -1,4 +1,3 @@
-class_name FasesHistoria
 extends RefCounted
 ## Onde cada parte da história acontece no mapa de Hélade.
 ##

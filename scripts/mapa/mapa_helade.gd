@@ -13,6 +13,9 @@ extends Node2D
 signal chegou(id: String)
 signal entrada_pedida(id: String)
 
+## Onde cada parte da história acontece (por preload, sem depender do
+## cache de classes do editor).
+const FasesHistoria := preload("res://scripts/systems/fases_historia.gd")
 const ZOOM_PIXEL_ART := 2.0
 ## Tamanho do Nicholas no mapa (o desenho é o mesmo da exploração).
 const ESCALA_NICHOLAS := 0.7

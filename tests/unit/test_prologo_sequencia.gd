@@ -1,6 +1,8 @@
 extends GutTest
 ## Aposentos da duquesa, varanda e tela final (batidas 3 a 10 do plano).
 
+const FasesHistoria := preload("res://scripts/systems/fases_historia.gd")
+
 const CENA := preload("res://scenes/prologo/prologo.tscn")
 
 var cena: ControlePrimeiraPessoa

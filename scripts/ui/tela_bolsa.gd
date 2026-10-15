@@ -259,7 +259,7 @@ func _botao_item(id: String) -> Button:
 func _por_itens_de_teste() -> void:
 	if Inventario.dinheiro() > 0 or not Inventario.ids_do_tipo(Item.Tipo.ARMA).is_empty():
 		return
-	Inventario.adicionar("espada_teste")
+	Inventario.adicionar("espada_media")
 	Inventario.adicionar("pocao_teste", 3)
 	Inventario.adicionar("carta_teste")
 	Inventario.ganhar_dinheiro(20)

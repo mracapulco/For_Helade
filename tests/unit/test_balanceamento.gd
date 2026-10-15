@@ -113,8 +113,8 @@ func test_pontos_contam_velocidade_e_alcance() -> void:
 	item.velocidade = -10
 	assert_almost_eq(Balanceamento.pontos(item), 3.0, 0.001, "lentidão devolve pontos")
 	item.velocidade = 0
-	item.alcance = Balanceamento.ALCANCE_PADRAO + 48.0
-	assert_almost_eq(Balanceamento.pontos(item), 7.0, 0.001, "48 px a mais custam 2 pontos")
+	item.alcance = Balanceamento.ALCANCE_PADRAO + 96.0
+	assert_almost_eq(Balanceamento.pontos(item), 7.0, 0.001, "96 px a mais custam 2 pontos")
 
 
 func test_item_forte_demais_nao_esta_equilibrado() -> void:

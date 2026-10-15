@@ -101,7 +101,7 @@ func test_machado_desce_pesado_com_rastro() -> void:
 
 func test_arco_solta_flecha() -> void:
 	_equipar("arco")
-	assert_eq(personagem.alcance_do_golpe(), 160.0)
+	assert_eq(personagem.alcance_do_golpe(), 320.0)
 	personagem.golpear()
 	await wait_process_frames(2)
 	visual.frame = 1

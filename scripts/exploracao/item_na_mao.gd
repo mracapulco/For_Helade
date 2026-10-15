@@ -31,8 +31,8 @@ extends Sprite2D
 ## Flecha que sai voando no golpe do arco (estilo TIRO). Irmã deste nó.
 @export var flecha: Sprite2D
 ## Até onde a flecha voa no desenho, em pixels, e em quanto tempo.
-@export var voo_flecha := 120.0
-@export var tempo_flecha := 0.3
+@export var voo_flecha := 280.0
+@export var tempo_flecha := 0.45
 
 var _item: Item
 var _desenho: AnimatedSprite2D

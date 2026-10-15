@@ -34,8 +34,6 @@ OPCOES_SECAO_SOM,Som
 OPCOES_VOLUME_GERAL,Volume geral
 OPCOES_VOLUME_MUSICA,Música
 OPCOES_VOLUME_EFEITOS,Efeitos sonoros
-ITEM_ESPADA_TESTE_NOME,Espada de teste
-ITEM_ESPADA_TESTE_DESC,Provisória. Só para testar o inventário.
 ITEM_POCAO_TESTE_NOME,Poção de teste
 ITEM_POCAO_TESTE_DESC,Provisória. Recupera um pouco de vida.
 ITEM_POCAO_CURA_NOME,Poção de cura

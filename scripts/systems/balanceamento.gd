@@ -35,8 +35,8 @@ const CUSTO_ATAQUE := 1.0
 const CUSTO_DEFESA := 1.0
 ## Por ponto de porcentagem: 5% de velocidade custam 1 ponto.
 const CUSTO_VELOCIDADE := 0.2
-## Por pixel de alcance acima de [constant ALCANCE_PADRAO]: 24 px custam 1 ponto.
-const CUSTO_ALCANCE := 1.0 / 24.0
+## Por pixel de alcance acima de [constant ALCANCE_PADRAO]: 48 px custam 1 ponto.
+const CUSTO_ALCANCE := 1.0 / 48.0
 ## Alcance de quem golpeia de perto (a casa da frente).
 const ALCANCE_PADRAO := 40.0
 ## Diferença aceita entre o orçamento e os pontos gastos.

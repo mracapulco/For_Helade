@@ -24,7 +24,7 @@ func after_each() -> void:
 
 
 func test_itens_de_teste_tem_icone() -> void:
-	for id in ["espada_teste", "pocao_teste", "carta_teste"]:
+	for id in ["pocao_teste", "carta_teste"]:
 		var item := Inventario.item(id)
 		assert_not_null(item, id)
 		assert_not_null(item.icone, "%s sem ícone" % id)

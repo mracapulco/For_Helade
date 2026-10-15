@@ -93,6 +93,32 @@ PERSONAGENS = {
             calca='#D9D4CA', calca_sombra='#A9A398',   # meias claras
         ),
     ),
+    # Althea adolescente e adulta: a mesma Althea crescida (o loiro-pálido
+    # curto e rebelde e os olhos azuis da mãe), cada fase com outra roupa, a
+    # pedido do Rafael (15/10). O livro ainda não mostrou essas idades: roupas
+    # e alturas são inferência, provisórias. Ela é 5 anos mais nova que
+    # Nicholas; adulta, fica um pouco mais baixa que ele e Ophelia.
+    # Adolescente: vestido longo azul com mangas claras e gola dourada.
+    'althea_adolescente': dict(
+        topo=13, tronco=10, largura=3, cabelo='ombros', roupa='vestido_longo', saia_passo=4,
+        olho='#3F7CC4', bochecha='#D98C84', enfeites=('gola',),
+        cores=dict(
+            cab_luz='#F6EED2', cab='#E3D5AE', cab_sombra='#B9A882', cab_fundo='#8C7C5C',
+            vestido_luz='#86A8CE', vestido='#5E86B4', vestido_sombra='#3E5F88',
+            manga='#E4ECF4', manga_sombra='#B7C4D4',
+            calca='#3E5F88', calca_sombra='#2B3D55',
+        ),
+    ),
+    # Adulta: vestido azul-escuro de Olympia, faixa e barra douradas.
+    'althea_adulta': dict(
+        topo=8, tronco=11, largura=4, cabelo='ombros', roupa='vestido_longo', saia_passo=5,
+        olho='#3F7CC4', enfeites=('faixa', 'barra'),
+        cores=dict(
+            cab_luz='#F6EED2', cab='#E3D5AE', cab_sombra='#B9A882', cab_fundo='#8C7C5C',
+            vestido_luz='#3E5A7A', vestido='#2B3D55', vestido_sombra='#13253C',
+            calca='#13253C', calca_sombra='#0B1726',
+        ),
+    ),
     # Ophelia aos 11: pele escura "tal qual caramelo"; vestido simples rubro,
     # a cor do Império; cabelo longo ondulado passando da cintura, com duas
     # tranças que saem das têmporas e se encontram atrás da cabeça; olhos

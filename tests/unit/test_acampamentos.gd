@@ -13,24 +13,27 @@ const INTERAGIVEIS := ["Barraca", "Mercador", "Companheiro", "Saida"]
 const DE_BARCO := ["ilha_acampamento", "ilhota_acampamento"]
 
 var acampamento: Acampamento
-var _arquivo_progresso: String
+var _pasta_progresso: String
 var _etapa: String
 
 
 func before_each() -> void:
-	_arquivo_progresso = Progresso.arquivo
+	_pasta_progresso = Progresso.pasta
 	_etapa = Progresso.etapa
-	Progresso.arquivo = "user://teste_acampamento.cfg"
+	Progresso.pasta = "user://teste_saves_acampamento/"
+	Progresso.apagar_todos()
 
 
 func after_each() -> void:
 	if is_instance_valid(acampamento):
 		acampamento.free()
 	await wait_process_frames(2)
-	Progresso.apagar()
-	Progresso.arquivo = _arquivo_progresso
+	Progresso.apagar_todos()
+	Progresso.pasta = _pasta_progresso
 	Progresso.etapa = _etapa
+	get_tree().paused = false
 	Mundo.definir_noite(false)
+	Mundo.local_no_mapa = ""
 
 
 func _abrir(id: String) -> Acampamento:
@@ -112,23 +115,56 @@ func test_mercador_avisa_que_a_loja_vem_depois() -> void:
 	assert_string_starts_with(fala.text, "[Provisório]")
 
 
-func test_barraca_salva_sem_mudar_a_etapa() -> void:
+func test_barraca_abre_os_espacos_e_pausa() -> void:
+	await _abrir("og_acampamento")
+	acampamento.barraca.interagir()
+	assert_true(acampamento.tela_espacos.aberta())
+	assert_eq(acampamento.tela_espacos.modo, TelaEspacos.Modo.SALVAR)
+	assert_true(get_tree().paused)
+	acampamento.tela_espacos.fechar()
+	assert_false(get_tree().paused)
+	assert_false(Progresso.tem_jogo_salvo(), "fechar sem escolher não salva")
+
+
+func test_barraca_salva_no_espaco_escolhido_sem_mudar_a_etapa() -> void:
 	await _abrir("og_acampamento")
 	Progresso.etapa = "etapa_de_teste"
-	assert_false(Progresso.tem_jogo_salvo())
 	watch_signals(acampamento)
 	acampamento.barraca.interagir()
+	acampamento.tela_espacos.escolher(4)
 	assert_signal_emitted(acampamento, "salvo")
-	assert_true(Progresso.tem_jogo_salvo())
+	assert_false(acampamento.tela_espacos.aberta())
+	assert_false(get_tree().paused)
+	assert_true(Progresso.espaco_ocupado(4))
 	Progresso.etapa = ""
-	assert_true(Progresso.carregar())
+	assert_true(Progresso.carregar(4))
 	assert_eq(Progresso.etapa, "etapa_de_teste")
+	assert_eq(Mundo.local_no_mapa, "og_acampamento", "volta para este acampamento")
+
+
+func test_barraca_pergunta_antes_de_salvar_por_cima() -> void:
+	await _abrir("oa_acampamento")
+	Progresso.salvar("capitulo_1", 2)
+	var tela := acampamento.tela_espacos
+	acampamento.barraca.interagir()
+	tela.escolher(2)
+	assert_true(tela.confirmacao.visible)
+	assert_true(tela.botao_nao.has_focus(), "o seguro fica selecionado")
+	tela.botao_nao.pressed.emit()
+	assert_false(tela.confirmacao.visible)
+	assert_true(tela.aberta())
+	Progresso.etapa = "etapa_de_teste"
+	tela.escolher(2)
+	tela.botao_sim.pressed.emit()
+	assert_eq(Progresso.resumo(2).etapa, "etapa_de_teste")
+	assert_false(tela.aberta())
 
 
 func test_barraca_mostra_aviso_de_salvo() -> void:
 	await _abrir("oa_acampamento")
 	TranslationServer.set_locale("pt_BR")
 	acampamento.barraca.interagir()
+	acampamento.tela_espacos.escolher(1)
 	assert_has(acampamento.aviso.textos(), "Progresso salvo.")
 
 
@@ -270,3 +306,21 @@ func test_cada_acampamento_tem_sua_musica(id: String = use_parameters(IDS)) -> v
 	var tocador := Trilha.tocador_atual()
 	assert_eq(tocador.bus, Trilha.BARRAMENTO)
 	assert_eq((tocador.stream as AudioStreamWAV).loop_mode, AudioStreamWAV.LOOP_FORWARD, "%s: em loop" % id)
+
+
+func test_anda_de_casa_em_casa_como_na_sala() -> void:
+	await _abrir("oa_acampamento")
+	var personagem := acampamento.get_node("Personagem") as PersonagemExploracao
+	assert_eq(personagem.grade, acampamento.get_node("Chao"))
+	var inicio := personagem.casa_de(personagem.global_position)
+	assert_eq(personagem.global_position, personagem.centro_da_casa(inicio), "começa no centro de uma casa")
+	Input.action_press("mover_tras")
+	await wait_physics_frames(5)
+	Input.action_release("mover_tras")
+	await wait_seconds(1.0)
+	assert_eq(personagem.casa_de(personagem.global_position), inicio + Vector2i(1, 0), "S anda uma casa")
+	assert_eq(personagem.global_position, personagem.centro_da_casa(inicio + Vector2i(1, 0)))
+	personagem.ir_para(personagem.global_position + Vector2(70, -20))
+	await wait_for_signal(personagem.chegou, 5)
+	var casa := personagem.casa_de(personagem.global_position)
+	assert_eq(personagem.global_position, personagem.centro_da_casa(casa), "o toque também para no centro")

@@ -2,12 +2,15 @@ extends GutTest
 ## Tela do mapa: Nicholas anda entre os locais por toque, setas e Enter;
 ## névoa sobre o que não foi descoberto; dia e noite.
 
+const FasesHistoria := preload("res://scripts/systems/fases_historia.gd")
+
 var mapa: MapaHelade
 
 
 func before_each() -> void:
 	TranslationServer.set_locale("pt_BR")
 	Mundo.limpar()
+	Progresso.etapa = ""
 	mapa = add_child_autofree(load("res://scenes/mapa/mapa_helade.tscn").instantiate())
 	mapa.trocar_de_cena = false
 	await wait_process_frames(2)
@@ -15,6 +18,17 @@ func before_each() -> void:
 
 func after_each() -> void:
 	Mundo.limpar()
+	Progresso.etapa = ""
+
+
+## Abre o mapa de novo, como depois do prólogo (etapa capitulo_1).
+func _abrir_na_fase(etapa := "capitulo_1") -> void:
+	mapa.queue_free()
+	Mundo.limpar()
+	Progresso.etapa = etapa
+	mapa = add_child_autofree(load("res://scenes/mapa/mapa_helade.tscn").instantiate())
+	mapa.trocar_de_cena = false
+	await wait_process_frames(2)
 
 
 func _descobrir_tudo() -> void:
@@ -229,3 +243,57 @@ func test_musica_do_mapa_troca_com_o_periodo() -> void:
 	for caminho: String in [MapaHelade.MUSICA_DIA, MapaHelade.MUSICA_NOITE]:
 		var musica: AudioStreamWAV = load(caminho)
 		assert_eq(musica.loop_mode, AudioStreamWAV.LOOP_FORWARD, caminho)
+
+
+func test_anda_a_70_por_cento_da_velocidade_antiga() -> void:
+	assert_almost_eq(mapa.velocidade, 120.0 * 0.7, 0.01)
+
+
+func test_depois_do_prologo_comeca_em_atenas() -> void:
+	await _abrir_na_fase()
+	assert_true(mapa.preso_na_fase())
+	assert_eq(mapa.local_atual, "atenas")
+	assert_eq(Mundo.local_no_mapa, "atenas")
+	assert_true(Mundo.foi_descoberto("atenas"))
+	assert_eq(mapa.nome_local.text, "Atenas")
+
+
+func test_na_fase_nao_anda_pelo_mapa() -> void:
+	await _abrir_na_fase()
+	_descobrir_tudo()
+	assert_false(mapa.viajar_para("an_estrada_1"))
+	_apertar(&"mover_frente")
+	_tocar_no_local("ag_estrada_1")
+	assert_false(mapa.andando)
+	assert_eq(mapa.local_atual, "atenas")
+
+
+func test_na_fase_enter_abre_a_cidade() -> void:
+	await _abrir_na_fase()
+	watch_signals(mapa)
+	_apertar(&"interagir")
+	assert_signal_emitted_with_parameters(mapa, "entrada_pedida", ["atenas"])
+	var cena: String = FasesHistoria.da_etapa("capitulo_1").cena
+	if ResourceLoader.exists(cena):
+		assert_eq(mapa.cena_ao_entrar("atenas"), cena)
+		assert_eq(mapa.aviso.text, "")
+	else:
+		assert_eq(mapa.aviso.text, tr("MAPA_SEM_CENA"), "sem a cena do capítulo, só avisa")
+
+
+func test_continuar_num_acampamento_volta_para_a_fase() -> void:
+	Mundo.limpar()
+	Progresso.etapa = "capitulo_1"
+	Mundo.local_no_mapa = "og_acampamento"
+	Mundo.descobrir("og_acampamento")
+	mapa.queue_free()
+	mapa = add_child_autofree(load("res://scenes/mapa/mapa_helade.tscn").instantiate())
+	mapa.trocar_de_cena = false
+	await wait_process_frames(2)
+	assert_eq(mapa.local_atual, "atenas")
+
+
+func test_etapa_sem_fase_deixa_o_mapa_livre() -> void:
+	await _abrir_na_fase("etapa_sem_fase")
+	assert_false(mapa.preso_na_fase())
+	assert_eq(mapa.local_atual, "olympia")

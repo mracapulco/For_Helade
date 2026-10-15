@@ -4,23 +4,24 @@ extends GutTest
 const CENA := preload("res://scenes/main/main.tscn")
 
 var menu: MenuInicial
-var _arquivo_progresso: String
+var _pasta_progresso: String
 var _arquivo_config: String
 
 
 func before_each() -> void:
-	_arquivo_progresso = Progresso.arquivo
+	_pasta_progresso = Progresso.pasta
 	_arquivo_config = Configuracoes.arquivo
-	Progresso.arquivo = "user://teste_progresso.cfg"
+	Progresso.pasta = "user://teste_saves_menu/"
 	Configuracoes.arquivo = "user://teste_configuracoes.cfg"
-	Progresso.apagar()
+	Progresso.apagar_todos()
 
 
 func after_each() -> void:
-	Progresso.apagar()
+	Progresso.apagar_todos()
 	if FileAccess.file_exists(Configuracoes.arquivo):
 		DirAccess.remove_absolute(Configuracoes.arquivo)
-	Progresso.arquivo = _arquivo_progresso
+	Progresso.pasta = _pasta_progresso
+	Mundo.limpar()
 	Configuracoes.arquivo = _arquivo_config
 	Configuracoes.carregar()
 	Relacoes.limpar()
@@ -38,6 +39,7 @@ func _abrir_menu() -> void:
 func test_sem_jogo_salvo_nao_mostra_continuar() -> void:
 	await _abrir_menu()
 	assert_false(menu.botao_continuar.visible)
+	assert_false(menu.botao_carregar.visible)
 	assert_true(menu.botao_novo_jogo.has_focus(), "Enter já começa um jogo novo")
 
 
@@ -49,21 +51,68 @@ func test_novo_jogo_vai_para_o_prologo_e_zera_valores() -> void:
 	assert_eq(Relacoes.valor("janet"), 0)
 
 
-func test_continuar_aparece_com_jogo_salvo_e_avisa_sem_capitulo() -> void:
+func test_continuar_sem_missao_vai_para_o_mapa_no_acampamento_salvo() -> void:
+	Mundo.local_no_mapa = "og_acampamento"
 	Progresso.salvar("capitulo_1")
+	Mundo.limpar()
 	await _abrir_menu()
 	assert_true(menu.botao_continuar.visible)
+	assert_true(menu.botao_carregar.visible)
 	assert_true(menu.botao_continuar.has_focus())
 	menu.botao_continuar.pressed.emit()
-	assert_eq(menu.cena_pedida, "", "o capítulo 1 ainda não existe")
-	assert_ne(menu.aviso.text, "")
+	assert_eq(menu.cena_pedida, "res://scenes/mapa/mapa_helade.tscn")
+	assert_eq(Mundo.local_no_mapa, "og_acampamento")
+
+
+func test_continuar_abre_o_espaco_salvo_por_ultimo() -> void:
+	Mundo.local_no_mapa = "oa_acampamento"
+	Progresso.salvar("capitulo_1", 7)
+	Mundo.local_no_mapa = "ot_acampamento"
+	Progresso.salvar("capitulo_1", 2)
+	Mundo.limpar()
+	await _abrir_menu()
+	menu.botao_continuar.pressed.emit()
+	assert_eq(Progresso.espaco_atual, 2)
+	assert_eq(Mundo.local_no_mapa, "ot_acampamento")
+
+
+func test_carregar_jogo_mostra_os_dez_espacos_e_abre_o_escolhido() -> void:
+	Mundo.local_no_mapa = "oa_acampamento"
+	Progresso.salvar("capitulo_1", 3)
+	Mundo.local_no_mapa = "ot_acampamento"
+	Progresso.salvar("capitulo_1", 5)
+	Mundo.limpar()
+	await _abrir_menu()
+	menu.botao_carregar.pressed.emit()
+	var tela := menu.tela_espacos
+	assert_true(tela.aberta())
+	assert_false(menu.painel_principal.visible)
+	assert_false(get_tree().paused, "o menu não pausa")
+	assert_eq(tela.botoes.size(), 10)
+	assert_true(tela.botoes[0].disabled, "espaço vazio não carrega")
+	assert_false(tela.botoes[2].disabled)
+	assert_true(tela.botoes[4].has_focus(), "o mais recente fica selecionado")
+	tela.botoes[2].pressed.emit()
+	assert_eq(Progresso.espaco_atual, 3)
+	assert_eq(Mundo.local_no_mapa, "oa_acampamento")
+	assert_eq(menu.cena_pedida, "res://scenes/mapa/mapa_helade.tscn")
+
+
+func test_carregar_jogo_volta_sem_escolher() -> void:
+	Progresso.salvar("capitulo_1", 1)
+	await _abrir_menu()
+	menu.botao_carregar.pressed.emit()
+	menu.tela_espacos.botao_voltar.pressed.emit()
+	assert_false(menu.tela_espacos.aberta())
+	assert_true(menu.painel_principal.visible)
+	assert_eq(menu.cena_pedida, "")
 
 
 func test_continuar_abre_a_parte_salva() -> void:
 	Progresso.salvar("prologo")
 	await _abrir_menu()
 	menu.botao_continuar.pressed.emit()
-	assert_eq(menu.cena_pedida, "res://scenes/prologo/prologo.tscn")
+	assert_eq(menu.cena_pedida, "res://scenes/prologo/prologo.tscn", "missão em andamento")
 
 
 func test_salvar_e_carregar_guarda_relacoes_e_influencia() -> void:
@@ -119,32 +168,13 @@ func test_textos_vem_da_traducao() -> void:
 	assert_eq(tr(menu.botao_opcoes.text), "Opções")
 
 
-func test_novo_jogo_sem_jogo_salvo_nao_pergunta() -> void:
+func test_novo_jogo_nao_apaga_os_espacos() -> void:
+	Progresso.salvar("capitulo_1", 1)
 	await _abrir_menu()
 	menu.botao_novo_jogo.pressed.emit()
-	assert_false(menu.confirmacao.visible)
 	assert_eq(menu.cena_pedida, "res://scenes/prologo/prologo.tscn")
-
-
-func test_novo_jogo_com_jogo_salvo_pergunta_antes() -> void:
-	Progresso.salvar("capitulo_1")
-	await _abrir_menu()
-	menu.botao_novo_jogo.pressed.emit()
-	assert_true(menu.confirmacao.visible)
-	assert_true(menu.botao_confirmar_nao.has_focus(), "o seguro fica selecionado")
-	assert_eq(menu.cena_pedida, "")
-	menu.botao_confirmar_nao.pressed.emit()
-	assert_false(menu.confirmacao.visible)
-	assert_true(Progresso.tem_jogo_salvo(), "Não mantém o jogo salvo")
-
-
-func test_confirmar_apaga_o_salvo_e_comeca() -> void:
-	Progresso.salvar("capitulo_1")
-	await _abrir_menu()
-	menu.botao_novo_jogo.pressed.emit()
-	menu.botao_confirmar_sim.pressed.emit()
-	assert_false(Progresso.tem_jogo_salvo())
-	assert_eq(menu.cena_pedida, "res://scenes/prologo/prologo.tscn")
+	assert_true(Progresso.espaco_ocupado(1))
+	assert_eq(Progresso.espaco_atual, 0, "o jogo novo ainda não tem espaço")
 
 
 func test_musica_do_menu_toca_em_laco_no_barramento_de_musica() -> void:

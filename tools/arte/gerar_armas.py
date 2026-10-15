@@ -182,18 +182,52 @@ def escudo(rx=7, ry=8):
     return contornar_menos(q)
 
 
-def caixa_frutas():
-    q = Q(15, 13); PEGA['caixa_frutas'] = (6, 6)
-    for (cx, cy, c, l) in ((3, 3, 'vela', 'ouro_luz'), (7, 2, 'vela_escura', 'vela'),
-                           (11, 3, 'folha_luz', 'lua'), (5, 4, 'folha', 'folha_luz'),
-                           (9, 4, 'vela', 'ouro_luz')):
-        q.elipse(cx, cy, 2, 2, c); q.p(cx - 1, cy - 1, l)                         # frutas por cima
-    q.r(1, 5, 13, 11, 'madeira')                                                  # caixote
-    q.linha(5, 1, 13, 'madeira_luz')
+FRUTAS = ((3, 3, 'vela', 'ouro_luz'), (7, 2, 'vela_escura', 'vela'), (11, 3, 'folha_luz', 'lua'),
+          (5, 4, 'folha', 'folha_luz'), (9, 4, 'vela', 'ouro_luz'))
+
+
+def _frutas(q, dx=0, dy=0):
+    for (cx, cy, c, l) in FRUTAS:
+        q.elipse(cx + dx, cy + dy, 2, 2, c); q.p(cx + dx - 1, cy + dy - 1, l)
+
+
+def _caixote(q, dx=0, dy=0, vazio=True):
+    if vazio:
+        q.r(1 + dx, 3 + dy, 13 + dx, 4 + dy, 'madeira_sombra')                   # fundo visto por cima
+        q.linha(3 + dy, 1 + dx, 13 + dx, 'madeira')                               # borda de trás
+    q.r(1 + dx, 5 + dy, 13 + dx, 11 + dy, 'madeira')                              # caixote
+    q.linha(5 + dy, 1 + dx, 13 + dx, 'madeira_luz')
     for y in (7, 9):
-        q.linha(y, 1, 13, 'madeira_sombra')                                       # vãos entre ripas
-    q.r(1, 5, 1, 11, 'madeira_sombra'); q.r(13, 5, 13, 11, 'madeira_sombra')
-    q.p(2, 6, 'pedra_luz'); q.p(12, 6, 'pedra_luz'); q.p(2, 10, 'pedra_luz'); q.p(12, 10, 'pedra_luz')
+        q.linha(y + dy, 1 + dx, 13 + dx, 'madeira_sombra')                        # vãos entre ripas
+    q.r(1 + dx, 5 + dy, 1 + dx, 11 + dy, 'madeira_sombra'); q.r(13 + dx, 5 + dy, 13 + dx, 11 + dy, 'madeira_sombra')
+    for (x, y) in ((2, 6), (12, 6), (2, 10), (12, 10)):
+        q.p(x + dx, y + dy, 'pedra_luz')                                          # pregos
+
+
+def caixa_frutas():
+    # Na mão é só a caixa vazia: as frutas ficam onde ela estava.
+    q = Q(15, 13); PEGA['caixa_frutas'] = (6, 6)
+    _caixote(q)
+    return contornar_menos(q)
+
+
+# ---------- no chão (ou numa bancada): a caixa cheia, e as frutas que sobram ----------
+
+def caixa_com_frutas_chao():
+    q = Q(17, 16)
+    q.sombra_no_chao(8, 14, 8, 1)
+    _frutas(q, 1, 1)
+    _caixote(q, 1, 2, vazio=False)
+    return contornar_menos(q)
+
+
+def frutas_no_chao():
+    q = Q(17, 16)
+    q.sombra_no_chao(8, 14, 7, 1)
+    for (cx, cy, c, l) in ((4, 12, 'vela', 'ouro_luz'), (8, 13, 'vela_escura', 'vela'),
+                           (12, 12, 'folha_luz', 'lua'), (6, 10, 'folha', 'folha_luz'),
+                           (10, 10, 'vela', 'ouro_luz')):
+        q.elipse(cx, cy, 2, 2, c); q.p(cx - 1, cy - 1, l)
     return contornar_menos(q)
 
 
@@ -252,8 +286,8 @@ def armadura_leve(dir, **k):
         q.r(x - 2, yt + 1, x + 4, quadril - 2, 'madeira')                        # colete de couro
         q.coluna(x + 3, yt + 2, quadril - 3, 'madeira_luz')
         q.coluna(x - 2, yt + 1, quadril - 2, 'madeira_sombra')
-        for i in range(5):                                                        # tira cruzada
-            q.p(x - 1 + i, yt + 1 + i, 'madeira_sombra')
+        for i in range(5):                                                        # faixa cruzada (cor do reino)
+            q.p(x - 1 + i, yt + 1 + i, 'nuvem'); q.p(x - 1 + i, yt + 2 + i, 'azul')
         q.linha(quadril - 3, x - 2, x + 4, 'ouro_sombra')                         # cinto
         for c in range(x - 2, x + 5):                                             # saiote de tiras
             q.coluna(c, quadril - 1, quadril + 2, 'madeira' if c % 2 else 'madeira_sombra')
@@ -394,7 +428,7 @@ def icone_couraca(metal):
         q.coluna(x, 23, 27, (sombra if x % 2 else corpo) if metal else (corpo if x % 2 else sombra))
     if not metal:
         for i in range(8):
-            q.p(11 + i, 8 + i, sombra)                                            # tira cruzada
+            q.p(11 + i, 8 + i, 'nuvem'); q.p(11 + i, 9 + i, 'azul')               # faixa cruzada
     return q.contornar()
 
 
@@ -419,26 +453,82 @@ ARMAS = {
 }
 PROTECOES = {'escudo': escudo, 'caixa_frutas': caixa_frutas, 'panela': panela}
 
+# Cores de cada reino (e dos bandidos) em escudo, armaduras e elmo. Troca as
+# cores do desenho-base: campo e penacho (azul, nuvem,
+# azul_luz), aro e elmo (ouro), metal (pedra) e couro (madeira).
+# Notas de cor de planos/direcao-de-arte.md: Olympia azuis frios; Ágape
+# águas que brilham, tons quentes; Khronosses pedra clara e pergaminho.
+REINOS = {
+    'olympia': {   # costa gélida: azul frio com aro e elmo de aço claro
+        'ouro_sombra': '#5E6673', 'ouro': '#8A92A0', 'ouro_luz': '#C9CED8',
+    },
+    'agape': {     # águas que brilham e tons quentes: campo turquesa, bronze
+        'azul': '#1F5E63', 'nuvem': '#2F8A86', 'azul_luz': '#7FD1C4',
+        'pedra_sombra': '#8A5E2C', 'pedra': '#B98543', 'pedra_luz': '#ECBD75', 'lua': '#F4D9A8',
+        'madeira_sombra': '#5A2E1E', 'madeira': '#8A4A2C', 'madeira_luz': '#B86A3C',
+    },
+    'khronosses': {  # pedra clara e pergaminho, sóbrio
+        'azul': '#3F4651', 'nuvem': '#5E6673', 'azul_luz': '#8A92A0',
+        'ouro_sombra': '#7A7068', 'ouro': '#A69C92', 'ouro_luz': '#D8CFC4',
+        'pedra_sombra': '#5E6673', 'pedra': '#8A92A0', 'pedra_luz': '#C9CED8', 'lua': '#F4EFE8',
+    },
+    'bandidos': {  # couro escuro, ferro velho e ferrugem
+        'azul': '#2E2019', 'nuvem': '#4A3428', 'azul_luz': '#6B4A35',
+        'ouro_sombra': '#1E2329', 'ouro': '#3F4651', 'ouro_luz': '#5E6673',
+        'pedra_sombra': '#3A2A22', 'pedra': '#5C4535', 'pedra_luz': '#7A5A44', 'lua': '#9E7A5C',
+        'madeira_sombra': '#1E1510', 'madeira': '#2E2019', 'madeira_luz': '#4A3428',
+    },
+}
+# Peças que mudam de cor por reino: nome -> o que gerar.
+POR_REINO = ['escudo', 'armadura_leve', 'armadura_pesada', 'elmo']
+
+
+def recolorir(im, reino):
+    troca = {C[nome]: tuple(int(h[i:i + 2], 16) for i in (1, 3, 5)) + (255,)
+             for nome, h in REINOS[reino].items()}
+    if not troca:
+        return im
+    nova = im.copy()
+    px = nova.load()
+    for y in range(nova.height):
+        for x in range(nova.width):
+            if px[x, y] in troca:
+                px[x, y] = troca[px[x, y]]
+    return nova
+
 
 def artes():
     saida = {}
     for nome, desenhar in {**ARMAS, **PROTECOES}.items():
-        saida['%s/%s_na_mao.png' % (PASTA, nome)] = desenhar()
+        if nome not in POR_REINO:
+            saida['%s/%s_na_mao.png' % (PASTA, nome)] = desenhar()
     saida['%s/flecha.png' % PASTA] = flecha()
     for nome, desenhar in ARMAS.items():
         if nome != 'arco':
             saida['%s/icone_%s.png' % (PASTA, nome)] = icone_arma(desenhar, nome)
     saida['%s/icone_arco.png' % PASTA] = icone_arco()
-    saida['%s/icone_escudo.png' % PASTA] = escudo(13, 14)
-    PEGA['escudo'] = (7, 8)                                                       # volta ao escudo da mão
-    escudo()
     saida['%s/icone_caixa_frutas.png' % PASTA] = _no_centro(caixa_frutas())
     saida['%s/icone_panela.png' % PASTA] = _no_centro(panela())
-    saida['%s/icone_armadura_leve.png' % PASTA] = icone_couraca(False)
-    saida['%s/icone_armadura_pesada.png' % PASTA] = icone_couraca(True)
-    saida['%s/icone_elmo.png' % PASTA] = icone_elmo()
+    base = {
+        'icone_escudo': escudo(13, 14),
+        'escudo_na_mao': None,
+        'icone_armadura_leve': icone_couraca(False),
+        'icone_armadura_pesada': icone_couraca(True),
+        'icone_elmo': icone_elmo(),
+    }
+    base['escudo_na_mao'] = escudo()                                              # por último: fica a pega da mão
     for nome, desenhar in CAMADAS.items():
-        saida['%s/%s_corpo.png' % (PASTA, nome)] = folha_camada(desenhar)
+        base['%s_corpo' % nome] = folha_camada(desenhar)
+    for reino in REINOS:
+        for chave, im in base.items():
+            # icone_escudo -> icone_escudo_agape; escudo_na_mao -> escudo_agape_na_mao
+            for peca in POR_REINO:
+                if peca in chave:
+                    nome = chave.replace(peca, '%s_%s' % (peca, reino))
+                    break
+            saida['%s/%s.png' % (PASTA, nome)] = recolorir(im, reino)
+    saida['assets/art/placeholders/exploracao/caixa_com_frutas.png'] = caixa_com_frutas_chao()
+    saida['assets/art/placeholders/exploracao/frutas_no_chao.png'] = frutas_no_chao()
     return saida
 
 
@@ -462,7 +552,8 @@ ESTILO = {'espada_grande': 'CORTE', 'espada_media': 'CORTE', 'machado_guerra': '
 def previa(caminho):
     todas = artes()
     quadros = [('parado', 0)] + [('golpe', i) for i in range(3)]
-    linhas = list(ARMAS) + list(PROTECOES) + list(CAMADAS)
+    linhas = (list(ARMAS) + ['caixa_frutas', 'panela']
+              + ['%s_%s' % (p, r) for p in POR_REINO for r in REINOS])
     escala = 3
     lw, lh = 60 + len(quadros) * 2 * nic.W, nic.HH + 4
     im = Image.new('RGBA', (lw, lh * len(linhas)), C['azul'])
@@ -474,13 +565,14 @@ def previa(caminho):
                 k = nic.ANIM[anim][i]
                 ox = 60 + (qi * 2 + di) * nic.W
                 im.alpha_composite(nic.nicholas(d, **k), (ox, oy))
-                if nome in CAMADAS:
+                peca = next((p for p in POR_REINO if nome.startswith(p)), None)
+                if peca in CAMADAS:
                     camada = todas['%s/%s_corpo.png' % (PASTA, nome)]
                     linha = nic.linhas_da_folha().index((d, anim))
                     im.alpha_composite(camada.crop((i * nic.W, linha * nic.HH, (i + 1) * nic.W,
                                                     (linha + 1) * nic.HH)), (ox, oy))
-                elif nome in PROTECOES:
-                    _colar_girado(im, todas['%s/%s_na_mao.png' % (PASTA, nome)], PEGA[nome],
+                elif nome in PROTECOES or peca:
+                    _colar_girado(im, todas['%s/%s_na_mao.png' % (PASTA, nome)], PEGA[peca or nome],
                                   nic.mao_tras(d, **k), 0, ox, oy)
                 else:
                     giro = GIROS[ESTILO[nome]][i] if anim == 'golpe' else 0
@@ -500,9 +592,10 @@ if __name__ == '__main__':
         im.save(caminho)
         print(caminho)
     for nome in CAMADAS:
-        png = '%s/%s_corpo.png' % (PASTA, nome)
-        with open(png.replace('.png', '.tres'), 'w') as f:
-            f.write(quadros_tres(png))
-        print(png.replace('.png', '.tres'))
+        for reino in REINOS:
+            png = '%s/%s_%s_corpo.png' % (PASTA, nome, reino)
+            with open(png.replace('.png', '.tres'), 'w') as f:
+                f.write(quadros_tres(png))
+            print(png.replace('.png', '.tres'))
     for nome in list(ARMAS) + list(PROTECOES):
         print('pega_na_mao %s = Vector2i%s' % (nome, PEGA[nome]))

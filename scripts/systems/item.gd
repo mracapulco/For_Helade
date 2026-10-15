@@ -10,6 +10,9 @@ enum Encaixe { NENHUM, ARMA, ARMADURA, ACESSORIO, ESCUDO, ELMO }
 ## Como a arma golpeia: muda o giro dela na mão e o efeito do golpe.
 ## CORTE e PANCADA mostram o arco do golpe; TIRO solta uma flecha.
 enum Estilo { CORTE, PANCADA, ESTOCADA, TIRO }
+## De onde vem a peça: escudos, armaduras e elmos têm as cores de cada reino
+## (e dos bandidos). Sem efeito nos bônus.
+enum Origem { NENHUMA, OLYMPIA, AGAPE, KHRONOSSES, BANDIDOS }
 
 ## Id sem acento, igual ao nome do arquivo, por exemplo "pocao_teste".
 @export var id: String = ""
@@ -37,6 +40,9 @@ enum Estilo { CORTE, PANCADA, ESTOCADA, TIRO }
 
 ## Preço base em moedas, para lojas.
 @export var preco: int = 0
+
+## Reino (ou bandidos) de onde vem a peça, pelas cores.
+@export var origem: Origem = Origem.NENHUMA
 
 ## Qualidade, para o balanceamento: 0 = improvisado (caixa, panela),
 ## 1 = comum, 2 = reforçado. Quanto maior, mais pontos de bônus.

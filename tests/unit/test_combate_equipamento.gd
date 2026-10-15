@@ -42,7 +42,7 @@ func test_cada_arma_aparece_na_mao() -> void:
 
 
 func test_protecao_aparece_na_mao_de_tras_sem_girar() -> void:
-	for id in ["escudo", "caixa_frutas", "panela"]:
+	for id in ["escudo_olympia", "escudo_agape", "caixa_frutas", "panela"]:
 		_equipar(id)
 		await wait_process_frames(1)
 		assert_eq(protecao.item_mostrado(), Inventario.item(id), id)
@@ -57,8 +57,8 @@ func test_protecao_aparece_na_mao_de_tras_sem_girar() -> void:
 
 func test_armadura_e_elmo_acompanham_os_quadros() -> void:
 	assert_false(armadura.visible)
-	_equipar("armadura_pesada")
-	_equipar("elmo")
+	_equipar("armadura_pesada_agape")
+	_equipar("elmo_bandidos")
 	await wait_process_frames(2)
 	assert_true(armadura.visible)
 	assert_true(elmo.visible)
@@ -75,7 +75,7 @@ func test_armadura_e_elmo_acompanham_os_quadros() -> void:
 
 func test_camadas_tem_todas_as_animacoes_do_nicholas() -> void:
 	var folha: SpriteFrames = visual.sprite_frames
-	for id in ["armadura_leve", "armadura_pesada", "elmo"]:
+	for id in ["armadura_leve_olympia", "armadura_pesada_agape", "elmo_khronosses", "elmo_bandidos"]:
 		var quadros := Inventario.item(id).visual_no_corpo
 		for nome in folha.get_animation_names():
 			assert_eq(quadros.get_frame_count(nome), folha.get_frame_count(nome), "%s %s" % [id, nome])
@@ -125,7 +125,7 @@ func test_arco_acerta_de_longe() -> void:
 
 func test_armadura_pesada_deixa_mais_lento_e_punhal_mais_rapido() -> void:
 	var normal := personagem.velocidade_andando()
-	_equipar("armadura_pesada")
+	_equipar("armadura_pesada_bandidos")
 	assert_lt(personagem.velocidade_andando(), normal)
 	assert_gt(personagem.duracao_do_golpe(), personagem.duracao_golpe)
 	Inventario.desequipar("nicholas", Item.Encaixe.ARMADURA)
@@ -152,10 +152,23 @@ func test_golpe_tira_vida_do_guarda_e_mostra_o_dano() -> void:
 func test_bau_de_armas_entrega_tudo() -> void:
 	var recompensa: Recompensa = sala.get_node("BauArmas/Recompensa")
 	recompensa.entregar()
-	for id in ["espada_grande", "machado_guerra", "arco", "espada_media", "machado_pequeno",
-			"punhal", "maca", "escudo", "caixa_frutas", "panela", "armadura_leve",
-			"armadura_pesada", "elmo"]:
+	var ids: Array[String] = ["espada_grande", "machado_guerra", "arco", "espada_media",
+		"machado_pequeno", "punhal", "maca", "panela"]
+	for peca in ["escudo", "armadura_leve", "armadura_pesada", "elmo"]:
+		for reino in ["olympia", "agape", "khronosses", "bandidos"]:
+			ids.append("%s_%s" % [peca, reino])
+	for id in ids:
 		assert_true(Inventario.tem(id), id)
+
+
+func test_pegar_a_caixa_deixa_as_frutas_no_lugar() -> void:
+	var visual_caixa: Sprite2D = sala.get_node("CaixaDeFrutas/Visual")
+	var com_frutas := visual_caixa.texture
+	var recompensa: Recompensa = sala.get_node("CaixaDeFrutas/Recompensa")
+	recompensa.entregar()
+	assert_true(Inventario.tem("caixa_frutas"), "fica com a caixa")
+	assert_ne(visual_caixa.texture, com_frutas)
+	assert_string_contains(visual_caixa.texture.resource_path, "frutas_no_chao", "as frutas ficam no chão")
 
 
 func test_bolsa_mostra_os_bonus() -> void:

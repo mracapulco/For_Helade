@@ -3,8 +3,16 @@ extends GutTest
 
 const ARMAS := ["espada_grande", "machado_guerra", "arco", "espada_media",
 	"machado_pequeno", "punhal", "maca"]
-const PROTECOES := ["escudo", "caixa_frutas", "panela", "armadura_leve",
-	"armadura_pesada", "elmo"]
+const REINOS := ["olympia", "agape", "khronosses", "bandidos"]
+const PECAS_DE_REINO := ["escudo", "armadura_leve", "armadura_pesada", "elmo"]
+
+
+static func protecoes() -> Array[String]:
+	var ids: Array[String] = ["caixa_frutas", "panela"]
+	for peca in PECAS_DE_REINO:
+		for reino in REINOS:
+			ids.append("%s_%s" % [peca, reino])
+	return ids
 
 
 func after_each() -> void:
@@ -29,7 +37,7 @@ func test_todos_os_itens_pedidos_existem() -> void:
 			assert_eq(item.encaixe, Item.Encaixe.ARMA, id)
 			assert_not_null(item.icone, id)
 			assert_not_null(item.visual_na_mao, id)
-	for id in PROTECOES:
+	for id in protecoes():
 		var item := Inventario.item(id)
 		assert_not_null(item, id)
 		if item:
@@ -46,11 +54,28 @@ func test_duas_maos_e_uma_mao() -> void:
 
 
 func test_encaixes_das_protecoes() -> void:
-	for id in ["escudo", "caixa_frutas", "panela"]:
+	for reino in REINOS:
+		assert_eq(Inventario.item("escudo_" + reino).encaixe, Item.Encaixe.ESCUDO, reino)
+		assert_eq(Inventario.item("armadura_leve_" + reino).encaixe, Item.Encaixe.ARMADURA, reino)
+		assert_eq(Inventario.item("armadura_pesada_" + reino).encaixe, Item.Encaixe.ARMADURA, reino)
+		assert_eq(Inventario.item("elmo_" + reino).encaixe, Item.Encaixe.ELMO, reino)
+	for id in ["caixa_frutas", "panela"]:
 		assert_eq(Inventario.item(id).encaixe, Item.Encaixe.ESCUDO, id)
-	assert_eq(Inventario.item("armadura_leve").encaixe, Item.Encaixe.ARMADURA)
-	assert_eq(Inventario.item("armadura_pesada").encaixe, Item.Encaixe.ARMADURA)
-	assert_eq(Inventario.item("elmo").encaixe, Item.Encaixe.ELMO)
+
+
+func test_cada_reino_tem_cores_proprias_e_os_mesmos_bonus() -> void:
+	var origens := {"olympia": Item.Origem.OLYMPIA, "agape": Item.Origem.AGAPE,
+		"khronosses": Item.Origem.KHRONOSSES, "bandidos": Item.Origem.BANDIDOS}
+	for peca in PECAS_DE_REINO:
+		var base := Inventario.item(peca + "_olympia")
+		var desenhos := {}
+		for reino in REINOS:
+			var item := Inventario.item("%s_%s" % [peca, reino])
+			assert_eq(item.origem, origens[reino], item.id)
+			assert_eq([item.ataque, item.defesa, item.velocidade],
+				[base.ataque, base.defesa, base.velocidade], item.id)
+			desenhos[item.icone.resource_path] = true
+		assert_eq(desenhos.size(), REINOS.size(), "%s: um ícone por reino" % peca)
 
 
 func test_todo_item_equipavel_da_pasta_esta_equilibrado() -> void:
@@ -108,12 +133,12 @@ func test_ninguem_e_melhor_em_tudo() -> void:
 	assert_lt(forte.defesa + forte.velocidade, outra.defesa + outra.velocidade)
 	assert_gt(Inventario.item("punhal").velocidade, Inventario.item("espada_media").velocidade)
 	assert_lt(Inventario.item("punhal").ataque, Inventario.item("espada_media").ataque)
-	assert_gt(Inventario.item("armadura_pesada").defesa, Inventario.item("armadura_leve").defesa)
-	assert_lt(Inventario.item("armadura_pesada").velocidade, Inventario.item("armadura_leve").velocidade)
+	assert_gt(Inventario.item("armadura_pesada_agape").defesa, Inventario.item("armadura_leve_agape").defesa)
+	assert_lt(Inventario.item("armadura_pesada_agape").velocidade, Inventario.item("armadura_leve_agape").velocidade)
 
 
 func test_improvisados_protegem_menos_que_o_escudo() -> void:
-	var escudo := Inventario.item("escudo").defesa
+	var escudo := Inventario.item("escudo_olympia").defesa
 	assert_lt(Inventario.item("caixa_frutas").defesa, escudo)
 	assert_lt(Inventario.item("panela").defesa, escudo)
 
@@ -134,7 +159,7 @@ func test_multiplicador_de_velocidade_tem_limites() -> void:
 
 
 func test_atributos_somam_o_equipamento() -> void:
-	for id in ["espada_media", "escudo", "armadura_leve", "elmo"]:
+	for id in ["espada_media", "escudo_olympia", "armadura_leve_agape", "elmo_khronosses"]:
 		Inventario.adicionar(id)
 		Inventario.equipar("nicholas", id)
 	var a := Inventario.atributos("nicholas")
@@ -151,32 +176,32 @@ func test_sem_nada_equipado_so_o_ataque_base() -> void:
 
 
 func test_arma_de_duas_maos_tira_o_escudo() -> void:
-	for id in ["escudo", "espada_grande", "espada_media"]:
+	for id in ["escudo_bandidos", "espada_grande", "espada_media"]:
 		Inventario.adicionar(id)
-	Inventario.equipar("nicholas", "escudo")
+	Inventario.equipar("nicholas", "escudo_bandidos")
 	Inventario.equipar("nicholas", "espada_grande")
 	assert_eq(Inventario.equipado("nicholas", Item.Encaixe.ESCUDO), "")
 	assert_eq(Inventario.equipado("nicholas", Item.Encaixe.ARMA), "espada_grande")
 	# Pegar o escudo de volta larga a arma de duas mãos.
-	Inventario.equipar("nicholas", "escudo")
+	Inventario.equipar("nicholas", "escudo_bandidos")
 	assert_eq(Inventario.equipado("nicholas", Item.Encaixe.ARMA), "")
-	assert_eq(Inventario.equipado("nicholas", Item.Encaixe.ESCUDO), "escudo")
+	assert_eq(Inventario.equipado("nicholas", Item.Encaixe.ESCUDO), "escudo_bandidos")
 	# Arma de uma mão e escudo andam juntos.
 	Inventario.equipar("nicholas", "espada_media")
-	assert_eq(Inventario.equipado("nicholas", Item.Encaixe.ESCUDO), "escudo")
+	assert_eq(Inventario.equipado("nicholas", Item.Encaixe.ESCUDO), "escudo_bandidos")
 	assert_eq(Inventario.equipado("nicholas", Item.Encaixe.ARMA), "espada_media")
 
 
 func test_equipamento_novo_volta_no_jogo_salvo() -> void:
-	for id in ["arco", "armadura_pesada", "elmo"]:
+	for id in ["arco", "armadura_pesada_olympia", "elmo_bandidos"]:
 		Inventario.adicionar(id)
 		Inventario.equipar("nicholas", id)
 	var dados := Inventario.para_dados()
 	Inventario.limpar()
 	Inventario.de_dados(dados)
 	assert_eq(Inventario.equipado("nicholas", Item.Encaixe.ARMA), "arco")
-	assert_eq(Inventario.equipado("nicholas", Item.Encaixe.ARMADURA), "armadura_pesada")
-	assert_eq(Inventario.equipado("nicholas", Item.Encaixe.ELMO), "elmo")
+	assert_eq(Inventario.equipado("nicholas", Item.Encaixe.ARMADURA), "armadura_pesada_olympia")
+	assert_eq(Inventario.equipado("nicholas", Item.Encaixe.ELMO), "elmo_bandidos")
 
 
 func test_vida_recebe_ataque_com_a_defesa_do_equipamento() -> void:
@@ -186,8 +211,8 @@ func test_vida_recebe_ataque_com_a_defesa_do_equipamento() -> void:
 	vida._ready()
 	assert_eq(vida.receber_ataque(10), 10)
 	assert_eq(vida.atual, 20)
-	Inventario.adicionar("armadura_pesada")
-	Inventario.equipar("nicholas", "armadura_pesada")
+	Inventario.adicionar("armadura_pesada_khronosses")
+	Inventario.equipar("nicholas", "armadura_pesada_khronosses")
 	assert_eq(vida.defesa_total(), 20)
 	assert_eq(vida.receber_ataque(10), 3)
 	assert_eq(vida.atual, 17)

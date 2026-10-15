@@ -54,18 +54,42 @@ ITEM_PUNHAL_NOME,Punhal
 ITEM_PUNHAL_DESC,"Uma mão. Fraco, mas muito rápido."
 ITEM_MACA_NOME,Maça
 ITEM_MACA_DESC,"Uma mão. Pesada: bate forte e protege um pouco, mas é mais lenta."
-ITEM_ESCUDO_NOME,Escudo
-ITEM_ESCUDO_DESC,"Na mão livre. Boa defesa, deixa um pouco mais lento."
+ITEM_ESCUDO_OLYMPIA_NOME,Escudo de Olympia
+ITEM_ESCUDO_OLYMPIA_DESC,"Na mão livre. Boa defesa, deixa um pouco mais lento. Cores de Olympia."
+ITEM_ESCUDO_AGAPE_NOME,Escudo de Ágape
+ITEM_ESCUDO_AGAPE_DESC,"Na mão livre. Boa defesa, deixa um pouco mais lento. Cores de Ágape."
+ITEM_ESCUDO_KHRONOSSES_NOME,Escudo de Khronosses
+ITEM_ESCUDO_KHRONOSSES_DESC,"Na mão livre. Boa defesa, deixa um pouco mais lento. Cores de Khronosses."
+ITEM_ESCUDO_BANDIDOS_NOME,Escudo de bandido
+ITEM_ESCUDO_BANDIDOS_DESC,"Na mão livre. Boa defesa, deixa um pouco mais lento. Peça de bandido."
+ITEM_ARMADURA_LEVE_OLYMPIA_NOME,Armadura leve de Olympia
+ITEM_ARMADURA_LEVE_OLYMPIA_DESC,"Couro. Protege e não atrapalha os movimentos. Cores de Olympia."
+ITEM_ARMADURA_LEVE_AGAPE_NOME,Armadura leve de Ágape
+ITEM_ARMADURA_LEVE_AGAPE_DESC,"Couro. Protege e não atrapalha os movimentos. Cores de Ágape."
+ITEM_ARMADURA_LEVE_KHRONOSSES_NOME,Armadura leve de Khronosses
+ITEM_ARMADURA_LEVE_KHRONOSSES_DESC,"Couro. Protege e não atrapalha os movimentos. Cores de Khronosses."
+ITEM_ARMADURA_LEVE_BANDIDOS_NOME,Armadura leve de bandido
+ITEM_ARMADURA_LEVE_BANDIDOS_DESC,"Couro. Protege e não atrapalha os movimentos. Peça de bandido."
+ITEM_ARMADURA_PESADA_OLYMPIA_NOME,Armadura pesada de Olympia
+ITEM_ARMADURA_PESADA_OLYMPIA_DESC,"Metal. Muita proteção, mas deixa bem mais lento. Cores de Olympia."
+ITEM_ARMADURA_PESADA_AGAPE_NOME,Armadura pesada de Ágape
+ITEM_ARMADURA_PESADA_AGAPE_DESC,"Metal. Muita proteção, mas deixa bem mais lento. Cores de Ágape."
+ITEM_ARMADURA_PESADA_KHRONOSSES_NOME,Armadura pesada de Khronosses
+ITEM_ARMADURA_PESADA_KHRONOSSES_DESC,"Metal. Muita proteção, mas deixa bem mais lento. Cores de Khronosses."
+ITEM_ARMADURA_PESADA_BANDIDOS_NOME,Armadura pesada de bandido
+ITEM_ARMADURA_PESADA_BANDIDOS_DESC,"Metal. Muita proteção, mas deixa bem mais lento. Peça de bandido."
+ITEM_ELMO_OLYMPIA_NOME,Elmo de Olympia
+ITEM_ELMO_OLYMPIA_DESC,"Protege a cabeça. Deixa um pouco mais lento. Cores de Olympia."
+ITEM_ELMO_AGAPE_NOME,Elmo de Ágape
+ITEM_ELMO_AGAPE_DESC,"Protege a cabeça. Deixa um pouco mais lento. Cores de Ágape."
+ITEM_ELMO_KHRONOSSES_NOME,Elmo de Khronosses
+ITEM_ELMO_KHRONOSSES_DESC,"Protege a cabeça. Deixa um pouco mais lento. Cores de Khronosses."
+ITEM_ELMO_BANDIDOS_NOME,Elmo de bandido
+ITEM_ELMO_BANDIDOS_DESC,"Protege a cabeça. Deixa um pouco mais lento. Peça de bandido."
 ITEM_CAIXA_FRUTAS_NOME,Caixa de frutas
-ITEM_CAIXA_FRUTAS_DESC,"Na mão livre. Improviso: protege pouco, mas é melhor que nada."
+ITEM_CAIXA_FRUTAS_DESC,"Na mão livre. Improviso: a caixa vazia (as frutas ficaram onde ela estava). Protege pouco, mas é melhor que nada."
 ITEM_PANELA_NOME,Panela
 ITEM_PANELA_DESC,"Na mão livre. Improviso: protege pouco e ainda dá para bater com ela."
-ITEM_ARMADURA_LEVE_NOME,Armadura leve
-ITEM_ARMADURA_LEVE_DESC,"Couro. Protege e não atrapalha os movimentos."
-ITEM_ARMADURA_PESADA_NOME,Armadura pesada
-ITEM_ARMADURA_PESADA_DESC,"Metal. Muita proteção, mas deixa bem mais lento."
-ITEM_ELMO_NOME,Elmo
-ITEM_ELMO_DESC,"Protege a cabeça. Deixa um pouco mais lento."
 BOLSA_BOTAO,Bolsa
 BOLSA_TITULO,Bolsa
 BOLSA_FECHAR,Fechar

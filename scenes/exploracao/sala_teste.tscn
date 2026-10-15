@@ -20,6 +20,8 @@
 [ext_resource type="Script" path="res://scripts/exploracao/camada_equipamento.gd" id="27_camada"]
 [ext_resource type="Texture2D" path="res://assets/art/placeholders/combate/flecha.png" id="28_flecha"]
 [ext_resource type="Script" path="res://scripts/systems/vida.gd" id="29_vida"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholders/exploracao/caixa_com_frutas.png" id="30_caixa_frutas"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholders/exploracao/frutas_no_chao.png" id="31_frutas_chao"]
 [ext_resource type="Texture2D" path="res://assets/art/placeholders/exploracao/caixa_provisoria.png" id="9_caixa"]
 [ext_resource type="Texture2D" path="res://assets/art/placeholders/exploracao/personagem_provisorio.png" id="10_personagem"]
 [ext_resource type="Texture2D" path="res://assets/art/placeholders/exploracao/bau_fechado.png" id="15_bau_fechado"]
@@ -257,12 +259,49 @@ itens = Dictionary[String, int]({
 "machado_pequeno": 1,
 "punhal": 1,
 "maca": 1,
-"escudo": 1,
-"caixa_frutas": 1,
 "panela": 1,
-"armadura_leve": 1,
-"armadura_pesada": 1,
-"elmo": 1
+"escudo_olympia": 1,
+"escudo_agape": 1,
+"escudo_khronosses": 1,
+"escudo_bandidos": 1,
+"armadura_leve_olympia": 1,
+"armadura_leve_agape": 1,
+"armadura_leve_khronosses": 1,
+"armadura_leve_bandidos": 1,
+"armadura_pesada_olympia": 1,
+"armadura_pesada_agape": 1,
+"armadura_pesada_khronosses": 1,
+"armadura_pesada_bandidos": 1,
+"elmo_olympia": 1,
+"elmo_agape": 1,
+"elmo_khronosses": 1,
+"elmo_bandidos": 1
+})
+
+[node name="CaixaDeFrutas" type="StaticBody2D" parent="." groups=["navegacao_obstaculos"]]
+position = Vector2(-160, 240)
+
+[node name="Visual" type="Sprite2D" parent="CaixaDeFrutas"]
+texture = ExtResource("30_caixa_frutas")
+offset = Vector2(0, -7)
+
+[node name="Colisao" type="CollisionShape2D" parent="CaixaDeFrutas"]
+shape = SubResource("CircleShape2D_bau_corpo")
+
+[node name="Interagivel" type="Area2D" parent="CaixaDeFrutas"]
+script = ExtResource("6_mcson")
+
+[node name="AreaDeToque" type="CollisionShape2D" parent="CaixaDeFrutas/Interagivel"]
+position = Vector2(0, -8)
+shape = SubResource("CircleShape2D_bau_toque")
+
+[node name="Recompensa" type="Node" parent="CaixaDeFrutas" node_paths=PackedStringArray("interagivel", "visual")]
+script = ExtResource("14_recompensa")
+interagivel = NodePath("../Interagivel")
+visual = NodePath("../Visual")
+textura_vazio = ExtResource("31_frutas_chao")
+itens = Dictionary[String, int]({
+"caixa_frutas": 1
 })
 
 [node name="GuardaTeste" type="StaticBody2D" parent="." groups=["navegacao_obstaculos"]]

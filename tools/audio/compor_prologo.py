@@ -1,7 +1,7 @@
 # Músicas provisórias do prólogo, todas sobre o tema principal (tools/audio/tema_principal.py),
 # originais e feitas por código como as do mapa e dos acampamentos:
-#   prologo_abertura.wav - laço. Tela preta, quarto e corredor: uma nota grave longa e poucas
-#                          notas de harpa (o "chamado" do tema), bem esparso e escuro.
+#   prologo_abertura.wav - laço. Tela preta, quarto e corredor: Ré grave sem descanso, cordas
+#                          em tremolo e o "chamado" do tema lento e grave, sem pulso marcado.
 #   prologo_althea.wav   - laço. Althea nos braços de Nicholas: o tema, delicado, na flauta e
 #                          na celesta sobre harpa leve.
 #   prologo_varanda.wav  - laço. Varanda: o mesmo tema mais lento, flauta grave e cordas.
@@ -18,7 +18,7 @@ sys.dont_write_bytecode = True
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 import tema_principal as tema                                    # noqa: E402
-from gerar_musicas_acampamento import (SR, CAIXINHA, Loop, filtro_fft, flauta, hz,  # noqa: E402
+from gerar_musicas_acampamento import (SR, CAIXINHA, Loop, bordas, filtro_fft, flauta, hz,  # noqa: E402
                                        pad, pincado, resposta_reverb, salvar, sino)
 from gerar_musicas_mapa import arpejo_harpa, baixo, cordas, tocar  # noqa: E402
 
@@ -52,24 +52,41 @@ def celesta(f, dur, rng):
     return sino(f, max(dur, 2.5), CAIXINHA, rng)
 
 
+def tremolo(f, dur, rng, rapidez=6.5):
+    """Cordas em tremolo: o arco indo e vindo rápido, como quem treme."""
+    x = cordas(f, dur, rng)
+    t = np.arange(len(x)) / SR
+    return x * (0.55 + 0.45 * np.sin(2 * np.pi * rapidez * t + rng.uniform(0, 6)) ** 2)
+
+
 def abertura(rng):
-    """60 bpm, 12 compassos. Ré grave sustentado que respira, e a harpa lembrando o chamado."""
+    """Sem pulso marcado, 12 compassos lentos: algo errado acontece no castelo.
+
+    Retorno do Rafael (15/10/2026): a versão com a harpa em ritmo regular não
+    combinava com a cena. Agora é um Ré grave que não descansa, cordas em
+    tremolo que crescem e somem, a segunda menor (Ré e Mi bemol) raspando por
+    cima, e o chamado do tema lento e grave, em tempos tortos."""
     lp = Loop(60, 4, 12, rng)
-    # A nota grave longa: Ré e Lá bem embaixo, entrando e saindo devagar, em dois sopros.
+    # O chão: Ré e Lá bem graves, entrando e saindo em dois sopros longos.
     for c in (0, 6):
         lp.por(pad([hz(T - 24), hz(T - 17)], 6 * 4 * lp.spb + 4.0, 5.0, 6.0, 5, 5, 2.2, rng), lp.t(c), 0.30)
-    # Um sopro de cordas bem grave por baixo, mudando para Si bemol no meio (o tema vai lá).
-    for c, raiz in ((2, T - 24), (8, T - 28)):
-        lp.por(cordas(hz(raiz), 3 * 4 * lp.spb, rng), lp.t(c), 0.10)
-    # O chamado do tema (Lá Ré Mi Fá) só na harpa, longe, e depois notas soltas.
-    chamado = [(1, 0, 1.5, T + 7), (1, 1.5, 0.5, T + 12), (1, 2, 1, T + 14), (1, 3, 2, T + 15)]
+    # Tremolo grave que cresce e some, cada vez numa nota (Ré, Si bemol, Dó sustenido).
+    for c, nota, dur in ((1, T - 12, 4), (5, T - 14, 3), (9, T - 13, 3)):
+        lp.por(bordas(tremolo(hz(nota), dur * 4 * lp.spb, rng), dur * 2.0, dur * 1.5), lp.t(c), 0.16)
+    # A segunda menor por cima, como um raspão: Mi bemol contra o Ré do tremolo.
+    for c in (2, 10):
+        lp.por(bordas(tremolo(hz(T - 9), 2 * 4 * lp.spb, rng, 7.5), 3.0, 3.0), lp.t(c, 1), 0.07)
+    # O chamado do tema (Lá Ré Mi Fá) nas cordas graves, lento e fora do tempo.
+    chamado = [(3, 0.3, 2.5, T - 5), (3, 3.0, 1.5, T), (4, 1.0, 2.0, T + 2), (4, 3.3, 4.0, T + 3)]
     for (c, b, d, m) in chamado:
-        lp.por(pincado(hz(m), 4.0, 0.35, 2.2, 0.25, rng=rng), lp.t(c, b, 0.01), 0.26)
-    soltas = [(4, 0, T + 7), (4, 2, T + 3), (5, 1, T + 2), (7, 0, T + 7), (7, 1.5, T + 12),
-              (7, 2, T + 14), (7, 3, T + 15), (9, 0, T + 14), (9, 2, T + 10), (10, 2, T + 9)]
-    for (c, b, m) in soltas:
-        lp.por(pincado(hz(m), 4.0, 0.3, 2.0, 0.25, rng=rng), lp.t(c, b, 0.015), 0.18 * rng.uniform(0.8, 1.0))
-    return lp.fechar(resposta_reverb(3.5, 1.3, 3200), 0.75)
+        lp.por(cordas(hz(m), d * lp.spb, rng), lp.t(c, b, 0.04), 0.12)
+    # Mais tarde, ele volta e para no meio, sem resolver (Lá Ré Mi... e nada).
+    for (c, b, d, m) in [(8, 0.6, 2.5, T - 5), (8, 3.4, 1.5, T), (9, 1.2, 5.0, T + 2)]:
+        lp.por(cordas(hz(m), d * lp.spb, rng), lp.t(c, b, 0.04), 0.11)
+    # Duas notas soltas de harpa, bem longe, só para o eco.
+    for (c, b, m) in ((6, 2.5, T + 14), (11, 1.0, T + 13)):
+        lp.por(pincado(hz(m), 4.0, 0.25, 2.5, 0.25, rng=rng), lp.t(c, b, 0.02), 0.10)
+    return lp.fechar(resposta_reverb(4.0, 1.4, 2600), 0.8)
 
 
 def althea(rng):

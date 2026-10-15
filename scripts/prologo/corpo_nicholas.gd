@@ -55,12 +55,13 @@ func _montar() -> void:
 	# O corpo fica um pouco atrás dos olhos, para olhar para baixo e ver o peito e os pés.
 	var corpo := MalhaCorpo.junta(self, "Corpo", Vector3(0, 0, 0.08))
 	quadril = MalhaCorpo.junta(corpo, "Quadril", Vector3(0, 0.55, 0))
-	# Do peito para cima o corpo só faz sombra: visto de dentro, ele taparia a
-	# visão das pernas e dos pés.
-	var peito := MalhaCorpo.peca(quadril, "Peito", MalhaCorpo.anel([
-		Vector4(0.38, 0.05, 0.045, 0), Vector4(0.36, 0.1, 0.07, 0), Vector4(0.33, 0.125, 0.08, 0),
-		Vector4(0.2, 0.11, 0.065, 0.0), Vector4(0.03, 0.11, 0.07, 0.0)], -PI, PI, 22), linho)
-	peito.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_SHADOWS_ONLY
+	# Peito e ombros aparecem olhando para baixo, ligando os braços ao corpo
+	# (sem eles, os braços ficavam soltos e a barriga parecia uma bola). O peito
+	# é raso na frente, para os pés continuarem aparecendo além da barriga.
+	MalhaCorpo.peca(quadril, "Peito", MalhaCorpo.anel([
+		Vector4(0.39, 0.0, 0.0, 0.0), Vector4(0.385, 0.05, 0.045, 0), Vector4(0.37, 0.1, 0.065, 0),
+		Vector4(0.345, 0.135, 0.075, 0), Vector4(0.3, 0.13, 0.072, 0), Vector4(0.2, 0.115, 0.065, 0.0),
+		Vector4(0.03, 0.112, 0.07, 0.0)], -PI, PI, 24), linho)
 	# Pescoço e cabeça também só fazem sombra: a câmera fica dentro deles, mas
 	# sem eles a sombra no chão saía sem cabeça.
 	var so_sombra: Array[MeshInstance3D] = [
@@ -91,7 +92,7 @@ func _montar() -> void:
 
 	bracos = MalhaCorpo.junta(self, "Bracos", Vector3(0, ALTURA_OLHOS, 0))
 	for lado in [-1, 1]:
-		var ombro := MalhaCorpo.junta(bracos, "Ombro" + ("D" if lado > 0 else "E"), Vector3(0.13 * lado, -0.16, 0.02))
+		var ombro := MalhaCorpo.junta(bracos, "Ombro" + ("D" if lado > 0 else "E"), Vector3(0.13 * lado, -0.16, 0.06))
 		# A manga afina até o braço, sem borda que pareça um corte.
 		MalhaCorpo.peca(ombro, "Manga", MalhaCorpo.membro(0.13, [0.045, 0.041, 0.036, 0.031]), linho)
 		MalhaCorpo.peca(ombro, "Braco", MalhaCorpo.membro(0.2, [0.032, 0.028, 0.025]), pele, Vector3(0, -0.02, 0))

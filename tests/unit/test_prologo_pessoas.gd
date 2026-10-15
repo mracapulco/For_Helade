@@ -174,10 +174,26 @@ func test_nicholas_tem_pernas_pes_bracos_e_maos() -> void:
 		assert_not_null(joelho.get_node_or_null("Pe"))
 
 
-func test_o_peito_so_faz_sombra() -> void:
-	# Visto de dentro, o peito taparia as pernas; ele só aparece na sombra.
+func test_peito_aparece_e_a_cabeca_so_faz_sombra() -> void:
+	# Retorno do Rafael (15/10/2026): sem o peito, os braços ficavam soltos.
 	var peito: MeshInstance3D = _corpo().quadril.get_node("Peito")
-	assert_eq(peito.cast_shadow, GeometryInstance3D.SHADOW_CASTING_SETTING_SHADOWS_ONLY)
+	assert_ne(peito.cast_shadow, GeometryInstance3D.SHADOW_CASTING_SETTING_SHADOWS_ONLY)
+	# A câmera fica dentro da cabeça: ela só aparece na sombra no chão.
+	var cabeca: MeshInstance3D = _corpo().quadril.get_node("Cabeca")
+	assert_eq(cabeca.cast_shadow, GeometryInstance3D.SHADOW_CASTING_SETTING_SHADOWS_ONLY)
+
+
+func test_no_silencio_param_mas_ainda_respiram() -> void:
+	var pessoa := PessoaPrologo.new()
+	pessoa.atividade = "trabalhando"
+	add_child_autofree(pessoa)
+	await wait_seconds(0.1)
+	pessoa.congelar()
+	var escalas := {}
+	for i in 12:
+		await wait_seconds(0.05)
+		escalas[pessoa.tronco.scale.y] = true
+	assert_gt(escalas.size(), 3, "o peito sobe e desce")
 
 
 func test_parado_andando_e_correndo() -> void:

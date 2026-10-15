@@ -122,9 +122,21 @@ func test_toda_etapa_tem_musica_ou_silencio() -> void:
 	assert_true(SomPrologo.MUSICAS.has(""), "a abertura tem música")
 
 
-func test_nos_aposentos_nao_ha_musica() -> void:
-	for etapa in ["caos", "dossel", "muda", "nome", "olhares", "choro", "segurar"]:
+func test_nos_aposentos_a_musica_so_volta_depois_do_silencio() -> void:
+	for etapa in ["caos", "dossel", "muda", "nome", "olhares"]:
 		assert_eq(SomPrologo.MUSICAS[etapa], "", etapa)
+	# Retorno do Rafael (15/10/2026): depois do silêncio, a música volta com fade.
+	assert_ne(SomPrologo.MUSICAS["choro"], "")
+	assert_gte(SomPrologo.FADE_MUSICA["choro"], 4.0, "volta devagar")
+
+
+func test_no_comeco_a_musica_vem_antes_dos_gritos() -> void:
+	var cena := _cena_rapida()
+	add_child_autofree(cena)
+	var som: SomPrologo = cena.get_node("Som")
+	await wait_seconds(1.0)
+	assert_eq(som.volume("correria"), 0.0, "ainda só a música")
+	assert_gt(SomPrologo.ESPERA_AMBIENTE, SomPrologo.FADE_MUSICA[""], "os gritos entram depois do fade da música")
 
 
 func test_musicas_existem_e_as_de_fundo_repetem() -> void:

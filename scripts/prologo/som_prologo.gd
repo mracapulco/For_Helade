@@ -26,7 +26,6 @@ const CAMADAS := {
 	"fogo": AMBIENTE + "fogo.ogg",
 	"caos": AMBIENTE + "caos.ogg",
 	"correria": AMBIENTE + "correria.ogg",
-	"sussurros": AMBIENTE + "sussurros.ogg",
 	"respiracao": EFEITOS + "respiracao.ogg",
 	"choro": EFEITOS + "choro.ogg",
 }
@@ -42,14 +41,14 @@ const ETAPAS := {
 	"nome": {},
 	"olhares": {},
 	"choro": {"choro": 0.8, "coracao": 0.3},
-	"segurar": {"choro": 0.55, "sussurros": 0.25, "coracao": 0.3},
-	# "Um mar de sussurros" em volta de Nicholas com a irmã nos braços.
-	"nos_bracos": {"sussurros": 0.45, "fogo": 0.2},
-	"depois": {"sussurros": 0.2},
+	# Sem a camada de sussurros: sintetizada, ela soava como alguém rabiscando
+	# (retorno do Rafael, 15/10/2026). Fica a música.
+	"segurar": {"choro": 0.55, "coracao": 0.3},
+	"nos_bracos": {"fogo": 0.2},
+	"depois": {"fogo": 0.1},
 	"quarto_vazio": {"fogo": 0.3, "vento_mar": 0.3},
 	"varanda": {"ondas": 0.98, "vento_mar": 0.46, "grilos": 0.3},
-	# Os sussurros crescem junto com as frases do final.
-	"final": {"sussurros": 0.85, "ondas": 0.39},
+	"final": {"ondas": 0.39},
 	"fim": {},
 }
 const MUSICA := "res://assets/audio/music/prologo/"
@@ -61,8 +60,9 @@ const MUSICAS := {
 	"muda": "",
 	"nome": "",
 	"olhares": "",
-	"choro": "",
-	"segurar": "",
+	# Depois do silêncio, a música volta devagar com o choro de Althea.
+	"choro": MUSICA + "prologo_althea.wav",
+	"segurar": MUSICA + "prologo_althea.wav",
 	"nos_bracos": MUSICA + "prologo_althea.wav",
 	"depois": MUSICA + "prologo_althea.wav",
 	"quarto_vazio": MUSICA + "prologo_althea.wav",
@@ -71,7 +71,7 @@ const MUSICAS := {
 	"fim": MUSICA + "prologo_titulo.wav",
 }
 ## Segundos de fade ao trocar de música; a da varanda e a do título entram devagar.
-const FADE_MUSICA := {"caos": 0.8, "nos_bracos": 4.0, "varanda": 4.0, "final": 2.5}
+const FADE_MUSICA := {"": 3.0, "caos": 0.8, "choro": 7.0, "varanda": 4.0, "final": 2.5}
 const FADE_MUSICA_PADRAO := 2.0
 
 ## Batimento (velocidade do laço do coração; 1 = 100 por minuto).
@@ -96,6 +96,11 @@ const DISTANCIA_DA_CAMA := 22.0
 ## Quanto de volume por segundo cada camada anda até o alvo.
 const RAPIDEZ := {"muda": 4.0, "final": 0.12, "fim": 0.5}
 const RAPIDEZ_PADRAO := 0.8
+## No começo, a música entra primeiro; só depois dela vêm, devagar, os gritos e
+## a correria do castelo (retorno do Rafael, 15/10/2026).
+const ESPERA_AMBIENTE := 4.0
+const RAPIDEZ_ENTRADA := 0.1
+const DURACAO_ENTRADA := 8.0
 
 ## Distância entre um passo e outro (m): passos de criança sem pressa, e mais
 ## largos correndo. Cada passo sorteia um entre oito sons, sem repetir o último.
@@ -124,6 +129,7 @@ var _ate_a_batida := 0.0
 var _aterrissagens := {}
 var _no_chao := true
 var _no_ar := 0.0
+var _tempo_de_cena := 0.0
 
 
 ## Alvos de volume antes dos aposentos, pelo lugar onde Nicholas está:
@@ -231,8 +237,12 @@ func volume(camada: String) -> float:
 
 
 func _process(delta: float) -> void:
+	_tempo_de_cena += delta
 	var alvo := alvos()
 	var passo: float = RAPIDEZ.get(etapa, RAPIDEZ_PADRAO) * delta
+	if etapa.is_empty() and _tempo_de_cena < ESPERA_AMBIENTE + DURACAO_ENTRADA:
+		alvo = {} if _tempo_de_cena < ESPERA_AMBIENTE else alvo
+		passo = RAPIDEZ_ENTRADA * delta
 	for nome: String in _camadas:
 		_volumes[nome] = move_toward(_volumes[nome], alvo.get(nome, 0.0), passo)
 		_camadas[nome].volume_db = maxf(SILENCIO_DB, linear_to_db(_volumes[nome]))

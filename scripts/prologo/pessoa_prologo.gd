@@ -103,6 +103,7 @@ var _material_labios: StandardMaterial3D
 var _olhar := Vector2.ZERO
 var _olhar_tween: Tween
 var _partida := 0.0
+var _pescoco_parado := Vector3.ZERO
 
 
 func _ready() -> void:
@@ -112,15 +113,34 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
-	if Engine.is_editor_hint() or congelada or esqueleto == null:
+	if Engine.is_editor_hint() or esqueleto == null:
 		return
 	_tempo += delta
+	if congelada:
+		_respirar_parada()
+		return
 	_posar(clampf(delta * suavidade, 0.0, 1.0))
 
 
-## Para tudo na mesma hora, como quem viu o olhar da Medusa.
+## Para tudo na mesma hora, como quem viu o olhar da Medusa. Braços e corpo
+## ficam onde estavam, mas a pessoa ainda respira e a cabeça mal se mexe:
+## parada de todo, parecia um boneco (retorno do Rafael, 15/10/2026).
 func congelar() -> void:
 	congelada = true
+	if pescoco:
+		_pescoco_parado = pescoco.rotation
+
+
+func _respirar_parada() -> void:
+	if atividade == "deitada_partiu":
+		return
+	var p := _pose(atividade, _tempo)
+	# Respiração presa, mais curta e mais rápida que a normal.
+	var folego: float = maxf(float(p.get("folego", 0.008)), 0.006) * 0.8
+	var respira := sin(_tempo * TAU * maxf(float(p.get("respiracao", 0.25)), 0.35)) * folego
+	tronco.scale = Vector3(1.0 + respira * 0.5, 1.0 + respira, 1.0 + respira)
+	var s := float(semente)
+	pescoco.rotation = _pescoco_parado + Vector3(0.015 * sin(_tempo * 0.7 + s), 0.02 * sin(_tempo * 0.45 + s * 2.0), 0.0)
 
 
 ## Vai direto para a pose da atividade atual, sem transição.

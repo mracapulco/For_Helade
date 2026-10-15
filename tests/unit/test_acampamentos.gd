@@ -93,7 +93,7 @@ func test_companheiro_tem_fala_provisoria(id: String = use_parameters(IDS)) -> v
 	var fala: DialogueLine = await companheiro.dialogo.get_next_dialogue_line(companheiro.marcador)
 	# Convidados (Rafael) têm falas próprias, não provisórias.
 	if companheiro.marcador == "rafael":
-		assert_eq(fala.character, "Rafael")
+		assert_eq(fala.character, "Próskopos")
 	else:
 		assert_string_contains(fala.text, "[Provisório]")
 	if not fala.character.is_empty():
@@ -335,7 +335,7 @@ func test_rafael_na_mata_costeira_e_shara_no_rio_de_agape() -> void:
 	var companheiro := acampamento.get_node("Companheiro/Interagivel") as Interagivel
 	assert_eq(companheiro.marcador, "rafael")
 	var linha: DialogueLine = await companheiro.dialogo.get_next_dialogue_line("rafael")
-	assert_eq(linha.character, "Rafael")
+	assert_eq(linha.character, "Próskopos")
 	assert_eq((acampamento.get_node("Mercador/Interagivel") as Interagivel).marcador, "mercador")
 	# A barraca com toldo é só dele, ao lado, e o cenário não a cobre.
 	var barraca := acampamento.get_node("BarracaRafael") as Node2D
@@ -346,7 +346,7 @@ func test_rafael_na_mata_costeira_e_shara_no_rio_de_agape() -> void:
 	var mercador := acampamento.get_node("Mercador/Interagivel") as Interagivel
 	assert_eq(mercador.marcador, "shara")
 	linha = await mercador.dialogo.get_next_dialogue_line("shara")
-	assert_eq(linha.character, "Shara")
+	assert_eq(linha.character, "Chymeía")
 	assert_false(acampamento.has_node("BarracaRafael"))
 	# Os outros acampamentos continuam com o mercador genérico.
 	acampamento.free()

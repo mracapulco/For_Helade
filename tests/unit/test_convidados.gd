@@ -42,7 +42,7 @@ func _altura(caminho: String) -> int:
 
 
 func test_retratos_em_pixel_art_com_boca_falando() -> void:
-	for nome in ["Rafael", "Shara"]:
+	for nome in ["Próskopos", "Chymeía"]:
 		var personagem := Elenco.buscar(nome)
 		assert_not_null(personagem, nome)
 		assert_true(personagem.pixel_art, nome)
@@ -65,7 +65,7 @@ func test_quem_nao_tem_faixa_de_fala_nao_anima() -> void:
 func test_caixa_mexe_a_boca_so_enquanto_fala() -> void:
 	var caixa: CaixaDialogo = load("res://scenes/ui/caixa_dialogo.tscn").instantiate()
 	add_child_autofree(caixa)
-	var rafael := Elenco.buscar("Rafael")
+	var rafael := Elenco.buscar("Próskopos")
 	caixa._retrato_parado = rafael.retrato("neutro")
 	caixa._quadros_fala = rafael.quadros_fala("neutro")
 	var vistos := {}

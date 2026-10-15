@@ -6,7 +6,7 @@
 
 [resource]
 script = ExtResource("1_personagem")
-nome_no_roteiro = "Rafael"
+nome_no_roteiro = "Próskopos"
 retratos = Dictionary[String, Texture2D]({
 "neutro": ExtResource("2_retrato")
 })

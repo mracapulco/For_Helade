@@ -50,9 +50,12 @@ signal derrotado
 ## Até onde o golpe pega, a partir dos pés dele, em pixels, quando a arma
 ## não tem alcance próprio.
 @export var alcance_golpe := 40.0
-## Com [member grade]: apertar uma direção diferente da que ele olha só vira
-## o corpo; segurando a tecla por este tempo (ou apertando de novo), anda.
+## Com [member grade], parado: apertar uma direção diferente da que ele olha
+## só vira o corpo; segurando a tecla por este tempo (ou apertando de novo),
+## anda. Andando, trocar de direção vira e segue sem pausa.
 @export var tempo_para_andar := 0.12
+## Tempo sem andar para contar como parado (e o primeiro aperto só virar).
+@export var tempo_para_parar := 0.15
 ## Vida do personagem (opcional). Sem ela, não há derrota.
 @export var vida: Vida
 ## Efeitos de poções (opcional): a rapidez soma na velocidade.
@@ -77,6 +80,8 @@ var _casa_origem := Vector2.ZERO
 var _golpe_pendente := false
 ## Quanto falta segurar a tecla, depois de virar, para começar a andar.
 var _espera_virar := 0.0
+## Há quanto tempo ele não anda (sem passo em andamento).
+var _tempo_parado := 1.0
 ## Multiplicador de velocidade do equipamento e das poções (1 = sem bônus).
 var _ritmo := 1.0
 ## Onde ele entrou na cena: volta para cá ao ser derrotado.
@@ -380,6 +385,10 @@ func _ao_terminar_dialogo(_recurso: DialogueResource) -> void:
 
 
 func _physics_process(delta: float) -> void:
+	if indo_para_casa():
+		_tempo_parado = 0.0
+	else:
+		_tempo_parado += delta
 	_atualizar_pulo(delta)
 	_atualizar_golpe(delta)
 	if em_dialogo or golpeando:
@@ -426,8 +435,8 @@ func _physics_process(delta: float) -> void:
 
 
 ## Teclado com grade: anda uma casa por vez e só para no centro de uma casa.
-## Soltar a tecla no meio do caminho termina o passo. Numa direção nova, o
-## primeiro aperto só vira (veja [member tempo_para_andar]).
+## Soltar a tecla no meio do caminho termina o passo. Parado, numa direção
+## nova o primeiro aperto só vira (veja [member tempo_para_andar]).
 func _andar_na_grade(teclas: Vector2, rapidez: float, delta: float) -> void:
 	if not indo_para_casa():
 		var passo := passo_na_grade(teclas)
@@ -439,7 +448,7 @@ func _andar_na_grade(teclas: Vector2, rapidez: float, delta: float) -> void:
 			andando = false
 			chegou.emit()
 		var rumo := direcao_isometrica(teclas)
-		if rumo.dot(direcao_olhar) < 0.99:
+		if rumo.dot(direcao_olhar) < 0.99 and _tempo_parado >= tempo_para_parar:
 			direcao_olhar = rumo
 			_espera_virar = tempo_para_andar
 			velocity = Vector2.ZERO

@@ -161,7 +161,7 @@ func test_apertar_de_novo_depois_de_virar_anda_na_hora() -> void:
 	Input.action_release("mover_frente")
 
 
-func test_voltar_no_meio_do_passo_termina_o_passo_e_vira() -> void:
+func test_andando_trocar_de_direcao_segue_sem_pausa() -> void:
 	var inicio := personagem.casa_de(personagem.global_position)
 	personagem.direcao_olhar = PersonagemExploracao.direcao_isometrica(Vector2(0, 1))
 	Input.action_press("mover_tras")
@@ -170,7 +170,19 @@ func test_voltar_no_meio_do_passo_termina_o_passo_e_vira() -> void:
 	Input.action_press("mover_frente")
 	await wait_seconds(0.6)
 	Input.action_release("mover_frente")
-	await wait_physics_frames(2)
-	assert_eq(personagem.casa_de(personagem.global_position), inicio + Vector2i(1, 0),
-		"Terminou o passo para trás e só virou: não voltou uma casa.")
-	assert_almost_eq(personagem.direcao_olhar, PersonagemExploracao.direcao_isometrica(Vector2(0, -1)), Vector2(0.001, 0.001))
+	await wait_seconds(0.6)
+	assert_eq(personagem.casa_de(personagem.global_position), inicio,
+		"Terminou o passo para trás e já voltou, sem parar para virar.")
+
+
+func test_parado_ha_pouco_ainda_conta_como_andando() -> void:
+	personagem.direcao_olhar = PersonagemExploracao.direcao_isometrica(Vector2(0, 1))
+	Input.action_press("mover_tras")
+	await wait_physics_frames(3)
+	Input.action_release("mover_tras")
+	await wait_until(func() -> bool: return not personagem.indo_para_casa(), 2.0)
+	var depois_do_passo := personagem.global_position
+	Input.action_press("mover_direita")
+	await wait_physics_frames(3)
+	assert_ne(personagem.global_position, depois_do_passo, "Acabou de andar: vira e segue.")
+	Input.action_release("mover_direita")

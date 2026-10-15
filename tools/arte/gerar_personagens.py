@@ -307,10 +307,10 @@ def cor_braco(cfg):
 def corpo_frente(q, cfg, x, yt, quadril, larg, b_esq, b_dir, alcance, saia_voa):
     roupa = cfg['roupa']
     comp = quadril - yt - 1
-    manga = cor_braco(cfg)
+    cor_manga = cor_braco(cfg)
     aba = cfg.get('aba', 0)          # túnica que desce por cima das coxas
     if roupa == 'colete':
-        braco(q, x - larg - 2, yt + 1, b_esq, comp, manga, manga + '_sombra')
+        braco(q, x - larg - 2, yt + 1, b_esq, comp, cor_manga, cor_manga + '_sombra')
         q.r(x - larg, yt, x + larg, quadril + aba, 'colete')
         q.r(x - larg, yt, x - larg + 1, quadril + aba, 'colete_sombra')
         q.r(x, yt, x, quadril - 1, 'camisa')                       # camisa na abertura
@@ -322,12 +322,12 @@ def corpo_frente(q, cfg, x, yt, quadril, larg, b_esq, b_dir, alcance, saia_voa):
         for yy in (yt + 3, yt + 6):
             q.p(x + 1, yy, 'camisa_sombra')                        # botões simples
         if alcance:
-            braco_estendido(q, x + larg + 1, yt + 2, alcance, manga)
+            braco_estendido(q, x + larg + 1, yt + 2, alcance, cor_manga)
         else:
-            braco(q, x + larg + 1, yt + 1, b_dir, comp, manga)
+            braco(q, x + larg + 1, yt + 1, b_dir, comp, cor_manga)
     else:
         hem = PE - (3 if roupa == 'vestido_longo' else 5)
-        braco(q, x - larg - 2, yt + 1, b_esq, comp, manga, manga + '_sombra')
+        braco(q, x - larg - 2, yt + 1, b_esq, comp, cor_manga, cor_manga + '_sombra')
         q.r(x - larg, yt, x + larg, quadril, 'vestido')
         # saia em A até a barra (abre 1 pixel a cada saia_passo linhas)
         for i, yy in enumerate(range(quadril, hem + 1)):
@@ -338,27 +338,27 @@ def corpo_frente(q, cfg, x, yt, quadril, larg, b_esq, b_dir, alcance, saia_voa):
         q.r(x + 1, yt + 1, x + 2, yt + 3, 'vestido_luz')
         q.r(x - 1, yt, x + 1, yt, 'pele')                          # decote
         if alcance:
-            braco_estendido(q, x + larg + 1, yt + 2, alcance, manga)
+            braco_estendido(q, x + larg + 1, yt + 2, alcance, cor_manga)
         else:
-            braco(q, x + larg + 1, yt + 1, b_dir, comp, manga)
+            braco(q, x + larg + 1, yt + 1, b_dir, comp, cor_manga)
 
 
 def corpo_costas(q, cfg, x, yt, quadril, larg, b_esq, b_dir, alcance, saia_voa):
     roupa = cfg['roupa']
     comp = quadril - yt - 1
-    manga = cor_braco(cfg)
+    cor_manga = cor_braco(cfg)
     aba = cfg.get('aba', 0)
     if alcance:
-        braco_estendido(q, x + larg + 1, yt + 2, alcance, manga)
+        braco_estendido(q, x + larg + 1, yt + 2, alcance, cor_manga)
     else:
-        braco(q, x + larg + 1, yt + 1, b_dir, comp, manga)
+        braco(q, x + larg + 1, yt + 1, b_dir, comp, cor_manga)
     if roupa == 'colete':
         q.r(x - larg, yt, x + larg, quadril + aba, 'colete')
         q.r(x - larg, yt, x - larg + 1, quadril + aba, 'colete_sombra')
         q.r(x - 1, yt + 2, x + 1, yt + 2, 'colete_sombra')        # costura das costas
         if not aba:
             q.r(x - larg, quadril, x + larg, quadril, 'calca')
-        braco(q, x - larg - 2, yt + 1, b_esq, comp, manga, manga + '_sombra')
+        braco(q, x - larg - 2, yt + 1, b_esq, comp, cor_manga, cor_manga + '_sombra')
     else:
         hem = PE - (3 if roupa == 'vestido_longo' else 5)
         q.r(x - larg, yt, x + larg, quadril, 'vestido')
@@ -368,7 +368,7 @@ def corpo_costas(q, cfg, x, yt, quadril, larg, b_esq, b_dir, alcance, saia_voa):
             q.p(x - a - saia_voa, yy, 'vestido_sombra')
         q.r(x - larg, yt, x - larg, quadril, 'vestido_sombra')
         q.r(x, yt + 1, x, quadril - 1, 'vestido_sombra')          # laço/costura
-        braco(q, x - larg - 2, yt + 1, b_esq, comp, manga, manga + '_sombra')
+        braco(q, x - larg - 2, yt + 1, b_esq, comp, cor_manga, cor_manga + '_sombra')
 
 
 def braco_costas(q, cfg, x, yt, quadril, larg, b_esq, b_dir, alcance):

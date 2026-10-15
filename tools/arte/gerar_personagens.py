@@ -77,13 +77,36 @@ PERSONAGENS = {
             calca='#D9D4CA', calca_sombra='#A9A398',   # meias claras
         ),
     ),
-    # Ophelia aos 11: mais alta que Nicholas; pele escura "tal qual caramelo";
-    # vestido simples rubro, a cor do Império; cabelo longo ondulado passando
-    # da cintura, com duas tranças que saem das têmporas e se encontram atrás
-    # da cabeça; olhos azul-pálidos. Cabelo escuro: inferência pela garota da
-    # visão; no palácio o livro não diz a cor.
+    # Ophelia aos 11: pele escura "tal qual caramelo"; vestido simples rubro,
+    # a cor do Império; cabelo longo ondulado passando da cintura, com duas
+    # tranças que saem das têmporas e se encontram atrás da cabeça; olhos
+    # azul-pálidos. Cabelo escuro: inferência pela garota da visão; no palácio
+    # o livro não diz a cor. O livro diz que ela é mais alta que Nicholas, mas
+    # Rafael pediu (15/10) os dois da mesma altura em cada idade.
     'ophelia_11': dict(
-        topo=12, tronco=10, largura=4, cabelo='longo', roupa='vestido_longo',
+        topo=17, tronco=9, largura=4, cabelo='longo', roupa='vestido_longo',
+        pele=dict(pele_luz='#C48A5E', pele='#A06A44', pele_sombra='#76482C'),
+        cores=dict(
+            cab_luz='#5C4234', cab='#3A2820', cab_sombra='#24170F', cab_fundo='#170E09',
+            vestido_luz='#B8343A', vestido='#8E1F25', vestido_sombra='#5E1218',
+            calca='#5E1218', calca_sombra='#3E0B10',
+        ),
+    ),
+    # Ophelia adolescente e adulta: a mesma Ophelia crescida (mesmo cabelo,
+    # tranças e vestido rubro). O livro ainda não mostrou como ela é nessas
+    # idades: inferência, provisória. A adolescente fica entre Nicholas aos 11
+    # e o adulto; a adulta tem a altura do Nicholas adulto (gerar_nicholas.py).
+    'ophelia_adolescente': dict(
+        topo=10, tronco=11, largura=4, cabelo='longo', roupa='vestido_longo', saia_passo=4,
+        pele=dict(pele_luz='#C48A5E', pele='#A06A44', pele_sombra='#76482C'),
+        cores=dict(
+            cab_luz='#5C4234', cab='#3A2820', cab_sombra='#24170F', cab_fundo='#170E09',
+            vestido_luz='#B8343A', vestido='#8E1F25', vestido_sombra='#5E1218',
+            calca='#5E1218', calca_sombra='#3E0B10',
+        ),
+    ),
+    'ophelia_adulta': dict(
+        topo=4, tronco=12, largura=4, cabelo='longo', roupa='vestido_longo', saia_passo=5,
         pele=dict(pele_luz='#C48A5E', pele='#A06A44', pele_sombra='#76482C'),
         cores=dict(
             cab_luz='#5C4234', cab='#3A2820', cab_sombra='#24170F', cab_fundo='#170E09',
@@ -270,9 +293,9 @@ def corpo_frente(q, cfg, x, yt, quadril, larg, b_esq, b_dir, alcance, saia_voa):
         hem = PE - (3 if roupa == 'vestido_longo' else 5)
         braco(q, x - larg - 2, yt + 1, b_esq, comp, 'vestido', 'vestido_sombra')
         q.r(x - larg, yt, x + larg, quadril, 'vestido')
-        # saia em A até a barra
+        # saia em A até a barra (abre 1 pixel a cada saia_passo linhas)
         for i, yy in enumerate(range(quadril, hem + 1)):
-            a = larg + 1 + i // 3
+            a = larg + 1 + i // cfg.get('saia_passo', 3)
             q.r(x - a - saia_voa, yy, x + a, yy, 'vestido')
             q.p(x - a - saia_voa, yy, 'vestido_sombra')
         q.r(x - larg, yt, x - larg, quadril, 'vestido_sombra')
@@ -301,7 +324,7 @@ def corpo_costas(q, cfg, x, yt, quadril, larg, b_esq, b_dir, alcance, saia_voa):
         hem = PE - (3 if roupa == 'vestido_longo' else 5)
         q.r(x - larg, yt, x + larg, quadril, 'vestido')
         for i, yy in enumerate(range(quadril, hem + 1)):
-            a = larg + 1 + i // 3
+            a = larg + 1 + i // cfg.get('saia_passo', 3)
             q.r(x - a - saia_voa, yy, x + a, yy, 'vestido')
             q.p(x - a - saia_voa, yy, 'vestido_sombra')
         q.r(x - larg, yt, x - larg, quadril, 'vestido_sombra')

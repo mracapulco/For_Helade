@@ -7,6 +7,8 @@ const FOLHAS := [
 	"res://assets/art/personagens/nicholas/nicholas_11_exploracao.tres",
 	"res://assets/art/personagens/althea/althea_6_exploracao.tres",
 	"res://assets/art/personagens/ophelia/ophelia_11_exploracao.tres",
+	"res://assets/art/personagens/ophelia/ophelia_adolescente_exploracao.tres",
+	"res://assets/art/personagens/ophelia/ophelia_adulta_exploracao.tres",
 ]
 const ACOES := ["parado", "andando", "correndo", "interagindo"]
 const DIRECOES := ["frente", "costas"]
@@ -26,14 +28,26 @@ func test_cada_folha_tem_todas_as_animacoes() -> void:
 		assert_false(quadros.get_animation_loop(&"interagindo_frente"), caminho)
 
 
-func test_criancas_menores_que_o_adulto_e_ophelia_mais_alta_que_nicholas() -> void:
+func test_criancas_menores_que_o_adulto() -> void:
 	var nicholas := _altura("res://assets/art/personagens/nicholas/nicholas_11_exploracao.tres")
 	var althea := _altura("res://assets/art/personagens/althea/althea_6_exploracao.tres")
-	var ophelia := _altura("res://assets/art/personagens/ophelia/ophelia_11_exploracao.tres")
 	var adulto := _altura("res://assets/art/personagens/nicholas/nicholas_exploracao.tres")
 	assert_lt(althea, nicholas)
-	assert_lt(nicholas, ophelia)
-	assert_lt(ophelia, adulto)
+	assert_lt(nicholas, adulto)
+
+
+# Rafael pediu (15/10) Ophelia da altura de Nicholas em cada idade. A
+# diferença de 1 pixel é a mecha espetada do cabelo dele.
+func test_ophelia_da_altura_de_nicholas_em_cada_idade() -> void:
+	var nicholas := _altura("res://assets/art/personagens/nicholas/nicholas_11_exploracao.tres")
+	var adulto := _altura("res://assets/art/personagens/nicholas/nicholas_exploracao.tres")
+	var crianca := _altura("res://assets/art/personagens/ophelia/ophelia_11_exploracao.tres")
+	var adolescente := _altura("res://assets/art/personagens/ophelia/ophelia_adolescente_exploracao.tres")
+	var adulta := _altura("res://assets/art/personagens/ophelia/ophelia_adulta_exploracao.tres")
+	assert_almost_eq(crianca, nicholas, 1)
+	assert_almost_eq(adulta, adulto, 1)
+	assert_gt(adolescente, crianca)
+	assert_lt(adolescente, adulta)
 
 
 # Altura do desenho no primeiro quadro parado de frente, em pixels.

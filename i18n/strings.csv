@@ -98,11 +98,14 @@ BOLSA_BOTAO,Bolsa
 BOLSA_TITULO,Bolsa
 BOLSA_FECHAR,Fechar
 BOLSA_MOEDAS,Moedas: %d
-BOLSA_ABA_ARMAS,Armas
-BOLSA_ABA_EQUIPAMENTO,Equipamento
-BOLSA_ABA_CONSUMIVEIS,Consumíveis
-BOLSA_ABA_HISTORIA,História
-BOLSA_ABA_DIVERSOS,Diversos
+BOLSA_ESPACOS,Espaços: %d/%d
+BOLSA_BARRA_RAPIDA,Barra rápida (teclas 1 a 9)
+BOLSA_ITENS_HISTORIA,Itens da história
+BOLSA_MOVER,Toque em outro espaço para mudar o item de lugar.
+BOLSA_IDADE,Idade: %s
+BOLSA_IDADE_CRIANCA,Criança
+BOLSA_IDADE_ADOLESCENTE,Adolescente
+BOLSA_IDADE_ADULTO,Adulto
 BOLSA_VAZIA,Nada aqui ainda.
 BOLSA_ESCOLHA_ITEM,Toque num item para ver os detalhes.
 BOLSA_ITEM_DA_HISTORIA,Item da história: não pode ser largado.

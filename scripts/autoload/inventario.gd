@@ -267,6 +267,20 @@ func largar(id: String, qtd: int = 1) -> bool:
 	return remover(id, qtd)
 
 
+## Ação do jogador na grade: joga fora uma unidade daquele espaço.
+func largar_espaco(indice: int) -> bool:
+	var conteudo := espaco(indice)
+	if conteudo.is_empty():
+		return false
+	var dados := item(conteudo["id"])
+	_tirar_do_espaco(indice, 1)
+	_ajustar_tamanho()
+	_desequipar_excedente(dados.id)
+	espacos_mudaram.emit()
+	mudou.emit(dados.id, quantidade(dados.id))
+	return true
+
+
 ## Ação do jogador: usa um consumível em um personagem e gasta uma
 ## unidade. O efeito (cura etc.) fica com quem ouve [signal item_usado].
 func usar(id: String, personagem: String) -> bool:

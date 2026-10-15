@@ -52,10 +52,10 @@ CONVIDADOS = {
     # armação redonda escura. Mercadora de livros e poções, com roupa da época:
     # vestido longo escuro (o preto de sempre dela) e sapatos de couro.
     'shara': dict(
-        topo=8, tronco=11, largura=4, cabelo='chanel', roupa='vestido_longo',
-        pele=PELE_CLARA, olho='#6E6A48', oculos='#1A1A20',
+        topo=8, tronco=11, largura=4, cabelo='longo', roupa='vestido_longo',
+        pele=PELE_CLARA, olho='#5FA070', oculos='#1A1A20',
         cores=dict(
-            cab_luz='#A07A54', cab='#7A5838', cab_sombra='#573C24', cab_fundo='#3A2716',
+            cab_luz='#A87A52', cab='#7C5434', cab_sombra='#583A22', cab_fundo='#3C2614',
             vestido_luz='#4A4A58', vestido='#2C2C36', vestido_sombra='#1A1A22',
             calca='#1A1A22', calca_sombra='#101016',
             sapato='#4A3428', sapato_sombra='#2E2019',

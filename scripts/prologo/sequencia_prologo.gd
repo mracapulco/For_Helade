@@ -31,8 +31,9 @@ signal terminou
 ## O único botão da cena, com o nome "Althea?".
 @export var botao_nome: Button
 @export var tela_final: TelaFinal
-## Para onde o jogo vai depois do título. Vazio: fica no título (testes).
-@export var cena_depois := "res://scenes/main/main.tscn"
+## Para onde o jogo vai depois do título: o mapa de Hélade, já no reino da
+## primeira fase. Vazio: fica no título (testes).
+@export var cena_depois := "res://scenes/mapa/mapa_helade.tscn"
 ## Parte da história salva ao terminar o prólogo.
 @export var etapa_salva := "capitulo_1"
 ## Multiplica todos os tempos da sequência (os testes usam valores pequenos).

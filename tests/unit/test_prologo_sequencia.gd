@@ -105,3 +105,11 @@ func test_roteiro_tem_todos_os_trechos_da_sequencia() -> void:
 	assert_true(desde[0].ends_with("sussurravam:"), desde[0])
 	var parabens: Array[String] = await cena.frases_de("parabens")
 	assert_eq(parabens[0], "— Parabéns Jovem Mestre, é uma menina.")
+
+
+func test_ao_terminar_vai_para_o_mapa_no_capitulo_1() -> void:
+	var nova: SequenciaPrologo = CENA.instantiate().get_node("Sequencia")
+	assert_eq(nova.cena_depois, "res://scenes/mapa/mapa_helade.tscn")
+	assert_eq(nova.etapa_salva, "capitulo_1")
+	assert_eq(FasesHistoria.da_etapa(nova.etapa_salva).local, "atenas")
+	nova.get_parent().free()

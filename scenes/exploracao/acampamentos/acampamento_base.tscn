@@ -22,6 +22,7 @@
 [ext_resource type="Texture2D" path="res://assets/art/placeholders/acampamento/viajante.png" id="20_viajante"]
 [ext_resource type="Texture2D" path="res://assets/art/placeholders/acampamento/placa_saida.png" id="21_placa"]
 [ext_resource type="Texture2D" path="res://assets/art/placeholders/acampamento/barco.png" id="22_barco"]
+[ext_resource type="Script" path="res://scripts/ui/barra_rapida.gd" id="90_barra"]
 
 [sub_resource type="CircleShape2D" id="Forma_personagem"]
 radius = 7.0
@@ -252,6 +253,9 @@ shape = SubResource("Toque_figurante")
 [node name="TelaBolsa" parent="." instance=ExtResource("13_bolsa")]
 
 [node name="AvisoItens" parent="." instance=ExtResource("14_aviso")]
+
+[node name="BarraRapida" type="CanvasLayer" parent="."]
+script = ExtResource("90_barra")
 
 [node name="Interface" type="CanvasLayer" parent="."]
 layer = 5

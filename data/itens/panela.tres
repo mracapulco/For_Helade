@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="Item" format=3]
+
+[ext_resource type="Script" path="res://scripts/systems/item.gd" id="1_item"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholders/combate/icone_panela.png" id="2_icone"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholders/combate/panela_na_mao.png" id="3_na_mao"]
+
+[resource]
+script = ExtResource("1_item")
+id = "panela"
+chave_nome = "ITEM_PANELA_NOME"
+chave_descricao = "ITEM_PANELA_DESC"
+icone = ExtResource("2_icone")
+visual_na_mao = ExtResource("3_na_mao")
+pega_na_mao = Vector2i(1, 1)
+tipo = 1
+encaixe = 4
+preco = 5
+nivel = 0
+ataque = 1
+defesa = 2

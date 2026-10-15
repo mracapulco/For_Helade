@@ -34,12 +34,66 @@ OPCOES_SECAO_SOM,Som
 OPCOES_VOLUME_GERAL,Volume geral
 OPCOES_VOLUME_MUSICA,Música
 OPCOES_VOLUME_EFEITOS,Efeitos sonoros
-ITEM_ESPADA_TESTE_NOME,Espada de teste
-ITEM_ESPADA_TESTE_DESC,Provisória. Só para testar o inventário.
 ITEM_POCAO_TESTE_NOME,Poção de teste
 ITEM_POCAO_TESTE_DESC,Provisória. Recupera um pouco de vida.
+ITEM_POCAO_CURA_NOME,Poção de cura
+ITEM_POCAO_CURA_DESC,Provisória. Fecha as feridas e devolve parte da vida.
+ITEM_POCAO_RAPIDEZ_NOME,Poção de rapidez
+ITEM_POCAO_RAPIDEZ_DESC,"Provisória. Por um tempo, anda e golpeia mais rápido."
+ITEM_POCAO_VIGOR_NOME,Poção de vigor
+ITEM_POCAO_VIGOR_DESC,"Provisória. Por um tempo, aguenta mais golpes."
 ITEM_CARTA_TESTE_NOME,Carta de teste
 ITEM_CARTA_TESTE_DESC,Provisória. Item da história: não pode ser largado.
+ITEM_ESPADA_GRANDE_NOME,Espada grande
+ITEM_ESPADA_GRANDE_DESC,"Duas mãos. Golpe forte e um pouco de defesa, mas mais lenta e sem escudo."
+ITEM_MACHADO_GUERRA_NOME,Machado de guerra grande
+ITEM_MACHADO_GUERRA_DESC,"Duas mãos. O golpe mais forte de todos, porém lento e sem escudo."
+ITEM_ARCO_NOME,Arco e flecha
+ITEM_ARCO_DESC,"Duas mãos. Acerta de longe e é leve, mas o tiro é fraco."
+ITEM_ESPADA_MEDIA_NOME,Espada média
+ITEM_ESPADA_MEDIA_DESC,"Uma mão. Equilibrada: bate bem, defende um pouco e é ágil."
+ITEM_MACHADO_PEQUENO_NOME,Machado pequeno
+ITEM_MACHADO_PEQUENO_DESC,"Uma mão. Bate forte para o tamanho, sem defesa."
+ITEM_PUNHAL_NOME,Punhal
+ITEM_PUNHAL_DESC,"Uma mão. Fraco, mas muito rápido."
+ITEM_MACA_NOME,Maça
+ITEM_MACA_DESC,"Uma mão. Pesada: bate forte e protege um pouco, mas é mais lenta."
+ITEM_ESCUDO_OLYMPIA_NOME,Escudo de Olympia
+ITEM_ESCUDO_OLYMPIA_DESC,"Na mão livre. Boa defesa, deixa um pouco mais lento. Cores de Olympia."
+ITEM_ESCUDO_AGAPE_NOME,Escudo de Ágape
+ITEM_ESCUDO_AGAPE_DESC,"Na mão livre. Boa defesa, deixa um pouco mais lento. Cores de Ágape."
+ITEM_ESCUDO_KHRONOSSES_NOME,Escudo de Khronosses
+ITEM_ESCUDO_KHRONOSSES_DESC,"Na mão livre. Boa defesa, deixa um pouco mais lento. Cores de Khronosses."
+ITEM_ESCUDO_BANDIDOS_NOME,Escudo de bandido
+ITEM_ESCUDO_BANDIDOS_DESC,"Na mão livre. Boa defesa, deixa um pouco mais lento. Peça de bandido."
+ITEM_ARMADURA_LEVE_OLYMPIA_NOME,Armadura leve de Olympia
+ITEM_ARMADURA_LEVE_OLYMPIA_DESC,"Couro. Protege e não atrapalha os movimentos. Cores de Olympia."
+ITEM_ARMADURA_LEVE_AGAPE_NOME,Armadura leve de Ágape
+ITEM_ARMADURA_LEVE_AGAPE_DESC,"Couro. Protege e não atrapalha os movimentos. Cores de Ágape."
+ITEM_ARMADURA_LEVE_KHRONOSSES_NOME,Armadura leve de Khronosses
+ITEM_ARMADURA_LEVE_KHRONOSSES_DESC,"Couro. Protege e não atrapalha os movimentos. Cores de Khronosses."
+ITEM_ARMADURA_LEVE_BANDIDOS_NOME,Armadura leve de bandido
+ITEM_ARMADURA_LEVE_BANDIDOS_DESC,"Couro. Protege e não atrapalha os movimentos. Peça de bandido."
+ITEM_ARMADURA_PESADA_OLYMPIA_NOME,Armadura pesada de Olympia
+ITEM_ARMADURA_PESADA_OLYMPIA_DESC,"Metal. Muita proteção, mas deixa bem mais lento. Cores de Olympia."
+ITEM_ARMADURA_PESADA_AGAPE_NOME,Armadura pesada de Ágape
+ITEM_ARMADURA_PESADA_AGAPE_DESC,"Metal. Muita proteção, mas deixa bem mais lento. Cores de Ágape."
+ITEM_ARMADURA_PESADA_KHRONOSSES_NOME,Armadura pesada de Khronosses
+ITEM_ARMADURA_PESADA_KHRONOSSES_DESC,"Metal. Muita proteção, mas deixa bem mais lento. Cores de Khronosses."
+ITEM_ARMADURA_PESADA_BANDIDOS_NOME,Armadura pesada de bandido
+ITEM_ARMADURA_PESADA_BANDIDOS_DESC,"Metal. Muita proteção, mas deixa bem mais lento. Peça de bandido."
+ITEM_ELMO_OLYMPIA_NOME,Elmo de Olympia
+ITEM_ELMO_OLYMPIA_DESC,"Protege a cabeça. Deixa um pouco mais lento. Cores de Olympia."
+ITEM_ELMO_AGAPE_NOME,Elmo de Ágape
+ITEM_ELMO_AGAPE_DESC,"Protege a cabeça. Deixa um pouco mais lento. Cores de Ágape."
+ITEM_ELMO_KHRONOSSES_NOME,Elmo de Khronosses
+ITEM_ELMO_KHRONOSSES_DESC,"Protege a cabeça. Deixa um pouco mais lento. Cores de Khronosses."
+ITEM_ELMO_BANDIDOS_NOME,Elmo de bandido
+ITEM_ELMO_BANDIDOS_DESC,"Protege a cabeça. Deixa um pouco mais lento. Peça de bandido."
+ITEM_CAIXA_FRUTAS_NOME,Caixa de frutas
+ITEM_CAIXA_FRUTAS_DESC,"Na mão livre. Improviso: a caixa vazia (as frutas ficaram onde ela estava). Protege pouco, mas é melhor que nada."
+ITEM_PANELA_NOME,Panela
+ITEM_PANELA_DESC,"Na mão livre. Improviso: protege pouco e ainda dá para bater com ela."
 BOLSA_BOTAO,Bolsa
 BOLSA_TITULO,Bolsa
 BOLSA_FECHAR,Fechar
@@ -52,6 +106,15 @@ BOLSA_ABA_DIVERSOS,Diversos
 BOLSA_VAZIA,Nada aqui ainda.
 BOLSA_ESCOLHA_ITEM,Toque num item para ver os detalhes.
 BOLSA_ITEM_DA_HISTORIA,Item da história: não pode ser largado.
+BOLSA_ATAQUE,Ataque %+d
+BOLSA_DEFESA,Defesa %+d
+BOLSA_VELOCIDADE,Velocidade %+d%%
+BOLSA_ALCANCE,Longo alcance
+BOLSA_DUAS_MAOS,Duas mãos
+BOLSA_CURA,Vida +%d
+BOLSA_VELOCIDADE_TEMPORARIA,Velocidade %+d%% por %ds
+BOLSA_VIDA_EXTRA,Vida máxima %+d por %ds
+HUD_VIDA,Vida %d/%d
 BOLSA_USAR,Usar
 BOLSA_EQUIPAR,Equipar
 BOLSA_DESEQUIPAR,Desequipar
@@ -60,6 +123,7 @@ BOLSA_EQUIPADO,(equipado)
 AVISO_MOEDAS,+ %d moedas
 AVISO_OLHAR,Olhar de Nicholas: %s
 AVISO_CODICE,Códice: %s
+AVISO_BOLSA_CHEIA,Bolsa cheia
 MAPA_OLYMPIA_NOME,Olympia
 MAPA_OLYMPIA_REGIAO,"Sul, costa gélida"
 MAPA_ATENAS_NOME,Atenas
@@ -135,3 +199,12 @@ ITEM_AGUA_LUMINOSA_AGAPE_NOME,Frasco de água luminosa de Ágape
 ITEM_AGUA_LUMINOSA_AGAPE_DESC,"Presente de Chymeía, por acertar a charada. A água brilha no escuro."
 ITEM_SAL_DO_MAR_NOME,Saquinho de sal do mar
 ITEM_SAL_DO_MAR_DESC,"Presente de Chymeía, pela segunda charada."
+PAUSA_TITULO,Pausa
+PAUSA_BOTAO,Pausa
+PAUSA_VOLTAR_AO_JOGO,Voltar ao jogo
+PAUSA_MENU_INICIAL,Menu inicial
+PAUSA_SAIR,Sair do jogo
+PAUSA_CONFIRMAR_MENU,"Voltar ao menu inicial? O que não foi salvo será perdido."
+PAUSA_CONFIRMAR_SAIR,"Sair do jogo? O que não foi salvo será perdido."
+PAUSA_CONFIRMAR_SIM,Sim
+PAUSA_CONFIRMAR_NAO,Não

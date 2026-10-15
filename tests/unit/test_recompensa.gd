@@ -91,3 +91,15 @@ func test_bau_pego_mostra_o_desenho_aberto() -> void:
 	_bau_interagivel().interagir()
 	assert_eq(visual.texture, aberto)
 	assert_eq(visual.modulate, Color.WHITE, "com desenho aberto, não escurece")
+
+
+func test_bolsa_cheia_deixa_o_bau_fechado() -> void:
+	while Inventario.adicionar("espada_media"):
+		pass
+	while Inventario.adicionar("pocao_teste"):
+		pass
+	var pocoes := Inventario.quantidade("pocao_teste")
+	_bau_interagivel().interagir()
+	assert_eq(Inventario.quantidade("pocao_teste"), pocoes)
+	assert_has(aviso.textos(), "Bolsa cheia")
+	assert_not_null(_bau_interagivel())

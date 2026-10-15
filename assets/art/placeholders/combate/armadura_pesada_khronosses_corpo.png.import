@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bsrkvf5pejima"
-path="res://.godot/imported/icone_espada.png-0005b4711d19b365b1f1ea1438371032.ctex"
+uid="uid://b1gemqwsp8gqa"
+path="res://.godot/imported/armadura_pesada_khronosses_corpo.png-7f115ccc33488b14c1a95ffcae04d88f.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/art/placeholders/itens/icone_espada.png"
-dest_files=["res://.godot/imported/icone_espada.png-0005b4711d19b365b1f1ea1438371032.ctex"]
+source_file="res://assets/art/placeholders/combate/armadura_pesada_khronosses_corpo.png"
+dest_files=["res://.godot/imported/armadura_pesada_khronosses_corpo.png-7f115ccc33488b14c1a95ffcae04d88f.ctex"]
 
 [params]
 

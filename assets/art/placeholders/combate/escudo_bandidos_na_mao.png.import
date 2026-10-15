@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dj702jysrr6yw"
-path="res://.godot/imported/espada_na_mao.png-bd6d9740e141c664b734428c8c13b731.ctex"
+uid="uid://bucwqnk8qskcr"
+path="res://.godot/imported/escudo_bandidos_na_mao.png-c657c95ada564785c315d89fddd43885.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/art/placeholders/itens/espada_na_mao.png"
-dest_files=["res://.godot/imported/espada_na_mao.png-bd6d9740e141c664b734428c8c13b731.ctex"]
+source_file="res://assets/art/placeholders/combate/escudo_bandidos_na_mao.png"
+dest_files=["res://.godot/imported/escudo_bandidos_na_mao.png-c657c95ada564785c315d89fddd43885.ctex"]
 
 [params]
 

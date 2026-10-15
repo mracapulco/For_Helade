@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="Item" format=3]
+
+[ext_resource type="Script" path="res://scripts/systems/item.gd" id="1_item"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholders/combate/icone_machado_pequeno.png" id="2_icone"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholders/combate/machado_pequeno_na_mao.png" id="3_na_mao"]
+
+[resource]
+script = ExtResource("1_item")
+id = "machado_pequeno"
+chave_nome = "ITEM_MACHADO_PEQUENO_NOME"
+chave_descricao = "ITEM_MACHADO_PEQUENO_DESC"
+icone = ExtResource("2_icone")
+visual_na_mao = ExtResource("3_na_mao")
+pega_na_mao = Vector2i(2, 2)
+tipo = 0
+encaixe = 1
+preco = 40
+nivel = 1
+ataque = 10
+estilo_golpe = 1
+angulos_golpe = PackedFloat32Array(160, -60, 20)

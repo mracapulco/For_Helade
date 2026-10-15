@@ -5,17 +5,22 @@ extends Node2D
 ## Sequência (cada [member etapa] só avança na ordem):
 ## 1. sonho: corredor quente, Nicholas segue a garota até a porta (Enter ou
 ##    toque na porta) e ela se abre para o frio.
-## 2. quarto: Nicholas acorda de pijama; no espelho ele se veste (camisa
-##    branca e colete azul escuro) e só então a porta leva ao corredor.
-## 3. corredor: na porta de Althea ele espera; o cortejo de Pany chega com o
-##    bolo.
-## 4. quarto_althea: acordar Althea (a cama); ela se senta, pula da cama e
-##    abre o embrulho; depois vai para a mesa de chá, e falar com ela à mesa
-##    é sentar junto.
+## 2. quarto: Nicholas acorda de pijama; pega a roupa no armário (camisa
+##    branca e colete azul escuro), se veste no espelho e só então a porta
+##    leva ao corredor.
+## 3. corredor: na porta de Althea ele espera ("esperando"): olha para as
+##    duas extremidades do corredor e só então o cortejo de Pany chega com o
+##    bolo (escolha: reclamar da demora ou não).
+## 4. quarto_althea: acordar Althea (a cama, duas vezes); ela se senta e pula
+##    da cama ("aniversario"); Nicholas entrega o embrulho ("embrulho",
+##    depois "espada"); os presentes; ela vai para a mesa de chá, e falar com
+##    ela à mesa é sentar junto.
 ## 5. duque: Apollon entra, discute com Nicholas e manda os dois buscarem a
 ##    Princesa Ophelia; depois Althea e Nicholas mudam os planos do dia.
-## 6. carruagem: a caminho do Palácio Imperial ("Está bravo comigo, Nick?").
+## 6. carruagem: Nicholas olha pelas janelas (códice) e a caminho do Palácio
+##    Imperial vem a conversa ("Está bravo comigo, Nick?").
 ## 7. fim: o palácio (passo 3) ainda não existe, então o jogo volta ao menu.
+## O que Nicholas encontra vira nota no [code]Codice[/code] ("olhar").
 ## As salas são montadas por código ([SalaMontada]); os textos estão em
 ## data/dialogos/capitulo_01/manha.dialogue.
 
@@ -43,6 +48,12 @@ const TOM_FRIO := Color(0.55, 0.72, 1.0)
 const TOM_MADRUGADA := Color(0.55, 0.62, 0.88)
 const TOM_AMANHECER := Color(1.0, 0.9, 0.74)
 
+## As duas extremidades do corredor (casas do chão) para onde Nicholas olha
+## enquanto espera o cortejo.
+const EXTREMIDADES := {"extremidade_esq": Vector2i(1, 1), "extremidade_dir": Vector2i(25, 1)}
+## Casa do chão diante da porta de Althea, onde Nicholas espera.
+const PORTA_ALTHEA_CHAO := Vector2i(12, 1)
+
 ## Multiplica os tempos (os testes usam 0: tudo acontece na hora).
 @export var escala_tempo := 1.0
 ## Falso nos testes: as conversas passam direto, sem abrir a caixa.
@@ -57,10 +68,16 @@ var jogador: PersonagemExploracao
 var cena_pedida := ""
 ## Quando falso, o fim só anota a cena pedida, sem trocar (testes).
 var trocar_de_cena := true
+## Nicholas já pegou no armário a roupa separada na noite anterior.
+var pegou_roupas := false
 ## Nicholas já trocou o pijama pela roupa do dia, no espelho.
 var viu_espelho := false
 ## Já está com a roupa do dia (a troca no espelho terminou).
 var vestido := false
+## Extremidades do corredor para onde Nicholas já olhou, esperando o cortejo.
+var extremidades_vistas: Array[String] = []
+## Quantas vezes Nicholas já tocou Althea na cama.
+var toques_na_cama := 0
 
 ## Objetos da sala atual que a sequência usa.
 var objetos := {}
@@ -120,7 +137,8 @@ func montar_quarto() -> void:
 	_nova_sala(7, 6, TOM_MADRUGADA)
 	sala.abrir_vao(Vector2i(6, 0))
 	_objeto("cama", "cama_nicholas.png", Vector2i(2, 2))
-	_movel("armario", "armario.png", Vector2i(4, 1))
+	_movel("armario", "armario.png", Vector2i(4, 1), true).get_node("Interagivel") \
+		.interagido.connect(pegar_roupas)
 	_movel("bau", "bau.png", Vector2i(1, 2))
 	_objeto("espelho", "espelho.png", Vector2i(1, 4), true).get_node("Interagivel") \
 		.interagido.connect(olhar_espelho)
@@ -137,8 +155,22 @@ func montar_quarto() -> void:
 	_frases("frases_despertar")
 
 
+## "Vestiu uma camisa branca e o colete azul escuro que havia separado na
+## noite anterior": a roupa sai do armário.
+func pegar_roupas() -> void:
+	if etapa != "quarto" or pegou_roupas:
+		return
+	pegou_roupas = true
+	_ativar(objetos["armario"], false)
+	Codice.anotar("roupas_simples")
+
+
 func olhar_espelho() -> void:
 	if etapa != "quarto" or viu_espelho:
+		return
+	if not pegou_roupas:
+		# Sem a roupa, o espelho só mostra o quarto (e ele, pequeno diante dele).
+		_frases("frases_espelho_sem_roupa")
 		return
 	viu_espelho = true
 	_ativar(objetos["espelho"], false)
@@ -184,7 +216,14 @@ func montar_corredor() -> void:
 		"espada_placa_esq": Vector2i(15, 0), "quadro_norte_esq": Vector2i(17, 0),
 		"tocha_esq#3": Vector2i(18, 0), "tocha_esq#4": Vector2i(22, 0),
 		"arandela_dir": Vector2i(0, 1), "tapecaria_dir": Vector2i(0, 2)})
+	# Para onde ele olha enquanto espera: as duas extremidades do corredor.
+	for nome: String in EXTREMIDADES:
+		_ponto(nome, EXTREMIDADES[nome]).get_node("Interagivel").interagido \
+			.connect(olhar_extremidade.bind(nome))
 	_entrar(Vector2i(20, 1))
+	# Só depois de entrar na árvore (o _ready do Interagivel o liga de novo).
+	for nome: String in EXTREMIDADES:
+		_ativar(objetos[nome], false)
 	_mudar("corredor")
 	await _clarear()
 
@@ -193,9 +232,40 @@ func esperar_cortejo() -> void:
 	if etapa != "corredor":
 		return
 	_mudar("esperando")
-	_travar(true)
+	_ativar(objetos["porta_althea"], false)
 	_tingir(TOM_AMANHECER, 6.0)
-	await _frases("frases_esperando")
+	_frases("frases_esperando")
+	for nome: String in EXTREMIDADES:
+		_ativar(objetos[nome], true)
+
+
+## "Ele olhou para uma das extremidades do corredor. Depois para a outra.
+## Nada." Depois das duas, o cortejo chega.
+func olhar_extremidade(nome: String) -> void:
+	if etapa != "esperando" or extremidades_vistas.has(nome):
+		return
+	extremidades_vistas.append(nome)
+	_ativar(objetos[nome], false)
+	if extremidades_vistas.size() == 1:
+		Codice.anotar("faixa_dourada")
+	if extremidades_vistas.size() < EXTREMIDADES.size():
+		_frases("frases_nada")
+		return
+	_mudar("cortejo")
+	_travar(true)
+	await _frases("frases_nada")
+	await _frases("frases_cortejo_chega")
+	# Se ele ficou longe, volta para a porta de Althea (num piscar de olhos)
+	# antes de o cortejo chegar.
+	if _casa_de(jogador).distance_to(PORTA_ALTHEA_CHAO) > 2.0:
+		await _escurecer()
+		jogador.position = sala.centro(PORTA_ALTHEA_CHAO)
+		jogador.direcao_olhar = Vector2(-2, 1).normalized()
+		await _clarear()
+	await _chegada_do_cortejo()
+
+
+func _chegada_do_cortejo() -> void:
 	# O pequeno cortejo surge ao longe e vem até a porta.
 	var chegadas := {
 		"pany": [Vector2i(1, 2), Vector2i(11, 2)],
@@ -230,7 +300,8 @@ func montar_quarto_althea() -> void:
 		.interagido.connect(acordar_althea)
 	_movel("armario", "armario.png", Vector2i(3, 1))
 	_movel("bau", "bau.png", Vector2i(1, 1))
-	_objeto("embrulho", "embrulho.png", Vector2i(1, 3))
+	_objeto("embrulho", "embrulho.png", Vector2i(1, 3), true).get_node("Interagivel") \
+		.interagido.connect(entregar_embrulho)
 	_objeto("mesa", "mesa_cha.png", Vector2i(4, 4))
 	# Pany acende as seis velas enquanto as criadas arrumam o café.
 	_objeto("carrinho", "carrinho_bolo_aceso.png", Vector2i(5, 4))
@@ -240,21 +311,44 @@ func montar_quarto_althea() -> void:
 	_pendurar({"arandela_esq": Vector2i(2, 0), "quadro_olympia_esq": Vector2i(4, 0),
 		"arandela_esq#2": Vector2i(6, 0), "tapecaria_dir": Vector2i(0, 4)})
 	_entrar(Vector2i(3, 3))
+	# O embrulho só depois de Althea sair da cama.
+	_ativar(objetos["embrulho"], false)
 	_mudar("quarto_althea")
 	await _clarear()
 	_frases("frases_quarto_althea")
 
 
+## Primeiro toque: "Ela resmungou e apertou a pelúcia." No segundo, Nicholas
+## puxa o monstro marinho e ela acorda.
 func acordar_althea() -> void:
 	if etapa != "quarto_althea":
 		return
+	toques_na_cama += 1
+	if toques_na_cama == 1:
+		Codice.anotar("monstro_marinho")
+		_frases("frases_resmungou")
+		return
 	_mudar("aniversario")
 	_ativar(objetos["cama_althea"], false)
+	_travar(true)
+	await _frases("frases_puxou")
 	await _falar("acordar_althea")
 	await _levantar_althea()
+	# "O embrulho comprido apoiado ao lado da cama": Nicholas o entrega.
+	_travar(false)
+	_ativar(objetos["embrulho"], true)
+	_mudar("embrulho")
+
+
+func entregar_embrulho() -> void:
+	if etapa != "embrulho":
+		return
+	_mudar("espada")
+	_ativar(objetos["embrulho"], false)
 	await _falar("espada")
 	objetos["embrulho"].visible = false
 	_mudar("presentes")
+	Codice.anotar("presentes")
 	await _frases("frases_presentes")
 	# Quando a agitação diminui, Althea vai para a mesa de chá; falar com ela
 	# é sentar junto.
@@ -442,7 +536,10 @@ func montar_carruagem() -> void:
 	balanco.tween_property(sala, "position:y", 1.0, 0.35)
 	balanco.tween_property(sala, "position:y", 0.0, 0.35)
 	await _clarear()
+	Codice.anotar("imperatriz_callie")
 	await _frases("frases_carruagem")
+	# Antes da conversa, Nicholas olha pelas janelas (até se voltar para Althea).
+	await _falar_travado("janela")
 	await _falar_travado("carruagem")
 	await _escurecer()
 	balanco.kill()
@@ -501,10 +598,31 @@ func _pendurar(enfeites: Dictionary) -> void:
 
 
 ## Móvel em caixa isométrica, alinhado com as paredes.
-func _movel(nome: String, arquivo: String, casa: Vector2i) -> Node2D:
-	var objeto := sala.adicionar_objeto(nome.to_pascal_case(), load(ARTE + arquivo), casa, true, false, PE_CAIXA)
+func _movel(nome: String, arquivo: String, casa: Vector2i, interagivel := false) -> Node2D:
+	var objeto := sala.adicionar_objeto(nome.to_pascal_case(), load(ARTE + arquivo), casa, true,
+		interagivel, PE_CAIXA)
 	objetos[nome] = objeto
 	return objeto
+
+
+## Ponto invisível do chão com que dá para interagir (para onde olhar),
+## guardado em [member objetos] pelo nome. Não bloqueia a passagem.
+func _ponto(nome: String, casa: Vector2i) -> Node2D:
+	var ponto := Node2D.new()
+	ponto.name = nome.to_pascal_case()
+	ponto.position = sala.centro(casa)
+	var area := Interagivel.new()
+	area.name = "Interagivel"
+	var toque := CollisionShape2D.new()
+	toque.name = "AreaDeToque"
+	var forma := CircleShape2D.new()
+	forma.radius = SalaMontada.RAIO_TOQUE
+	toque.shape = forma
+	area.add_child(toque)
+	ponto.add_child(area)
+	sala.add_child(ponto)
+	objetos[nome] = ponto
+	return ponto
 
 
 ## Põe a sala pronta na cena e Nicholas na casa.

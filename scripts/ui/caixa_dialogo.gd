@@ -153,6 +153,9 @@ func apply_dialogue_line() -> void:
 
 	balloon.show()
 	will_hide_balloon = false
+	# Escolha sem fala antes: só os botões, sem a caixa de texto vazia.
+	$Balloon/Margem/Painel.visible = not (dialogue_line.text.is_empty() and dialogue_line.character.is_empty() \
+			and dialogue_line.responses.size() > 0)
 
 	dialogue_label.show()
 	if not dialogue_line.text.is_empty():

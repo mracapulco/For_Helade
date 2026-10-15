@@ -61,6 +61,15 @@ func _montar() -> void:
 		Vector4(0.38, 0.05, 0.045, 0), Vector4(0.36, 0.1, 0.07, 0), Vector4(0.33, 0.125, 0.08, 0),
 		Vector4(0.2, 0.11, 0.065, 0.0), Vector4(0.03, 0.11, 0.07, 0.0)], -PI, PI, 22), linho)
 	peito.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_SHADOWS_ONLY
+	# Pescoço e cabeça também só fazem sombra: a câmera fica dentro deles, mas
+	# sem eles a sombra no chão saía sem cabeça.
+	var so_sombra: Array[MeshInstance3D] = [
+		MalhaCorpo.peca(quadril, "Pescoco", MalhaCorpo.membro(0.08, [0.04, 0.04]), pele, Vector3(0, 0.45, -0.02)),
+		MalhaCorpo.peca(quadril, "Cabeca", MalhaCorpo.elipsoide(Vector3(0.085, 0.1, 0.095)), pele, Vector3(0, 0.52, -0.03)),
+		MalhaCorpo.peca(quadril, "Cabelo", MalhaCorpo.elipsoide(Vector3(0.09, 0.08, 0.1)), pele, Vector3(0, 0.56, -0.015)),
+	]
+	for peca in so_sombra:
+		peca.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_SHADOWS_ONLY
 	camisola = MalhaCorpo.peca(quadril, "Camisola", MalhaCorpo.anel([
 		Vector4(0.04, 0.0, 0.0, 0.0), Vector4(0.03, 0.11, 0.07, 0.0), Vector4(-0.05, 0.12, 0.082, -0.02),
 		Vector4(-0.1, 0.13, 0.092, -0.005), Vector4(-0.115, 0.13, 0.092, -0.005)], -PI, PI, 22), linho)
@@ -74,7 +83,8 @@ func _montar() -> void:
 		MalhaCorpo.peca(pe, "Calcanhar", MalhaCorpo.elipsoide(Vector3(0.026, 0.025, 0.03)), pele, Vector3(0, -0.01, 0.0))
 		for i in 5:
 			var r := 0.009 if i > 0 else 0.012
-			var x: float = (0.022 - i * 0.011) * lado
+			# O dedão (i = 0) fica do lado de dentro do pé.
+			var x: float = -(0.022 - i * 0.011) * lado
 			MalhaCorpo.peca(pe, "Dedo", MalhaCorpo.elipsoide(Vector3(r, r * 0.8, r * 1.3)), pele, Vector3(x, -0.022, -0.112 + absf(i - 0.5) * 0.004))
 		coxas.append(coxa)
 		joelhos.append(joelho)

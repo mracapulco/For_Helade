@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="Item" format=3]
+
+[ext_resource type="Script" path="res://scripts/systems/item.gd" id="1_item"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholders/combate/icone_arco.png" id="2_icone"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholders/combate/arco_na_mao.png" id="3_na_mao"]
+
+[resource]
+script = ExtResource("1_item")
+id = "arco"
+chave_nome = "ITEM_ARCO_NOME"
+chave_descricao = "ITEM_ARCO_DESC"
+icone = ExtResource("2_icone")
+visual_na_mao = ExtResource("3_na_mao")
+pega_na_mao = Vector2i(5, 14)
+tipo = 0
+encaixe = 1
+preco = 90
+nivel = 1
+ataque = 9
+velocidade = 10
+maos = 2
+estilo_golpe = 3
+alcance = 160.0
+angulos_golpe = PackedFloat32Array(0, 0, 0)

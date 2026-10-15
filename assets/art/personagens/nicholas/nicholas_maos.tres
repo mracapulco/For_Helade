@@ -21,3 +21,15 @@ angulos = {
 &"golpe_frente": PackedFloat32Array(180, -90, 0),
 &"golpe_costas": PackedFloat32Array(180, -90, 0)
 }
+pontos_tras = {
+&"parado_frente": PackedVector2Array(9, 30, 9, 31),
+&"andando_frente": PackedVector2Array(9, 32, 9, 30, 9, 30, 9, 30),
+&"correndo_frente": PackedVector2Array(10, 32, 10, 28, 10, 28, 10, 28),
+&"interagindo_frente": PackedVector2Array(9, 30, 9, 30, 9, 30),
+&"golpe_frente": PackedVector2Array(9, 30, 10, 31, 10, 31),
+&"parado_costas": PackedVector2Array(9, 30, 9, 31),
+&"andando_costas": PackedVector2Array(9, 32, 9, 30, 9, 30, 9, 30),
+&"correndo_costas": PackedVector2Array(10, 32, 10, 28, 10, 28, 10, 28),
+&"interagindo_costas": PackedVector2Array(9, 30, 9, 30, 9, 30),
+&"golpe_costas": PackedVector2Array(9, 30, 10, 31, 10, 31)
+}

@@ -17,6 +17,9 @@
 [ext_resource type="Resource" path="res://assets/art/personagens/nicholas/nicholas_maos.tres" id="24_maos"]
 [ext_resource type="Texture2D" path="res://assets/art/placeholders/itens/rastro_golpe.png" id="25_rastro"]
 [ext_resource type="Script" path="res://scripts/exploracao/reacao_golpe.gd" id="26_reacao"]
+[ext_resource type="Script" path="res://scripts/exploracao/camada_equipamento.gd" id="27_camada"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholders/combate/flecha.png" id="28_flecha"]
+[ext_resource type="Script" path="res://scripts/systems/vida.gd" id="29_vida"]
 [ext_resource type="Texture2D" path="res://assets/art/placeholders/exploracao/caixa_provisoria.png" id="9_caixa"]
 [ext_resource type="Texture2D" path="res://assets/art/placeholders/exploracao/personagem_provisorio.png" id="10_personagem"]
 [ext_resource type="Texture2D" path="res://assets/art/placeholders/exploracao/bau_fechado.png" id="15_bau_fechado"]
@@ -103,20 +106,45 @@ animation = &"parado_frente"
 offset = Vector2(0, -22)
 script = ExtResource("11_anim")
 
-[node name="ItemNaMao" type="Sprite2D" parent="Personagem/Corpo/Visual" node_paths=PackedStringArray("rastro")]
+[node name="CamadaArmadura" type="AnimatedSprite2D" parent="Personagem/Corpo/Visual"]
+script = ExtResource("27_camada")
+
+[node name="CamadaElmo" type="AnimatedSprite2D" parent="Personagem/Corpo/Visual"]
+script = ExtResource("27_camada")
+encaixe = 5
+
+[node name="ItemNaMao" type="Sprite2D" parent="Personagem/Corpo/Visual" node_paths=PackedStringArray("rastro", "flecha")]
 centered = false
 script = ExtResource("23_item_mao")
 maos = ExtResource("24_maos")
 rastro = NodePath("../Rastro")
+flecha = NodePath("../Flecha")
 
 [node name="Rastro" type="Sprite2D" parent="Personagem/Corpo/Visual"]
 visible = false
 texture = ExtResource("25_rastro")
 centered = false
 
-[node name="ReacaoAoGolpe" type="Node2D" parent="Personagem" node_paths=PackedStringArray("visual")]
+[node name="ProtecaoNaMao" type="Sprite2D" parent="Personagem/Corpo/Visual"]
+centered = false
+script = ExtResource("23_item_mao")
+maos = ExtResource("24_maos")
+encaixe = 4
+mao_de_tras = true
+
+[node name="Flecha" type="Sprite2D" parent="Personagem/Corpo/Visual"]
+visible = false
+texture = ExtResource("28_flecha")
+centered = false
+
+[node name="Vida" type="Node" parent="Personagem"]
+script = ExtResource("29_vida")
+id_inventario = "nicholas"
+
+[node name="ReacaoAoGolpe" type="Node2D" parent="Personagem" node_paths=PackedStringArray("visual", "vida")]
 script = ExtResource("26_reacao")
 visual = NodePath("../Corpo/Visual")
+vida = NodePath("../Vida")
 
 [node name="Colisao" type="CollisionShape2D" parent="Personagem" unique_id=2084710673]
 shape = SubResource("CircleShape2D_pn2jv")
@@ -199,6 +227,44 @@ itens = Dictionary[String, int]({
 })
 moedas = 15
 
+[node name="BauArmas" type="StaticBody2D" parent="." groups=["navegacao_obstaculos"]]
+position = Vector2(-224, 272)
+
+[node name="Visual" type="Sprite2D" parent="BauArmas"]
+texture = ExtResource("15_bau_fechado")
+offset = Vector2(0, -10)
+
+[node name="Colisao" type="CollisionShape2D" parent="BauArmas"]
+shape = SubResource("CircleShape2D_bau_corpo")
+
+[node name="Interagivel" type="Area2D" parent="BauArmas"]
+script = ExtResource("6_mcson")
+
+[node name="AreaDeToque" type="CollisionShape2D" parent="BauArmas/Interagivel"]
+position = Vector2(0, -12)
+shape = SubResource("CircleShape2D_bau_toque")
+
+[node name="Recompensa" type="Node" parent="BauArmas" node_paths=PackedStringArray("interagivel", "visual")]
+script = ExtResource("14_recompensa")
+interagivel = NodePath("../Interagivel")
+visual = NodePath("../Visual")
+textura_vazio = ExtResource("16_bau_aberto")
+itens = Dictionary[String, int]({
+"espada_grande": 1,
+"machado_guerra": 1,
+"arco": 1,
+"espada_media": 1,
+"machado_pequeno": 1,
+"punhal": 1,
+"maca": 1,
+"escudo": 1,
+"caixa_frutas": 1,
+"panela": 1,
+"armadura_leve": 1,
+"armadura_pesada": 1,
+"elmo": 1
+})
+
 [node name="GuardaTeste" type="StaticBody2D" parent="." groups=["navegacao_obstaculos"]]
 position = Vector2(256, 320)
 
@@ -206,9 +272,16 @@ position = Vector2(256, 320)
 texture = ExtResource("17_guarda")
 offset = Vector2(0, -22)
 
-[node name="ReacaoAoGolpe" type="Node2D" parent="GuardaTeste" node_paths=PackedStringArray("visual")]
+[node name="Vida" type="Node" parent="GuardaTeste"]
+script = ExtResource("29_vida")
+maxima = 60
+defesa = 5
+reviver_ao_morrer = true
+
+[node name="ReacaoAoGolpe" type="Node2D" parent="GuardaTeste" node_paths=PackedStringArray("visual", "vida")]
 script = ExtResource("26_reacao")
 visual = NodePath("../Visual")
+vida = NodePath("../Vida")
 
 [node name="Colisao" type="CollisionShape2D" parent="GuardaTeste"]
 shape = SubResource("CircleShape2D_figurante")

@@ -161,9 +161,32 @@ func equipar(personagem: String, id: String) -> bool:
 		return false
 	if not _equipado.has(personagem):
 		_equipado[personagem] = {}
+	# Arma de duas mãos e escudo não andam juntos: equipar um tira o outro.
+	if dados.duas_maos():
+		desequipar(personagem, Item.Encaixe.ESCUDO)
+	elif dados.encaixe == Item.Encaixe.ESCUDO:
+		var arma := item(equipado(personagem, Item.Encaixe.ARMA))
+		if arma and arma.duas_maos():
+			desequipar(personagem, Item.Encaixe.ARMA)
 	_equipado[personagem][dados.encaixe] = id
 	equipamento_mudou.emit(personagem, dados.encaixe, id)
 	return true
+
+
+## Itens que o personagem tem equipados, em todos os encaixes.
+func itens_equipados(personagem: String) -> Array[Item]:
+	var itens: Array[Item] = []
+	for encaixe: int in _equipado.get(personagem, {}):
+		var dados := item(_equipado[personagem][encaixe])
+		if dados:
+			itens.append(dados)
+	return itens
+
+
+## Ataque, defesa e velocidade do personagem com o que tem equipado
+## (Balanceamento.somar): { "ataque", "defesa", "velocidade" }.
+func atributos(personagem: String) -> Dictionary:
+	return Balanceamento.somar(itens_equipados(personagem))
 
 
 func desequipar(personagem: String, encaixe: Item.Encaixe) -> void:

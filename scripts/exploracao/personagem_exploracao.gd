@@ -9,7 +9,10 @@ extends CharacterBody2D
 ## Golpe: com uma arma equipada, o clique esquerdo (ou o botão Golpe, no
 ## celular) golpeia para onde ele andou por último. Clicar num interagível
 ## continua interagindo; sem arma, o clique continua andando. Quem estiver
-## perto, na frente dele, reage ao golpe (ReacaoAoGolpe).
+## perto, na frente dele, reage ao golpe (ReacaoAoGolpe) e perde vida se
+## tiver uma.
+## O equipamento muda o personagem (Balanceamento): o ataque do golpe, o
+## alcance da arma e a velocidade de andar e de golpear.
 ## Tocar num Interagivel: anda até ele e interage ao chegar.
 ## Durante uma conversa o personagem fica parado e ignora toques e teclas.
 ## Com uma [member grade], ele anda de casa em casa do chão e sempre para no
@@ -23,6 +26,8 @@ signal golpeou
 ## O golpe chegou ao corte e pegou estes alvos (pode ser vazio).
 signal acertou(alvos: Array[ReacaoAoGolpe])
 
+## Velocidade de andar sem equipamento. O equipamento aumenta ou diminui
+## (veja [method velocidade_andando]).
 @export var velocidade := 90.0
 ## Quanto mais rápido fica ao correr.
 @export var multiplicador_corrida := 1.5
@@ -32,11 +37,13 @@ signal acertou(alvos: Array[ReacaoAoGolpe])
 @export var duracao_pulo := 0.45
 ## Id do personagem no Inventario, para saber se está armado.
 @export var id_inventario := "nicholas"
-## Quanto dura um golpe (o tempo da animação). Enquanto isso ele não anda.
+## Quanto dura um golpe (o tempo da animação) sem bônus de velocidade.
+## Enquanto isso ele não anda.
 @export var duracao_golpe := 0.35
 ## Quando o corte acontece dentro do golpe (o quadro com o rastro).
 @export var momento_do_corte := 0.12
-## Até onde o golpe pega, a partir dos pés dele, em pixels.
+## Até onde o golpe pega, a partir dos pés dele, em pixels, quando a arma
+## não tem alcance próprio.
 @export var alcance_golpe := 40.0
 
 var andando := false
@@ -56,6 +63,8 @@ var _tempo_golpe := 0.0
 var _casa_destino := Vector2.INF
 var _casa_origem := Vector2.ZERO
 var _golpe_pendente := false
+## Multiplicador de velocidade do equipamento (1 = sem bônus).
+var _ritmo := 1.0
 
 @onready var agente: NavigationAgent2D = $Agente
 @onready var corpo: Node2D = $Corpo
@@ -66,6 +75,8 @@ func _ready() -> void:
 	add_to_group(Interagivel.GRUPO_JOGADOR)
 	DialogueManager.dialogue_started.connect(_ao_comecar_dialogo)
 	DialogueManager.dialogue_ended.connect(_ao_terminar_dialogo)
+	Inventario.equipamento_mudou.connect(_ao_mudar_equipamento)
+	_ao_mudar_equipamento(id_inventario, Item.Encaixe.NENHUM, "")
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -189,6 +200,37 @@ func armado() -> bool:
 	return not Inventario.equipado(id_inventario, Item.Encaixe.ARMA).is_empty()
 
 
+## Arma equipada agora, ou null.
+func arma() -> Item:
+	return Inventario.item(Inventario.equipado(id_inventario, Item.Encaixe.ARMA))
+
+
+## Multiplicador de velocidade do equipamento: 1,2 = 20% mais rápido.
+func ritmo() -> float:
+	return _ritmo
+
+
+## Velocidade de andar com o equipamento.
+func velocidade_andando() -> float:
+	return velocidade * _ritmo
+
+
+## Quanto dura o golpe com o equipamento (mais rápido, mais curto).
+func duracao_do_golpe() -> float:
+	return duracao_golpe / _ritmo
+
+
+## Ataque do golpe: o do personagem mais o do equipamento.
+func ataque() -> int:
+	return int(Inventario.atributos(id_inventario).ataque)
+
+
+## Até onde o golpe pega: o alcance da arma, se ela tiver um.
+func alcance_do_golpe() -> float:
+	var dados := arma()
+	return dados.alcance if dados and dados.alcance > 0.0 else alcance_golpe
+
+
 ## Golpe com a arma equipada, para onde ele está olhando ([member direcao_olhar]).
 ## Para de andar. Devolve false se não puder golpear agora (sem arma, em
 ## conversa ou no meio de outro golpe).
@@ -215,7 +257,7 @@ func alvos_do_golpe() -> Array[ReacaoAoGolpe]:
 		var alvo := no as ReacaoAoGolpe
 		if alvo == null or is_ancestor_of(alvo):
 			continue
-		if pega_no_golpe(global_position, direcao_olhar, alvo.global_position, alcance_golpe):
+		if pega_no_golpe(global_position, direcao_olhar, alvo.global_position, alcance_do_golpe()):
 			alvos.append(alvo)
 	return alvos
 
@@ -322,7 +364,7 @@ func _physics_process(delta: float) -> void:
 	if em_dialogo or golpeando:
 		velocity = Vector2.ZERO
 		return
-	var rapidez := velocidade
+	var rapidez := velocidade_andando()
 	if Input.is_action_pressed("correr"):
 		rapidez *= multiplicador_corrida
 
@@ -401,12 +443,14 @@ func _atualizar_golpe(delta: float) -> void:
 		return
 	var antes := _tempo_golpe
 	_tempo_golpe += delta
-	if antes < momento_do_corte and _tempo_golpe >= momento_do_corte:
+	var corte := momento_do_corte / _ritmo
+	if antes < corte and _tempo_golpe >= corte:
 		var alvos := alvos_do_golpe()
+		var forca := ataque()
 		for alvo in alvos:
-			alvo.receber_golpe(global_position.direction_to(alvo.global_position))
+			alvo.receber_golpe(global_position.direction_to(alvo.global_position), forca)
 		acertou.emit(alvos)
-	if _tempo_golpe >= duracao_golpe:
+	if _tempo_golpe >= duracao_do_golpe():
 		golpeando = false
 
 
@@ -422,3 +466,9 @@ func _atualizar_pulo(delta: float) -> void:
 		pulando = false
 		corpo.position.y = 0.0
 		sombra.scale = Vector2.ONE
+
+
+func _ao_mudar_equipamento(quem: String, _encaixe: Item.Encaixe, _id: String) -> void:
+	if quem == id_inventario:
+		_ritmo = Balanceamento.multiplicador_velocidade(
+			int(Inventario.atributos(id_inventario).velocidade))

@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="Item" format=3]
+
+[ext_resource type="Script" path="res://scripts/systems/item.gd" id="1_item"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholders/combate/icone_espada_media.png" id="2_icone"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholders/combate/espada_media_na_mao.png" id="3_na_mao"]
+
+[resource]
+script = ExtResource("1_item")
+id = "espada_media"
+chave_nome = "ITEM_ESPADA_MEDIA_NOME"
+chave_descricao = "ITEM_ESPADA_MEDIA_DESC"
+icone = ExtResource("2_icone")
+visual_na_mao = ExtResource("3_na_mao")
+pega_na_mao = Vector2i(2, 3)
+tipo = 0
+encaixe = 1
+preco = 60
+nivel = 1
+ataque = 7
+defesa = 2
+velocidade = 5

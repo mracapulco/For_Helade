@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="Item" format=3]
+
+[ext_resource type="Script" path="res://scripts/systems/item.gd" id="1_item"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholders/combate/icone_armadura_leve.png" id="2_icone"]
+[ext_resource type="SpriteFrames" path="res://assets/art/placeholders/combate/armadura_leve_corpo.tres" id="4_corpo"]
+
+[resource]
+script = ExtResource("1_item")
+id = "armadura_leve"
+chave_nome = "ITEM_ARMADURA_LEVE_NOME"
+chave_descricao = "ITEM_ARMADURA_LEVE_DESC"
+icone = ExtResource("2_icone")
+tipo = 1
+encaixe = 2
+preco = 70
+nivel = 1
+defesa = 9
+velocidade = 5
+visual_no_corpo = ExtResource("4_corpo")

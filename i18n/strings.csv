@@ -40,6 +40,32 @@ ITEM_POCAO_TESTE_NOME,Poção de teste
 ITEM_POCAO_TESTE_DESC,Provisória. Recupera um pouco de vida.
 ITEM_CARTA_TESTE_NOME,Carta de teste
 ITEM_CARTA_TESTE_DESC,Provisória. Item da história: não pode ser largado.
+ITEM_ESPADA_GRANDE_NOME,Espada grande
+ITEM_ESPADA_GRANDE_DESC,"Duas mãos. Golpe forte e um pouco de defesa, mas mais lenta e sem escudo."
+ITEM_MACHADO_GUERRA_NOME,Machado de guerra grande
+ITEM_MACHADO_GUERRA_DESC,"Duas mãos. O golpe mais forte de todos, porém lento e sem escudo."
+ITEM_ARCO_NOME,Arco e flecha
+ITEM_ARCO_DESC,"Duas mãos. Acerta de longe e é leve, mas o tiro é fraco."
+ITEM_ESPADA_MEDIA_NOME,Espada média
+ITEM_ESPADA_MEDIA_DESC,"Uma mão. Equilibrada: bate bem, defende um pouco e é ágil."
+ITEM_MACHADO_PEQUENO_NOME,Machado pequeno
+ITEM_MACHADO_PEQUENO_DESC,"Uma mão. Bate forte para o tamanho, sem defesa."
+ITEM_PUNHAL_NOME,Punhal
+ITEM_PUNHAL_DESC,"Uma mão. Fraco, mas muito rápido."
+ITEM_MACA_NOME,Maça
+ITEM_MACA_DESC,"Uma mão. Pesada: bate forte e protege um pouco, mas é mais lenta."
+ITEM_ESCUDO_NOME,Escudo
+ITEM_ESCUDO_DESC,"Na mão livre. Boa defesa, deixa um pouco mais lento."
+ITEM_CAIXA_FRUTAS_NOME,Caixa de frutas
+ITEM_CAIXA_FRUTAS_DESC,"Na mão livre. Improviso: protege pouco, mas é melhor que nada."
+ITEM_PANELA_NOME,Panela
+ITEM_PANELA_DESC,"Na mão livre. Improviso: protege pouco e ainda dá para bater com ela."
+ITEM_ARMADURA_LEVE_NOME,Armadura leve
+ITEM_ARMADURA_LEVE_DESC,"Couro. Protege e não atrapalha os movimentos."
+ITEM_ARMADURA_PESADA_NOME,Armadura pesada
+ITEM_ARMADURA_PESADA_DESC,"Metal. Muita proteção, mas deixa bem mais lento."
+ITEM_ELMO_NOME,Elmo
+ITEM_ELMO_DESC,"Protege a cabeça. Deixa um pouco mais lento."
 BOLSA_BOTAO,Bolsa
 BOLSA_TITULO,Bolsa
 BOLSA_FECHAR,Fechar
@@ -52,6 +78,11 @@ BOLSA_ABA_DIVERSOS,Diversos
 BOLSA_VAZIA,Nada aqui ainda.
 BOLSA_ESCOLHA_ITEM,Toque num item para ver os detalhes.
 BOLSA_ITEM_DA_HISTORIA,Item da história: não pode ser largado.
+BOLSA_ATAQUE,Ataque %+d
+BOLSA_DEFESA,Defesa %+d
+BOLSA_VELOCIDADE,Velocidade %+d%%
+BOLSA_ALCANCE,Longo alcance
+BOLSA_DUAS_MAOS,Duas mãos
 BOLSA_USAR,Usar
 BOLSA_EQUIPAR,Equipar
 BOLSA_DESEQUIPAR,Desequipar

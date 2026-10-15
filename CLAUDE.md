@@ -9,7 +9,7 @@ O jogo é uma **segunda forma de percorrer a história**: começa e termina como
 ## Decisões já tomadas
 
 ### Gênero e estilo
-- **Estilo principal:** RPG narrativo de exploração com câmera **isométrica** (visão de cima, inspirada em Diablo), focado em diálogo, relações e intriga política, não em combate.
+- **Estilo principal:** RPG narrativo de exploração com câmera **isométrica** (visão de cima, inspirada em Diablo), focado em diálogo, relações e intriga política, **com combate em tempo real** (decisão do Rafael, 13/10/2026; plano em `planos/combate.md`).
 - **Trocas de perspectiva só em momentos-chave e curtos**, sempre motivadas pela história (o título pede: "pelos olhos dele"):
   - **Prólogo em primeira pessoa:** o jogador é Nicholas aos 5 anos, na noite do nascimento de Althea no Castelo Olympia. Curto, sem combate, foco em impacto.
   - **Memórias e lendas em plataforma 2D:** lembranças de Nicholas ou a lenda do Ano Dourado, em fases curtas.
@@ -28,7 +28,8 @@ O jogo é uma **segunda forma de percorrer a história**: começa e termina como
 - História principal **fiel ao livro**; o final não muda.
 - Escolhas do jogador só em momentos pontuais (o que Nicholas diz, quem procura). Elas afetam relações e influência, nunca o rumo principal.
 - **Sem narração falada.** Texto com retratos dos personagens, música e som ambiente.
-- **Conflitos como mecânica sem combate:** debates na corte e embates políticos como "duelos" de argumentos. As lutas que existem no livro viram cenas especiais.
+- **Conflitos:** debates na corte e embates políticos continuam como "duelos" de argumentos. Combate (tempo real, como Diablo) é para estradas, mar, ruínas e as lutas do livro; não muda o rumo da história.
+- **Itens de combate:** cada arma e proteção é um `.tres` em `data/itens/` com bônus de ataque, defesa e velocidade. Todo item gasta exatamente o orçamento de pontos do `Balanceamento` (`scripts/systems/balanceamento.gd`); um teste GUT confere todos.
 - **Códice** desbloqueável: Abençoados, casas, regiões, lenda do Ano Dourado. Pode ter conteúdo inédito da autora.
 
 ### Plataforma e tecnologia

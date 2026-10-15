@@ -7,6 +7,7 @@ const FOLHAS := [
 	"res://assets/art/personagens/nicholas/nicholas_11_exploracao.tres",
 	"res://assets/art/personagens/althea/althea_6_exploracao.tres",
 	"res://assets/art/personagens/ophelia/ophelia_11_exploracao.tres",
+	"res://assets/art/personagens/nicholas/nicholas_adolescente_exploracao.tres",
 	"res://assets/art/personagens/ophelia/ophelia_adolescente_exploracao.tres",
 	"res://assets/art/personagens/ophelia/ophelia_adulta_exploracao.tres",
 ]
@@ -40,14 +41,16 @@ func test_criancas_menores_que_o_adulto() -> void:
 # diferença de 1 pixel é a mecha espetada do cabelo dele.
 func test_ophelia_da_altura_de_nicholas_em_cada_idade() -> void:
 	var nicholas := _altura("res://assets/art/personagens/nicholas/nicholas_11_exploracao.tres")
+	var nicholas_adolescente := _altura("res://assets/art/personagens/nicholas/nicholas_adolescente_exploracao.tres")
 	var adulto := _altura("res://assets/art/personagens/nicholas/nicholas_exploracao.tres")
 	var crianca := _altura("res://assets/art/personagens/ophelia/ophelia_11_exploracao.tres")
 	var adolescente := _altura("res://assets/art/personagens/ophelia/ophelia_adolescente_exploracao.tres")
 	var adulta := _altura("res://assets/art/personagens/ophelia/ophelia_adulta_exploracao.tres")
 	assert_almost_eq(crianca, nicholas, 1)
+	assert_almost_eq(adolescente, nicholas_adolescente, 1)
 	assert_almost_eq(adulta, adulto, 1)
-	assert_gt(adolescente, crianca)
-	assert_lt(adolescente, adulta)
+	assert_gt(nicholas_adolescente, nicholas)
+	assert_lt(nicholas_adolescente, adulto)
 
 
 # Altura do desenho no primeiro quadro parado de frente, em pixels.

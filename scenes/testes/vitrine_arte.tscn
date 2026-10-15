@@ -18,6 +18,7 @@
 [ext_resource type="SpriteFrames" path="res://assets/art/personagens/ophelia/ophelia_11_exploracao.tres" id="16_ophelia_11"]
 [ext_resource type="SpriteFrames" path="res://assets/art/personagens/ophelia/ophelia_adolescente_exploracao.tres" id="19_ophelia_adolescente"]
 [ext_resource type="SpriteFrames" path="res://assets/art/personagens/ophelia/ophelia_adulta_exploracao.tres" id="20_ophelia_adulta"]
+[ext_resource type="SpriteFrames" path="res://assets/art/personagens/nicholas/nicholas_adolescente_exploracao.tres" id="21_nicholas_adolescente"]
 
 [node name="VitrineArte" type="Node2D"]
 texture_filter = 1
@@ -167,6 +168,13 @@ offset = Vector2(0, -22)
 [node name="OpheliaAdulta" type="AnimatedSprite2D" parent="."]
 position = Vector2(-48, 152)
 sprite_frames = ExtResource("20_ophelia_adulta")
+animation = &"andando_frente"
+autoplay = "andando_frente"
+offset = Vector2(0, -22)
+
+[node name="NicholasAdolescente" type="AnimatedSprite2D" parent="."]
+position = Vector2(-112, 152)
+sprite_frames = ExtResource("21_nicholas_adolescente")
 animation = &"andando_frente"
 autoplay = "andando_frente"
 offset = Vector2(0, -22)

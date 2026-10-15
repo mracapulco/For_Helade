@@ -34,6 +34,8 @@ const RAIO_TOQUE := 28.0
 @export var parede_lisa := false
 ## Madeira e veludo, por dentro da carruagem.
 @export var parede_madeira := false
+## Só o chão, sem as paredes do fundo (a rua por onde passa a carruagem).
+@export var sem_paredes := false
 
 var chao: TileMapLayer
 var obstaculos: TileMapLayer
@@ -61,7 +63,7 @@ func _ready() -> void:
 	for x in largura:
 		for y in profundidade:
 			chao.set_cell(Vector2i(x, y), FONTE_PISO, Vector2i(_quadro_do_piso(x, y), 0))
-			var parede := x == 0 or y == 0
+			var parede := not sem_paredes and (x == 0 or y == 0)
 			if parede and not _vaos.has(Vector2i(x, y)):
 				obstaculos.set_cell(Vector2i(x, y), FONTE_PAREDE, Vector2i(_quadro_da_parede(), 0))
 	ambiente = CanvasModulate.new()

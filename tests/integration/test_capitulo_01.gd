@@ -343,7 +343,7 @@ func test_corredor_comprido_com_outras_portas() -> void:
 func _anotar_carruagem(etapa: String) -> void:
 	if etapa == "carruagem":
 		na_carruagem = {"apollon": capitulo.objetos.has("apollon"),
-			"madeira": capitulo.sala.parede_madeira, "sentado": capitulo.jogador.em_dialogo}
+			"carro": capitulo.sala.has_node("Carruagem"), "sentado": capitulo.jogador.em_dialogo}
 
 
 func test_o_duque_entra_e_depois_a_carruagem() -> void:
@@ -359,5 +359,5 @@ func test_o_duque_entra_e_depois_a_carruagem() -> void:
 	await _esperar_etapa("fim")
 	assert_false(na_carruagem.is_empty(), "passou pela carruagem")
 	assert_false(na_carruagem.get("apollon", true), "o duque já partiu")
-	assert_true(na_carruagem.get("madeira", false), "por dentro da carruagem")
+	assert_true(na_carruagem.get("carro", false), "a carruagem na rua")
 	assert_true(na_carruagem.get("sentado", false), "Nicholas fica sentado")

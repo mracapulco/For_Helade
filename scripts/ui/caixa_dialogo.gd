@@ -125,9 +125,14 @@ func apply_dialogue_line() -> void:
 
 	balloon.show()
 	will_hide_balloon = false
-	# Escolha sem fala antes: só os botões, sem a caixa de texto vazia.
-	$Balloon/Margem/Painel.visible = not (dialogue_line.text.is_empty() and dialogue_line.character.is_empty() \
-			and dialogue_line.responses.size() > 0)
+	# Escolha sem fala antes: só os botões, embaixo, no lugar da caixa de texto
+	# (sem a caixa vazia e sem cobrir a cena).
+	var so_escolhas := dialogue_line.text.is_empty() and dialogue_line.character.is_empty() \
+			and dialogue_line.responses.size() > 0
+	$Balloon/Margem/Painel.visible = not so_escolhas
+	var area_escolhas: Control = $Balloon/AreaEscolhas
+	area_escolhas.offset_top = 380.0 if so_escolhas else 0.0
+	area_escolhas.offset_bottom = 0.0 if so_escolhas else -260.0
 
 	dialogue_label.show()
 	if not dialogue_line.text.is_empty():

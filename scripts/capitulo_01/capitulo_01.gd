@@ -41,6 +41,9 @@ const PE_CAIXA := 17.0
 ## linha do quadril nas folhas dos personagens (quadros de 32×48).
 const ALTURA_ASSENTO := 12.0
 const LINHA_QUADRIL := 37
+## Centro da carruagem no chão, dentro das imagens dela, e a altura do piso.
+const CARRO_ORIGEM := Vector2(144, 116)
+const CARRO_CHAO := 18.0
 
 ## Luz de cada momento.
 const TOM_SONHO := Color(1.0, 0.7, 0.5)
@@ -403,6 +406,10 @@ func lado_da_cama_perto_de_nicholas() -> Vector2i:
 
 ## Personagem sentado no banco: o quadro parado, de frente, cortado no quadril.
 func _sentado(nome: String, quadros: SpriteFrames, casa: Vector2i) -> Sprite2D:
+	return _sentado_em(nome, quadros, sala, sala.centro(casa))
+
+
+func _sentado_em(nome: String, quadros: SpriteFrames, pai: Node2D, posicao: Vector2) -> Sprite2D:
 	var quadro := quadros.get_frame_texture(&"parado_frente", 0) as AtlasTexture
 	var corte := AtlasTexture.new()
 	corte.atlas = quadro.atlas
@@ -411,9 +418,9 @@ func _sentado(nome: String, quadros: SpriteFrames, casa: Vector2i) -> Sprite2D:
 	sprite.name = nome
 	sprite.texture = corte
 	sprite.centered = false
-	sprite.position = sala.centro(casa)
+	sprite.position = posicao
 	sprite.offset = Vector2(-quadro.region.size.x / 2.0, -ALTURA_ASSENTO - LINHA_QUADRIL)
-	sala.add_child(sprite)
+	pai.add_child(sprite)
 	return sprite
 
 
@@ -516,25 +523,43 @@ func chegada_do_duque() -> void:
 # --- 6. a carruagem ----------------------------------------------------------
 
 func montar_carruagem() -> void:
-	_nova_sala(4, 3, TOM_AMANHECER)
-	sala.parede_madeira = true
-	_pendurar({"janela_carruagem_esq": Vector2i(2, 0), "janela_carruagem_dir": Vector2i(0, 2)})
-	for x in [1, 2, 3]:
-		var banco := sala.adicionar_objeto("Banco%d" % x, load(ARTE + "banco_carruagem.png"), Vector2i(x, 1),
-			false, false, PE_CAIXA)
-		banco.position.y -= 2.0
-	# Os dois lado a lado no banco do fundo: só da cintura para cima, com o
-	# quadril no assento (o banco cobre as pernas).
-	objetos["althea"] = _sentado("Althea", QUADROS_ALTHEA, Vector2i(1, 1))
-	_entrar(Vector2i(2, 1))
+	# A rua de pedra, sem paredes, e a carruagem por fora, em corte: as rodas
+	# giram e a rua corre para trás (Rafael, 15/10: a sala de paredes grossas
+	# não parecia um veículo).
+	_nova_sala(30, 5, TOM_AMANHECER)
+	sala.piso = "pedra"
+	sala.sem_paredes = true
+	var casa := Vector2i(15, 2)
+	var carro := Node2D.new()
+	carro.name = "Carruagem"
+	carro.z_index = 1
+	carro.position = sala.centro(casa)
+	sala.add_child(carro)
+	carro.add_child(_parte_do_carro("Fundo", "carruagem_fundo.png", 1))
+	# Os dois lado a lado no banco: só da cintura para cima, com o quadril no
+	# assento (a borda da frente cobre as pernas).
+	objetos["althea"] = _sentado_em("Althea", QUADROS_ALTHEA, carro, ponto_carruagem(-0.55, -0.59, CARRO_CHAO))
+	objetos["nicholas_sentado"] = _sentado_em("NicholasSentado", QUADROS_VESTIDO, carro,
+		ponto_carruagem(0.55, -0.59, CARRO_CHAO))
+	var frente := _parte_do_carro("Frente", "carruagem_frente.png", 3)
+	carro.add_child(frente)
+	_entrar(casa)
 	_travar(true)
 	jogador.get_node("Corpo").visible = false
 	jogador.get_node("Sombra").visible = false
-	objetos["nicholas_sentado"] = _sentado("NicholasSentado", QUADROS_VESTIDO, Vector2i(2, 1))
+	# Mais perto, para ver os dois dentro da carruagem.
+	var camera: Camera2D = jogador.get_node("Camera")
+	var zoom_antes := camera.zoom
+	camera.zoom = zoom_antes * 1.5
 	_mudar("carruagem")
 	var balanco := create_tween().set_loops()
-	balanco.tween_property(sala, "position:y", 1.0, 0.35)
-	balanco.tween_property(sala, "position:y", 0.0, 0.35)
+	balanco.tween_property(carro, "position:y", carro.position.y + 1.0, 0.35)
+	balanco.tween_property(carro, "position:y", carro.position.y, 0.35)
+	var rodas := create_tween().set_loops()
+	rodas.tween_callback(func() -> void: frente.frame = (frente.frame + 1) % 3).set_delay(0.12)
+	# Duas casas por volta, para o desenho alternado das lajes emendar.
+	var rua := create_tween().set_loops()
+	rua.tween_property(sala.chao, "position", Vector2(-64, -32), 1.6).from(Vector2.ZERO)
 	await _clarear()
 	Codice.anotar("imperatriz_callie")
 	await _frases("frases_carruagem")
@@ -543,6 +568,9 @@ func montar_carruagem() -> void:
 	await _falar_travado("carruagem")
 	await _escurecer()
 	balanco.kill()
+	rodas.kill()
+	rua.kill()
+	camera.zoom = zoom_antes
 	jogador.get_node("Corpo").visible = true
 	jogador.get_node("Sombra").visible = true
 	_mudar("fim")
@@ -553,6 +581,24 @@ func montar_carruagem() -> void:
 
 
 # --- ajudas ---------------------------------------------------------------
+
+## Ponto da carruagem em pixels, a partir do centro dela no chão: [param a] e
+## [param b] em casas, [param h] em pixels de altura. É a mesma conta de
+## tools/arte/gerar_capitulo_01.py (_carro_t), que desenha a carruagem.
+static func ponto_carruagem(a: float, b: float, h: float) -> Vector2:
+	return Vector2(32.0 * (a - b), 16.0 * (a + b) - h)
+
+
+## Uma das duas imagens da carruagem (mesma origem: o centro no chão).
+func _parte_do_carro(nome: String, arquivo: String, quadros: int) -> Sprite2D:
+	var parte := Sprite2D.new()
+	parte.name = nome
+	parte.texture = load(ARTE + arquivo)
+	parte.hframes = quadros
+	parte.centered = false
+	parte.offset = -CARRO_ORIGEM
+	return parte
+
 
 func _mudar(nova: String) -> void:
 	etapa = nova

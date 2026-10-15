@@ -46,6 +46,10 @@ const COXA := 0.25
 ## Centro da carruagem no chão, dentro das imagens dela, e a altura do piso.
 const CARRO_ORIGEM := Vector2(150, 128)
 const CARRO_CHAO := 18.0
+## A rua e as margens andam uma casa a cada tanto (o mesmo para as duas, para
+## não escorregarem uma sobre a outra); a paisagem se repete a cada tantas casas.
+const SEGUNDOS_POR_CASA := 0.8
+const PERIODO_MARGEM := 10
 
 ## Luz de cada momento.
 const TOM_SONHO := Color(1.0, 0.7, 0.5)
@@ -557,10 +561,10 @@ func montar_carruagem() -> void:
 	# A rua de pedra, sem paredes, e a carruagem por fora, em corte: as rodas
 	# giram e a rua corre para trás (Rafael, 15/10: a sala de paredes grossas
 	# não parecia um veículo).
-	_nova_sala(30, 5, TOM_AMANHECER)
-	sala.piso = "pedra"
+	_nova_sala(30, 17, TOM_AMANHECER)
+	sala.piso = "estrada"
 	sala.sem_paredes = true
-	var casa := Vector2i(15, 2)
+	var casa := Vector2i(15, 8)
 	var carro := Node2D.new()
 	carro.name = "Carruagem"
 	carro.z_index = 1
@@ -590,7 +594,12 @@ func montar_carruagem() -> void:
 	rodas.tween_callback(func() -> void: frente.frame = (frente.frame + 1) % 3).set_delay(0.12)
 	# Duas casas por volta, para o desenho alternado das lajes emendar.
 	var rua := create_tween().set_loops()
-	rua.tween_property(sala.chao, "position", Vector2(-64, -32), 1.6).from(Vector2.ZERO)
+	rua.tween_property(sala.chao, "position", Vector2(-64, -32), 2 * SEGUNDOS_POR_CASA).from(Vector2.ZERO)
+	var margens := _margens_da_rua()
+	var paisagem := create_tween().set_loops()
+	for margem in margens:
+		paisagem.parallel().tween_property(margem, "position", -PERIODO_MARGEM * Vector2(32, 16),
+			PERIODO_MARGEM * SEGUNDOS_POR_CASA).from(Vector2.ZERO)
 	await _clarear()
 	Codice.anotar("imperatriz_callie")
 	await _frases("frases_carruagem")
@@ -601,6 +610,7 @@ func montar_carruagem() -> void:
 	balanco.kill()
 	rodas.kill()
 	rua.kill()
+	paisagem.kill()
 	camera.zoom = zoom_antes
 	jogador.get_node("Corpo").visible = true
 	jogador.get_node("Sombra").visible = true
@@ -618,6 +628,52 @@ func montar_carruagem() -> void:
 ## tools/arte/gerar_capitulo_01.py (_carro_t), que desenha a carruagem.
 static func ponto_carruagem(a: float, b: float, h: float) -> Vector2:
 	return Vector2(32.0 * (a - b), 16.0 * (a + b) - h)
+
+
+## As margens da rua passando: do outro lado, ciprestes, oliveiras e colunas
+## (atrás da carruagem); do lado de cá, só coisas baixas (canteiros e uma
+## coluna ou outra), para não esconder Nicholas e Althea. O desenho se repete a
+## cada [constant PERIODO_MARGEM] casas, e o laço volta sem emenda.
+func _margens_da_rua() -> Array[Node2D]:
+	var longe := Node2D.new()
+	longe.name = "MargemLonge"
+	longe.y_sort_enabled = true
+	var perto := Node2D.new()
+	perto.name = "MargemPerto"
+	perto.y_sort_enabled = true
+	perto.z_index = 2
+	sala.add_child(longe)
+	sala.add_child(perto)
+	var sorte := RandomNumberGenerator.new()
+	sorte.seed = 1012
+	var meio := sala.profundidade / 2
+	var altas := ["cipreste", "cipreste", "cipreste", "oliveira", "oliveira", "oliveira", "coluna",
+		"canteiro", "canteiro"]
+	var baixas := ["canteiro", "canteiro", "canteiro", "canteiro", "coluna"]
+	for x0 in PERIODO_MARGEM:
+		for y in range(meio - 8, meio - 1):
+			if sorte.randf() < 0.3:
+				_enfeite_da_margem(longe, altas[sorte.randi() % altas.size()], x0, y, sorte)
+		for y in range(meio + 2, meio + 9):
+			if sorte.randf() < 0.14:
+				_enfeite_da_margem(perto, baixas[sorte.randi() % baixas.size()], x0, y, sorte)
+	return [longe, perto]
+
+
+## Põe o mesmo enfeite em x0, x0 + período, x0 + 2 períodos..., ao longo da
+## rua inteira, para a paisagem se repetir enquanto corre.
+func _enfeite_da_margem(margem: Node2D, nome: String, x0: int, y: int, sorte: RandomNumberGenerator) -> void:
+	var textura: Texture2D = load(ARTE + "margem/%s.png" % nome)
+	var desvio := Vector2(sorte.randf_range(-8, 8), sorte.randf_range(-3, 3))
+	var x := x0
+	while x < sala.largura + PERIODO_MARGEM:
+		var enfeite := Sprite2D.new()
+		enfeite.texture = textura
+		enfeite.centered = false
+		enfeite.offset = Vector2(-textura.get_width() / 2.0, -textura.get_height() + 3)
+		enfeite.position = sala.centro(Vector2i(x, y)) + desvio
+		margem.add_child(enfeite)
+		x += PERIODO_MARGEM
 
 
 ## Uma das duas imagens da carruagem (mesma origem: o centro no chão).

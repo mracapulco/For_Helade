@@ -42,6 +42,12 @@ C.update(
     tapete=H('#6B1210'), tapete_luz=H('#82201C'), tapete_azul=H('#0D143A'),
     creme=H('#D1BF99'), ferro=H('#3A3D42'), ferro_luz=H('#6E737A'),
     veludo=H('#0F1A3A'), veludo_luz=H('#1F2E58'),
+    grama=H('#4E6B3A'), grama_luz=H('#6A8A4A'), grama_sombra=H('#3B5530'),
+    folha=H('#2F4A2C'), folha_luz=H('#46663C'), folha_escura=H('#1F3420'),
+    oliva=H('#7C8A6A'), oliva_luz=H('#9AA884'), oliva_sombra=H('#5E6A50'),
+    tronco=H('#5A4232'), tronco_luz=H('#77583F'),
+    marmore=H('#E2DED4'), marmore_luz=H('#F6F3EC'), marmore_sombra=H('#B8B2A6'),
+    flor=H('#C9A4D8'), flor2=H('#E8D27A'),
 )
 PASTA = 'assets/art/capitulo_01'
 
@@ -83,6 +89,20 @@ def _pedra(q, ox, variante):
         q.p(x, y, cor)
 
 
+def _grama(q, ox, variante):
+    # grama em tufos, com pontos de luz e sombra
+    for x, y, a, b in _losango(ox):
+        n = (x * 13 + y * 7 + variante * 5) % 17
+        cor = 'grama'
+        if n in (0, 5):
+            cor = 'grama_luz'
+        elif n in (3, 11):
+            cor = 'grama_sombra'
+        elif (x + variante * 3) % 9 == 0 and y % 3 == 0:
+            cor = 'grama_luz'
+        q.p(x, y, cor)
+
+
 def _passadeira(q, ox, borda):
     # passadeira do corredor do prólogo: vermelha, treliça dourada fraca,
     # faixa azul com ornamentos creme e filetes dourados nas bordas
@@ -111,8 +131,9 @@ def _passadeira(q, ox, borda):
 
 def piso():
     # 0-1 assoalho dos quartos, 2-3 pedra, 4-6 passadeira (borda em cima,
-    # borda embaixo, meio): como o castelo do prólogo
-    q = Q(64 * 7, 32)
+    # borda embaixo, meio): como o castelo do prólogo; 7-8 grama (as margens
+    # da rua por onde passa a carruagem)
+    q = Q(64 * 9, 32)
     _assoalho(q, 0, False)
     _assoalho(q, 64, True)
     _pedra(q, 128, 0)
@@ -120,6 +141,8 @@ def piso():
     _passadeira(q, 256, 'cima')
     _passadeira(q, 320, 'baixo')
     _passadeira(q, 384, None)
+    _grama(q, 448, 0)
+    _grama(q, 512, 1)
     return q.im
 
 
@@ -777,6 +800,75 @@ def carruagem_frente():
     return tira
 
 
+
+# --- margens da rua em Atenas (Rafael, 15/10/2026: grama, árvores e coisas
+# do reino passando dos lados). Ciprestes e oliveiras, colunas de mármore e
+# canteiros floridos, como uma capital de inspiração grega. Provisório: o
+# livro não descreve o caminho até o Palácio Imperial.
+def cipreste():
+    q = Q(18, 58)
+    q.sombra_no_chao(9, 55, 6, 2)
+    q.r(8, 46, 9, 55, 'tronco')
+    for y in range(2, 50):
+        k = (y - 2) / 47
+        meia = int(1 + 7 * math.sin(min(1.0, k * 1.25) * math.pi / 2) * (1 - max(0, k - 0.8) * 2.5))
+        for x in range(9 - meia, 9 + meia + 1):
+            cor = 'folha'
+            if x < 9 - meia // 3:
+                cor = 'folha_luz' if (x + y) % 4 else 'folha'
+            elif x > 9 + meia // 2:
+                cor = 'folha_escura'
+            if (x * 5 + y * 3) % 11 == 0:
+                cor = 'folha_escura'
+            q.p(x, y, cor)
+    return q.contornar()
+
+
+def oliveira():
+    q = Q(40, 40)
+    q.sombra_no_chao(20, 37, 12, 3)
+    # tronco torto
+    for y in range(22, 37):
+        x = 19 + int(2 * math.sin(y / 3))
+        q.r(x, y, x + 2, y, 'tronco')
+        q.p(x, y, 'tronco_luz')
+    q.r(14, 22, 26, 24, 'tronco')
+    # copa em nuvens prateadas
+    for cx, cy, rx, ry in ((12, 16, 9, 7), (27, 15, 10, 7), (20, 10, 10, 7), (20, 19, 12, 6)):
+        q.elipse(cx, cy, rx, ry, 'oliva')
+    for cx, cy, rx, ry in ((10, 13, 4, 3), (22, 7, 5, 3), (28, 12, 4, 3)):
+        q.elipse(cx, cy, rx, ry, 'oliva_luz')
+    for x in range(4, 36):
+        for y in range(4, 26):
+            if q.px[x, y][3] and (x * 7 + y * 5) % 13 == 0:
+                q.p(x, y, 'oliva_sombra')
+    return q.contornar()
+
+
+def coluna():
+    q = Q(16, 48)
+    q.sombra_no_chao(8, 45, 7, 2)
+    q.r(2, 42, 13, 45, 'marmore_sombra'); q.r(2, 42, 13, 42, 'marmore')       # base
+    q.r(4, 8, 11, 41, 'marmore')
+    for x in (5, 8, 10):
+        q.coluna(x, 9, 40, 'marmore_sombra')                                     # caneluras
+    q.coluna(4, 8, 41, 'marmore_luz')
+    q.r(2, 4, 13, 7, 'marmore'); q.r(2, 4, 13, 4, 'marmore_luz')              # capitel
+    q.p(2, 7, 'marmore_sombra'); q.p(13, 7, 'marmore_sombra')
+    return q.contornar()
+
+
+def canteiro():
+    q = Q(28, 16)
+    q.sombra_no_chao(14, 13, 12, 2)
+    q.elipse(14, 9, 12, 5, 'folha')
+    q.elipse(11, 7, 6, 3, 'folha_luz')
+    for i, (x, y) in enumerate(((5, 8), (9, 5), (13, 9), (17, 6), (21, 8), (24, 10), (8, 11), (16, 11))):
+        q.p(x, y, 'flor' if i % 2 else 'flor2')
+        q.p(x + 1, y, 'flor' if i % 2 else 'flor2')
+    return q.contornar()
+
+
 ARTES = {
     'piso_mansao.png': piso,
     'parede_mansao.png': parede,
@@ -806,6 +898,10 @@ ARTES = {
     'parede/tapecaria_dir.png': lambda: na_face(tapecaria(), 'dir', 9, 3),
     'banco_carruagem.png': banco_carruagem,
     'carruagem_fundo.png': carruagem_fundo,
+    'margem/cipreste.png': cipreste,
+    'margem/oliveira.png': oliveira,
+    'margem/coluna.png': coluna,
+    'margem/canteiro.png': canteiro,
     'carruagem_frente.png': carruagem_frente,
     'parede/janela_carruagem_esq.png': lambda: na_face(janela_carruagem(), 'esq', 7, 2),
     'parede/janela_carruagem_dir.png': lambda: na_face(janela_carruagem(), 'dir', 7, 2),

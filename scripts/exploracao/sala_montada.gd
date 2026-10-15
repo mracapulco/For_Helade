@@ -20,6 +20,7 @@ const PISO_PEDRA := 2
 const PASSADEIRA_CIMA := 4
 const PASSADEIRA_BAIXO := 5
 const PASSADEIRA_MEIO := 6
+const PISO_GRAMA := 7
 const RAIO_CORPO := 9.0
 const RAIO_TOQUE := 28.0
 
@@ -27,8 +28,9 @@ const RAIO_TOQUE := 28.0
 @export var profundidade := 6
 ## Cor da luz (CanvasModulate): noite azulada, amanhecer dourado, sonho quente...
 @export var tom := Color.WHITE
-## Chão: "assoalho" (quartos), "pedra" ou "passadeira" (pedra com a passadeira
-## vermelha de ponta a ponta, como o corredor do prólogo).
+## Chão: "assoalho" (quartos), "pedra", "passadeira" (pedra com a passadeira
+## vermelha de ponta a ponta, como o corredor do prólogo) ou "estrada" (três
+## fileiras de pedra no meio, ao longo de x, e grama dos dois lados).
 @export var piso := "assoalho"
 ## Parede lisa, sem a pedra da Casa Olympia (o corredor estranho do sonho).
 @export var parede_lisa := false
@@ -87,6 +89,10 @@ func _quadro_do_piso(x: int, y: int) -> int:
 	match piso:
 		"pedra":
 			return PISO_PEDRA + (x + y) % 2
+		"estrada":
+			if absi(y - profundidade / 2) <= 1:
+				return PISO_PEDRA + (x + y) % 2
+			return PISO_GRAMA + (x * 3 + y) % 2
 		"passadeira":
 			if y <= 1:
 				return PASSADEIRA_CIMA

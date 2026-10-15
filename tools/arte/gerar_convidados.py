@@ -14,7 +14,9 @@
 # escolha o cabelo ('rebelde', 'ombros', 'longo', 'topete', 'chanel') e a
 # roupa ('camiseta', 'moletom', 'escoteiro', 'colete', 'vestido_curto',
 # 'vestido_longo'). Opcionais: 'oculos' (cor da armação), 'mochila' (True,
-# com as cores 'mochila*' e 'alca*'), 'olho' (cor da íris), 'pele' (tons).
+# com as cores 'mochila*' e 'alca*'), 'olho' (cor da íris), 'pele' (tons),
+# 'chapeu' (True: chapéu de abas largas com a copa vincada em quatro, com as
+# cores 'chapeu*' e 'fita').
 # Altura: 'topo' é a linha do alto da cabeça (menor = mais alto) e 'tronco' o
 # comprimento do tronco; 'largura' é meia largura do tronco.
 # Pets vão precisar de um desenho próprio (corpo de quatro patas); a folha e o
@@ -26,7 +28,7 @@ from PIL import Image
 
 sys.dont_write_bytecode = True  # sem __pycache__ dentro de tools/
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from gerar_personagens import ANIM, W, HH, folha, personagem, sprite_frames  # noqa: E402
+from gerar_personagens import ANIM, BASE, CX, DIRS, ORDEM, W, HH, H, personagem, sprite_frames  # noqa: E402
 from gerar_objetos import C, H as H_OBJ, Q as QObj  # noqa: E402
 
 PELE_CLARA = dict(pele_luz='#F0D4C2', pele='#DDB39E', pele_sombra='#B08470')
@@ -37,8 +39,9 @@ CONVIDADOS = {
     # com bolsos, lenço verde com anel dourado, cinto, calça e botas, mochila.
     'rafael': dict(
         topo=3, tronco=13, largura=5, cabelo='topete', roupa='escoteiro',
-        pele=PELE_CLARA, olho='#4E8A4A', mochila=True,
+        pele=PELE_CLARA, olho='#4E8A4A', mochila=True, chapeu=True,
         cores=dict(
+            chapeu_luz='#B0905E', chapeu='#8C6E44', chapeu_sombra='#644C2C', fita='#3A2A1C',
             cab_luz='#6B4A34', cab='#4A3022', cab_sombra='#2E1C13', cab_fundo='#1C110B',
             escoteiro_luz='#D9C79A', escoteiro='#BCA576', escoteiro_sombra='#8E7A52',
             lenco='#2A6B3E', lenco_sombra='#1A4A28', anel='#ECBD75', cinto='#4A3428',
@@ -162,9 +165,58 @@ PECAS = {
 }
 
 
+def chapeu(im, cfg, x, y):
+    # chapéu de abas largas com a copa em ponta vincada (como o de Baden-Powell),
+    # por cima do cabelo; y é o topo da cabeça. Igual de frente e de costas.
+    cores = {k: H(v) for k, v in cfg['cores'].items()}
+    px = im.load()
+    novos = set()
+
+    def r(x0, y0, x1, y1, c):
+        for yy in range(y0, y1 + 1):
+            for xx in range(x0, x1 + 1):
+                if 0 <= xx < W and 0 <= yy < HH:
+                    px[xx, yy] = cores[c]; novos.add((xx, yy))
+    r(x - 1, y - 2, x + 1, y - 2, 'chapeu')
+    r(x - 2, y - 1, x + 2, y - 1, 'chapeu')
+    r(x - 3, y, x + 3, y, 'chapeu')
+    r(x - 2, y - 1, x - 1, y, 'chapeu_luz')
+    r(x, y - 2, x, y, 'chapeu_sombra')            # vinco do meio
+    r(x + 2, y - 1, x + 3, y, 'chapeu_sombra')
+    r(x - 4, y + 1, x + 4, y + 1, 'fita')
+    r(x - 8, y + 2, x + 8, y + 2, 'chapeu')        # aba larga
+    r(x - 7, y + 2, x - 4, y + 2, 'chapeu_luz')
+    r(x - 8, y + 3, x - 6, y + 3, 'chapeu_sombra')
+    r(x + 6, y + 3, x + 8, y + 3, 'chapeu_sombra')
+    contorno = H(BASE['contorno'])
+    for (xx, yy) in novos:
+        for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+            n = (xx + dx, yy + dy)
+            if n not in novos and 0 <= n[0] < W and 0 <= n[1] < HH and px[n][3] == 0:
+                px[n] = contorno
+    return im
+
+
+def figura(cfg, dir, **k):
+    im = personagem(cfg, dir, **k)
+    if cfg.get('chapeu'):
+        chapeu(im, cfg, CX + k.get('inclina', 0), cfg['topo'] + k.get('dy', 0))
+    return im
+
+
+def folha(cfg):
+    # mesma folha de gerar_personagens.folha(), com os acessórios dos convidados
+    linhas = [(d, a) for d in DIRS for a in ORDEM]
+    im = Image.new('RGBA', (W * 4, HH * len(linhas)), (0, 0, 0, 0))
+    for linha, (d, a) in enumerate(linhas):
+        for i, k in enumerate(ANIM[a]):
+            im.paste(figura(cfg, d, **k), (i * W, linha * HH))
+    return im, linhas
+
+
 def faixa_figurante(cfg):
     # 4 quadros parado de frente, respirando (mesmo formato do mercador)
-    quadros = [personagem(cfg, 'frente', **k) for k in ANIM['parado']]
+    quadros = [figura(cfg, 'frente', **k) for k in ANIM['parado']]
     im = Image.new('RGBA', (W * 4, HH), (0, 0, 0, 0))
     for i, q in enumerate([0, 0, 1, 1]):
         im.paste(quadros[q], (i * W, 0))
@@ -181,7 +233,7 @@ if __name__ == '__main__':
         caminho = 'res://assets/art/convidados/%s/%s_exploracao.png' % (id, id)
         with open(os.path.join(pasta, '%s_exploracao.tres' % id), 'w') as f:
             f.write(sprite_frames(id, linhas, caminho))
-        personagem(cfg, 'frente').save(os.path.join(pasta, '%s_parado.png' % id))
+        figura(cfg, 'frente').save(os.path.join(pasta, '%s_parado.png' % id))
         faixa_figurante(cfg).save(os.path.join(pasta, '%s_figurante.png' % id))
         for nome, desenho in PECAS.get(id, {}).items():
             desenho().save(os.path.join(pasta, '%s.png' % nome))

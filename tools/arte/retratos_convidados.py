@@ -54,11 +54,12 @@ def espelho(pts):
 
 # --- Rafael -------------------------------------------------------------------
 # Rosto fino e jovem, cabelo castanho-escuro penteado para trás com volume em
-# cima e laterais curtas, olhos verdes, sorriso leve. Camisa caqui de
+# cima e laterais curtas, olhos verdes, sorriso leve, chapéu de abas largas. Camisa caqui de
 # escoteiro com lenço verde.
 
 R_PELE = dict(luz='#F8DFCC', base='#EFC6AC', sombra='#D9A288', funda='#B97E66')
 R_CAB = dict(luz='#6B4630', base='#46291A', sombra='#2B170D')
+R_CHAPEU = dict(luz='#B0905E', base='#8C6E44', sombra='#644C2C', fita='#3A2A1C')
 R_OLHO = dict(iris='#5E9A5C', iris_escura='#2F5E34', brilho='#E6F4E0')
 
 
@@ -93,6 +94,18 @@ def rafael(boca):
     q.linha([(21, 11), (29, 9)], R_CAB['sombra'])
     q.poly([(44, 6), (48, 10), (49, 18), (48, 26), (46, 24), (45, 15)], R_CAB['sombra'])
     q.linha([(23, 5), (21, 13)], R_CAB['sombra'])  # risca
+    # chapéu de abas largas, copa em ponta vincada em quatro (o de Baden-Powell)
+    q.r(19, 16, 45, 17, R_PELE['sombra'])                      # sombra da aba na testa
+    q.poly([(3, 15), (9, 12), (55, 12), (61, 15), (57, 17), (7, 17)], R_CHAPEU['base'])
+    q.poly([(3, 15), (9, 12), (26, 12), (24, 14), (8, 15)], R_CHAPEU['luz'])
+    q.poly([(57, 17), (61, 15), (55, 12), (50, 14), (52, 16)], R_CHAPEU['sombra'])
+    q.linha([(8, 17), (56, 17)], R_CHAPEU['sombra'])
+    q.poly([(19, 12), (22, 4), (28, 0), (32, 3), (36, 0), (42, 4), (45, 12)], R_CHAPEU['base'])
+    q.poly([(19, 12), (22, 4), (28, 0), (29, 2), (25, 6), (24, 12)], R_CHAPEU['luz'])
+    q.poly([(36, 0), (42, 4), (45, 12), (40, 12), (39, 5)], R_CHAPEU['sombra'])
+    q.linha([(32, 3), (32, 9)], R_CHAPEU['sombra'])              # vinco do meio
+    q.linha([(27, 3), (26, 8)], R_CHAPEU['sombra']); q.linha([(37, 3), (38, 8)], R_CHAPEU['sombra'])
+    q.r(20, 9, 44, 11, R_CHAPEU['fita'])
     # sobrancelhas retas
     q.r(21, 24, 28, 25, R_CAB['base']); q.p(21, 24, R_PELE['base'])
     q.r(36, 24, 43, 25, R_CAB['base']); q.p(43, 24, R_PELE['sombra'])

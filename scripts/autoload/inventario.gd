@@ -1,6 +1,9 @@
 extends Node
-## Bolsa do grupo: quantidade de cada item, dinheiro e o que cada
-## personagem tem equipado (autoload "Inventario").
+## Bolsa do grupo: espaços com itens (como no Minecraft), dinheiro e o que
+## cada personagem tem equipado (autoload "Inventario").
+## O número de espaços depende da idade de Nicholas ([member faixa_etaria]);
+## os [constant ESPACOS_RAPIDOS] primeiros formam a barra rápida (teclas 1 a 9).
+## Itens da história e dinheiro não ocupam espaço, para a história nunca travar.
 ## No roteiro:
 ##   $> Inventario.adicionar("id_do_item")
 ##   if Inventario.tem("id_do_item")
@@ -14,11 +17,32 @@ signal item_usado(id: String, personagem: String)
 ## aviso "+ item" não aparecer ao carregar um jogo salvo.
 signal recebeu(id: String, quantidade: int)
 signal dinheiro_recebido(valor: int)
+## Algum espaço mudou (item entrou, saiu ou trocou de lugar).
+signal espacos_mudaram
+signal capacidade_mudou(espacos: int)
+## Algo não entrou por falta de espaço (aviso "Bolsa cheia").
+signal bolsa_cheia
+
+enum FaixaEtaria { CRIANCA, ADOLESCENTE, ADULTO }
+
+## Espaços da bolsa em cada idade. Valores provisórios: ajustar aqui.
+const CAPACIDADE: Dictionary[FaixaEtaria, int] = {
+	FaixaEtaria.CRIANCA: 12,
+	FaixaEtaria.ADOLESCENTE: 20,
+	FaixaEtaria.ADULTO: 30,
+}
+## Espaços da barra rápida: os primeiros da bolsa.
+const ESPACOS_RAPIDOS := 9
 
 const PASTA_ITENS := "res://data/itens/"
 
 var _catalogo: Dictionary[String, Item] = {}
-var _quantidades: Dictionary[String, int] = {}
+## Cada espaço é {} (vazio) ou { "id": String, "quantidade": int }.
+## Pode passar do limite só quando a bolsa encolheu (nada some).
+var _espacos: Array[Dictionary] = []
+## Itens da história: id -> quantidade, fora dos espaços.
+var _historia: Dictionary[String, int] = {}
+var faixa_etaria: FaixaEtaria = FaixaEtaria.CRIANCA
 var _dinheiro: int = 0
 ## personagem -> { Item.Encaixe -> id do item }
 var _equipado: Dictionary[String, Dictionary] = {}
@@ -28,6 +52,7 @@ var _coletados: Dictionary[String, bool] = {}
 
 func _init() -> void:
 	_carregar_catalogo()
+	_espacos.resize(capacidade())
 
 
 func _carregar_catalogo() -> void:
@@ -58,7 +83,15 @@ func item(id: String) -> Item:
 
 
 func quantidade(id: String) -> int:
-	return _quantidades.get(id, 0)
+	if id.is_empty():
+		return 0
+	if _historia.has(id):
+		return _historia[id]
+	var total := 0
+	for espaco: Dictionary in _espacos:
+		if espaco.get("id", "") == id:
+			total += int(espaco["quantidade"])
+	return total
 
 
 func tem(id: String, qtd: int = 1) -> bool:
@@ -68,40 +101,162 @@ func tem(id: String, qtd: int = 1) -> bool:
 ## Ids de tudo o que está na bolsa, de um tipo, em ordem alfabética.
 func ids_do_tipo(tipo: Item.Tipo) -> Array[String]:
 	var ids: Array[String] = []
-	for id: String in _quantidades:
+	for id: String in _historia:
 		if _catalogo[id].tipo == tipo:
+			ids.append(id)
+	for espaco: Dictionary in _espacos:
+		var id: String = espaco.get("id", "")
+		if not id.is_empty() and _catalogo[id].tipo == tipo and not ids.has(id):
 			ids.append(id)
 	ids.sort()
 	return ids
 
 
-## Põe [param qtd] unidades na bolsa. Falha se o id não existir.
+## Quantos espaços a idade atual permite.
+func capacidade() -> int:
+	return CAPACIDADE[faixa_etaria]
+
+
+## Espaços que existem agora (a capacidade, ou mais se a bolsa encolheu
+## com itens nos espaços do fim).
+func numero_de_espacos() -> int:
+	return _espacos.size()
+
+
+## Conteúdo de um espaço: {} se vazio, senão { "id", "quantidade" }.
+func espaco(indice: int) -> Dictionary:
+	if indice < 0 or indice >= _espacos.size():
+		return {}
+	return _espacos[indice].duplicate()
+
+
+## Muda a idade. A bolsa cresce na hora; se encolher, os itens que
+## ficarem fora do limite continuam lá, mas nada novo entra neles.
+func mudar_faixa_etaria(faixa: FaixaEtaria) -> void:
+	faixa_etaria = faixa
+	_ajustar_tamanho()
+	capacidade_mudou.emit(numero_de_espacos())
+	espacos_mudaram.emit()
+
+
+## Cabe [param qtd] de [param id] na bolsa? Itens da história sempre cabem.
+func cabe(id: String, qtd: int = 1) -> bool:
+	return cabem({ id: qtd })
+
+
+## Cabe tudo junto? [param itens] é id -> quantidade (um baú inteiro).
+func cabem(itens: Dictionary) -> bool:
+	var copia: Array[Dictionary] = []
+	for espaco: Dictionary in _espacos:
+		copia.append(espaco.duplicate())
+	for id: Variant in itens:
+		var dados := item(str(id))
+		if dados == null:
+			return false
+		if dados.e_da_historia():
+			continue
+		if _guardar(copia, dados, int(itens[id]), capacidade()) > 0:
+			return false
+	return true
+
+
+## Põe [param qtd] unidades na bolsa: primeiro completa as pilhas do mesmo
+## item, depois usa espaços vazios. Tudo ou nada: falha se o id não existir
+## ou se não couber (veja [method cabe]).
 func adicionar(id: String, qtd: int = 1) -> bool:
-	if item(id) == null:
+	var dados := item(id)
+	if dados == null:
 		push_error("Inventario: item desconhecido '%s'." % id)
 		return false
 	if qtd <= 0:
 		return false
-	_quantidades[id] = quantidade(id) + qtd
-	mudou.emit(id, _quantidades[id])
+	if not cabe(id, qtd):
+		bolsa_cheia.emit()
+		return false
+	if dados.e_da_historia():
+		_historia[id] = quantidade(id) + qtd
+	else:
+		_guardar(_espacos, dados, qtd, capacidade())
+		espacos_mudaram.emit()
+	mudou.emit(id, quantidade(id))
 	recebeu.emit(id, qtd)
 	return true
 
 
-## Tira [param qtd] unidades. Falha se não houver o suficiente.
+## Tira [param qtd] unidades, dos últimos espaços para os primeiros (a
+## barra rápida é a última a perder). Falha se não houver o suficiente.
 ## O roteiro pode tirar itens da história; o jogador usa [method largar].
 ## Se sobrar menos do que está equipado, desequipa o excedente.
 func remover(id: String, qtd: int = 1) -> bool:
 	if qtd <= 0 or not tem(id, qtd):
 		return false
-	var resta := quantidade(id) - qtd
-	if resta == 0:
-		_quantidades.erase(id)
+	if _historia.has(id):
+		_historia[id] -= qtd
+		if _historia[id] == 0:
+			_historia.erase(id)
 	else:
-		_quantidades[id] = resta
+		var falta := qtd
+		for indice in range(_espacos.size() - 1, -1, -1):
+			if falta == 0:
+				break
+			if _espacos[indice].get("id", "") == id:
+				falta -= _tirar_do_espaco(indice, falta)
+		_ajustar_tamanho()
+		espacos_mudaram.emit()
 	_desequipar_excedente(id)
-	mudou.emit(id, resta)
+	mudou.emit(id, quantidade(id))
 	return true
+
+
+## Troca dois espaços de lugar (tocar num item e depois noutro espaço).
+## Se forem do mesmo item, junta o que couber na pilha do destino.
+func trocar_espacos(origem: int, destino: int) -> bool:
+	if origem == destino or origem < 0 or destino < 0:
+		return false
+	if origem >= _espacos.size() or destino >= capacidade():
+		return false
+	var a := _espacos[origem]
+	var b := _espacos[destino]
+	if a.is_empty():
+		return false
+	if not b.is_empty() and a["id"] == b["id"]:
+		var pilha := item(a["id"]).tamanho_pilha()
+		var passa := mini(int(a["quantidade"]), pilha - int(b["quantidade"]))
+		if passa <= 0:
+			return false
+		b["quantidade"] = int(b["quantidade"]) + passa
+		a["quantidade"] = int(a["quantidade"]) - passa
+		if int(a["quantidade"]) == 0:
+			_espacos[origem] = {}
+	else:
+		_espacos[origem] = b
+		_espacos[destino] = a
+	_ajustar_tamanho()
+	espacos_mudaram.emit()
+	return true
+
+
+## Tecla 1 a 9 (ou toque na barra rápida): arma ou proteção equipa, ou
+## desequipa se já estiver equipada; consumível é usado. [param indice]
+## começa em 0.
+func usar_espaco(indice: int, personagem: String) -> bool:
+	var conteudo := espaco(indice)
+	if conteudo.is_empty():
+		return false
+	var dados := item(conteudo["id"])
+	if dados.pode_equipar():
+		if equipado(personagem, dados.encaixe) == dados.id:
+			desequipar(personagem, dados.encaixe)
+			return true
+		return equipar(personagem, dados.id)
+	if dados.pode_usar():
+		_tirar_do_espaco(indice, 1)
+		_ajustar_tamanho()
+		espacos_mudaram.emit()
+		mudou.emit(dados.id, quantidade(dados.id))
+		item_usado.emit(dados.id, personagem)
+		return true
+	return false
 
 
 ## Ação do jogador: joga fora. Itens da história nunca saem assim.
@@ -206,7 +361,10 @@ func marcar_coletado(id_coleta: String) -> void:
 
 ## Apaga tudo (novo jogo, testes). O catálogo continua.
 func limpar() -> void:
-	_quantidades.clear()
+	_espacos.clear()
+	_historia.clear()
+	faixa_etaria = FaixaEtaria.CRIANCA
+	_espacos.resize(capacidade())
 	_equipado.clear()
 	_coletados.clear()
 	_dinheiro = 0
@@ -220,8 +378,13 @@ func para_dados() -> Dictionary:
 		for encaixe: int in _equipado[personagem]:
 			encaixes[Item.Encaixe.find_key(encaixe)] = _equipado[personagem][encaixe]
 		equipado_dados[personagem] = encaixes
+	var espacos_dados := []
+	for espaco: Dictionary in _espacos:
+		espacos_dados.append(espaco.duplicate())
 	return {
-		"itens": _quantidades.duplicate(),
+		"espacos": espacos_dados,
+		"historia": _historia.duplicate(),
+		"faixa_etaria": FaixaEtaria.find_key(faixa_etaria),
 		"dinheiro": _dinheiro,
 		"equipado": equipado_dados,
 		"coletados": _coletados.keys(),
@@ -229,13 +392,44 @@ func para_dados() -> Dictionary:
 
 
 ## Restaura o que [method para_dados] gerou. Ids que não existem mais
-## no catálogo são ignorados.
+## no catálogo são ignorados. Jogos salvos antes dos espaços ("itens":
+## id -> quantidade) viram espaços na ordem do arquivo, sem perder nada.
 func de_dados(dados: Dictionary) -> void:
 	limpar()
-	var itens: Dictionary = dados.get("itens", {})
-	for id: Variant in itens:
-		if item(str(id)) != null and int(itens[id]) > 0:
-			_quantidades[str(id)] = int(itens[id])
+	var faixa := str(dados.get("faixa_etaria", ""))
+	if FaixaEtaria.has(faixa):
+		faixa_etaria = FaixaEtaria[faixa]
+	_espacos.resize(capacidade())
+	var lidos: Array = dados.get("espacos", [])
+	for indice in lidos.size():
+		var espaco: Variant = lidos[indice]
+		if not espaco is Dictionary or (espaco as Dictionary).is_empty():
+			continue
+		var dados_item := item(str(espaco.get("id", "")))
+		var qtd := int(espaco.get("quantidade", 0))
+		if dados_item == null or qtd <= 0:
+			continue
+		if dados_item.e_da_historia():
+			_historia[dados_item.id] = quantidade(dados_item.id) + qtd
+			continue
+		if indice >= _espacos.size():
+			_espacos.resize(indice + 1)
+		_espacos[indice] = { "id": dados_item.id, "quantidade": qtd }
+	var historia: Dictionary = dados.get("historia", {})
+	for id: Variant in historia:
+		if item(str(id)) != null and int(historia[id]) > 0:
+			_historia[str(id)] = int(historia[id])
+	var antigos: Dictionary = dados.get("itens", {})
+	for id: Variant in antigos:
+		var dados_item := item(str(id))
+		if dados_item == null or int(antigos[id]) <= 0:
+			continue
+		if dados_item.e_da_historia():
+			_historia[dados_item.id] = int(antigos[id])
+		else:
+			# Sem limite aqui: o que não couber abre espaços no fim.
+			_guardar(_espacos, dados_item, int(antigos[id]), 1 << 20)
+	_ajustar_tamanho()
 	_dinheiro = maxi(0, int(dados.get("dinheiro", 0)))
 	for id_coleta: Variant in dados.get("coletados", []):
 		_coletados[str(id_coleta)] = true
@@ -264,3 +458,48 @@ func _desequipar_excedente(id: String) -> void:
 			if _equipado[personagem][encaixe] == id:
 				desequipar(personagem, encaixe)
 				break
+
+
+## Põe até [param qtd] de [param dados] em [param espacos], usando só os
+## [param limite] primeiros. Devolve quanto sobrou (0 = coube tudo).
+func _guardar(espacos: Array[Dictionary], dados: Item, qtd: int, limite: int) -> int:
+	var pilha := dados.tamanho_pilha()
+	var falta := qtd
+	for indice in mini(espacos.size(), limite):
+		if falta == 0:
+			return 0
+		var espaco := espacos[indice]
+		if espaco.get("id", "") == dados.id and int(espaco["quantidade"]) < pilha:
+			var entra := mini(falta, pilha - int(espaco["quantidade"]))
+			espaco["quantidade"] = int(espaco["quantidade"]) + entra
+			falta -= entra
+	var indice := 0
+	while falta > 0 and indice < limite:
+		if indice >= espacos.size():
+			espacos.append({})
+		if espacos[indice].is_empty():
+			var entra := mini(falta, pilha)
+			espacos[indice] = { "id": dados.id, "quantidade": entra }
+			falta -= entra
+		indice += 1
+	return falta
+
+
+## Tira até [param qtd] do espaço; devolve quanto tirou.
+func _tirar_do_espaco(indice: int, qtd: int) -> int:
+	var espaco := _espacos[indice]
+	var sai := mini(qtd, int(espaco["quantidade"]))
+	espaco["quantidade"] = int(espaco["quantidade"]) - sai
+	if int(espaco["quantidade"]) == 0:
+		_espacos[indice] = {}
+	return sai
+
+
+## Deixa a bolsa com a capacidade da idade; espaços além dela só ficam
+## enquanto tiverem algo (bolsa que encolheu).
+func _ajustar_tamanho() -> void:
+	if _espacos.size() < capacidade():
+		_espacos.resize(capacidade())
+		return
+	while _espacos.size() > capacidade() and _espacos.back().is_empty():
+		_espacos.pop_back()

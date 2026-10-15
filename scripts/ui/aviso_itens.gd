@@ -22,6 +22,7 @@ func _ready() -> void:
 	add_child(coluna)
 	Inventario.recebeu.connect(_ao_receber)
 	Inventario.dinheiro_recebido.connect(_ao_receber_dinheiro)
+	Inventario.bolsa_cheia.connect(_ao_encher_bolsa)
 
 
 ## Textos dos avisos que estão na tela agora.
@@ -57,3 +58,7 @@ func _ao_receber(id: String, quantidade: int) -> void:
 
 func _ao_receber_dinheiro(valor: int) -> void:
 	mostrar(tr("AVISO_MOEDAS") % valor)
+
+
+func _ao_encher_bolsa() -> void:
+	mostrar(tr("AVISO_BOLSA_CHEIA"))

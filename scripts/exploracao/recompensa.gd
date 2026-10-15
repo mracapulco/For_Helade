@@ -4,6 +4,7 @@ extends Node
 ## (baú, corpo caído, alguém que entrega algo). Depois de pega, a
 ## interação some e o desenho muda (baú aberto) ou escurece; isso fica
 ## guardado no Inventario, então voltar à cena não enche o baú de novo.
+## Se os itens não couberem na bolsa, nada é entregue.
 
 signal coletada
 
@@ -34,6 +35,10 @@ func _ready() -> void:
 
 func entregar() -> void:
 	if Inventario.ja_coletado(id_coleta):
+		return
+	# Bolsa cheia: nada sai daqui e dá para voltar depois.
+	if not Inventario.cabem(itens):
+		Inventario.bolsa_cheia.emit()
 		return
 	Inventario.marcar_coletado(id_coleta)
 	for id: String in itens:

@@ -8,6 +8,7 @@ Os laços são feitos para emendar sem estalo: os filtros trabalham no espectro
 
 Uso: python3 tools/audio/gerar_sons_prologo.py           (todos)
      python3 tools/audio/gerar_sons_prologo.py coracao   (só as batidas do coração)
+     python3 tools/audio/gerar_sons_prologo.py correria  (só a correria ouvida de longe)
 (precisa de numpy e do ffmpeg com libvorbis)
 """
 
@@ -312,15 +313,41 @@ def caos() -> np.ndarray:
     return normalizar(eco(trilha, 1.0, 0.35), 0.7)
 
 
+def ler_ogg(caminho: Path) -> np.ndarray:
+    """Lê um .ogg já gerado (mono, TAXA) de volta para amostras."""
+    bruto = subprocess.run(["ffmpeg", "-loglevel", "error", "-i", str(caminho), "-f", "s16le", "-ac", "1",
+                            "-ar", str(TAXA), "-"], check=True, capture_output=True).stdout
+    return np.frombuffer(bruto, dtype=np.int16).astype(float) / 32767
+
+
+def chamado(f0: float) -> np.ndarray:
+    """Uma empregada gritando de longe ("Água!", "Depressa!"): sílabas fortes e longas."""
+    partes = []
+    for i in range(rng.integers(2, 4)):
+        dur = rng.uniform(0.18, 0.28) if i else rng.uniform(0.12, 0.2)
+        if i == 0 or rng.random() < 0.5:
+            dur = max(dur, rng.uniform(0.35, 0.6))  # a vogal esticada do grito
+        partes.append(silaba(f0 * rng.uniform(0.95, 1.2), dur))
+    return np.concatenate(partes)
+
+
 def correria(base: np.ndarray) -> np.ndarray:
-    """O caos ouvido de longe, atrás das paredes: só os graves e as portas."""
+    """O caos ouvido do quarto e do corredor, atrás das paredes: as vozes passam
+    abafadas (dá para ouvir que é gente falando e gritando, não as palavras),
+    com passos correndo, portas e gritos chamando de longe."""
     n = len(base)
-    abafado = faixa(base, 0, 450, 1.5)
+    abafado = faixa(base, 80, 1100, 1.5)
+    gritos = np.zeros(n)
+    t = rng.uniform(0.3, 1.5)
+    while t < n / TAXA:
+        colocar(gritos, chamado(rng.uniform(290, 380)), amostras(t), rng.uniform(0.6, 1.0))
+        t += rng.uniform(1.6, 3.8)
+    abafado = normalizar(abafado, 0.5) + normalizar(faixa(gritos, 150, 1400, 1.5), 0.6)
     for _ in range(int(n / TAXA * 3)):
         colocar(abafado, baque(amostras(0.25), rng.uniform(55, 80), 0.05), rng.integers(0, n), rng.uniform(0.2, 0.4))
     for _ in range(3):  # portas batendo longe
         colocar(abafado, baque(amostras(0.6), rng.uniform(45, 60), 0.12), rng.integers(0, n), 0.6)
-    return normalizar(eco(abafado, 1.5, 0.4), 0.6)
+    return normalizar(eco(abafado, 1.5, 0.45), 0.7)
 
 
 def sussurros() -> np.ndarray:
@@ -355,20 +382,6 @@ def batida_coracao() -> np.ndarray:
     som = faixa(som, 18, 260, 2.0)
     som *= np.minimum(1.0, np.linspace(8, 0, n))
     return normalizar(som, 0.85)
-
-
-def respiracao() -> np.ndarray:
-    """Criança ofegante: entra e sai rápido, pela boca."""
-    n = amostras(0.9 * 4)
-    trilha = np.zeros(n)
-    for i in range(4):
-        dentro = amostras(rng.uniform(0.3, 0.36))
-        fora = amostras(rng.uniform(0.36, 0.42))
-        entra = formantes(ruido(dentro), [(1400, 900, 1.0), (3200, 1200, 0.4)]) * np.hanning(dentro)
-        sai = formantes(ruido(fora), [(900, 700, 1.0), (2400, 1000, 0.3)]) * envelope(fora, 0.05, 0.12)
-        colocar(trilha, entra, amostras(i * 0.9), 0.6)
-        colocar(trilha, sai, amostras(i * 0.9 + 0.38), 1.0)
-    return normalizar(trilha, 0.5)
 
 
 def choro() -> np.ndarray:
@@ -438,6 +451,9 @@ def um_choro(dur: float, intensidade: float) -> np.ndarray:
 
 def main() -> None:
     import sys
+    if sys.argv[1:] == ["correria"]:  # refaz só a correria, a partir do caos já gerado
+        salvar(correria(ler_ogg(AMBIENTE / "caos.ogg")), AMBIENTE / "correria.ogg")
+        return
     if sys.argv[1:] == ["coracao"]:  # refaz só as batidas, sem mexer nos outros sons
         for i in range(1, 7):
             salvar(batida_coracao(), EFEITOS / f"coracao_{i}.ogg")
@@ -452,7 +468,6 @@ def main() -> None:
     salvar(sussurros(), AMBIENTE / "sussurros.ogg")
     for i in range(1, 7):
         salvar(batida_coracao(), EFEITOS / f"coracao_{i}.ogg")
-    salvar(respiracao(), EFEITOS / "respiracao.ogg")
     salvar(choro(), EFEITOS / "choro.ogg")
     for chao in ("madeira", "pedra"):
         for i in range(1, 9):

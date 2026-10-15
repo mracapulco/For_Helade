@@ -19,6 +19,13 @@ C = dict(
     madeira_luz=H('#6B4A35'), madeira=H('#4A3428'), madeira_sombra=H('#2E2019'),
     # folhagem ao luar: os únicos tons esverdeados, puxados para o azul da noite
     folha_sombra=H('#1C3236'), folha=H('#2F4B4F'), folha_luz=H('#4A6866'),
+    # poções: vermelho (cura), verde-azulado (rapidez), dourado (vigor)
+    cura_sombra=H('#5E1A1F'), cura=H('#B5383B'), cura_luz=H('#E07A6E'),
+    rapidez_sombra=H('#1C4A44'), rapidez=H('#3E8F7A'), rapidez_luz=H('#8FD1B0'),
+    vigor_sombra=H('#8A5E2C'), vigor=H('#D9A24A'), vigor_luz=H('#F4D58F'),
+    # bandidos: couro escuro e ferrugem (mesmos tons do equipamento dos bandidos)
+    couro_sombra=H('#1E1714'), couro=H('#3A2C24'), couro_luz=H('#5A4436'),
+    ferrugem=H('#8C4A2A'), ferrugem_luz=H('#B8693C'),
     sombra=(5, 12, 20, 90),
 )
 
@@ -82,12 +89,14 @@ def icone_espada():
     return q.contornar()
 
 
-def icone_pocao():
+def icone_pocao(liquido='olho'):
+    # liquido: 'olho' (azul, a poção de teste), 'cura', 'rapidez' ou 'vigor'
+    escuro, luz = ('olho_escuro', 'olho_luz') if liquido == 'olho' else (liquido + '_sombra', liquido + '_luz')
     q = Q(32, 32)
-    q.elipse(16, 20, 9, 8, 'olho_escuro')                   # vidro
-    q.elipse(16, 21, 8, 6, 'olho')                          # líquido
-    q.r(9, 18, 23, 18, 'olho_luz')                          # superfície
-    q.elipse(18, 23, 5, 3, 'olho_luz')
+    q.elipse(16, 20, 9, 8, escuro)                          # vidro
+    q.elipse(16, 21, 8, 6, liquido)                         # líquido
+    q.r(9, 18, 23, 18, luz)                                 # superfície
+    q.elipse(18, 23, 5, 3, luz)
     q.r(13, 9, 19, 12, 'olho_escuro')                       # gargalo
     q.r(14, 10, 18, 12, 'nuvem')
     q.r(12, 8, 20, 9, 'pedra_luz')                          # boca
@@ -261,6 +270,43 @@ def guarda():
     return q.contornar()
 
 
+def bandido(com_escudo):
+    # Bandido genérico de estrada: capuz, rosto meio coberto, couro e ferrugem.
+    # Sem escudo leva um punhal; com escudo, maça e escudo redondo de madeira.
+    q = Q(32, 48)
+    q.sombra_no_chao(16, 45, 8, 2)
+    x = 16
+    for px in (x - 4, x + 1):                                                    # pernas e botas
+        q.r(px, 32, px + 2, 42, 'couro')
+        q.coluna(px, 32, 42, 'couro_luz')
+        q.r(px, 42, px + 3, 45, 'madeira_sombra')
+    q.r(x - 6, 17, x + 5, 31, 'couro')                                           # gibão
+    q.r(x - 5, 18, x - 3, 30, 'couro_luz'); q.coluna(x + 5, 17, 31, 'couro_sombra')
+    q.linha(27, x - 6, x + 5, 'ferrugem'); q.p(x - 1, 27, 'ouro_sombra')         # cinto
+    q.r(x - 6, 28, x + 5, 32, 'couro_sombra')                                    # aba do gibão
+    for px in range(x - 5, x + 5, 3): q.coluna(px, 29, 32, 'couro')
+    q.r(x - 7, 15, x + 6, 18, 'ferrugem')                                        # capa curta nos ombros
+    q.linha(15, x - 6, x + 5, 'ferrugem_luz')
+    q.r(x - 7, 18, x - 6, 27, 'pele_sombra')                                     # braço esquerdo
+    q.r(x + 6, 18, x + 7, 25, 'pele_sombra')                                     # braço direito
+    q.r(x - 4, 7, x + 4, 15, 'couro')                                            # capuz
+    q.r(x - 3, 3, x + 3, 7, 'couro'); q.r(x - 2, 3, x, 6, 'couro_luz')
+    q.r(x - 3, 9, x + 3, 13, 'pele_sombra')                                      # rosto na sombra
+    q.r(x - 3, 12, x + 3, 14, 'ferrugem')                                        # pano no rosto
+    q.p(x - 2, 10, 'vela'); q.p(x + 1, 10, 'vela')                               # olhos
+    if com_escudo:
+        q.coluna(x + 8, 14, 26, 'madeira'); q.coluna(x + 9, 15, 26, 'madeira_sombra')   # maça
+        q.r(x + 7, 11, x + 10, 15, 'pedra'); q.p(x + 7, 11, 'pedra_luz'); q.p(x + 10, 15, 'pedra_sombra')
+        q.r(x + 6, 24, x + 8, 26, 'pele_sombra')
+        q.elipse(x - 8, 24, 4, 6, 'madeira')                                     # escudo redondo
+        q.elipse(x - 8, 24, 3, 5, 'madeira_luz')
+        q.coluna(x - 8, 19, 29, 'ferrugem'); q.p(x - 8, 24, 'ferrugem_luz')
+    else:
+        q.r(x + 6, 25, x + 8, 27, 'pele_sombra')                                 # punhal para baixo
+        q.coluna(x + 7, 28, 33, 'lua'); q.p(x + 7, 34, 'pedra_luz'); q.linha(27, x + 6, x + 8, 'ouro_sombra')
+    return q.contornar()
+
+
 def criada():
     q = Q(32, 48)
     q.sombra_no_chao(16, 45, 8, 2)
@@ -350,6 +396,9 @@ def rastro_golpe():
 ARTES = {
     'assets/art/placeholders/itens/icone_espada.png': icone_espada,
     'assets/art/placeholders/itens/icone_pocao.png': icone_pocao,
+    'assets/art/placeholders/itens/icone_pocao_cura.png': lambda: icone_pocao('cura'),
+    'assets/art/placeholders/itens/icone_pocao_rapidez.png': lambda: icone_pocao('rapidez'),
+    'assets/art/placeholders/itens/icone_pocao_vigor.png': lambda: icone_pocao('vigor'),
     'assets/art/placeholders/itens/icone_carta.png': icone_carta,
     'assets/art/placeholders/itens/espada_na_mao.png': espada_na_mao,
     'assets/art/placeholders/itens/rastro_golpe.png': rastro_golpe,
@@ -361,6 +410,8 @@ ARTES = {
     'assets/art/placeholders/exploracao/arvore.png': arvore,
     'assets/art/placeholders/exploracao/guarda_provisorio.png': guarda,
     'assets/art/placeholders/exploracao/criada_provisoria.png': criada,
+    'assets/art/placeholders/exploracao/bandido_provisorio.png': lambda: bandido(False),
+    'assets/art/placeholders/exploracao/bandido_escudo_provisorio.png': lambda: bandido(True),
 }
 
 if __name__ == '__main__':

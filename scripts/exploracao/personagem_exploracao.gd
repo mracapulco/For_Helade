@@ -12,7 +12,10 @@ extends CharacterBody2D
 ## perto, na frente dele, reage ao golpe (ReacaoAoGolpe) e perde vida se
 ## tiver uma.
 ## O equipamento muda o personagem (Balanceamento): o ataque do golpe, o
-## alcance da arma e a velocidade de andar e de golpear.
+## alcance da arma e a velocidade de andar e de golpear. Poções de rapidez
+## (EfeitosTemporarios) somam velocidade por um tempo.
+## Derrota: quando a [member vida] chega a zero, ele volta para onde entrou
+## na cena, com a vida cheia, sem perder nada.
 ## Tocar num Interagivel: anda até ele e interage ao chegar.
 ## Durante uma conversa o personagem fica parado e ignora toques e teclas.
 ## Com uma [member grade], ele anda de casa em casa do chão e sempre para no
@@ -25,6 +28,8 @@ signal chegou
 signal golpeou
 ## O golpe chegou ao corte e pegou estes alvos (pode ser vazio).
 signal acertou(alvos: Array[ReacaoAoGolpe])
+## A vida chegou a zero; ele já voltou ao ponto de entrada.
+signal derrotado
 
 ## Velocidade de andar sem equipamento. O equipamento aumenta ou diminui
 ## (veja [method velocidade_andando]).
@@ -45,6 +50,10 @@ signal acertou(alvos: Array[ReacaoAoGolpe])
 ## Até onde o golpe pega, a partir dos pés dele, em pixels, quando a arma
 ## não tem alcance próprio.
 @export var alcance_golpe := 40.0
+## Vida do personagem (opcional). Sem ela, não há derrota.
+@export var vida: Vida
+## Efeitos de poções (opcional): a rapidez soma na velocidade.
+@export var efeitos: EfeitosTemporarios
 
 var andando := false
 var pulando := false
@@ -63,8 +72,10 @@ var _tempo_golpe := 0.0
 var _casa_destino := Vector2.INF
 var _casa_origem := Vector2.ZERO
 var _golpe_pendente := false
-## Multiplicador de velocidade do equipamento (1 = sem bônus).
+## Multiplicador de velocidade do equipamento e das poções (1 = sem bônus).
 var _ritmo := 1.0
+## Onde ele entrou na cena: volta para cá ao ser derrotado.
+var _ponto_de_entrada := Vector2.ZERO
 
 @onready var agente: NavigationAgent2D = $Agente
 @onready var corpo: Node2D = $Corpo
@@ -76,7 +87,12 @@ func _ready() -> void:
 	DialogueManager.dialogue_started.connect(_ao_comecar_dialogo)
 	DialogueManager.dialogue_ended.connect(_ao_terminar_dialogo)
 	Inventario.equipamento_mudou.connect(_ao_mudar_equipamento)
-	_ao_mudar_equipamento(id_inventario, Item.Encaixe.NENHUM, "")
+	if efeitos:
+		efeitos.mudou.connect(_atualizar_ritmo)
+	if vida:
+		vida.morreu.connect(_ao_ser_derrotado)
+	_ponto_de_entrada = global_position
+	_atualizar_ritmo()
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -470,5 +486,35 @@ func _atualizar_pulo(delta: float) -> void:
 
 func _ao_mudar_equipamento(quem: String, _encaixe: Item.Encaixe, _id: String) -> void:
 	if quem == id_inventario:
-		_ritmo = Balanceamento.multiplicador_velocidade(
-			int(Inventario.atributos(id_inventario).velocidade))
+		_atualizar_ritmo()
+
+
+func _atualizar_ritmo() -> void:
+	var bonus := int(Inventario.atributos(id_inventario).velocidade)
+	if efeitos:
+		bonus += efeitos.bonus_velocidade()
+	_ritmo = Balanceamento.multiplicador_velocidade(bonus)
+
+
+## Ponto de entrada novo (troca de sala, acampamento).
+func definir_ponto_de_entrada(ponto: Vector2) -> void:
+	_ponto_de_entrada = ponto
+
+
+func _ao_ser_derrotado() -> void:
+	golpeando = false
+	andando = false
+	pulando = false
+	alvo_interacao = null
+	_casa_destino = Vector2.INF
+	_golpe_pendente = false
+	velocity = Vector2.ZERO
+	corpo.position.y = 0.0
+	global_position = _ponto_de_entrada
+	if efeitos:
+		efeitos.limpar()
+	vida.restaurar()
+	# Pisca um instante para mostrar que voltou.
+	corpo.modulate.a = 0.0
+	create_tween().tween_property(corpo, "modulate:a", 1.0, 0.6)
+	derrotado.emit()

@@ -73,8 +73,15 @@ enum Origem { NENHUMA, OLYMPIA, AGAPE, KHRONOSSES, BANDIDOS }
 ## animações e quadros da folha do personagem.
 @export var visual_no_corpo: SpriteFrames
 
-## Cura, para consumíveis.
+@export_group("Poção")
+## Vida que volta na hora, para consumíveis.
 @export var cura: int = 0
+## Efeito por um tempo ([member duracao_efeito] segundos): velocidade a mais,
+## em porcentagem, e vida a mais (aumenta o máximo e enche essa parte).
+## Usar a mesma poção de novo renova o tempo, sem somar.
+@export var velocidade_temporaria: int = 0
+@export var vida_extra: int = 0
+@export var duracao_efeito: float = 0.0
 
 ## Itens da história não podem ser largados nem vendidos pelo jogador.
 func e_da_historia() -> bool:
@@ -91,3 +98,8 @@ func pode_usar() -> bool:
 
 func duas_maos() -> bool:
 	return encaixe == Encaixe.ARMA and maos >= 2
+
+
+## Tem algum efeito que dura um tempo (rapidez, vigor).
+func tem_efeito_temporario() -> bool:
+	return duracao_efeito > 0.0 and (velocidade_temporaria != 0 or vida_extra != 0)

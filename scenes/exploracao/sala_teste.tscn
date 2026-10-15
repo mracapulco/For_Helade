@@ -22,6 +22,12 @@
 [ext_resource type="Script" path="res://scripts/systems/vida.gd" id="29_vida"]
 [ext_resource type="Texture2D" path="res://assets/art/placeholders/exploracao/caixa_com_frutas.png" id="30_caixa_frutas"]
 [ext_resource type="Texture2D" path="res://assets/art/placeholders/exploracao/frutas_no_chao.png" id="31_frutas_chao"]
+[ext_resource type="Script" path="res://scripts/systems/efeitos_temporarios.gd" id="32_efeitos"]
+[ext_resource type="Script" path="res://scripts/exploracao/inimigo.gd" id="33_inimigo"]
+[ext_resource type="Script" path="res://scripts/exploracao/barra_vida_mundo.gd" id="34_barra_vida"]
+[ext_resource type="Script" path="res://scripts/ui/hud_vida.gd" id="35_hud_vida"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholders/exploracao/bandido_provisorio.png" id="36_bandido"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholders/exploracao/bandido_escudo_provisorio.png" id="37_bandido_escudo"]
 [ext_resource type="Texture2D" path="res://assets/art/placeholders/exploracao/caixa_provisoria.png" id="9_caixa"]
 [ext_resource type="Texture2D" path="res://assets/art/placeholders/exploracao/personagem_provisorio.png" id="10_personagem"]
 [ext_resource type="Texture2D" path="res://assets/art/placeholders/exploracao/bau_fechado.png" id="15_bau_fechado"]
@@ -90,11 +96,13 @@ z_index = -1
 script = ExtResource("5_marc")
 personagem = NodePath("../Personagem")
 
-[node name="Personagem" type="CharacterBody2D" parent="." unique_id=997458425 node_paths=PackedStringArray("grade")]
+[node name="Personagem" type="CharacterBody2D" parent="." unique_id=997458425 node_paths=PackedStringArray("grade", "vida", "efeitos")]
 position = Vector2(-128, 192)
 motion_mode = 1
 script = ExtResource("4_pers")
 grade = NodePath("../Chao")
+vida = NodePath("Vida")
+efeitos = NodePath("Efeitos")
 
 [node name="Sombra" type="Polygon2D" parent="Personagem" unique_id=615637889]
 color = Color(0, 0, 0, 0.35)
@@ -141,7 +149,12 @@ centered = false
 
 [node name="Vida" type="Node" parent="Personagem"]
 script = ExtResource("29_vida")
+maxima = 40
 id_inventario = "nicholas"
+
+[node name="Efeitos" type="Node" parent="Personagem" node_paths=PackedStringArray("vida")]
+script = ExtResource("32_efeitos")
+vida = NodePath("../Vida")
 
 [node name="ReacaoAoGolpe" type="Node2D" parent="Personagem" node_paths=PackedStringArray("visual", "vida")]
 script = ExtResource("26_reacao")
@@ -426,6 +439,114 @@ offset = Vector2(0, -13)
 [node name="Colisao" type="CollisionShape2D" parent="Braseiro2"]
 shape = SubResource("CircleShape2D_enfeite")
 
+[node name="Bandido" type="CharacterBody2D" parent="." node_paths=PackedStringArray("visual", "vida", "reacao")]
+position = Vector2(288, 240)
+motion_mode = 1
+script = ExtResource("33_inimigo")
+equipamento = Array[String](["punhal", "elmo_bandidos"])
+moedas = 5
+visual = NodePath("Visual")
+vida = NodePath("Vida")
+reacao = NodePath("ReacaoAoGolpe")
+
+[node name="Sombra" type="Polygon2D" parent="Bandido"]
+color = Color(0, 0, 0, 0.35)
+polygon = PackedVector2Array(9, 0, 6, 3, 0, 4, -6, 3, -9, 0, -6, -3, 0, -4, 6, -3)
+
+[node name="Visual" type="Sprite2D" parent="Bandido"]
+texture = ExtResource("36_bandido")
+offset = Vector2(0, -22)
+
+[node name="Vida" type="Node" parent="Bandido"]
+script = ExtResource("29_vida")
+maxima = 25
+
+[node name="ReacaoAoGolpe" type="Node2D" parent="Bandido" node_paths=PackedStringArray("visual", "vida")]
+script = ExtResource("26_reacao")
+visual = NodePath("../Visual")
+vida = NodePath("../Vida")
+
+[node name="BarraVida" type="Node2D" parent="Bandido" node_paths=PackedStringArray("vida")]
+position = Vector2(0, -50)
+script = ExtResource("34_barra_vida")
+vida = NodePath("../Vida")
+
+[node name="Colisao" type="CollisionShape2D" parent="Bandido"]
+shape = SubResource("CircleShape2D_figurante")
+
+[node name="Agente" type="NavigationAgent2D" parent="Bandido"]
+path_desired_distance = 4.0
+target_desired_distance = 4.0
+radius = 7.0
+
+[node name="BandidoEscudo" type="CharacterBody2D" parent="." node_paths=PackedStringArray("visual", "vida", "reacao")]
+position = Vector2(320, 256)
+motion_mode = 1
+script = ExtResource("33_inimigo")
+equipamento = Array[String](["maca", "escudo_bandidos", "armadura_leve_bandidos"])
+moedas = 8
+visual = NodePath("Visual")
+vida = NodePath("Vida")
+reacao = NodePath("ReacaoAoGolpe")
+
+[node name="Sombra" type="Polygon2D" parent="BandidoEscudo"]
+color = Color(0, 0, 0, 0.35)
+polygon = PackedVector2Array(9, 0, 6, 3, 0, 4, -6, 3, -9, 0, -6, -3, 0, -4, 6, -3)
+
+[node name="Visual" type="Sprite2D" parent="BandidoEscudo"]
+texture = ExtResource("37_bandido_escudo")
+offset = Vector2(0, -22)
+
+[node name="Vida" type="Node" parent="BandidoEscudo"]
+script = ExtResource("29_vida")
+maxima = 35
+
+[node name="ReacaoAoGolpe" type="Node2D" parent="BandidoEscudo" node_paths=PackedStringArray("visual", "vida")]
+script = ExtResource("26_reacao")
+visual = NodePath("../Visual")
+vida = NodePath("../Vida")
+
+[node name="BarraVida" type="Node2D" parent="BandidoEscudo" node_paths=PackedStringArray("vida")]
+position = Vector2(0, -50)
+script = ExtResource("34_barra_vida")
+vida = NodePath("../Vida")
+
+[node name="Colisao" type="CollisionShape2D" parent="BandidoEscudo"]
+shape = SubResource("CircleShape2D_figurante")
+
+[node name="Agente" type="NavigationAgent2D" parent="BandidoEscudo"]
+path_desired_distance = 4.0
+target_desired_distance = 4.0
+radius = 7.0
+
+[node name="BauPocoes" type="StaticBody2D" parent="." groups=["navegacao_obstaculos"]]
+position = Vector2(-96, 272)
+
+[node name="Visual" type="Sprite2D" parent="BauPocoes"]
+texture = ExtResource("15_bau_fechado")
+offset = Vector2(0, -10)
+
+[node name="Colisao" type="CollisionShape2D" parent="BauPocoes"]
+shape = SubResource("CircleShape2D_bau_corpo")
+
+[node name="Interagivel" type="Area2D" parent="BauPocoes"]
+script = ExtResource("6_mcson")
+
+[node name="AreaDeToque" type="CollisionShape2D" parent="BauPocoes/Interagivel"]
+position = Vector2(0, -12)
+shape = SubResource("CircleShape2D_bau_toque")
+
+[node name="Recompensa" type="Node" parent="BauPocoes" node_paths=PackedStringArray("interagivel", "visual")]
+script = ExtResource("14_recompensa")
+interagivel = NodePath("../Interagivel")
+visual = NodePath("../Visual")
+textura_vazio = ExtResource("16_bau_aberto")
+itens = Dictionary[String, int]({
+"pocao_cura": 3,
+"pocao_rapidez": 2,
+"pocao_vigor": 2
+})
+
 [node name="BotoesToque" parent="." instance=ExtResource("7_botoes")]
 sempre_mostrar = true
 
@@ -433,3 +554,8 @@ sempre_mostrar = true
 itens_de_teste = true
 
 [node name="AvisoItens" parent="." instance=ExtResource("13_aviso")]
+
+[node name="HudVida" type="CanvasLayer" parent="." node_paths=PackedStringArray("vida", "efeitos")]
+script = ExtResource("35_hud_vida")
+vida = NodePath("../Personagem/Vida")
+efeitos = NodePath("../Personagem/Efeitos")

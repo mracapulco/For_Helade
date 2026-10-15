@@ -175,8 +175,9 @@ func _atualizar_detalhe() -> void:
 	var tem_item := dados != null
 	nome_item.text = tr(dados.chave_nome) if tem_item else ""
 	descricao_item.text = tr(dados.chave_descricao) if tem_item else tr("BOLSA_ESCOLHA_ITEM")
-	if tem_item and dados.pode_equipar():
-		descricao_item.text += "\n" + texto_bonus(dados)
+	var bonus := texto_bonus(dados) if tem_item else ""
+	if not bonus.is_empty():
+		descricao_item.text += "\n" + bonus
 	aviso_item.text = tr("BOLSA_ITEM_DA_HISTORIA") if tem_item and dados.e_da_historia() else ""
 	botao_usar.visible = tem_item and dados.pode_usar()
 	botao_equipar.visible = tem_item and dados.pode_equipar()
@@ -200,6 +201,14 @@ static func texto_bonus(dados: Item) -> String:
 		partes.append(TranslationServer.translate("BOLSA_VELOCIDADE") % dados.velocidade)
 	if dados.alcance > Balanceamento.ALCANCE_PADRAO:
 		partes.append(TranslationServer.translate("BOLSA_ALCANCE"))
+	if dados.cura > 0:
+		partes.append(TranslationServer.translate("BOLSA_CURA") % dados.cura)
+	if dados.tem_efeito_temporario():
+		var segundos := roundi(dados.duracao_efeito)
+		if dados.velocidade_temporaria != 0:
+			partes.append(TranslationServer.translate("BOLSA_VELOCIDADE_TEMPORARIA") % [dados.velocidade_temporaria, segundos])
+		if dados.vida_extra != 0:
+			partes.append(TranslationServer.translate("BOLSA_VIDA_EXTRA") % [dados.vida_extra, segundos])
 	return " · ".join(partes)
 
 

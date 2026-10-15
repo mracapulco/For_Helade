@@ -19,10 +19,22 @@ signal morreu
 @export var reviver_ao_morrer := false
 
 var atual := 0
+## Vida a mais por um tempo (poção de vigor). Soma ao máximo.
+var extra := 0
 
 
 func _ready() -> void:
 	atual = maxima
+
+
+## Máximo agora, com a vida a mais de efeitos.
+func maxima_total() -> int:
+	return maxima + extra
+
+
+## Fração da vida (0 a 1), para as barras.
+func fracao() -> float:
+	return clampf(float(atual) / maxf(1.0, maxima_total()), 0.0, 1.0)
 
 
 func morto() -> bool:
@@ -51,16 +63,40 @@ func perder(valor: int) -> void:
 		return
 	atual = maxi(0, atual - valor)
 	machucou.emit(valor)
-	mudou.emit(atual, maxima)
+	mudou.emit(atual, maxima_total())
 	if morto():
 		morreu.emit()
 		if reviver_ao_morrer:
-			atual = maxima
-			mudou.emit(atual, maxima)
+			restaurar()
 
 
 func curar(valor: int) -> void:
 	if morto() or valor <= 0:
 		return
-	atual = mini(maxima, atual + valor)
-	mudou.emit(atual, maxima)
+	atual = mini(maxima_total(), atual + valor)
+	mudou.emit(atual, maxima_total())
+
+
+## Volta com a vida cheia (também depois de morrer).
+func restaurar() -> void:
+	atual = maxima_total()
+	mudou.emit(atual, maxima_total())
+
+
+## Ganha [param valor] de vida a mais, já cheia (poção de vigor).
+func ganhar_extra(valor: int) -> void:
+	if morto() or valor <= 0:
+		return
+	extra += valor
+	atual += valor
+	mudou.emit(atual, maxima_total())
+
+
+## O efeito acabou: o máximo volta, e a vida acima dele some (sem matar).
+func perder_extra(valor: int) -> void:
+	if valor <= 0:
+		return
+	extra = maxi(0, extra - valor)
+	if not morto():
+		atual = clampi(atual, 1, maxima_total())
+	mudou.emit(atual, maxima_total())

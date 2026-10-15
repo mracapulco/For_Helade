@@ -38,6 +38,12 @@ ITEM_ESPADA_TESTE_NOME,Espada de teste
 ITEM_ESPADA_TESTE_DESC,Provisória. Só para testar o inventário.
 ITEM_POCAO_TESTE_NOME,Poção de teste
 ITEM_POCAO_TESTE_DESC,Provisória. Recupera um pouco de vida.
+ITEM_POCAO_CURA_NOME,Poção de cura
+ITEM_POCAO_CURA_DESC,Provisória. Fecha as feridas e devolve parte da vida.
+ITEM_POCAO_RAPIDEZ_NOME,Poção de rapidez
+ITEM_POCAO_RAPIDEZ_DESC,"Provisória. Por um tempo, anda e golpeia mais rápido."
+ITEM_POCAO_VIGOR_NOME,Poção de vigor
+ITEM_POCAO_VIGOR_DESC,"Provisória. Por um tempo, aguenta mais golpes."
 ITEM_CARTA_TESTE_NOME,Carta de teste
 ITEM_CARTA_TESTE_DESC,Provisória. Item da história: não pode ser largado.
 ITEM_ESPADA_GRANDE_NOME,Espada grande
@@ -107,6 +113,10 @@ BOLSA_DEFESA,Defesa %+d
 BOLSA_VELOCIDADE,Velocidade %+d%%
 BOLSA_ALCANCE,Longo alcance
 BOLSA_DUAS_MAOS,Duas mãos
+BOLSA_CURA,Vida +%d
+BOLSA_VELOCIDADE_TEMPORARIA,Velocidade %+d%% por %ds
+BOLSA_VIDA_EXTRA,Vida máxima %+d por %ds
+HUD_VIDA,Vida %d/%d
 BOLSA_USAR,Usar
 BOLSA_EQUIPAR,Equipar
 BOLSA_DESEQUIPAR,Desequipar

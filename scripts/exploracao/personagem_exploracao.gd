@@ -7,8 +7,8 @@ extends CharacterBody2D
 ## Teclado (PC): WASD ou setas para andar, Shift para correr, Espaço para pular,
 ## Enter para interagir com o interagível mais próximo ao alcance.
 ## Golpe: com uma arma equipada, o clique esquerdo (ou o botão Golpe, no
-## celular) golpeia para onde ele andou por último. Clicar num interagível
-## continua interagindo; sem arma, o clique continua andando. Quem estiver
+## celular) golpeia para onde ele olha. No PC o clique só golpeia e o Enter
+## só interage (Rafael, 15/10): o clique nunca anda nem interage. Quem estiver
 ## perto, na frente dele, reage ao golpe (ReacaoAoGolpe) e perde vida se
 ## tiver uma.
 ## O equipamento muda o personagem (Balanceamento): o ataque do golpe, o
@@ -120,14 +120,10 @@ func _unhandled_input(event: InputEvent) -> void:
 	var na_tela: bool = event is InputEventScreenTouch or event is InputEventScreenDrag
 	if na_tela and BotoesToque.toque_em_botao(get_tree(), event.position):
 		return
-	# No PC armado, o clique golpeia: o toque que o Godot cria a partir do
-	# mouse não anda, só interage se cair num interagível.
+	# No PC o clique só golpeia e o Enter só interage (Rafael, 15/10): o
+	# toque que o Godot cria a partir do mouse não anda nem interage.
 	var do_mouse: bool = na_tela and event.device == InputEvent.DEVICE_ID_EMULATION
-	if do_mouse and armado():
-		if event is InputEventScreenTouch and event.pressed:
-			var alvo := interagivel_em(tela_para_mundo(event.position))
-			if alvo:
-				interagir_com(alvo)
+	if do_mouse:
 		get_viewport().set_input_as_handled()
 		return
 	var toque: bool = event is InputEventScreenTouch and event.pressed
@@ -139,8 +135,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		ir_para(tela_para_mundo(event.position))
 		get_viewport().set_input_as_handled()
 	elif event.is_action_pressed("golpear") and armado():
-		if not (event is InputEventMouseButton and interagivel_em(tela_para_mundo(event.position))):
-			golpear()
+		golpear()
 		get_viewport().set_input_as_handled()
 	elif event.is_action_pressed("pular"):
 		pular()

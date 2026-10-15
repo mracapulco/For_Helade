@@ -91,7 +91,11 @@ func test_companheiro_tem_fala_provisoria(id: String = use_parameters(IDS)) -> v
 	var companheiro := acampamento.companheiro
 	assert_has(companheiro.dialogo.get_cues(), companheiro.marcador, id)
 	var fala: DialogueLine = await companheiro.dialogo.get_next_dialogue_line(companheiro.marcador)
-	assert_string_contains(fala.text, "[Provisório]")
+	# Convidados (Rafael) têm falas próprias, não provisórias.
+	if companheiro.marcador == "rafael":
+		assert_eq(fala.character, "Rafael")
+	else:
+		assert_string_contains(fala.text, "[Provisório]")
 	if not fala.character.is_empty():
 		assert_not_null(Elenco.buscar(fala.character), "%s precisa estar no Elenco" % fala.character)
 
@@ -324,3 +328,25 @@ func test_anda_de_casa_em_casa_como_na_sala() -> void:
 	await wait_for_signal(personagem.chegou, 5)
 	var casa := personagem.casa_de(personagem.global_position)
 	assert_eq(personagem.global_position, personagem.centro_da_casa(casa), "o toque também para no centro")
+
+
+func test_rafael_e_shara_no_acampamento_da_mata_costeira() -> void:
+	await _abrir("ot_acampamento")
+	var mercador := acampamento.get_node("Mercador/Interagivel") as Interagivel
+	var companheiro := acampamento.get_node("Companheiro/Interagivel") as Interagivel
+	assert_eq(mercador.marcador, "shara")
+	assert_eq(companheiro.marcador, "rafael")
+	var linha: DialogueLine = await mercador.dialogo.get_next_dialogue_line("shara")
+	assert_eq(linha.character, "Shara")
+	linha = await companheiro.dialogo.get_next_dialogue_line("rafael")
+	assert_eq(linha.character, "Rafael")
+	# A barraca com toldo é só dele, ao lado, e o cenário não a cobre.
+	var barraca := acampamento.get_node("BarracaRafael") as Node2D
+	assert_lt(barraca.global_position.distance_to(acampamento.get_node("Companheiro").global_position), 96.0)
+	var cenario := acampamento.get_node("Cenario") as CenarioAcampamento
+	assert_has(cenario.reservados, barraca)
+	# Os outros acampamentos continuam com o mercador genérico.
+	acampamento.free()
+	await _abrir("oa_acampamento")
+	assert_eq((acampamento.get_node("Mercador/Interagivel") as Interagivel).marcador, "mercador")
+	assert_false(acampamento.has_node("BarracaRafael"))

@@ -2,6 +2,30 @@
 
 [ext_resource type="PackedScene" path="res://scenes/exploracao/acampamentos/acampamento_base.tscn" id="1_base"]
 [ext_resource type="Resource" path="res://data/acampamentos/ot_acampamento.tres" id="2_bioma"]
+[ext_resource type="Texture2D" path="res://assets/art/convidados/shara/shara_banca.png" id="3_banca_shara"]
+[ext_resource type="Texture2D" path="res://assets/art/convidados/rafael/rafael_barraca.png" id="4_barraca_rafael"]
+
+[sub_resource type="CircleShape2D" id="Forma_barraca_rafael"]
+radius = 18.0
 
 [node name="Acampamento" instance=ExtResource("1_base")]
 bioma = ExtResource("2_bioma")
+
+[node name="Cenario" parent="." index="3" node_paths=PackedStringArray("chao", "fundo", "reservados", "saida", "companheiro")]
+reservados = [NodePath("../Fogueira"), NodePath("../Barraca"), NodePath("../Mercador"), NodePath("../Banca"), NodePath("../Companheiro"), NodePath("../Personagem"), NodePath("../BarracaRafael")]
+
+[node name="Interagivel" parent="Mercador" index="2"]
+marcador = "shara"
+
+[node name="Visual" parent="Banca" index="0"]
+texture = ExtResource("3_banca_shara")
+
+[node name="BarracaRafael" type="StaticBody2D" parent="." groups=["navegacao_obstaculos"]]
+position = Vector2(-80, 176)
+
+[node name="Visual" type="Sprite2D" parent="BarracaRafael"]
+texture = ExtResource("4_barraca_rafael")
+offset = Vector2(0, -19)
+
+[node name="Colisao" type="CollisionShape2D" parent="BarracaRafael"]
+shape = SubResource("Forma_barraca_rafael")

@@ -39,3 +39,39 @@ func _altura(caminho: String) -> int:
 	var atlas: AtlasTexture = quadros.get_frame_texture(&"parado_frente", 0)
 	var imagem := atlas.atlas.get_image().get_region(Rect2i(atlas.region))
 	return imagem.get_used_rect().size.y
+
+
+func test_retratos_em_pixel_art_com_boca_falando() -> void:
+	for nome in ["Rafael", "Shara"]:
+		var personagem := Elenco.buscar(nome)
+		assert_not_null(personagem, nome)
+		assert_true(personagem.pixel_art, nome)
+		var parado := personagem.retrato("neutro")
+		assert_not_null(parado, nome)
+		assert_eq(Vector2i(parado.get_size()), Vector2i(48, 48), nome)
+		var quadros := personagem.quadros_fala("neutro")
+		assert_eq(quadros.size(), 3, nome)
+		for quadro in quadros:
+			assert_eq(Vector2i(quadro.get_size()), Vector2i(48, 48), nome)
+		# O quadro de boca fechada é o próprio retrato parado.
+		var fechada := (quadros[0] as AtlasTexture).atlas.get_image().get_region(Rect2i((quadros[0] as AtlasTexture).region))
+		assert_eq(fechada.get_data(), parado.get_image().get_data(), nome)
+
+
+func test_quem_nao_tem_faixa_de_fala_nao_anima() -> void:
+	assert_eq(Elenco.buscar("Mercador").quadros_fala("neutro").size(), 0)
+
+
+func test_caixa_mexe_a_boca_so_enquanto_fala() -> void:
+	var caixa: CaixaDialogo = load("res://scenes/ui/caixa_dialogo.tscn").instantiate()
+	add_child_autofree(caixa)
+	var rafael := Elenco.buscar("Rafael")
+	caixa._retrato_parado = rafael.retrato("neutro")
+	caixa._quadros_fala = rafael.quadros_fala("neutro")
+	var vistos := {}
+	for i in 8:
+		caixa.animar_boca(CaixaDialogo.TEMPO_QUADRO_FALA, true)
+		vistos[caixa.retrato.texture] = true
+	assert_gt(vistos.size(), 2, "alterna os quadros da boca")
+	caixa.animar_boca(0.0, false)
+	assert_eq(caixa.retrato.texture, rafael.retrato("neutro"), "parado, volta à boca fechada")

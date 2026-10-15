@@ -1,6 +1,8 @@
 ## Falas dos acampamentos (pontos de descanso nas rotas entre os reinos).
 ## Nenhuma fala daqui é do livro: mercador, viajante e animais são figurantes
 ## genéricos, com texto provisório até existir a loja e o roteiro real.
+## Rafael e Shara são convidados (easter egg, pessoas reais) no acampamento da
+## mata costeira: ele, um viajante escoteiro; ela, mercadora de livros e poções.
 
 ~ mercador
 
@@ -11,6 +13,22 @@ Mercador: [Provisório] Minhas mercadorias ainda estão encaixotadas. A loja abr
 ~ viajante
 
 Viajante: [#retrato=neutro] [Provisório] A estrada é longa. Melhor dormir antes de seguir. [ID:ACAMP_VIAJANTE_001]
+=> END
+
+~ rafael
+
+Rafael: [#retrato=neutro] Sempre alerta, viajante! [ID:ACAMP_RAFAEL_001]
+Rafael: Armei a barraca antes de escurecer e deixei lenha seca de reserva. [ID:ACAMP_RAFAEL_002]
+Rafael: Uma boa ação por dia: hoje foi manter o fogo aceso para quem chegasse. [ID:ACAMP_RAFAEL_003]
+Rafael: E, ao partir, deixe o acampamento melhor do que o encontrou. [ID:ACAMP_RAFAEL_004]
+=> END
+
+~ shara
+
+Shara: [#retrato=neutro] Livros e poções! Tudo preparado com cuidado. [ID:ACAMP_SHARA_001]
+Shara: Cada poção leva a medida exata. Não é magia, é química: estudo e paciência. [ID:ACAMP_SHARA_002]
+Shara: E este livro foi escrito com muito carinho. Dizem que vale cada página. [ID:ACAMP_SHARA_003]
+Shara: [Provisório] A banca ainda está sendo arrumada. Volte em breve! [ID:ACAMP_SHARA_004]
 => END
 
 ~ cao

@@ -28,6 +28,7 @@ Mundo="*res://scripts/autoload/mundo.gd"
 Codice="*res://scripts/autoload/codice.gd"
 Trilha="*res://scripts/autoload/trilha.gd"
 Pausa="*res://scripts/autoload/pausa.gd"
+Lojas="*res://scripts/autoload/lojas.gd"
 
 [dialogue_manager]
 

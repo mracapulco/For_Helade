@@ -83,6 +83,7 @@ func novo_jogo() -> void:
 	Inventario.limpar()
 	Mundo.limpar()
 	Codice.limpar()
+	Lojas.limpar()
 
 
 ## Salva em [param espaco]. Sem espaço, usa o do jogo em andamento ou, num
@@ -102,6 +103,7 @@ func salvar(nova_etapa: String, espaco := 0) -> bool:
 	cfg.set_value("jogo", "inventario", Inventario.para_dados())
 	cfg.set_value("jogo", "mundo", Mundo.para_dados())
 	cfg.set_value("jogo", "codice", Codice.para_dados())
+	cfg.set_value("jogo", "lojas", Lojas.para_dados())
 	DirAccess.make_dir_recursive_absolute(pasta)
 	if cfg.save(caminho(espaco)) != OK:
 		return false
@@ -123,6 +125,7 @@ func carregar(espaco := 0) -> bool:
 	Inventario.de_dados(cfg.get_value("jogo", "inventario", {}))
 	Mundo.de_dados(cfg.get_value("jogo", "mundo", {}))
 	Codice.de_dados(cfg.get_value("jogo", "codice", {}))
+	Lojas.de_dados(cfg.get_value("jogo", "lojas", {}))
 	espaco_atual = espaco
 	return true
 

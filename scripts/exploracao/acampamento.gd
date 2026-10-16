@@ -94,7 +94,9 @@ func descansar() -> void:
 
 ## Salva sem mudar a etapa da história. O lugar salvo é este acampamento:
 ## o Continuar põe Nicholas aqui no mapa (o id do bioma é o mesmo do mapa).
+## Dormir na barraca também renova o estoque dos mercadores.
 func salvar_no_espaco(espaco: int) -> void:
+	Lojas.renovar()
 	if bioma and not bioma.id.is_empty():
 		Mundo.local_no_mapa = bioma.id
 	if not Progresso.salvar(Progresso.etapa, espaco):

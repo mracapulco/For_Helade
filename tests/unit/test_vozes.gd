@@ -36,7 +36,30 @@ func test_prologo_so_a_narracao_do_nicholas() -> void:
 	assert_does_not_have(ids, "PROLOGO_018", "Fala de outra pessoa")
 	assert_does_not_have(ids, "PROLOGO_027", "Sussurros finais")
 	assert_eq(ids.size(), 23)
+	assert_eq(falas[0].modelo, "eleven_v3")
 	assert_eq(falas[0].texto, "Esta é a memória mais vívida que tenho da minha infância.")
+
+
+func test_emocao_vai_na_frente_do_texto() -> void:
+	var direcao := GeradorVozes.ler_direcao()
+	assert_eq(direcao.get("PROLOGO_008"), "[whispers] [shocked]")
+	var falas := GeradorVozes.falas_do_roteiro(load(PROLOGO), GeradorVozes.ler_vozes(), direcao)
+	var eu_congelei: Dictionary = falas.filter(func(f: Dictionary) -> bool: return f.id == "PROLOGO_008")[0]
+	assert_eq(eu_congelei.texto, "Eu congelei.", "O índice guarda o texto sem etiquetas")
+	assert_eq(GeradorVozes.texto_para_voz(eu_congelei), "[whispers] [shocked] Eu congelei.")
+
+
+func test_toda_fala_com_voz_tem_emocao() -> void:
+	var direcao := GeradorVozes.ler_direcao()
+	for fala in GeradorVozes.falas_do_roteiro(load(PROLOGO), GeradorVozes.ler_vozes(), direcao):
+		assert_false(fala.direcao.is_empty(), fala.id)
+
+
+func test_mudar_a_emocao_refaz_o_audio() -> void:
+	var fala := {"texto": "Não.", "direcao": "[firmly]", "voz_id": "v", "modelo": "m", "estabilidade": 0.5}
+	var outra := fala.duplicate()
+	outra.direcao = "[angry]"
+	assert_ne(GeradorVozes.assinatura(fala), GeradorVozes.assinatura(outra))
 
 
 func test_falas_com_nome_usam_o_falante() -> void:

@@ -7,6 +7,8 @@ extends RefCounted
 ## de cada áudio: rodar de novo só gera o que é novo ou mudou.
 
 const CONFIG := "res://data/vozes/vozes.cfg"
+## Emoção de cada fala (etiquetas do ElevenLabs v3, como "[sad]").
+const DIRECAO := "res://data/vozes/direcao.cfg"
 const PASTA_ROTEIROS := "res://data/dialogos"
 const PASTA_SAIDA := "res://assets/audio/vozes"
 const NOME_INDICE := "indice.json"
@@ -35,11 +37,22 @@ static func ler_vozes(caminho := CONFIG) -> Array[Dictionary]:
 		vozes.append({
 			"nome": secao,
 			"voz_id": cfg.get_value(secao, "voz_id", ""),
-			"modelo": cfg.get_value(secao, "modelo", "eleven_multilingual_v2"),
+			"modelo": cfg.get_value(secao, "modelo", "eleven_v3"),
+			"estabilidade": cfg.get_value(secao, "estabilidade", 0.5),
 			"falantes": cfg.get_value(secao, "falantes", []),
 			"narracao": cfg.get_value(secao, "narracao", []),
 		})
 	return vozes
+
+
+## ID da fala -> etiquetas de emoção.
+static func ler_direcao(caminho := DIRECAO) -> Dictionary:
+	var direcao := {}
+	var cfg := ConfigFile.new()
+	if cfg.load(caminho) == OK and cfg.has_section("direcao"):
+		for id in cfg.get_section_keys("direcao"):
+			direcao[id] = str(cfg.get_value("direcao", id, "")).strip_edges()
+	return direcao
 
 
 ## Todos os roteiros .dialogue dentro da pasta, nas subpastas também.
@@ -59,9 +72,10 @@ static func roteiros(pasta := PASTA_ROTEIROS) -> PackedStringArray:
 	return achados
 
 
-## As falas de um roteiro que têm voz: {id, texto, voz, voz_id, modelo}.
+## As falas de um roteiro que têm voz:
+## {id, texto, direcao, voz, voz_id, modelo, estabilidade}.
 ## Opções de escolha não entram (são rótulos do jogo, não falas).
-static func falas_do_roteiro(recurso: DialogueResource, vozes: Array[Dictionary]) -> Array[Dictionary]:
+static func falas_do_roteiro(recurso: DialogueResource, vozes: Array[Dictionary], direcao := {}) -> Array[Dictionary]:
 	var falas: Array[Dictionary] = []
 	for chave in recurso.lines:
 		var linha: Dictionary = recurso.lines[chave]
@@ -75,9 +89,11 @@ static func falas_do_roteiro(recurso: DialogueResource, vozes: Array[Dictionary]
 				falas.append({
 					"id": id,
 					"texto": limpar(linha.get("text", "")),
+					"direcao": direcao.get(id, ""),
 					"voz": voz.nome,
 					"voz_id": voz.voz_id,
 					"modelo": voz.modelo,
+					"estabilidade": voz.get("estabilidade", 0.5),
 				})
 				break
 	falas.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return a.id < b.id)
@@ -90,9 +106,14 @@ static func limpar(texto: String) -> String:
 	return etiquetas.sub(texto, "", true).strip_edges()
 
 
-## Muda quando o texto, a voz ou o modelo mudam: aí o áudio é refeito.
+## O que vai para o ElevenLabs: a emoção na frente do texto.
+static func texto_para_voz(fala: Dictionary) -> String:
+	return ("%s %s" % [fala.get("direcao", ""), fala.texto]).strip_edges()
+
+
+## Muda quando o texto, a emoção, a voz ou o modelo mudam: aí o áudio é refeito.
 static func assinatura(fala: Dictionary) -> String:
-	return ("%s|%s|%s" % [fala.texto, fala.voz_id, fala.modelo]).md5_text()
+	return ("%s|%s|%s|%s" % [texto_para_voz(fala), fala.voz_id, fala.modelo, fala.get("estabilidade", 0.5)]).md5_text()
 
 
 ## As falas sem áudio ou com áudio de um texto antigo.
@@ -138,12 +159,12 @@ static func ler_chave(caminho := CHAVE) -> String:
 
 
 ## Gera o que falta. Devolve {geradas, prontas, erros}.
-func rodar(chave: String, vozes: Array[Dictionary] = ler_vozes(), arquivos := roteiros()) -> Dictionary:
+func rodar(chave: String, vozes: Array[Dictionary] = ler_vozes(), arquivos := roteiros(), direcao := ler_direcao()) -> Dictionary:
 	var falas: Array[Dictionary] = []
 	for arquivo in arquivos:
 		var recurso: DialogueResource = load(arquivo)
 		if recurso:
-			falas.append_array(falas_do_roteiro(recurso, vozes))
+			falas.append_array(falas_do_roteiro(recurso, vozes, direcao))
 	DirAccess.make_dir_recursive_absolute(pasta_saida)
 	var indice := ler_indice()
 	var fazer := pendentes(falas, indice)
@@ -158,7 +179,7 @@ func rodar(chave: String, vozes: Array[Dictionary] = ler_vozes(), arquivos := ro
 			indice[fala.id] = {"texto": fala.texto, "voz": fala.voz, "assinatura": assinatura(fala)}
 			salvar_indice(indice)
 			resultado.geradas += 1
-			_anotar("Gerada %s: %s" % [fala.id, fala.texto])
+			_anotar("Gerada %s: %s" % [fala.id, texto_para_voz(fala)])
 		else:
 			resultado.erros.append("%s: %s" % [fala.id, resposta.erro])
 			_anotar("ERRO %s: %s" % [fala.id, resposta.erro])
@@ -177,7 +198,11 @@ func pedir_audio(fala: Dictionary, chave: String) -> Dictionary:
 		return {"audio": PackedByteArray(), "erro": "sem conexão com %s" % servidor, "codigo": 0}
 	if not _esperar(cliente, [HTTPClient.STATUS_RESOLVING, HTTPClient.STATUS_CONNECTING], HTTPClient.STATUS_CONNECTED):
 		return {"audio": PackedByteArray(), "erro": "sem conexão com %s" % servidor, "codigo": 0}
-	var corpo := JSON.stringify({"text": fala.texto, "model_id": fala.modelo})
+	var corpo := JSON.stringify({
+		"text": texto_para_voz(fala),
+		"model_id": fala.modelo,
+		"voice_settings": {"stability": fala.get("estabilidade", 0.5)},
+	})
 	var caminho := "/v1/text-to-speech/%s?output_format=%s" % [fala.voz_id, FORMATO]
 	var cabecalhos := ["xi-api-key: " + chave, "Content-Type: application/json", "Accept: audio/mpeg"]
 	cliente.request(HTTPClient.METHOD_POST, caminho, cabecalhos, corpo)

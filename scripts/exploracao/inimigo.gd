@@ -31,6 +31,9 @@ enum Estado { PARADO, PERSEGUINDO, PREPARANDO, DESCANSANDO, VOLTANDO, MORTO }
 @export var intervalo := 1.0
 ## Moedas que deixa ao morrer.
 @export var moedas := 0
+## Experiência que dá a quem o derrota (Experiencia). Lutar é opcional:
+## o nível da história vem garantido.
+@export var experiencia := 0
 
 @export var visual: Node2D
 @export var vida: Vida
@@ -292,8 +295,18 @@ func _morrer() -> void:
 		reacao.remove_from_group(ReacaoAoGolpe.GRUPO)
 	if moedas > 0:
 		Inventario.ganhar_dinheiro(moedas)
+	if experiencia > 0:
+		Experiencia.ganhar(_quem_ganha(), experiencia)
 	morreu.emit()
 	var sumir := create_tween()
 	sumir.tween_interval(0.35)
 	sumir.tween_property(self, "modulate:a", 0.0, 0.5)
 	sumir.tween_callback(queue_free)
+
+
+## Quem leva a experiência: o jogador (Nicholas, por padrão).
+func _quem_ganha() -> String:
+	var jogador := get_tree().get_first_node_in_group(Interagivel.GRUPO_JOGADOR)
+	if jogador and "id_inventario" in jogador:
+		return str(jogador.id_inventario)
+	return "nicholas"

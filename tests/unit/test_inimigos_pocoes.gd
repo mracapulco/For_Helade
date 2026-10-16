@@ -13,6 +13,7 @@ var bandido_escudo: Inimigo
 
 func before_each() -> void:
 	Inventario.limpar()
+	Experiencia.limpar()
 	GradeOcupacao.limpar()
 	sala = add_child_autofree(load("res://scenes/exploracao/sala_teste.tscn").instantiate())
 	personagem = sala.get_node("Personagem")

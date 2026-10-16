@@ -11,6 +11,7 @@ var vida: Vida
 
 func before_each() -> void:
 	Inventario.limpar()
+	Experiencia.limpar()
 	GradeOcupacao.limpar()
 
 

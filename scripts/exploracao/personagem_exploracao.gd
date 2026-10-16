@@ -70,8 +70,9 @@ const PASSOS: Array[Vector2i] = [
 @export var tempo_para_parar := 0.15
 ## Vida do personagem (opcional). Sem ela, não há derrota.
 @export var vida: Vida
-## A vida máxima vem da fase da vida (Inventario.fase()) e muda quando
-## ele cresce. Desligado, vale o máximo posto na [member vida].
+## A vida máxima vem da fase da vida (Inventario.fase()) mais o nível
+## (Experiencia) e muda quando ele cresce ou sobe de nível. Desligado,
+## vale o máximo posto na [member vida].
 @export var vida_pela_idade := true
 ## Efeitos de poções (opcional): a rapidez soma na velocidade.
 @export var efeitos: EfeitosTemporarios
@@ -113,6 +114,7 @@ func _ready() -> void:
 	DialogueManager.dialogue_ended.connect(_ao_terminar_dialogo)
 	Inventario.equipamento_mudou.connect(_ao_mudar_equipamento)
 	Inventario.faixa_etaria_mudou.connect(_ao_mudar_idade)
+	Experiencia.subiu.connect(_ao_subir_de_nivel)
 	if efeitos:
 		efeitos.mudou.connect(_atualizar_ritmo)
 	if vida:
@@ -615,9 +617,14 @@ func _ao_mudar_idade(_faixa: Inventario.FaixaEtaria) -> void:
 	_atualizar_ritmo()
 
 
+func _ao_subir_de_nivel(quem: String, _nivel: int) -> void:
+	if quem == id_inventario:
+		_atualizar_vida_maxima()
+
+
 func _atualizar_vida_maxima() -> void:
 	if vida and vida_pela_idade:
-		vida.mudar_maxima(Inventario.fase().vida_base)
+		vida.mudar_maxima(Inventario.fase().vida_base + Experiencia.bonus_vida(id_inventario))
 
 
 func _atualizar_ritmo() -> void:

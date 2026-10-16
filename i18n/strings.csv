@@ -119,6 +119,7 @@ BOLSA_CURA,Vida +%d
 BOLSA_VELOCIDADE_TEMPORARIA,Velocidade %+d%% por %ds
 BOLSA_VIDA_EXTRA,Vida máxima %+d por %ds
 HUD_VIDA,Vida %d/%d
+HUD_NIVEL,Nível %d
 BOLSA_USAR,Usar
 BOLSA_EQUIPAR,Equipar
 BOLSA_DESEQUIPAR,Desequipar
@@ -127,6 +128,7 @@ BOLSA_EQUIPADO,(equipado)
 AVISO_MOEDAS,+ %d moedas
 AVISO_BOLSA_CHEIA,Bolsa cheia
 AVISO_PESADO_DEMAIS,Pesado demais por enquanto
+AVISO_SUBIU_NIVEL,Subiu para o nível %d!
 MAPA_OLYMPIA_NOME,Olympia
 MAPA_OLYMPIA_REGIAO,"Sul, costa gélida"
 MAPA_ATENAS_NOME,Atenas

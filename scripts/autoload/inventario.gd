@@ -429,10 +429,12 @@ func itens_equipados(personagem: String) -> Array[Item]:
 
 
 ## Ataque, defesa e velocidade do personagem: o corpo da idade ([method fase])
-## mais o que tem equipado (Balanceamento.somar): { "ataque", "defesa", "velocidade" }.
+## e o nível (Experiencia), mais o que tem equipado (Balanceamento.somar):
+## { "ataque", "defesa", "velocidade" }.
 func atributos(personagem: String) -> Dictionary:
 	var corpo := fase()
-	return Balanceamento.somar(itens_equipados(personagem), corpo.ataque_base, corpo.velocidade)
+	var ataque := corpo.ataque_base + Experiencia.bonus_ataque(personagem)
+	return Balanceamento.somar(itens_equipados(personagem), ataque, corpo.velocidade)
 
 
 func desequipar(personagem: String, encaixe: Item.Encaixe) -> void:

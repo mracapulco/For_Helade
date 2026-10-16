@@ -2,7 +2,7 @@ extends Node
 ## Jogos salvos (autoload "Progresso"): 10 espaços, cada um em
 ## user://saves/espaco_NN.cfg. Cada espaço guarda em que parte da história o
 ## jogador está, mais os valores de [Relacoes] e [Influencia], a bolsa
-## ([code]Inventario[/code]) e o mapa ([code]Mundo[/code]), com o lugar onde
+## ([code]Inventario[/code]), o nível ([code]Experiencia[/code]) e o mapa ([code]Mundo[/code]), com o lugar onde
 ## ele salvou (o acampamento; depois, o reino).
 
 const PASTA := "user://saves/"
@@ -81,6 +81,7 @@ func novo_jogo() -> void:
 	Relacoes.limpar()
 	Influencia.limpar()
 	Inventario.limpar()
+	Experiencia.limpar()
 	Mundo.limpar()
 
 
@@ -99,6 +100,7 @@ func salvar(nova_etapa: String, espaco := 0) -> bool:
 	cfg.set_value("jogo", "relacoes", Relacoes.para_dados())
 	cfg.set_value("jogo", "influencia", Influencia.para_dados())
 	cfg.set_value("jogo", "inventario", Inventario.para_dados())
+	cfg.set_value("jogo", "experiencia", Experiencia.para_dados())
 	cfg.set_value("jogo", "mundo", Mundo.para_dados())
 	DirAccess.make_dir_recursive_absolute(pasta)
 	if cfg.save(caminho(espaco)) != OK:
@@ -119,6 +121,7 @@ func carregar(espaco := 0) -> bool:
 	Relacoes.de_dados(cfg.get_value("jogo", "relacoes", {}))
 	Influencia.de_dados(cfg.get_value("jogo", "influencia", {}))
 	Inventario.de_dados(cfg.get_value("jogo", "inventario", {}))
+	Experiencia.de_dados(cfg.get_value("jogo", "experiencia", {}))
 	Mundo.de_dados(cfg.get_value("jogo", "mundo", {}))
 	espaco_atual = espaco
 	return true

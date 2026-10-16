@@ -721,55 +721,139 @@ def carruagem_fundo():
     return q.im
 
 
-def _cavalo(d, a0, b, quadro, claro):
-    """Cavalo de perfil a trote, virado para +a; a0 = meio do corpo."""
+def _camada(im, desenhar, luz=1.0):
+    """Desenha numa camada à parte, clareia ou escurece e cola em im."""
+    from PIL import Image, ImageDraw, ImageEnhance
+    t = Image.new('RGBA', im.size, (0, 0, 0, 0))
+    desenhar(ImageDraw.Draw(t))
+    if luz != 1.0:
+        r, g, b, a = t.split()
+        rgb = ImageEnhance.Brightness(Image.merge('RGB', (r, g, b))).enhance(luz)
+        t = Image.merge('RGBA', (*rgb.split(), a))
+    im.alpha_composite(t)
+
+
+def _volume(im, b, meia, desenhar, camadas=6, luz_topo=1.18, luz_fundo=0.62):
+    """Dá volume a um desenho de perfil (Rafael, 16/10/2026: os cavalos e o
+    cocheiro pareciam 2D chapados): repete o perfil em planos de b - meia a
+    b + meia. O plano de trás sai escuro (o contorno), os do meio claros (o
+    dorso que a luz de cima pega) e o da frente com as cores normais."""
+    for k in range(camadas):
+        bk = b - meia + 2 * meia * k / (camadas - 1)
+        luz = luz_fundo if k == 0 else (1.0 if k == camadas - 1 else luz_topo)
+        _camada(im, lambda d, bk=bk: desenhar(d, bk), luz)
+
+
+def _sombra_no_chao(im, a0, b, ru, rb):
+    from PIL import ImageDraw
+    pts = [_carro_t(a0 + ru * math.cos(t * math.pi / 12), b + rb * math.sin(t * math.pi / 12), 0)
+           for t in range(24)]
+    _camada(im, lambda d: d.polygon(pts, fill=(10, 14, 8, 90)))
+
+
+def _cavalo(im, a0, b, quadro, claro):
+    """Cavalo a trote, virado para +a; a0 = meio do corpo. Corpo com volume
+    (vários planos), pernas de cada lado no seu plano, cabeça que balança no
+    trote, crina e cauda soltas, antolhos e arreio com fivelas douradas."""
     E = 1.45                       # cavalo maior que o desenho-base
-    def _pc(pts):
-        return _perfil(a0, b, [(u * E, v * E) for u, v in pts])
+    def _pc(bb, pts, sobe=0.0):
+        return _perfil(a0, bb, [(u * E, (v + sobe) * E) for u, v in pts])
     pele, sombra = ('cavalo', 'cavalo_sombra') if claro else ('cavalo2', 'cavalo2_sombra')
-    # pernas: pares diagonais a trote (3 quadros)
+    luz = 'cavalo_luz' if claro else 'cavalo'
+    meia = 0.16                    # meia largura do corpo, em casas
     passo = (-3, 0, 3)[quadro]
-    pernas = [(-11, passo), (-7, -passo), (9, -passo), (13, passo)]
-    for i, (u, dx) in enumerate(pernas):
-        cor = sombra if i in (0, 2) else pele
-        d.line(_pc([(u, 20), (u + dx * 0.5, 9), (u + dx, 1)]), fill=C[cor], width=4)
-        d.line(_pc([(u + dx - 1, 0), (u + dx + 1, 0)]), fill=C['roda'], width=2)
-    # cauda
-    d.polygon(_pc([(-16, 27), (-19, 24), (-21, 12), (-18, 13), (-15, 23)]), fill=C['crina'])
-    # corpo, peito e garupa
-    d.polygon(_elipse_perfil(a0, b, 0, 24 * E, 17 * E, 7.5 * E), fill=C[pele])
-    d.polygon(_elipse_perfil(a0, b, 0, 21 * E, 15 * E, 3 * E), fill=C[sombra])
-    # pescoço e cabeça
-    d.polygon(_pc([(10, 27), (15, 21), (24, 33), (21, 39), (16, 38)]), fill=C[pele])
-    d.polygon(_pc([(19, 39), (24, 40), (33, 31), (32, 28), (28, 29), (22, 34)]), fill=C[pele])
-    d.polygon(_pc([(29, 30), (33, 31), (32, 28)]), fill=C[sombra])
-    d.polygon(_pc([(20, 40), (21, 43), (23, 40)]), fill=C[pele])        # orelha
-    d.line(_pc([(10, 30), (16, 38), (20, 41)]), fill=C['crina'], width=2)   # crina
-    x, y = _pc([(26, 35)])[0]
-    d.point((x, y), fill=C['contorno'])                                              # olho
-    # arreio: coleira, cilha e rédeas
-    d.line(_pc([(13, 21), (17, 30)]), fill=C['couro'], width=2)
-    d.line(_pc([(-2, 17), (-2, 31)]), fill=C['couro'], width=2)
-    d.line(_pc([(-2, 30), (4, 31), (13, 28)]), fill=C['couro'])
-    xs, ys = _pc([(-2, 31)])[0]
-    d.point((xs, ys), fill=C['ouro'])
+    sobe = (0.0, 1.0, 0.0)[quadro]          # o corpo sobe no meio do trote
+    cabeca = (0.0, -1.0, 1.0)[quadro]       # e a cabeça balança
+    # pernas: as do lado de lá no plano de trás, as de cá no da frente
+    pernas = [(-11, passo, -1), (-7, -passo, 1), (9, -passo, -1), (13, passo, 1)]
+    def perna(d, bb, u, dx):
+        cor = sombra if bb < b else pele
+        d.line(_pc(bb, [(u, 20), (u + dx * 0.5, 9), (u + dx, 1)], sobe * 0.5), fill=C[cor], width=4)
+        d.line(_pc(bb, [(u + dx * 0.5 - 1, 9), (u + dx * 0.5 + 1, 9)]), fill=C['cavalo_sombra'], width=2)
+        d.line(_pc(bb, [(u + dx - 1, 0), (u + dx + 1, 0)]), fill=C['roda'], width=2)
+    for u, dx, lado in pernas:
+        if lado < 0:
+            _camada(im, lambda d, u=u, dx=dx: perna(d, b - meia * 0.6, u, dx), 0.85)
+    # cauda (balança com o trote) no plano do meio
+    rabo = (-1, 1, 0)[quadro]
+    _camada(im, lambda d: d.polygon(_pc(b, [(-16, 27), (-19 + rabo, 24), (-22 + rabo, 11),
+                                            (-18 + rabo, 12), (-15, 23)], sobe), fill=C['crina']))
+    # corpo, pescoço e cabeça com volume
+    def corpo(d, bb):
+        d.polygon(_elipse_perfil(a0, bb, 0, (24 + sobe) * E, 17 * E, 7.5 * E), fill=C[pele])
+        d.polygon(_elipse_perfil(a0, bb, 0, (21 + sobe) * E, 15 * E, 3 * E), fill=C[sombra])
+        d.polygon(_elipse_perfil(a0, bb, -2, (28 + sobe) * E, 12 * E, 2.5 * E), fill=C[luz])
+        d.polygon(_pc(bb, [(10, 27), (15, 21), (24, 33 + cabeca), (21, 39 + cabeca), (16, 38)], sobe), fill=C[pele])
+    _volume(im, b, meia, corpo, camadas=6)
+    def cabeca_de(d, bb):
+        c = cabeca + sobe
+        d.polygon(_pc(bb, [(19, 39), (24, 40), (33, 31), (32, 28), (28, 29), (22, 34)], c), fill=C[pele])
+        d.polygon(_pc(bb, [(29, 30), (33, 31), (32, 28)], c), fill=C[sombra])
+        d.polygon(_pc(bb, [(20, 40), (21, 44), (23, 40)], c), fill=C[pele])         # orelha
+    _volume(im, b, meia * 0.5, cabeca_de, camadas=4)
+    # crina no alto do pescoço, entre o plano do meio e o de trás
+    def crina(d):
+        c = cabeca + sobe
+        pts = [(9, 31), (12, 34), (15, 37), (18, 40), (21, 42)]
+        d.line(_pc(b - meia * 0.3, pts, c), fill=C['crina'], width=3)
+        for k, (u, v) in enumerate(pts[:-1]):
+            d.line(_pc(b - meia * 0.3, [(u, v), (u - 2, v - 3 - (k + quadro) % 2)], c), fill=C['crina'])
+    _camada(im, crina)
+    # pernas do lado de cá, por cima do corpo
+    for u, dx, lado in pernas:
+        if lado > 0:
+            _camada(im, lambda d, u=u, dx=dx: perna(d, b + meia * 0.6, u, dx))
+    # olho, antolho e arreio no plano da frente
+    def arreio(d):
+        c = cabeca + sobe
+        bb = b + meia * 0.5
+        x, y = _pc(bb, [(26, 35)], c)[0]
+        d.point((x, y), fill=C['contorno'])
+        d.polygon(_pc(bb, [(24, 34), (27, 34), (27, 37), (24, 37)], c), outline=C['couro'])   # antolho
+        d.line(_pc(bb, [(23, 33), (31, 30)], c), fill=C['couro'])                            # cabeçada
+        bf = b + meia
+        d.line(_pc(bf, [(13, 21), (17, 30)], sobe), fill=C['couro'], width=3)                # coleira
+        d.line(_pc(bf, [(-2, 17), (-2, 31)], sobe), fill=C['couro'], width=2)                # cilha
+        d.line(_pc(bf, [(-2, 30), (4, 31), (13, 28)], sobe), fill=C['couro'])
+        for u, v in ((-2, 31), (15, 25), (-2, 18)):
+            d.point(_pc(bf, [(u, v)], sobe)[0], fill=C['ouro'])
+    _camada(im, arreio)
 
 
-def _cocheiro(d):
-    """O cocheiro no banco da frente, de perfil, virado para os cavalos."""
+def _cocheiro(im, quadro):
+    """O cocheiro no banco da frente, virado para os cavalos, com volume:
+    capa, chapéu de aba, rédeas numa mão e o chicote erguido na outra."""
     A = CARRO_A
     a0, b = A + 0.25, 0.0
-    # banco alto do cocheiro
-    _carro_quad(d, [(A, -0.4, 30), (A + 0.42, -0.4, 30), (A + 0.42, 0.4, 30), (A, 0.4, 30)], 'carro_luz')
-    _carro_quad(d, [(A, 0.4, 6), (A + 0.42, 0.4, 6), (A + 0.42, 0.4, 30), (A, 0.4, 30)], 'carro')
-    _carro_quad(d, [(A + 0.42, -0.4, 6), (A + 0.42, 0.4, 6), (A + 0.42, 0.4, 30), (A + 0.42, -0.4, 30)], 'carro_sombra')
-    # corpo sentado: capa, pernas para a frente, cabeça e chapéu
-    d.polygon(_perfil(a0, b, [(-5, 30), (5, 30), (4, 46), (-3, 47), (-6, 40)]), fill=C['cocheiro'])
-    d.polygon(_perfil(a0, b, [(2, 30), (11, 29), (11, 22), (8, 22), (8, 26), (2, 26)]), fill=C['cocheiro_luz'])
-    d.polygon(_elipse_perfil(a0, b, 1, 50, 3, 3.5), fill=C['pele_cocheiro'])
-    d.polygon(_perfil(a0, b, [(-4, 52), (6, 52), (6, 54), (2, 54), (2, 58), (-2, 58), (-2, 54), (-4, 54)]),
-              fill=C['cocheiro'])
-    d.line(_perfil(a0, b, [(4, 40), (12, 36)]), fill=C['cocheiro_luz'], width=2)   # braço nas rédeas
+    sobe = (0, 1, 0)[quadro]
+    def banco(d):
+        _carro_quad(d, [(A, -0.4, 30), (A + 0.42, -0.4, 30), (A + 0.42, 0.4, 30), (A, 0.4, 30)], 'carro_luz')
+        _carro_quad(d, [(A, 0.4, 6), (A + 0.42, 0.4, 6), (A + 0.42, 0.4, 30), (A, 0.4, 30)], 'carro')
+        _carro_quad(d, [(A + 0.42, -0.4, 6), (A + 0.42, 0.4, 6), (A + 0.42, 0.4, 30), (A + 0.42, -0.4, 30)], 'carro_sombra')
+    _camada(im, banco)
+    def corpo(d, bb):
+        d.polygon(_perfil(a0, bb, [(-6, 30), (5, 30), (4, 46 + sobe), (-3, 47 + sobe), (-7, 40)]), fill=C['cocheiro'])
+        d.polygon(_perfil(a0, bb, [(2, 30), (11, 29), (11, 22), (8, 22), (8, 26), (2, 26)]), fill=C['cocheiro_luz'])
+        d.polygon(_elipse_perfil(a0, bb, 1, 50 + sobe, 3, 3.5), fill=C['pele_cocheiro'])
+    _volume(im, b, 0.11, corpo, camadas=4)
+    def chapeu(d):
+        aba = [_carro_t(a0 + 1 / CASA + 0.16 * math.cos(t * math.pi / 8), b + 0.16 * math.sin(t * math.pi / 8),
+                        53 + sobe) for t in range(16)]
+        d.polygon(aba, fill=C['cocheiro'], outline=C['contorno'])
+        d.polygon(_perfil(a0, b, [(-2, 53 + sobe), (4, 53 + sobe), (3, 58 + sobe), (-1, 58 + sobe)]),
+                  fill=C['cocheiro_luz'])
+    _camada(im, chapeu)
+    def bracos(d):
+        bf = b + 0.12
+        d.line(_perfil(a0, bf, [(1, 42 + sobe), (6, 38), (12, 36)]), fill=C['cocheiro_luz'], width=3)  # rédeas
+        x, y = _perfil(a0, bf, [(12, 36)])[0]
+        d.point((x, y), fill=C['pele_cocheiro'])
+        bt = b - 0.12                                                                    # chicote
+        ponta = (24 + 3 * (quadro - 1), 66 - abs(quadro - 1) * 2)
+        d.line(_perfil(a0, bt, [(1, 42 + sobe), (6, 46)]), fill=C['cocheiro'], width=3)
+        d.line(_perfil(a0, bt, [(6, 46), (10, 58)]), fill=C['carro_luz'], width=1)
+        d.line(_perfil(a0, bt, [(10, 58), (17, 64), ponta]), fill=C['couro'], width=1)
+    _camada(im, bracos)
 
 
 def carruagem_frente():
@@ -783,12 +867,13 @@ def carruagem_frente():
         d = ImageDraw.Draw(q.im)
         bd = CARRO_BORDA
         # cavalo do outro lado, varal e cocheiro (atrás da borda de perto)
-        _cavalo(d, A + 1.95, -0.38, (i + 1) % 3, False)
+        _sombra_no_chao(q.im, A + 1.95, 0.0, 0.85, 0.75)
+        _cavalo(q.im, A + 1.95, -0.38, (i + 1) % 3, False)
         d.line([_carro_t(A, 0.0, 12), _carro_t(A + 2.9, 0.0, 26)], fill=C['carro_luz'], width=2)
         # lado da frente (a = A), baixo em corte, e o cocheiro do lado de fora
         _carro_quad(d, [(A, -B, 6), (A, B, 6), (A, B, bd), (A, -B, bd)], 'carro_sombra')
         _carro_quad(d, [(A, -B, bd), (A + 0.06, -B, bd), (A + 0.06, B, bd), (A, B, bd)], 'ouro_sombra')
-        _cocheiro(d)
+        _cocheiro(q.im, i)
         # lado de perto (b = B): borda baixa com friso grego e porta
         _carro_quad(d, [(-A, B, 6), (A, B, 6), (A, B, bd), (-A, B, bd)], 'carro')
         _carro_quad(d, [(-A, B, bd), (A, B, bd), (A, B + 0.06, bd), (-A, B + 0.06, bd)], 'ouro_sombra')
@@ -808,11 +893,12 @@ def carruagem_frente():
         giro = i * math.pi / 12
         _roda(d, -0.95, B + 0.08, giro)
         _roda(d, 1.0, B + 0.08, giro)
-        _cavalo(d, A + 1.95, 0.38, i, True)
+        _cavalo(q.im, A + 1.95, 0.38, i, True)
         # rédeas: da boca de cada cavalo até as mãos do cocheiro
         mao = _carro_t(A + 0.25 + 12 / CASA, 0.0, 36)
-        for b in (-0.38, 0.38):
-            boca = _carro_t(A + 1.95 + 31 * 1.45 / CASA, b, 31 * 1.45)
+        for b, qd in ((-0.38, (i + 1) % 3), (0.38, i)):
+            v = 31 + (0.0, 1.0, 0.0)[qd] + (0.0, -1.0, 1.0)[qd]
+            boca = _carro_t(A + 1.95 + 31 * 1.45 / CASA, b + 0.08, v * 1.45)
             d.line([boca, mao], fill=C['couro'])
         tira.paste(q.im, (i * CARRO_W, 0))
     return tira

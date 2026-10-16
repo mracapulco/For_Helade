@@ -59,9 +59,13 @@ const TOM_AMANHECER := Color(1.0, 0.9, 0.74)
 
 ## As duas extremidades do corredor (casas do chão) para onde Nicholas olha
 ## enquanto espera o cortejo.
-const EXTREMIDADES := {"extremidade_esq": Vector2i(1, 1), "extremidade_dir": Vector2i(25, 1)}
+const EXTREMIDADES := {"extremidade_esq": Vector2i(1, 1), "extremidade_dir": Vector2i(16, 1)}
 ## Casa do chão diante da porta de Althea, onde Nicholas espera.
-const PORTA_ALTHEA_CHAO := Vector2i(12, 1)
+const PORTA_ALTHEA_CHAO := Vector2i(5, 1)
+## Para onde ele olha (na tela) quando vira para cada extremidade.
+const RUMO_EXTREMIDADES := {"extremidade_esq": Vector2(-2, -1), "extremidade_dir": Vector2(2, 1)}
+## Quanto tempo virado para uma extremidade conta como olhar para ela.
+const TEMPO_OLHANDO := 0.5
 
 ## Multiplica os tempos (os testes usam 0: tudo acontece na hora).
 @export var escala_tempo := 1.0
@@ -89,6 +93,10 @@ var extremidades_vistas: Array[String] = []
 var _offset_sentado_x := 0.0
 ## Brilho das janelas das pontas do corredor, até ele olhar por elas.
 var brilhos := {}
+## Para onde ele olhava quando começou a esperar, e quanto tempo já está
+## virado para cada extremidade.
+var _olhar_na_porta := Vector2.ZERO
+var _tempo_olhando := {}
 ## Quantas vezes Nicholas já tocou Althea na cama.
 var toques_na_cama := 0
 
@@ -210,39 +218,57 @@ func sair_do_quarto() -> void:
 # --- 3. o corredor e o cortejo ------------------------------------------
 
 func montar_corredor() -> void:
-	# Um corredor comprido, com outras portas (fechadas); oito passos entre a
-	# porta dele e a de Althea.
-	_nova_sala(26, 3, TOM_MADRUGADA)
+	# Um corredor com outras portas (fechadas); oito passos entre a porta dele
+	# e a de Althea.
+	_nova_sala(17, 3, TOM_MADRUGADA)
 	sala.piso = "passadeira"
 	# Portas fechadas ficam na própria parede; só a de Althea, o destino, é
 	# um vão com a porta.
-	for x in [3, 7, 20, 24]:
-		var nome := "porta_nicholas" if x == 20 else "porta_fechada_%d" % x
+	for x in [2, 9, 13]:
+		var nome := "porta_nicholas" if x == 13 else "porta_fechada_%d" % x
 		objetos[nome] = sala.pendurar(nome.to_pascal_case(), load(ARTE + "parede/porta_esq.png"), Vector2i(x, 0))
-	sala.abrir_vao(Vector2i(12, 0))
-	_objeto("porta_althea", "porta.png", Vector2i(12, 0), true).get_node("Interagivel") \
+	sala.abrir_vao(Vector2i(5, 0))
+	_objeto("porta_althea", "porta.png", Vector2i(5, 0), true).get_node("Interagivel") \
 		.interagido.connect(esperar_cortejo)
 	# Como o corredor do Castelo Olympia no prólogo: tochas, quadros do mapa,
 	# tapeçarias e a espada sobre a placa.
-	_pendurar({"tapecaria_esq": Vector2i(1, 0), "tocha_esq": Vector2i(5, 0),
-		"quadro_atenas_esq": Vector2i(9, 0), "tocha_esq#2": Vector2i(10, 0),
-		"espada_placa_esq": Vector2i(15, 0), "quadro_norte_esq": Vector2i(17, 0),
-		"tocha_esq#3": Vector2i(18, 0), "tocha_esq#4": Vector2i(22, 0),
+	_pendurar({"tapecaria_esq": Vector2i(1, 0), "tocha_esq": Vector2i(4, 0),
+		"quadro_atenas_esq": Vector2i(7, 0), "tocha_esq#2": Vector2i(8, 0),
+		"espada_placa_esq": Vector2i(11, 0), "tocha_esq#3": Vector2i(12, 0),
+		"quadro_norte_esq": Vector2i(14, 0), "tocha_esq#4": Vector2i(15, 0),
 		"tapecaria_dir": Vector2i(0, 2)})
 	# As duas pontas do corredor terminam numa janela, para onde ele olha
 	# enquanto espera (a faixa dourada do amanhecer entra por elas).
 	objetos["janela_esq"] = sala.pendurar("JanelaEsq", load(ARTE + "parede/janela_alta_dir.png"), Vector2i(0, 1))
-	objetos["janela_dir"] = sala.pendurar("JanelaDir", load(ARTE + "parede/janela_alta_esq.png"), Vector2i(25, 0))
+	objetos["janela_dir"] = sala.pendurar("JanelaDir", load(ARTE + "parede/janela_alta_esq.png"), Vector2i(16, 0))
 	# Para onde ele olha enquanto espera: as duas extremidades do corredor.
 	for nome: String in EXTREMIDADES:
 		_ponto(nome, EXTREMIDADES[nome]).get_node("Interagivel").interagido \
 			.connect(olhar_extremidade.bind(nome))
-	_entrar(Vector2i(20, 1))
+	_entrar(Vector2i(13, 1))
 	# Só depois de entrar na árvore (o _ready do Interagivel o liga de novo).
 	for nome: String in EXTREMIDADES:
 		_ativar(objetos[nome], false)
 	_mudar("corredor")
 	await _clarear()
+
+
+## Esperando na porta, virar para uma das pontas do corredor (ou andar até
+## ela) por um instante conta como olhar para aquela extremidade.
+func _physics_process(delta: float) -> void:
+	if etapa != "esperando" or jogador.direcao_olhar.is_equal_approx(_olhar_na_porta):
+		return
+	_olhar_na_porta = Vector2.INF
+	for nome: String in RUMO_EXTREMIDADES:
+		if extremidades_vistas.has(nome):
+			continue
+		var rumo: Vector2 = RUMO_EXTREMIDADES[nome].normalized()
+		if jogador.direcao_olhar.normalized().dot(rumo) < 0.95:
+			_tempo_olhando[nome] = 0.0
+			continue
+		_tempo_olhando[nome] = _tempo_olhando.get(nome, 0.0) + delta
+		if _tempo_olhando[nome] >= TEMPO_OLHANDO:
+			olhar_extremidade(nome)
 
 
 func esperar_cortejo() -> void:
@@ -254,6 +280,9 @@ func esperar_cortejo() -> void:
 	_frases("frases_esperando")
 	for nome: String in EXTREMIDADES:
 		_ativar(objetos[nome], true)
+	# Basta virar para uma ponta (sem ir até lá) para olhar para ela.
+	_olhar_na_porta = jogador.direcao_olhar
+	_tempo_olhando.clear()
 	# As janelas das pontas brilham até ele olhar por elas.
 	for janela: String in ["janela_esq", "janela_dir"]:
 		var brilho := create_tween().set_loops()
@@ -297,10 +326,10 @@ func olhar_extremidade(nome: String) -> void:
 func _chegada_do_cortejo() -> void:
 	# O pequeno cortejo surge ao longe e vem até a porta.
 	var chegadas := {
-		"pany": [Vector2i(1, 2), Vector2i(11, 2)],
-		"carrinho": [Vector2i(1, 1), Vector2i(10, 2)],
-		"criada_1": [Vector2i(1, 2), Vector2i(10, 1)],
-		"criada_2": [Vector2i(1, 1), Vector2i(9, 2)],
+		"pany": [Vector2i(1, 2), Vector2i(4, 2)],
+		"carrinho": [Vector2i(1, 1), Vector2i(3, 2)],
+		"criada_1": [Vector2i(1, 2), Vector2i(3, 1)],
+		"criada_2": [Vector2i(1, 1), Vector2i(2, 2)],
 	}
 	var texturas := {
 		"pany": load(ARTE + "pany_provisoria.png"),
@@ -663,7 +692,7 @@ func montar_carruagem() -> void:
 	# Mais perto, para ver os dois dentro da carruagem.
 	var camera: Camera2D = jogador.get_node("Camera")
 	var zoom_antes := camera.zoom
-	camera.zoom = zoom_antes * 1.5
+	camera.zoom = zoom_antes * 1.2
 	_mudar("carruagem")
 	var balanco := create_tween().set_loops()
 	balanco.tween_property(carro, "position:y", carro.position.y + 1.0, 0.35)
@@ -778,6 +807,10 @@ func _nova_sala(largura: int, profundidade: int, tom: Color) -> void:
 	if sala:
 		if jogador.get_parent() == sala:
 			sala.remove_child(jogador)
+		# Sai da árvore já: senão os móveis da sala velha entram na navegação
+		# da nova (o mesmo grupo de obstáculos) e fecham casas que estão livres.
+		if sala.get_parent():
+			sala.get_parent().remove_child(sala)
 		sala.queue_free()
 	objetos.clear()
 	sala = SalaMontada.new()

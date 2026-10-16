@@ -112,6 +112,8 @@ func _aposentos() -> void:
 	botao_nome.grab_focus()
 	await _esperar("nome")
 	botao_nome.visible = false
+	# Nicholas diz o nome em voz alta (se houver voz gravada).
+	Voz.tocar_texto(botao_nome.text)
 
 	_mudar("olhares")
 	# "tão rápido que sibilaram": todos se viram para Nicholas de uma vez.

@@ -27,7 +27,7 @@ O jogo é uma **segunda forma de percorrer a história**: começa e termina como
 ### Narrativa
 - História principal **fiel ao livro**; o final não muda.
 - Escolhas do jogador só em momentos pontuais (o que Nicholas diz, quem procura). Elas afetam relações e influência, nunca o rumo principal.
-- **Sem narração falada.** Texto com retratos dos personagens, música e som ambiente.
+- Texto com retratos dos personagens, música e som ambiente. **Voz do Nicholas** gerada pelo ElevenLabs (decisão de 16/10/2026): `data/vozes/vozes.cfg` diz quem tem voz; o gerador `scripts/ferramentas/gerar_vozes.gd` roda no editor do Godot e salva `assets/audio/vozes/<ID>.mp3`; o autoload `Voz` toca o áudio da fala pelo ID (sem áudio, a fala segue em silêncio).
 - **Conflitos como mecânica sem combate:** debates na corte e embates políticos como "duelos" de argumentos. As lutas que existem no livro viram cenas especiais.
 - **Códice** desbloqueável: Abençoados, casas, regiões, lenda do Ano Dourado. Pode ter conteúdo inédito da autora.
 

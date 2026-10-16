@@ -34,9 +34,9 @@ func test_prologo_so_a_narracao_do_nicholas() -> void:
 	var althea: Dictionary = falas.filter(func(f: Dictionary) -> bool: return f.id == "PROLOGO_014")[0]
 	assert_eq(althea.voz, "nicholas_crianca", "Dito pelo Nicholas de 5 anos")
 	assert_does_not_have(ids, "PROLOGO_001", "Título de lugar")
-	assert_does_not_have(ids, "PROLOGO_018", "Fala de outra pessoa")
+	assert_eq(falas.filter(func(f: Dictionary) -> bool: return f.id == "PROLOGO_018")[0].voz, "parteira", "Fala da moça que entrega Althea")
 	assert_does_not_have(ids, "PROLOGO_027", "Sussurros finais")
-	assert_eq(ids.size(), 23)
+	assert_eq(ids.size(), 24)
 	assert_eq(falas[0].modelo, "eleven_v3")
 	assert_eq(falas[0].texto, "Esta é a memória mais vívida que tenho da minha infância.")
 

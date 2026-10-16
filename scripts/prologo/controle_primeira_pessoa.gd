@@ -29,9 +29,9 @@ signal chegou(ponto: PontoDeVista)
 @export var velocidade := 1.6
 ## Velocidade segurando Shift, quando correr está liberado.
 @export var velocidade_correndo := 3.2
-## No começo do prólogo não se corre: o passo acompanha o tempo das frases.
-## A SequenciaPrologo libera depois que Nicholas segura Althea.
-@export var pode_correr := false
+## Shift corre desde o quarto: a correria dos empregados dá a urgência
+## (pedido do Rafael, 16/10/2026). Falso, só anda.
+@export var pode_correr := true
 ## Segundos que o texto dos controles fica na tela antes de sumir de vez.
 @export var duracao_dica_controles := 20.0
 ## Impulso do pulo (m/s): uma criança pula uns 45 cm, o bastante para subir na cama.

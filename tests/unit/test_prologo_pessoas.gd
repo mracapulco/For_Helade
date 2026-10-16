@@ -273,9 +273,9 @@ func _passagens() -> PassagensPrologo:
 
 func test_empregados_so_aparecem_quando_nicholas_sai_do_quarto() -> void:
 	var passagens := _passagens()
-	assert_eq(passagens.pessoas().size(), 4, "três na correria e Janet")
-	for pessoa in passagens.pessoas():
-		assert_false(pessoa.visible, pessoa.name + " ainda não passou")
+	assert_eq(passagens.pessoas().size(), 7, "seis na correria e Janet")
+	for nome in ["Correria1", "Correria2", "Correria3", "Janet"]:
+		assert_false(passagens.get_node(nome).visible, nome + " ainda não passou")
 	cena.continuar_em(_ponto("PortaQuarto"))
 	await wait_until(func() -> bool: return passagens.em_caminho.size() >= 2, 4.0)
 	for pessoa: PessoaPrologo in passagens.em_caminho.keys():
@@ -308,6 +308,19 @@ func test_ninguem_corre_mais_depois_que_nicholas_entra() -> void:
 	assert_true(passagens.em_caminho.is_empty())
 	for pessoa in passagens.pessoas():
 		assert_false(pessoa.visible, pessoa.name)
+
+
+func test_empregadas_correm_no_corredor_desde_o_quarto() -> void:
+	# Pedido do Rafael (16/10/2026): urgência antes mesmo de sair do quarto.
+	var passagens := _passagens()
+	var correria: PessoaPrologo = passagens.get_node("Correria4")
+	assert_true(String(correria.name) in passagens.repetem)
+	await wait_until(func() -> bool: return correria.visible, 6.0)
+	assert_true(correria.visible, "já corre com Nicholas no quarto")
+	assert_eq(correria.atividade, "correndo")
+	await wait_until(func() -> bool: return not correria.visible, 15.0)
+	await wait_until(func() -> bool: return correria.visible, 10.0)
+	assert_true(correria.visible, "volta a passar, a correria não para")
 
 
 # --- Janet no quarto vazio (planos/prologo-npcs.md, etapa 4) ---

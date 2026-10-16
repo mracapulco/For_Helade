@@ -5,7 +5,7 @@ extends Node3D
 ## cabeça para -X, como fica no colo de quem a segura.
 ## "ela, toda suja de sangue": manchas representadas no pano.
 
-@export_range(0.0, 1.0, 0.05) var sangue := 0.6
+@export_range(0.0, 1.0, 0.05) var sangue := 1.0
 @export var chorando := false
 
 const BOCA := Vector3(0.008, 0.0035, 0.003)
@@ -35,7 +35,7 @@ func _ready() -> void:
 	# Deitada de costas: o rosto para cima e o alto da cabeça para -X.
 	_cabeca.rotation = BASE_CABECA
 	if sangue > 0.0:
-		var manchas := [[Vector3(0.05, 0.082, -0.02), 0.03], [Vector3(0.13, 0.06, -0.03), 0.022], [Vector3(-0.0, 0.084, 0.025), 0.02]]
+		var manchas := [[Vector3(0.05, 0.082, -0.02), 0.04], [Vector3(0.13, 0.06, -0.03), 0.032], [Vector3(-0.0, 0.084, 0.025), 0.03], [Vector3(0.09, 0.075, 0.03), 0.026]]
 		for i in ceili(sangue * manchas.size()):
 			var tamanho: float = manchas[i][1]
 			MalhaCorpo.peca(corpo, "Mancha", MalhaCorpo.elipsoide(Vector3(tamanho * 1.3, 0.006, tamanho)), MalhaCorpo.sangue(), manchas[i][0])

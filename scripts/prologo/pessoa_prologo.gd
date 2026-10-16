@@ -308,7 +308,7 @@ func _braco(lado: int, roupa_mat: Material, largura: float) -> void:
 	var pulso := MalhaCorpo.junta(cotovelo, "Pulso", Vector3(0, -0.25, 0))
 	MalhaCorpo.mao(pulso, _material_pele, 0.95, false, 0.25, lado)
 	if sangue > 0.0 and mangas_arregacadas:
-		MalhaCorpo.peca(cotovelo, "Mancha", MalhaCorpo.elipsoide(Vector3(0.03, 0.04, 0.03)), MalhaCorpo.sangue(), Vector3(0, -0.2, -0.008))
+		MalhaCorpo.peca(cotovelo, "Mancha", MalhaCorpo.elipsoide(Vector3(0.045, 0.07, 0.045)), MalhaCorpo.sangue(), Vector3(0, -0.2, -0.008))
 	ombros.append(ombro)
 	cotovelos.append(cotovelo)
 	pulsos.append(pulso)
@@ -333,7 +333,7 @@ func _manchas(pai: Node3D, comprimento: float) -> void:
 		return
 	var aleatorio := RandomNumberGenerator.new()
 	aleatorio.seed = 7 + semente
-	var quantas := int(ceil(sangue * 5.0))
+	var quantas := int(ceil(sangue * 8.0))
 	for i in quantas:
 		var y := lerpf(-0.15, comprimento + 0.06, aleatorio.randf())
 		var t := inverse_lerp(-0.1, comprimento, y)
@@ -341,7 +341,7 @@ func _manchas(pai: Node3D, comprimento: float) -> void:
 		var rz := lerpf(0.15, 0.225, clampf(t, 0, 1))
 		var angulo := aleatorio.randf_range(-0.8, 0.8)
 		var pos := Vector3(sin(angulo) * rx, y, -cos(angulo) * rz - 0.004)
-		var tamanho := aleatorio.randf_range(0.025, 0.05) * (0.6 + sangue * 0.6)
+		var tamanho := aleatorio.randf_range(0.035, 0.065) * (0.7 + sangue * 0.7)
 		var mancha := MalhaCorpo.peca(pai, "Mancha", MalhaCorpo.elipsoide(Vector3(tamanho, tamanho * 1.3, 0.004)), MalhaCorpo.sangue(), pos)
 		mancha.rotation.y = -angulo
 

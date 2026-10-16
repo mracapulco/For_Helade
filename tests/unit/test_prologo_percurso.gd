@@ -74,23 +74,7 @@ func test_mira_na_passagem_encontra_o_alvo() -> void:
 	assert_null(cena._alvo_na_mira())
 
 
-func test_shift_nao_corre_no_prologo() -> void:
-	var inicio := cena.corpo.global_position
-	Input.action_press("mover_frente")
-	await wait_physics_frames(20)
-	var andando := cena.corpo.global_position.distance_to(inicio)
-	inicio = cena.corpo.global_position
-	Input.action_press("correr")
-	await wait_physics_frames(20)
-	var com_shift := cena.corpo.global_position.distance_to(inicio)
-	Input.action_release("correr")
-	Input.action_release("mover_frente")
-	assert_gt(andando, 0.1)
-	assert_almost_eq(com_shift, andando, andando * 0.15)
-
-
-func test_shift_corre_depois_de_segurar_althea() -> void:
-	cena.pode_correr = true
+func test_shift_corre_desde_o_quarto() -> void:
 	var inicio := cena.corpo.global_position
 	Input.action_press("mover_frente")
 	await wait_physics_frames(20)
@@ -101,11 +85,8 @@ func test_shift_corre_depois_de_segurar_althea() -> void:
 	var correndo := cena.corpo.global_position.distance_to(inicio)
 	Input.action_release("correr")
 	Input.action_release("mover_frente")
+	assert_gt(andando, 0.1)
 	assert_gt(correndo, andando * 1.5)
-	var fonte := FileAccess.get_file_as_string("res://scripts/prologo/sequencia_prologo.gd")
-	var liberar := fonte.find("controle.pode_correr = true")
-	assert_between(liberar, fonte.find("await _esperar(\"segurar\")"), fonte.find("_mudar(\"depois\")"),
-		"correr volta depois de segurar Althea")
 
 
 func test_texto_dos_controles_some_e_nao_volta() -> void:

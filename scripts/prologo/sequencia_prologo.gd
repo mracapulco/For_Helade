@@ -167,8 +167,6 @@ func _aposentos() -> void:
 	# Nicholas olha para a irmã nos braços.
 	create_tween().set_trans(Tween.TRANS_SINE).tween_property(controle.camera, "rotation:x", -0.45, _t(0.8))
 
-	# Com Althea nos braços, Nicholas já pode correr pelo castelo.
-	controle.pode_correr = true
 	_mudar("nos_bracos")
 	await controle.tocar_cena("parabens")
 	await controle.tocar_cena("costume")

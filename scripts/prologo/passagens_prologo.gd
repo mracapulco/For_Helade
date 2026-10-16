@@ -25,11 +25,18 @@ extends Node3D
 @export var atrasos := {}
 ## Etapas da sequência em que quem ainda está no caminho some de vez.
 @export var etapas_que_encerram: Array[String] = ["caos"]
+## Quem volta a passar depois de uma pausa, cada vez num sentido, até a
+## passagem encerrar (a correria que não para enquanto a duquesa dá à luz).
+@export var repetem: Array[String] = []
+## Segundos de pausa (mínimo e máximo) antes de quem repete passar de novo.
+@export var pausa_repeticao := Vector2(2.0, 5.0)
 
 ## Pessoas andando agora, com o caminho que falta.
 var em_caminho := {}
 var _ja_passaram: Array[String] = []
 var _encerrado := false
+## Quem repete e já está voltando (caminho de trás para a frente).
+var _voltando := {}
 
 
 func _ready() -> void:
@@ -84,6 +91,8 @@ func _partir(pessoa: PessoaPrologo) -> void:
 	var pontos: Array[Vector3] = []
 	for marco in caminho.get_children():
 		pontos.append((marco as Node3D).global_position)
+	if _voltando.get(pessoa, false):
+		pontos.reverse()
 	pessoa.global_position = pontos[0]
 	pessoa.visible = true
 	var rapidez: float = velocidades.get(String(pessoa.name), 2.8)
@@ -132,6 +141,10 @@ func _chegou_ao_fim(pessoa: PessoaPrologo) -> void:
 	em_caminho.erase(pessoa)
 	pessoa.visible = false
 	pessoa.atividade = "parada"
+	if String(pessoa.name) in repetem and not _encerrado:
+		_voltando[pessoa] = not _voltando.get(pessoa, false)
+		var pausa := randf_range(pausa_repeticao.x, pausa_repeticao.y)
+		get_tree().create_timer(pausa, false).timeout.connect(_partir.bind(pessoa))
 
 
 func _virar(pessoa: PessoaPrologo, alvo: Vector3) -> void:

@@ -14,7 +14,7 @@ extends Node3D
 @export var cor_cabelo := Color(0.17, 0.11, 0.07)
 @export var cor_pele := Color(0.8, 0.63, 0.52)
 ## Quanto o lençol tem de sangue representado (0 a 1).
-@export_range(0.0, 1.0, 0.05) var sangue := 0.7
+@export_range(0.0, 1.0, 0.05) var sangue := 0.95
 ## Segundos entre o choro e a partida (multiplicados pela escala de tempo).
 @export var tempo_ate_partir := 3.0
 
@@ -211,7 +211,7 @@ func _cor_lencol(x: float, z: float, ruido: FastNoiseLite) -> Color:
 	if sangue <= 0.0:
 		return branco
 	var centro := Vector2(0.0, -0.75)
-	var d := Vector2(x / 0.3, (z - centro.y) / 0.42).length()
+	var d := Vector2(x / 0.4, (z - centro.y) / 0.6).length()
 	var forma := 1.0 - d + 0.35 * ruido.get_noise_2d(x, z)
 	var mancha := smoothstep(0.0, 0.25, forma) * sangue
-	return branco.lerp(MalhaCorpo.COR_SANGUE / Color(0.93, 0.91, 0.87, 1.0), clampf(mancha, 0.0, 0.85))
+	return branco.lerp(MalhaCorpo.COR_SANGUE / Color(0.93, 0.91, 0.87, 1.0), clampf(mancha, 0.0, 0.97))

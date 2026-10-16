@@ -9,7 +9,7 @@ const LINHO_RELEVO := "res://assets/art/prologo/texturas/linho_normal.png"
 const LINHO_ASPEREZA := "res://assets/art/prologo/texturas/linho_aspereza.jpg"
 
 ## Sangue representado: escuro e fosco, sem brilho de ferida.
-const COR_SANGUE := Color(0.3, 0.04, 0.04)
+const COR_SANGUE := Color(0.48, 0.03, 0.04)
 
 const LADOS := 20
 

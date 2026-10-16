@@ -114,7 +114,7 @@ transform = Transform3D(0.0, 0, -1.0, 0, 1, 0, 1.0, 0, 0.0, 10.75, 0, 8.1)
 script = ExtResource("12_pessoa")
 cor_roupa = Color(0.36, 0.3, 0.25, 1)
 mangas_arregacadas = true
-sangue = 0.5
+sangue = 0.85
 atividade = "trabalhando"
 semente = 1
 altura = 1.6
@@ -138,7 +138,7 @@ transform = Transform3D(-1.0, 0, 0.0, 0, 1, 0, -0.0, 0, -1.0, 12.35, 0, 6.45)
 script = ExtResource("12_pessoa")
 cor_roupa = Color(0.32, 0.29, 0.26, 1)
 mangas_arregacadas = true
-sangue = 0.3
+sangue = 0.6
 atividade = "trabalhando"
 semente = 2
 altura = 1.66
@@ -181,12 +181,18 @@ gatilhos = {
 "Correria1": "PortaQuarto",
 "Correria2": "PortaQuarto",
 "Correria3": "Corredor",
+"Correria4": "Cama",
+"Correria5": "Cama",
+"Correria6": "Cama",
 "Janet": "etapa:quarto_vazio"
 }
 velocidades = {
 "Correria1": 3.2,
 "Correria2": 2.9,
 "Correria3": 2.7,
+"Correria4": 3.0,
+"Correria5": 3.3,
+"Correria6": 2.8,
 "Janet": 1.0
 }
 atividades = {
@@ -196,9 +202,13 @@ aparecem_antes = Array[String](["Janet"])
 atrasos = {
 "Correria1": 0.6,
 "Correria2": 2.2,
+"Correria4": 1.0,
+"Correria5": 3.5,
+"Correria6": 6.0,
 "Janet": 3.2
 }
 etapas_que_encerram = Array[String](["caos", "varanda"])
+repetem = Array[String](["Correria4", "Correria5", "Correria6"])
 
 [node name="Correria1" type="Node3D" parent="Passagens"]
 script = ExtResource("12_pessoa")
@@ -263,6 +273,56 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.8, 0, 0.9)
 
 [node name="P3" type="Marker3D" parent="Passagens/CaminhoCorreria3"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14.7, 0, 1.0)
+
+[node name="Correria4" type="Node3D" parent="Passagens"]
+script = ExtResource("12_pessoa")
+cor_roupa = Color(0.27, 0.25, 0.22, 1)
+semente = 15
+altura = 1.62
+
+[node name="Correria5" type="Node3D" parent="Passagens"]
+script = ExtResource("12_pessoa")
+cor_roupa = Color(0.35, 0.3, 0.33, 1)
+touca = false
+cor_cabelo = Color(0.12, 0.09, 0.07, 1)
+semente = 16
+altura = 1.55
+
+[node name="Correria6" type="Node3D" parent="Passagens"]
+script = ExtResource("12_pessoa")
+cor_roupa = Color(0.24, 0.27, 0.25, 1)
+semente = 17
+altura = 1.66
+
+[node name="CaminhoCorreria4" type="Node3D" parent="Passagens"]
+
+[node name="P0" type="Marker3D" parent="Passagens/CaminhoCorreria4"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14.7, 0, 1.6)
+
+[node name="P1" type="Marker3D" parent="Passagens/CaminhoCorreria4"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14.7, 0, 1.6)
+
+[node name="CaminhoCorreria5" type="Node3D" parent="Passagens"]
+
+[node name="P0" type="Marker3D" parent="Passagens/CaminhoCorreria5"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14.7, 0, 1.1)
+
+[node name="P1" type="Marker3D" parent="Passagens/CaminhoCorreria5"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14.7, 0, 1.1)
+
+[node name="CaminhoCorreria6" type="Node3D" parent="Passagens"]
+
+[node name="P0" type="Marker3D" parent="Passagens/CaminhoCorreria6"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.0, 0, 5.6)
+
+[node name="P1" type="Marker3D" parent="Passagens/CaminhoCorreria6"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.0, 0, 3.0)
+
+[node name="P2" type="Marker3D" parent="Passagens/CaminhoCorreria6"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.8, 0, 1.2)
+
+[node name="P3" type="Marker3D" parent="Passagens/CaminhoCorreria6"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14.7, 0, 1.2)
 
 [node name="Janet" type="Node3D" parent="Passagens"]
 script = ExtResource("12_pessoa")

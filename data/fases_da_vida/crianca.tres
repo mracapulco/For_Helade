@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="FaseDaVida" format=3]
+
+[ext_resource type="Script" path="res://scripts/systems/fase_da_vida.gd" id="1_fase"]
+
+[resource]
+script = ExtResource("1_fase")
+vida_base = 25
+ataque_base = 1
+velocidade = 10

@@ -83,6 +83,17 @@ func restaurar() -> void:
 	mudou.emit(atual, maxima_total())
 
 
+## Novo máximo (o personagem cresceu, subiu de nível). Ganha ou perde a
+## diferença na vida atual, sem matar.
+func mudar_maxima(nova: int) -> void:
+	nova = maxi(1, nova)
+	var diferenca := nova - maxima
+	maxima = nova
+	if not morto():
+		atual = clampi(atual + diferenca, 1, maxima_total())
+	mudou.emit(atual, maxima_total())
+
+
 ## Ganha [param valor] de vida a mais, já cheia (poção de vigor).
 func ganhar_extra(valor: int) -> void:
 	if morto() or valor <= 0:

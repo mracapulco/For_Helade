@@ -54,6 +54,10 @@ enum Origem { NENHUMA, OLYMPIA, AGAPE, KHRONOSSES, BANDIDOS }
 ## 1 = comum, 2 = reforçado. Quanto maior, mais pontos de bônus.
 @export_range(0, 5) var nivel: int = 1
 
+## Fase da vida a partir da qual dá para equipar (mesma ordem de
+## Inventario.FaixaEtaria). Antes disso, "Pesado demais por enquanto".
+@export_enum("Criança", "Adolescente", "Adulto") var fase_minima: int = 0
+
 @export_group("Bônus")
 ## Bônus somados aos do personagem enquanto o item está equipado.
 ## Cada item gasta os pontos que o nível e o encaixe dão (Balanceamento).

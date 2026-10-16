@@ -313,8 +313,8 @@ func test_sem_arma_em_combate_da_soco() -> void:
 	var vida_antes := bandido.vida.atual
 	assert_true(personagem.golpear())
 	await wait_seconds(personagem.momento_do_corte / personagem.ritmo() + 0.05)
-	var dano := Balanceamento.dano(Balanceamento.ATAQUE_BASE, bandido.vida.defesa_total())
-	assert_eq(bandido.vida.atual, vida_antes - dano, "O soco usa o ataque base.")
+	var dano := Balanceamento.dano(Inventario.fase().ataque_base, bandido.vida.defesa_total())
+	assert_eq(bandido.vida.atual, vida_antes - dano, "O soco usa o ataque da idade.")
 
 
 func test_inimigo_morto_nao_conta_como_combate() -> void:

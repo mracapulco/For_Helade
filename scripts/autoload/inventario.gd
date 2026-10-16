@@ -22,6 +22,10 @@ signal espacos_mudaram
 signal capacidade_mudou(espacos: int)
 ## Algo não entrou por falta de espaço (aviso "Bolsa cheia").
 signal bolsa_cheia
+## A fase da vida mudou (bolsa, vida, ataque e o que dá para equipar).
+signal faixa_etaria_mudou(faixa: FaixaEtaria)
+## Tentou equipar algo pesado demais para a idade (aviso na tela).
+signal pesado_demais(id: String)
 ## O espaço selecionado na barra rápida mudou (tecla 1 a 9 ou toque).
 signal selecao_mudou(indice: int)
 
@@ -37,8 +41,11 @@ const CAPACIDADE: Dictionary[FaixaEtaria, int] = {
 const ESPACOS_RAPIDOS := 9
 
 const PASTA_ITENS := "res://data/itens/"
+## Um FaseDaVida por idade: crianca.tres, adolescente.tres, adulto.tres.
+const PASTA_FASES := "res://data/fases_da_vida/"
 
 var _catalogo: Dictionary[String, Item] = {}
+var _fases: Dictionary[FaixaEtaria, FaseDaVida] = {}
 ## Cada espaço é {} (vazio) ou { "id": String, "quantidade": int }.
 ## Pode passar do limite só quando a bolsa encolheu (nada some).
 var _espacos: Array[Dictionary] = []
@@ -136,11 +143,29 @@ func espaco(indice: int) -> Dictionary:
 
 ## Muda a idade. A bolsa cresce na hora; se encolher, os itens que
 ## ficarem fora do limite continuam lá, mas nada novo entra neles.
+## O que ficou pesado demais para a nova idade é desequipado (fica na bolsa).
 func mudar_faixa_etaria(faixa: FaixaEtaria) -> void:
 	faixa_etaria = faixa
 	_ajustar_tamanho()
+	_desequipar_pesados()
 	capacidade_mudou.emit(numero_de_espacos())
 	espacos_mudaram.emit()
+	faixa_etaria_mudou.emit(faixa)
+
+
+## O corpo na idade atual: vida, ataque sem arma e velocidade.
+func fase() -> FaseDaVida:
+	if not _fases.has(faixa_etaria):
+		var nome := str(FaixaEtaria.find_key(faixa_etaria)).to_lower()
+		var dados := load(PASTA_FASES + nome + ".tres") as FaseDaVida
+		_fases[faixa_etaria] = dados if dados else FaseDaVida.new()
+	return _fases[faixa_etaria]
+
+
+## O item existe, se equipa, mas a idade atual ainda não deixa.
+func pesado_para_a_idade(id: String) -> bool:
+	var dados := item(id)
+	return dados != null and dados.pode_equipar() and dados.fase_minima > faixa_etaria
 
 
 ## Cabe [param qtd] de [param id] na bolsa? Itens da história sempre cabem.
@@ -372,6 +397,9 @@ func equipar(personagem: String, id: String) -> bool:
 	var dados := item(id)
 	if dados == null or not dados.pode_equipar():
 		return false
+	if pesado_para_a_idade(id):
+		pesado_demais.emit(id)
+		return false
 	if equipado(personagem, dados.encaixe) == id:
 		return true
 	if _vezes_equipado(id) >= quantidade(id):
@@ -400,10 +428,11 @@ func itens_equipados(personagem: String) -> Array[Item]:
 	return itens
 
 
-## Ataque, defesa e velocidade do personagem com o que tem equipado
-## (Balanceamento.somar): { "ataque", "defesa", "velocidade" }.
+## Ataque, defesa e velocidade do personagem: o corpo da idade ([method fase])
+## mais o que tem equipado (Balanceamento.somar): { "ataque", "defesa", "velocidade" }.
 func atributos(personagem: String) -> Dictionary:
-	return Balanceamento.somar(itens_equipados(personagem))
+	var corpo := fase()
+	return Balanceamento.somar(itens_equipados(personagem), corpo.ataque_base, corpo.velocidade)
 
 
 func desequipar(personagem: String, encaixe: Item.Encaixe) -> void:
@@ -511,6 +540,13 @@ func _vezes_equipado(id: String) -> int:
 			if _equipado[personagem][encaixe] == id:
 				vezes += 1
 	return vezes
+
+
+func _desequipar_pesados() -> void:
+	for personagem: String in _equipado.keys():
+		for encaixe: int in _equipado[personagem].keys():
+			if pesado_para_a_idade(_equipado[personagem][encaixe]):
+				desequipar(personagem, encaixe)
 
 
 func _desequipar_excedente(id: String) -> void:

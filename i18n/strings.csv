@@ -114,6 +114,7 @@ BOLSA_DEFESA,Defesa %+d
 BOLSA_VELOCIDADE,Velocidade %+d%%
 BOLSA_ALCANCE,Longo alcance
 BOLSA_DUAS_MAOS,Duas mãos
+BOLSA_PESADO_DEMAIS,Pesado demais por enquanto
 BOLSA_CURA,Vida +%d
 BOLSA_VELOCIDADE_TEMPORARIA,Velocidade %+d%% por %ds
 BOLSA_VIDA_EXTRA,Vida máxima %+d por %ds
@@ -125,6 +126,7 @@ BOLSA_LARGAR,Largar
 BOLSA_EQUIPADO,(equipado)
 AVISO_MOEDAS,+ %d moedas
 AVISO_BOLSA_CHEIA,Bolsa cheia
+AVISO_PESADO_DEMAIS,Pesado demais por enquanto
 MAPA_OLYMPIA_NOME,Olympia
 MAPA_OLYMPIA_REGIAO,"Sul, costa gélida"
 MAPA_ATENAS_NOME,Atenas

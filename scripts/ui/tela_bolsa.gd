@@ -257,12 +257,15 @@ func _atualizar_detalhe() -> void:
 	if tem_item and dados.pode_equipar():
 		var equipado := Inventario.equipado(personagem, dados.encaixe) == item_escolhido
 		botao_equipar.text = tr("BOLSA_DESEQUIPAR") if equipado else tr("BOLSA_EQUIPAR")
+		botao_equipar.disabled = not equipado and Inventario.pesado_para_a_idade(item_escolhido)
 
 
 ## Bônus do item numa linha, por exemplo "Ataque +7 · Velocidade +5%".
 ## Só o que muda alguma coisa.
 static func texto_bonus(dados: Item) -> String:
 	var partes: PackedStringArray = []
+	if Inventario.pesado_para_a_idade(dados.id):
+		partes.append(TranslationServer.translate("BOLSA_PESADO_DEMAIS"))
 	if dados.duas_maos():
 		partes.append(TranslationServer.translate("BOLSA_DUAS_MAOS"))
 	if dados.ataque != 0:

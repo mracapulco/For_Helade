@@ -17,5 +17,6 @@ encaixe = 4
 preco = 50
 origem = 1
 nivel = 1
+fase_minima = 1
 defesa = 7
 velocidade = -5

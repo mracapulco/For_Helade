@@ -15,6 +15,11 @@ static func protecoes() -> Array[String]:
 	return ids
 
 
+func before_each() -> void:
+	# Adulto: pode equipar tudo (o que cada idade pode está em test_fase_da_vida).
+	Inventario.mudar_faixa_etaria(Inventario.FaixaEtaria.ADULTO)
+
+
 func after_each() -> void:
 	Inventario.limpar()
 
@@ -163,14 +168,14 @@ func test_atributos_somam_o_equipamento() -> void:
 		Inventario.adicionar(id)
 		Inventario.equipar("nicholas", id)
 	var a := Inventario.atributos("nicholas")
-	assert_eq(a.ataque, Balanceamento.ATAQUE_BASE + 7)
+	assert_eq(a.ataque, Inventario.fase().ataque_base + 7)
 	assert_eq(a.defesa, 2 + 7 + 9 + 5)
 	assert_eq(a.velocidade, 5 - 5 + 5 - 5)
 
 
 func test_sem_nada_equipado_so_o_ataque_base() -> void:
 	var a := Inventario.atributos("nicholas")
-	assert_eq(a.ataque, Balanceamento.ATAQUE_BASE)
+	assert_eq(a.ataque, Inventario.fase().ataque_base)
 	assert_eq(a.defesa, 0)
 	assert_eq(a.velocidade, 0)
 

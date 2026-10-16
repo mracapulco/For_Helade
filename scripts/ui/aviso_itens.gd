@@ -23,6 +23,7 @@ func _ready() -> void:
 	Inventario.recebeu.connect(_ao_receber)
 	Inventario.dinheiro_recebido.connect(_ao_receber_dinheiro)
 	Inventario.bolsa_cheia.connect(_ao_encher_bolsa)
+	Inventario.pesado_demais.connect(_ao_tentar_pesado)
 
 
 ## Textos dos avisos que estão na tela agora.
@@ -62,3 +63,7 @@ func _ao_receber_dinheiro(valor: int) -> void:
 
 func _ao_encher_bolsa() -> void:
 	mostrar(tr("AVISO_BOLSA_CHEIA"))
+
+
+func _ao_tentar_pesado(_id: String) -> void:
+	mostrar(tr("AVISO_PESADO_DEMAIS"))

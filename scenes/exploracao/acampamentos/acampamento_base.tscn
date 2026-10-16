@@ -113,6 +113,7 @@ sprite_frames = ExtResource("7_nicholas")
 animation = &"parado_frente"
 offset = Vector2(0, -22)
 script = ExtResource("8_anim")
+nicholas_pela_idade = true
 
 [node name="Colisao" type="CollisionShape2D" parent="Personagem"]
 shape = SubResource("Forma_personagem")

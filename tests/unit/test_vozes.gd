@@ -94,6 +94,21 @@ func test_idade_pelo_roteiro_e_excecoes_por_fala() -> void:
 	assert_eq(GeradorVozes.voz_da_fala("", "PROLOGO_014", vozes, PROLOGO).nome, "crianca", "falas vence tudo")
 
 
+func test_pronuncia_so_muda_o_audio() -> void:
+	var pronuncia := GeradorVozes.ler_pronuncia()
+	assert_eq(GeradorVozes.pronunciar("Althea? Feliz aniversário, Thea!", pronuncia), "Alfía? Feliz aniversário, Fía!")
+	assert_eq(GeradorVozes.pronunciar("Theano", pronuncia), "Theano", "Só palavra inteira")
+	var falas := GeradorVozes.falas_do_roteiro(load(PROLOGO), GeradorVozes.ler_vozes(), {}, pronuncia)
+	var nome: Dictionary = falas.filter(func(f: Dictionary) -> bool: return f.id == "PROLOGO_014")[0]
+	assert_eq(nome.texto, "Althea?", "O índice guarda o texto da tela")
+	assert_true(GeradorVozes.texto_para_voz(nome).ends_with("Alfía?"))
+
+
+func test_apollon_tem_voz() -> void:
+	var vozes := GeradorVozes.ler_vozes()
+	assert_eq(GeradorVozes.voz_da_fala("Apollon", "CAP1_066", vozes, "res://data/dialogos/capitulo_01/manha.dialogue").voz_id, "29Pm0vQJJRoVfMCsUKB6")
+
+
 func test_falas_com_nome_usam_o_falante() -> void:
 	var vozes: Array[Dictionary] = [{"nome": "x", "voz_id": "v", "modelo": "m", "falantes": ["Janet"], "narracao": []}]
 	var falas := GeradorVozes.falas_do_roteiro(load("res://data/dialogos/teste/teste.dialogue"), vozes)

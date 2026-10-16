@@ -9,6 +9,8 @@ extends RefCounted
 const CONFIG := "res://data/vozes/vozes.cfg"
 ## Emoção de cada fala (etiquetas do ElevenLabs v3, como "[sad]").
 const DIRECAO := "res://data/vozes/direcao.cfg"
+## Como dizer nomes que o modelo erra (palavra escrita = como falar).
+const PRONUNCIA := "res://data/vozes/pronuncia.cfg"
 const PASTA_ROTEIROS := "res://data/dialogos"
 const PASTA_SAIDA := "res://assets/audio/vozes"
 const NOME_INDICE := "indice.json"
@@ -58,6 +60,25 @@ static func ler_direcao(caminho := DIRECAO) -> Dictionary:
 	return direcao
 
 
+## Palavra escrita -> como deve soar (só no áudio; a tela não muda).
+static func ler_pronuncia(caminho := PRONUNCIA) -> Dictionary:
+	var pronuncia := {}
+	var cfg := ConfigFile.new()
+	if cfg.load(caminho) == OK and cfg.has_section("pronuncia"):
+		for palavra in cfg.get_section_keys("pronuncia"):
+			pronuncia[palavra] = str(cfg.get_value("pronuncia", palavra, ""))
+	return pronuncia
+
+
+## Troca as palavras inteiras (com maiúscula ou minúscula, como estiverem
+## no arquivo de pronúncia) pela forma falada.
+static func pronunciar(texto: String, pronuncia: Dictionary) -> String:
+	for palavra: String in pronuncia:
+		var regra := RegEx.create_from_string("(?<![\\p{L}])" + palavra + "(?![\\p{L}])")
+		texto = regra.sub(texto, pronuncia[palavra], true)
+	return texto
+
+
 ## Todos os roteiros .dialogue dentro da pasta, nas subpastas também.
 static func roteiros(pasta := PASTA_ROTEIROS) -> PackedStringArray:
 	var achados := PackedStringArray()
@@ -78,7 +99,7 @@ static func roteiros(pasta := PASTA_ROTEIROS) -> PackedStringArray:
 ## As falas de um roteiro que têm voz:
 ## {id, texto, direcao, voz, voz_id, modelo, estabilidade}.
 ## Opções de escolha não entram (são rótulos do jogo, não falas).
-static func falas_do_roteiro(recurso: DialogueResource, vozes: Array[Dictionary], direcao := {}) -> Array[Dictionary]:
+static func falas_do_roteiro(recurso: DialogueResource, vozes: Array[Dictionary], direcao := {}, pronuncia := {}) -> Array[Dictionary]:
 	var falas: Array[Dictionary] = []
 	for chave in recurso.lines:
 		var linha: Dictionary = recurso.lines[chave]
@@ -88,9 +109,11 @@ static func falas_do_roteiro(recurso: DialogueResource, vozes: Array[Dictionary]
 		var personagem: String = linha.get("character", "")
 		var voz := voz_da_fala(personagem, id, vozes, recurso.resource_path)
 		if not voz.is_empty():
+			var texto := limpar(linha.get("text", ""))
 			falas.append({
 				"id": id,
-				"texto": limpar(linha.get("text", "")),
+				"texto": texto,
+				"falado": pronunciar(texto, pronuncia),
 				"direcao": direcao.get(id, ""),
 				"voz": voz.nome,
 				"voz_id": voz.voz_id,
@@ -143,7 +166,7 @@ static func limpar(texto: String) -> String:
 ## O que vai para o ElevenLabs: sotaque e emoção na frente do texto.
 static func texto_para_voz(fala: Dictionary) -> String:
 	var partes := PackedStringArray()
-	for parte: String in [fala.get("sotaque", ""), fala.get("direcao", ""), fala.texto]:
+	for parte: String in [fala.get("sotaque", ""), fala.get("direcao", ""), fala.get("falado", fala.texto)]:
 		if not parte.is_empty():
 			partes.append(parte)
 	return " ".join(partes)
@@ -197,12 +220,12 @@ static func ler_chave(caminho := CHAVE) -> String:
 
 
 ## Gera o que falta. Devolve {geradas, prontas, erros}.
-func rodar(chave: String, vozes: Array[Dictionary] = ler_vozes(), arquivos := roteiros(), direcao := ler_direcao()) -> Dictionary:
+func rodar(chave: String, vozes: Array[Dictionary] = ler_vozes(), arquivos := roteiros(), direcao := ler_direcao(), pronuncia := ler_pronuncia()) -> Dictionary:
 	var falas: Array[Dictionary] = []
 	for arquivo in arquivos:
 		var recurso: DialogueResource = load(arquivo)
 		if recurso:
-			falas.append_array(falas_do_roteiro(recurso, vozes, direcao))
+			falas.append_array(falas_do_roteiro(recurso, vozes, direcao, pronuncia))
 	DirAccess.make_dir_recursive_absolute(pasta_saida)
 	var indice := ler_indice()
 	var fazer := pendentes(falas, indice)

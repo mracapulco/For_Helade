@@ -20,16 +20,17 @@ def bordao():
     # Bastão de caminhada do Próskopos: vara longa de madeira clara, com a
     # cabeça entalhada, faixa verde com anel dourado e ponteira de ferro.
     # Ponta para baixo, como as outras armas; o punho 2×2 fica vazio.
-    q = Q(8, 40); g = armas.PEGA['bordao'] = (3, 7); gx, gy = g
+    # Comprimento: com Nicholas parado, a ponteira encosta no chão.
+    q = Q(8, 37); g = armas.PEGA['bordao'] = (3, 7); gx, gy = g
     q.r(gx - 1, 0, gx + 2, 3, 'madeira')                                         # cabeça entalhada
     q.r(gx - 1, 0, gx, 2, 'madeira_luz'); q.linha(3, gx - 1, gx + 2, 'madeira_sombra')
     q.p(gx + 2, 1, 'madeira_sombra')
     q.r(gx, 4, gx + 1, 5, 'folha'); q.p(gx, 4, 'folha_luz')                      # faixa verde
     q.linha(6, gx, gx + 1, 'ouro')                                               # anel
-    armas.cabo(q, gx, gy + 2, 35)                                                # vara
-    for y in (14, 22, 30):                                                       # nós da madeira
+    armas.cabo(q, gx, gy + 2, 32)                                                # vara
+    for y in (14, 21, 28):                                                       # nós da madeira
         q.p(gx + 1, y, 'madeira_sombra')
-    q.r(gx, 36, gx + 1, 38, 'pedra'); q.p(gx, 36, 'pedra_luz')                    # ponteira
+    q.r(gx, 33, gx + 1, 35, 'pedra'); q.p(gx, 33, 'pedra_luz')                    # ponteira
     return armas.contornar_menos(q, armas.punho(g))
 
 

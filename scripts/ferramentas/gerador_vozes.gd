@@ -232,7 +232,7 @@ func rodar(chave: String, vozes: Array[Dictionary] = ler_vozes(), arquivos := ro
 	var resultado := {"geradas": 0, "prontas": falas.size() - fazer.size(), "erros": []}
 	_anotar("%d falas com voz; %d já prontas, %d para gerar." % [falas.size(), resultado.prontas, fazer.size()])
 	for fala in fazer:
-		var resposta := pedir_audio(fala, chave)
+		var resposta := pedir_com_novas_tentativas(fala, chave)
 		if resposta.erro.is_empty():
 			var arquivo := FileAccess.open(caminho_audio(fala.id), FileAccess.WRITE)
 			arquivo.store_buffer(resposta.audio)
@@ -251,6 +251,22 @@ func rodar(chave: String, vozes: Array[Dictionary] = ler_vozes(), arquivos := ro
 	return resultado
 
 
+## Pede o áudio e, se a conexão cair ou o servidor estiver ocupado (429,
+## 5xx), tenta de novo até [param tentativas] vezes, esperando um pouco mais
+## a cada vez. Chave errada ou texto recusado (4xx) não se repete.
+func pedir_com_novas_tentativas(fala: Dictionary, chave: String, tentativas := 3, espera_ms := 3000) -> Dictionary:
+	var resposta := {}
+	for tentativa in tentativas:
+		resposta = pedir_audio(fala, chave)
+		var passageiro: bool = resposta.codigo == 0 or resposta.codigo == 429 or resposta.codigo >= 500
+		if resposta.erro.is_empty() or not passageiro:
+			return resposta
+		if tentativa < tentativas - 1:
+			_anotar("Falhou %s (%s); tentando de novo..." % [fala.id, resposta.erro])
+			OS.delay_msec(espera_ms * (tentativa + 1))
+	return resposta
+
+
 ## Pede o áudio de uma fala ao ElevenLabs. Devolve {audio, erro, codigo}.
 func pedir_audio(fala: Dictionary, chave: String) -> Dictionary:
 	var cliente := HTTPClient.new()
@@ -267,8 +283,9 @@ func pedir_audio(fala: Dictionary, chave: String) -> Dictionary:
 	var caminho := "/v1/text-to-speech/%s?output_format=%s" % [fala.voz_id, FORMATO]
 	var cabecalhos := ["xi-api-key: " + chave, "Content-Type: application/json", "Accept: audio/mpeg"]
 	cliente.request(HTTPClient.METHOD_POST, caminho, cabecalhos, corpo)
-	if not _esperar(cliente, [HTTPClient.STATUS_REQUESTING], HTTPClient.STATUS_BODY) and cliente.get_status() != HTTPClient.STATUS_CONNECTED:
-		return {"audio": PackedByteArray(), "erro": "o servidor não respondeu", "codigo": 0}
+	# O v3 pode demorar para começar a responder: espera até 2 minutos.
+	if not _esperar(cliente, [HTTPClient.STATUS_REQUESTING], HTTPClient.STATUS_BODY, 120000) and cliente.get_status() != HTTPClient.STATUS_CONNECTED:
+		return {"audio": PackedByteArray(), "erro": "o servidor não respondeu (estado %d)" % cliente.get_status(), "codigo": 0}
 	var codigo := cliente.get_response_code()
 	var dados := PackedByteArray()
 	while cliente.get_status() == HTTPClient.STATUS_BODY:

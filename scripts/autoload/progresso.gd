@@ -88,11 +88,13 @@ func novo_jogo() -> void:
 ## jogo que ainda não salvou, o primeiro livre. Devolve false se não salvou
 ## (todos os espaços cheios e nenhum escolhido).
 func salvar(nova_etapa: String, espaco := 0) -> bool:
+	# A história avança mesmo sem espaço para salvar (os 10 cheios): senão o
+	# mapa não sabe a fase e Nicholas fica fora do reino dela.
+	etapa = nova_etapa
 	if espaco == 0:
 		espaco = espaco_atual if espaco_atual > 0 else primeiro_espaco_livre()
 	if not espaco_valido(espaco):
 		return false
-	etapa = nova_etapa
 	var cfg := ConfigFile.new()
 	cfg.set_value("jogo", "etapa", etapa)
 	cfg.set_value("jogo", "salvo_em", Time.get_unix_time_from_system())

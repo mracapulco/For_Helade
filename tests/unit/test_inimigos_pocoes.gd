@@ -295,6 +295,36 @@ func test_flecha_para_no_primeiro_da_linha() -> void:
 	assert_eq(personagem.alvos_do_golpe(), [bandido.reacao] as Array[ReacaoAoGolpe])
 
 
+func test_sem_arma_longe_do_combate_nao_golpeia() -> void:
+	assert_false(personagem.em_combate(), "Os bandidos começam longe.")
+	assert_false(personagem.golpear())
+
+
+func test_sem_arma_em_combate_da_soco() -> void:
+	bandido.process_mode = Node.PROCESS_MODE_DISABLED
+	bandido_escudo.process_mode = Node.PROCESS_MODE_DISABLED
+	var aqui := _casa(bandido) + Vector2i(-1, 0)
+	_levar(personagem, aqui)
+	_olhar_para(Vector2i(1, 0))
+	assert_true(personagem.em_combate())
+	var botoes: BotoesToque = sala.get_node("BotoesToque")
+	await wait_process_frames(2)
+	assert_true(botoes.botao_golpe.visible, "No celular, o botão Golpe aparece para o soco.")
+	var vida_antes := bandido.vida.atual
+	assert_true(personagem.golpear())
+	await wait_seconds(personagem.momento_do_corte / personagem.ritmo() + 0.05)
+	var dano := Balanceamento.dano(Balanceamento.ATAQUE_BASE, bandido.vida.defesa_total())
+	assert_eq(bandido.vida.atual, vida_antes - dano, "O soco usa o ataque base.")
+
+
+func test_inimigo_morto_nao_conta_como_combate() -> void:
+	_levar(personagem, _casa(bandido) + Vector2i(-1, 0))
+	bandido_escudo.queue_free()
+	bandido.reacao.receber_golpe(Vector2.RIGHT, 999)
+	await wait_physics_frames(1)
+	assert_false(personagem.em_combate())
+
+
 # ---------- derrota ----------
 
 func test_derrota_volta_ao_inicio_com_vida_cheia() -> void:

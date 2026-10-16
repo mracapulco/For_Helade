@@ -7,7 +7,8 @@ extends CharacterBody2D
 ## Teclado (PC): WASD ou setas para andar, Shift para correr, Espaço para pular,
 ## Enter para interagir com o interagível mais próximo ao alcance.
 ## Golpe: com uma arma equipada, o clique esquerdo (ou o botão Golpe, no
-## celular) golpeia para onde ele olha. No PC o clique só golpeia e o Enter
+## celular) golpeia para onde ele olha. Sem arma, com um inimigo vivo
+## por perto ([member raio_combate]), o mesmo clique dá um soco (ataque base). No PC o clique só golpeia e o Enter
 ## só interage (Rafael, 15/10): o clique nunca anda nem interage. Quem estiver
 ## perto, na frente dele, reage ao golpe (ReacaoAoGolpe) e perde vida se
 ## tiver uma.
@@ -59,6 +60,8 @@ const PASSOS: Array[Vector2i] = [
 ## Até onde o golpe pega, a partir dos pés dele, em pixels, quando a arma
 ## não tem alcance próprio.
 @export var alcance_golpe := 40.0
+## Sem arma, o clique dá soco quando há um inimigo vivo a esta distância.
+@export var raio_combate := 200.0
 ## Com [member grade], parado: apertar uma direção diferente da que ele olha
 ## só vira o corpo; segurando a tecla por este tempo (ou apertando de novo),
 ## anda. Andando, trocar de direção vira e segue sem pausa.
@@ -134,7 +137,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		alvo_interacao = null
 		ir_para(tela_para_mundo(event.position))
 		get_viewport().set_input_as_handled()
-	elif event.is_action_pressed("golpear") and armado():
+	elif event.is_action_pressed("golpear") and pode_golpear():
 		golpear()
 		get_viewport().set_input_as_handled()
 	elif event.is_action_pressed("pular"):
@@ -230,6 +233,20 @@ func armado() -> bool:
 	return not Inventario.equipado(id_inventario, Item.Encaixe.ARMA).is_empty()
 
 
+## Está em combate: há um inimigo vivo a até [member raio_combate].
+func em_combate() -> bool:
+	for no in get_tree().get_nodes_in_group(Inimigo.GRUPO):
+		var inimigo := no as Node2D
+		if inimigo and global_position.distance_to(inimigo.global_position) <= raio_combate:
+			return true
+	return false
+
+
+## Pode golpear agora: com arma sempre; sem arma, só em combate (soco).
+func pode_golpear() -> bool:
+	return armado() or em_combate()
+
+
 ## Arma equipada agora, ou null.
 func arma() -> Item:
 	return Inventario.item(Inventario.equipado(id_inventario, Item.Encaixe.ARMA))
@@ -261,11 +278,12 @@ func alcance_do_golpe() -> float:
 	return dados.alcance if dados and dados.alcance > 0.0 else alcance_golpe
 
 
-## Golpe com a arma equipada, para onde ele está olhando ([member direcao_olhar]).
-## Para de andar. Devolve false se não puder golpear agora (sem arma, em
-## conversa ou no meio de outro golpe).
+## Golpe com a arma equipada (ou soco, sem arma, em combate), para onde ele
+## está olhando ([member direcao_olhar]). Para de andar. Devolve false se não
+## puder golpear agora (sem arma fora de combate, em conversa ou no meio de
+## outro golpe).
 func golpear() -> bool:
-	if em_dialogo or golpeando or not armado():
+	if em_dialogo or golpeando or not pode_golpear():
 		return false
 	if indo_para_casa():
 		# Termina o passo antes, para golpear sempre do centro de uma casa.

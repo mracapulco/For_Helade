@@ -12,6 +12,9 @@ extends CharacterBody2D
 signal golpeou
 signal morreu
 
+## Grupo dos inimigos vivos (o Nicholas sabe que está em combate).
+const GRUPO := &"inimigos"
+
 enum Estado { PARADO, PERSEGUINDO, PREPARANDO, DESCANSANDO, VOLTANDO, MORTO }
 
 ## Ids de itens (data/itens/) que ele usa: arma, escudo, armadura, elmo.
@@ -52,6 +55,7 @@ var _destino := Vector2.INF
 
 
 func _ready() -> void:
+	add_to_group(GRUPO)
 	for id in equipamento:
 		var item := Inventario.item(id)
 		if item:
@@ -282,6 +286,7 @@ func _golpear() -> void:
 func _morrer() -> void:
 	estado = Estado.MORTO
 	velocity = Vector2.ZERO
+	remove_from_group(GRUPO)
 	GradeOcupacao.liberar_tudo(self)
 	if reacao:
 		reacao.remove_from_group(ReacaoAoGolpe.GRUPO)

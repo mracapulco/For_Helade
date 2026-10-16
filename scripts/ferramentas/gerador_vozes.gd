@@ -39,6 +39,7 @@ static func ler_vozes(caminho := CONFIG) -> Array[Dictionary]:
 			"voz_id": cfg.get_value(secao, "voz_id", ""),
 			"modelo": cfg.get_value(secao, "modelo", "eleven_v3"),
 			"estabilidade": cfg.get_value(secao, "estabilidade", 0.5),
+			"sotaque": cfg.get_value(secao, "sotaque", ""),
 			"falantes": cfg.get_value(secao, "falantes", []),
 			"narracao": cfg.get_value(secao, "narracao", []),
 		})
@@ -83,21 +84,38 @@ static func falas_do_roteiro(recurso: DialogueResource, vozes: Array[Dictionary]
 		if linha.get("type") != "dialogue" or id.is_empty():
 			continue
 		var personagem: String = linha.get("character", "")
-		for voz in vozes:
-			var dela: bool = personagem in voz.falantes if not personagem.is_empty() else id in voz.narracao
-			if dela:
-				falas.append({
-					"id": id,
-					"texto": limpar(linha.get("text", "")),
-					"direcao": direcao.get(id, ""),
-					"voz": voz.nome,
-					"voz_id": voz.voz_id,
-					"modelo": voz.modelo,
-					"estabilidade": voz.get("estabilidade", 0.5),
-				})
-				break
+		var voz := voz_da_fala(personagem, id, vozes)
+		if not voz.is_empty():
+			falas.append({
+				"id": id,
+				"texto": limpar(linha.get("text", "")),
+				"direcao": direcao.get(id, ""),
+				"voz": voz.nome,
+				"voz_id": voz.voz_id,
+				"modelo": voz.modelo,
+				"estabilidade": voz.get("estabilidade", 0.5),
+				"sotaque": voz.get("sotaque", ""),
+			})
 	falas.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return a.id < b.id)
 	return falas
+
+
+## A voz de quem diz a fala. Um nome em "falantes" vence o "*" (a voz de
+## qualquer outro personagem com nome, para os NPCs). Falas sem nome só têm
+## voz se o ID estiver em "narracao". Sem voz: dicionário vazio.
+static func voz_da_fala(personagem: String, id: String, vozes: Array[Dictionary]) -> Dictionary:
+	if personagem.is_empty():
+		for voz in vozes:
+			if id in voz.narracao:
+				return voz
+		return {}
+	for voz in vozes:
+		if personagem in voz.falantes:
+			return voz
+	for voz in vozes:
+		if "*" in voz.falantes:
+			return voz
+	return {}
 
 
 ## O texto como deve ser lido: sem etiquetas entre colchetes.
@@ -106,9 +124,13 @@ static func limpar(texto: String) -> String:
 	return etiquetas.sub(texto, "", true).strip_edges()
 
 
-## O que vai para o ElevenLabs: a emoção na frente do texto.
+## O que vai para o ElevenLabs: sotaque e emoção na frente do texto.
 static func texto_para_voz(fala: Dictionary) -> String:
-	return ("%s %s" % [fala.get("direcao", ""), fala.texto]).strip_edges()
+	var partes := PackedStringArray()
+	for parte: String in [fala.get("sotaque", ""), fala.get("direcao", ""), fala.texto]:
+		if not parte.is_empty():
+			partes.append(parte)
+	return " ".join(partes)
 
 
 ## Muda quando o texto, a emoção, a voz ou o modelo mudam: aí o áudio é refeito.

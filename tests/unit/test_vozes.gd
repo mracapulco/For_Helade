@@ -46,7 +46,7 @@ func test_emocao_vai_na_frente_do_texto() -> void:
 	var falas := GeradorVozes.falas_do_roteiro(load(PROLOGO), GeradorVozes.ler_vozes(), direcao)
 	var eu_congelei: Dictionary = falas.filter(func(f: Dictionary) -> bool: return f.id == "PROLOGO_008")[0]
 	assert_eq(eu_congelei.texto, "Eu congelei.", "O índice guarda o texto sem etiquetas")
-	assert_eq(GeradorVozes.texto_para_voz(eu_congelei), "[whispers] [shocked] Eu congelei.")
+	assert_eq(GeradorVozes.texto_para_voz(eu_congelei), "[Brazilian Portuguese accent] [whispers] [shocked] Eu congelei.")
 
 
 func test_toda_fala_com_voz_tem_emocao() -> void:
@@ -60,6 +60,23 @@ func test_mudar_a_emocao_refaz_o_audio() -> void:
 	var outra := fala.duplicate()
 	outra.direcao = "[angry]"
 	assert_ne(GeradorVozes.assinatura(fala), GeradorVozes.assinatura(outra))
+
+
+func test_sotaque_vai_antes_da_emocao() -> void:
+	var fala := {"texto": "Não.", "direcao": "[firmly]", "sotaque": "[Brazilian Portuguese accent]"}
+	assert_eq(GeradorVozes.texto_para_voz(fala), "[Brazilian Portuguese accent] [firmly] Não.")
+	assert_eq(GeradorVozes.texto_para_voz({"texto": "Não."}), "Não.")
+	assert_eq(GeradorVozes.ler_vozes()[0].sotaque, "[Brazilian Portuguese accent]")
+
+
+func test_npcs_usam_a_voz_coringa() -> void:
+	var vozes: Array[Dictionary] = [
+		{"nome": "npcs", "voz_id": "n", "modelo": "m", "falantes": ["*"], "narracao": []},
+		{"nome": "janet", "voz_id": "j", "modelo": "m", "falantes": ["Janet"], "narracao": []},
+	]
+	assert_eq(GeradorVozes.voz_da_fala("Janet", "X", vozes).nome, "janet", "Voz própria vence o coringa")
+	assert_eq(GeradorVozes.voz_da_fala("Mercador", "X", vozes).nome, "npcs")
+	assert_true(GeradorVozes.voz_da_fala("", "X", vozes).is_empty(), "Narração sem ID listado fica sem voz")
 
 
 func test_falas_com_nome_usam_o_falante() -> void:

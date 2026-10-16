@@ -22,6 +22,8 @@ signal espacos_mudaram
 signal capacidade_mudou(espacos: int)
 ## Algo não entrou por falta de espaço (aviso "Bolsa cheia").
 signal bolsa_cheia
+## O espaço selecionado na barra rápida mudou (tecla 1 a 9 ou toque).
+signal selecao_mudou(indice: int)
 
 enum FaixaEtaria { CRIANCA, ADOLESCENTE, ADULTO }
 
@@ -43,6 +45,8 @@ var _espacos: Array[Dictionary] = []
 ## Itens da história: id -> quantidade, fora dos espaços.
 var _historia: Dictionary[String, int] = {}
 var faixa_etaria: FaixaEtaria = FaixaEtaria.CRIANCA
+## Espaço da barra rápida que está na mão (0 a 8), como no Minecraft.
+var espaco_selecionado := 0
 var _dinheiro: int = 0
 ## personagem -> { Item.Encaixe -> id do item }
 var _equipado: Dictionary[String, Dictionary] = {}
@@ -236,7 +240,51 @@ func trocar_espacos(origem: int, destino: int) -> bool:
 	return true
 
 
-## Tecla 1 a 9 (ou toque na barra rápida): arma ou proteção equipa, ou
+## Tecla 1 a 9 (ou toque na barra rápida): põe o espaço na mão. Arma vai
+## para a mão (equipa); qualquer outra coisa tira a arma da mão. Nada é
+## usado aqui: quem usa é o clique ([method usar_selecionado]).
+func selecionar_espaco(indice: int, personagem: String) -> void:
+	if indice < 0 or indice >= ESPACOS_RAPIDOS:
+		return
+	espaco_selecionado = indice
+	segurar_selecionado(personagem)
+	selecao_mudou.emit(indice)
+
+
+## Equipa a arma do espaço selecionado ou, se não houver arma nele,
+## tira a arma da mão.
+func segurar_selecionado(personagem: String) -> void:
+	var dados := item_selecionado()
+	if dados and dados.encaixe == Item.Encaixe.ARMA:
+		equipar(personagem, dados.id)
+	else:
+		desequipar(personagem, Item.Encaixe.ARMA)
+
+
+## Item do espaço selecionado, ou null se estiver vazio.
+func item_selecionado() -> Item:
+	var conteudo := espaco(espaco_selecionado)
+	return item(conteudo["id"]) if not conteudo.is_empty() else null
+
+
+## O clique faz algo com o item selecionado que não seja golpear? (poção
+## bebe; proteção equipa ou desequipa). A arma golpeia pelo personagem.
+func selecionado_tem_uso() -> bool:
+	var dados := item_selecionado()
+	if dados == null:
+		return false
+	return dados.pode_usar() or (dados.pode_equipar() and dados.encaixe != Item.Encaixe.ARMA)
+
+
+## Clique com o item selecionado: poção é bebida, proteção é vestida ou
+## tirada. Arma não faz nada aqui (o golpe é do personagem).
+func usar_selecionado(personagem: String) -> bool:
+	if not selecionado_tem_uso():
+		return false
+	return usar_espaco(espaco_selecionado, personagem)
+
+
+## Arma ou proteção equipa, ou
 ## desequipa se já estiver equipada; consumível é usado. [param indice]
 ## começa em 0.
 func usar_espaco(indice: int, personagem: String) -> bool:
@@ -378,6 +426,7 @@ func limpar() -> void:
 	_espacos.clear()
 	_historia.clear()
 	faixa_etaria = FaixaEtaria.CRIANCA
+	espaco_selecionado = 0
 	_espacos.resize(capacidade())
 	_equipado.clear()
 	_coletados.clear()

@@ -1,7 +1,7 @@
 class_name BotoesToque
 extends CanvasLayer
 ## Botões grandes na tela para quem joga no toque: Correr (liga e desliga),
-## Pular e Golpe (só com uma arma equipada). Fazem o mesmo que Shift, Espaço
+## Pular e Golpe (com uma arma na mão ou algo para usar na barra rápida). Fazem o mesmo que Shift, Espaço
 ## e o clique esquerdo no PC. Somem durante as conversas.
 ## Por padrão só aparecem em aparelhos com tela de toque.
 
@@ -24,6 +24,8 @@ func _ready() -> void:
 	botao_pular.pressed.connect(pular)
 	botao_golpe.pressed.connect(golpear)
 	Inventario.equipamento_mudou.connect(_ao_mudar_equipamento)
+	Inventario.selecao_mudou.connect(_ao_mudar_selecao)
+	Inventario.espacos_mudaram.connect(_atualizar_botao_golpe)
 	_atualizar_botao_golpe()
 	visible = deve_aparecer()
 	DialogueManager.dialogue_started.connect(_ao_comecar_dialogo)
@@ -58,8 +60,15 @@ func _ao_mudar_equipamento(quem: String, _encaixe: Item.Encaixe, _id: String) ->
 		_atualizar_botao_golpe()
 
 
+func _ao_mudar_selecao(_indice: int) -> void:
+	_atualizar_botao_golpe()
+
+
+## Aparece com uma arma na mão ou com algo para usar selecionado na barra
+## rápida (poção, proteção): aí o botão usa o item, como o clique no PC.
 func _atualizar_botao_golpe() -> void:
-	botao_golpe.visible = not Inventario.equipado(personagem, Item.Encaixe.ARMA).is_empty()
+	botao_golpe.visible = not Inventario.equipado(personagem, Item.Encaixe.ARMA).is_empty() \
+			or Inventario.selecionado_tem_uso()
 
 
 func _ao_alternar_corrida(ligado: bool) -> void:

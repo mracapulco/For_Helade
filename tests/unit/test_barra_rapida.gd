@@ -34,20 +34,61 @@ func test_acoes_das_teclas_existem() -> void:
 		assert_true(InputMap.has_action(BarraRapida.acao_do_espaco(indice)), str(indice))
 
 
-func test_tecla_do_espaco_da_espada_equipa_e_desequipa() -> void:
+func test_tecla_so_seleciona_e_poe_a_arma_na_mao() -> void:
 	var indice := _indice_de("espada_media")
 	_apertar(BarraRapida.acao_do_espaco(indice))
+	assert_eq(Inventario.espaco_selecionado, indice)
+	assert_true(barra.espacos[indice].selecionado)
 	assert_eq(Inventario.equipado("nicholas", Item.Encaixe.ARMA), "espada_media")
-	assert_true(barra.espacos[indice].equipado)
-	_apertar(BarraRapida.acao_do_espaco(indice))
+
+
+func test_selecionar_a_pocao_nao_bebe_e_tira_a_arma_da_mao() -> void:
+	_apertar(BarraRapida.acao_do_espaco(_indice_de("espada_media")))
+	var antes := Inventario.quantidade("pocao_teste")
+	_apertar(BarraRapida.acao_do_espaco(_indice_de("pocao_teste")))
+	assert_eq(Inventario.quantidade("pocao_teste"), antes)
 	assert_eq(Inventario.equipado("nicholas", Item.Encaixe.ARMA), "")
 
 
-func test_tocar_no_espaco_bebe_a_pocao() -> void:
+func test_clique_bebe_a_pocao_selecionada() -> void:
+	_apertar(BarraRapida.acao_do_espaco(_indice_de("pocao_teste")))
+	var antes := Inventario.quantidade("pocao_teste")
+	_apertar(&"golpear")
+	assert_eq(Inventario.quantidade("pocao_teste"), antes - 1)
+
+
+func test_clique_com_a_arma_fica_para_o_golpe() -> void:
+	_apertar(BarraRapida.acao_do_espaco(_indice_de("espada_media")))
+	var antes := Inventario.quantidade("pocao_teste")
+	_apertar(&"golpear")
+	assert_eq(Inventario.quantidade("pocao_teste"), antes)
+	assert_eq(Inventario.equipado("nicholas", Item.Encaixe.ARMA), "espada_media")
+
+
+func test_clique_veste_e_tira_a_protecao_selecionada() -> void:
+	Inventario.adicionar("escudo_olympia")
+	_apertar(BarraRapida.acao_do_espaco(_indice_de("escudo_olympia")))
+	assert_eq(Inventario.equipado("nicholas", Item.Encaixe.ESCUDO), "")
+	_apertar(&"golpear")
+	assert_eq(Inventario.equipado("nicholas", Item.Encaixe.ESCUDO), "escudo_olympia")
+	_apertar(&"golpear")
+	assert_eq(Inventario.equipado("nicholas", Item.Encaixe.ESCUDO), "")
+
+
+func test_tocar_no_espaco_so_seleciona() -> void:
 	var indice := _indice_de("pocao_teste")
 	var antes := Inventario.quantidade("pocao_teste")
 	barra.espacos[indice].pressed.emit()
-	assert_eq(Inventario.quantidade("pocao_teste"), antes - 1)
+	assert_eq(Inventario.espaco_selecionado, indice)
+	assert_eq(Inventario.quantidade("pocao_teste"), antes)
+
+
+func test_barra_fica_no_meio_embaixo() -> void:
+	await wait_process_frames(2)
+	var centro := barra.caixa.get_global_rect().get_center()
+	var tela := barra.caixa.get_viewport_rect().size
+	assert_almost_eq(centro.x, tela.x / 2.0, 2.0)
+	assert_gt(centro.y, tela.y * 0.8)
 
 
 func test_mostra_a_quantidade() -> void:

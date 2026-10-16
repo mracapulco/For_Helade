@@ -3,6 +3,8 @@ extends Resource
 ## Dados de um item do inventário. Cada item é um .tres em
 ## res://data/itens/, e o nome do arquivo deve ser igual ao [member id].
 
+const PILHA_PADRAO := 10
+
 enum Tipo { ARMA, EQUIPAMENTO, CONSUMIVEL, HISTORIA, DIVERSOS }
 ## ESCUDO é a mão livre: escudo e proteções improvisadas (caixa, panela).
 ## Valores novos entram sempre no fim, para não mudar os .tres que já existem.
@@ -37,6 +39,10 @@ enum Origem { NENHUMA, OLYMPIA, AGAPE, KHRONOSSES, BANDIDOS }
 
 ## Onde o item é equipado. NENHUM = não se equipa.
 @export var encaixe: Encaixe = Encaixe.NENHUM
+
+## Quantas unidades cabem num espaço da bolsa. 0 = automático: 1 para
+## o que se equipa, [constant PILHA_PADRAO] para o resto.
+@export_range(0, 99) var pilha_maxima: int = 0
 
 ## Preço base em moedas, para lojas.
 @export var preco: int = 0
@@ -86,6 +92,12 @@ enum Origem { NENHUMA, OLYMPIA, AGAPE, KHRONOSSES, BANDIDOS }
 ## Itens da história não podem ser largados nem vendidos pelo jogador.
 func e_da_historia() -> bool:
 	return tipo == Tipo.HISTORIA
+
+
+func tamanho_pilha() -> int:
+	if pilha_maxima > 0:
+		return pilha_maxima
+	return 1 if pode_equipar() else PILHA_PADRAO
 
 
 func pode_equipar() -> bool:

@@ -38,6 +38,7 @@
 [ext_resource type="Texture2D" path="res://assets/art/placeholders/exploracao/arvore.png" id="20_arvore"]
 [ext_resource type="Texture2D" path="res://assets/art/placeholders/exploracao/anfora.png" id="21_anfora"]
 [ext_resource type="Texture2D" path="res://assets/art/placeholders/exploracao/braseiro.png" id="22_braseiro"]
+[ext_resource type="Script" path="res://scripts/ui/barra_rapida.gd" id="90_barra"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_pn2jv"]
 radius = 7.0
@@ -546,6 +547,9 @@ sempre_mostrar = true
 itens_de_teste = true
 
 [node name="AvisoItens" parent="." instance=ExtResource("13_aviso")]
+
+[node name="BarraRapida" type="CanvasLayer" parent="."]
+script = ExtResource("90_barra")
 
 [node name="HudVida" type="CanvasLayer" parent="." node_paths=PackedStringArray("vida", "efeitos")]
 script = ExtResource("35_hud_vida")

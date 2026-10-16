@@ -218,15 +218,23 @@ func _posar(mistura: float) -> void:
 			# Pés um pouco à frente, para aparecerem além da barra da camisola.
 			p = {"coxa_e": 0.16, "coxa_d": 0.16, "joelho_e": 0.1, "joelho_d": 0.1,
 				"ombro_e": 0.06, "ombro_d": 0.06, "abre_e": 0.08, "abre_d": 0.08, "cotovelo_e": 0.15, "cotovelo_d": 0.15}
-	quadril.position.y = 0.55 - 0.06 * _queda
+	# Agachado (Ctrl): o quadril desce junto com os olhos e as pernas dobram,
+	# coxas para a frente e canelas para trás, com os pés no chão.
+	var agachado := smoothstep(0.0, 1.0, controle.agachamento) if controle else 0.0
+	quadril.position.y = 0.55 - 0.06 * _queda - 0.25 * agachado
 	# A perna da frente empurra o pano: sem isso, a coxa atravessava a camisola.
-	var perna_a_frente := maxf(maxf(float(p.get("coxa_e", 0.0)), float(p.get("coxa_d", 0.0))) + 0.5 * _queda, 0.0)
+	var perna_a_frente := maxf(maxf(float(p.get("coxa_e", 0.0)), float(p.get("coxa_d", 0.0))) + 0.5 * _queda + 1.2 * agachado, 0.0)
 	camisola.rotation.x = lerp_angle(camisola.rotation.x, perna_a_frente * 0.75, mistura)
 	for i in 2:
 		var lado := -1 if i == 0 else 1
 		var chave := "e" if i == 0 else "d"
-		coxas[i].rotation.x = lerp_angle(coxas[i].rotation.x, float(p.get("coxa_" + chave, 0.0)) + 0.5 * _queda, mistura)
-		joelhos[i].rotation.x = lerp_angle(joelhos[i].rotation.x, -float(p.get("joelho_" + chave, 0.0)) - 1.0 * _queda, mistura)
+		# Andando agachado, sobra um pouco da passada sobre a pose dobrada.
+		var passada := float(p.get("coxa_" + chave, 0.0))
+		var dobra := float(p.get("joelho_" + chave, 0.0))
+		var coxa := lerpf(passada, 1.2 + 0.35 * passada, agachado) + 0.5 * _queda
+		var joelho := lerpf(dobra, 2.05 + 0.2 * dobra, agachado) + 1.0 * _queda
+		coxas[i].rotation.x = lerp_angle(coxas[i].rotation.x, coxa, mistura)
+		joelhos[i].rotation.x = lerp_angle(joelhos[i].rotation.x, -joelho, mistura)
 		if pose == "segurando":
 			_aninhar(i, mistura)
 			continue

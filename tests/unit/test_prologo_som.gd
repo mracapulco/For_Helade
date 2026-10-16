@@ -170,3 +170,19 @@ func test_vozes_dos_empregados_ja_se_ouvem_no_quarto() -> void:
 
 func test_sem_respiracao_falsa() -> void:
 	assert_false(SomPrologo.CAMADAS.has("respiracao"))
+
+
+func test_mar_cresce_aos_poucos_ate_a_varanda() -> void:
+	var de := Vector2(8.0, 9.6) # ponto do quarto vazio
+	var ate := Vector2(9.0, 12.7) # o arco, onde a etapa da varanda começa
+	var anterior := -1.0
+	for k in 21:
+		var p := de.lerp(ate, k / 20.0)
+		var ondas: float = SomPrologo.alvos_quarto_vazio(Vector3(p.x, 1, p.y))["ondas"]
+		if anterior >= 0.0:
+			assert_true(ondas >= anterior - 0.001, "o mar não baixa indo para a varanda")
+			assert_lt(ondas - anterior, 0.1, "sem saltos de volume")
+		anterior = ondas
+	assert_lt(SomPrologo.alvos_quarto_vazio(Vector3(8, 1, 9.6))["ondas"], 0.3, "no quarto o mar é baixo")
+	var no_arco: float = SomPrologo.alvos_quarto_vazio(Vector3(9, 1, 12.7))["ondas"]
+	assert_gt(no_arco, SomPrologo.ETAPAS["varanda"]["ondas"] - 0.15, "no arco já quase como na varanda")

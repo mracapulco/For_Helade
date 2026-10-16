@@ -91,6 +91,7 @@ func test_percorre_tudo_ate_o_titulo() -> void:
 	var alvo: AlvoToque = _ponto("QuartoVazio").alvos()[0]
 	alvo.tocado.emit(alvo)
 	await _ate_a_etapa("final")
+	assert_false(cena.travado, "no escurecer final Nicholas ainda anda")
 	await wait_until(func() -> bool: return seq.etapa == "fim", 5.0)
 	assert_signal_emitted(seq, "terminou")
 	var linhas: Array[String] = []

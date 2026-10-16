@@ -201,7 +201,7 @@ func _varanda() -> void:
 	await controle.tocar_cena("desde_entao")
 
 	_mudar("final")
-	controle.travado = true
+	# A tela escurece, mas Nicholas ainda pode andar e olhar até o fim.
 	_dica("")
 	var apagar := create_tween()
 	apagar.tween_property(escuro, "color:a", 1.0, _t(2.5))

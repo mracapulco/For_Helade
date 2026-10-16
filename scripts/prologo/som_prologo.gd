@@ -45,6 +45,7 @@ const ETAPAS := {
 	"segurar": {"choro": 0.55, "coracao": 0.3},
 	"nos_bracos": {"fogo": 0.2},
 	"depois": {"fogo": 0.1},
+	# No quarto vazio o mar é calculado pela distância à varanda (alvos_quarto_vazio).
 	"quarto_vazio": {"fogo": 0.3, "vento_mar": 0.3},
 	"varanda": {"ondas": 0.98, "vento_mar": 0.46, "grilos": 0.3},
 	"final": {"ondas": 0.39},
@@ -97,6 +98,13 @@ const VOLUME_CORRERIA_PORTA := 0.9
 ## O caminho de Nicholas: cama, porta do quarto, corredor e porta da duquesa.
 const CAMINHO: Array[Vector2] = [Vector2(-11.2, 8.6), Vector2(-9.0, 3.9), Vector2(-9.0, 1.8),
 	Vector2(9.0, 1.8), Vector2(9.0, 3.9)]
+## Varanda (x, z), e as distâncias dela em que o mar começa a crescer e em
+## que chega ao volume quase cheio (o arco, onde a etapa "varanda" começa).
+const VARANDA := Vector2(9.0, 14.6)
+const LONGE_DA_VARANDA := 5.5
+const PERTO_DA_VARANDA := 2.0
+## O mar ao longe, já baixinho no quarto vazio.
+const ONDAS_QUARTO_VAZIO := 0.12
 ## Quanto de volume por segundo cada camada anda até o alvo.
 const RAPIDEZ := {"muda": 4.0, "final": 0.12, "fim": 0.5}
 const RAPIDEZ_PADRAO := 0.8
@@ -256,7 +264,28 @@ func _tocar_musica(de_etapa: String) -> void:
 func alvos() -> Dictionary:
 	if etapa.is_empty():
 		return alvos_explorando(_posicao())
+	if etapa == "quarto_vazio":
+		return alvos_quarto_vazio(_posicao())
 	return ETAPAS.get(etapa, {})
+
+
+## No quarto vazio, as ondas, o vento e os grilos crescem conforme Nicholas
+## chega perto da varanda, para já estarem quase no volume dela ao passar pelo arco.
+static func alvos_quarto_vazio(posicao: Vector3) -> Dictionary:
+	var perto := perto_da_varanda(posicao)
+	var alvos: Dictionary = ETAPAS["quarto_vazio"].duplicate()
+	var varanda: Dictionary = ETAPAS["varanda"]
+	alvos["fogo"] = lerpf(alvos["fogo"], 0.1, perto)
+	alvos["ondas"] = lerpf(ONDAS_QUARTO_VAZIO, varanda["ondas"] * 0.9, perto)
+	alvos["vento_mar"] = lerpf(alvos["vento_mar"], varanda["vento_mar"], perto)
+	alvos["grilos"] = varanda["grilos"] * perto
+	return alvos
+
+
+## 0 no meio do quarto vazio, 1 no arco da varanda.
+static func perto_da_varanda(posicao: Vector3) -> float:
+	var distancia := Vector2(posicao.x - VARANDA.x, posicao.z - VARANDA.y).distance_to(Vector2.ZERO)
+	return clampf((LONGE_DA_VARANDA - distancia) / (LONGE_DA_VARANDA - PERTO_DA_VARANDA), 0.0, 1.0)
 
 
 func volume(camada: String) -> float:

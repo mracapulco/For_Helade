@@ -36,6 +36,11 @@ signal chegou(ponto: PontoDeVista)
 @export var duracao_dica_controles := 20.0
 ## Impulso do pulo (m/s): uma criança pula uns 45 cm, o bastante para subir na cama.
 @export var impulso_pulo := 3.0
+## Ctrl segurado: quanto os olhos descem e a rapidez de andar agachado.
+@export var descida_agachado := 0.3
+@export var velocidade_agachado := 0.7
+## Segundos para abaixar ou levantar por inteiro.
+@export var tempo_agachar := 0.18
 @export var sensibilidade_mouse := 0.0025
 ## Tempo para deslizar até um ponto quando o jogador toca no brilho.
 @export var duracao_movimento := 1.4
@@ -56,9 +61,22 @@ var _dica_controles_encerrada := false
 var _dica_controles_comecou := false
 
 var _gravidade: float = ProjectSettings.get_setting("physics/3d/default_gravity")
+## 0 em pé, 1 agachado de todo (o CorpoNicholas dobra as pernas por ele).
+var agachamento := 0.0
+var _altura_olhos := 1.05
+var _colisao: CollisionShape3D
+var _capsula: CapsuleShape3D
+var _altura_capsula := 1.15
 
 
 func _ready() -> void:
+	_altura_olhos = camera.position.y
+	_colisao = corpo.get_node_or_null("Colisao") as CollisionShape3D
+	if _colisao and _colisao.shape is CapsuleShape3D:
+		# Cópia própria: a cápsula encolhe ao agachar.
+		_capsula = _colisao.shape.duplicate()
+		_colisao.shape = _capsula
+		_altura_capsula = _capsula.height
 	# Necessário para que o toque/clique chegue às Area3D.
 	get_viewport().physics_object_picking = true
 	for alvo in _todos_os_alvos(self):
@@ -118,12 +136,15 @@ func _physics_process(delta: float) -> void:
 	if not travado:
 		direcao = Input.get_vector("mover_esquerda", "mover_direita", "mover_frente", "mover_tras")
 	var passo := corpo.global_basis * Vector3(direcao.x, 0.0, direcao.y)
-	var correndo := pode_correr and not travado and Input.is_action_pressed("correr")
-	var rapidez := velocidade_correndo if correndo else velocidade
+	_agachar(delta)
+	var agachado := agachamento > 0.5
+	var correndo := pode_correr and not travado and not agachado and Input.is_action_pressed("correr")
+	var rapidez := velocidade_correndo if correndo else lerpf(velocidade, velocidade_agachado, agachamento)
 	corpo.velocity.x = passo.x * rapidez
 	corpo.velocity.z = passo.z * rapidez
 	if corpo.is_on_floor():
-		corpo.velocity.y = impulso_pulo if not travado and Input.is_action_just_pressed("pular") else 0.0
+		var pula := not travado and not agachado and Input.is_action_just_pressed("pular")
+		corpo.velocity.y = impulso_pulo if pula else 0.0
 	else:
 		corpo.velocity.y -= _gravidade * delta
 	corpo.move_and_slide()
@@ -190,6 +211,28 @@ func _perto_de(destino: PontoDeVista) -> bool:
 
 ## Mostra as frases de um trecho do roteiro, que aparecem e somem sozinhas.
 ## Nicholas continua andando. Cada trecho só aparece uma vez.
+## Abaixa enquanto Ctrl está apertado e levanta ao soltar (se houver espaço
+## acima da cabeça). Os olhos descem e a cápsula encolhe junto.
+func _agachar(delta: float) -> void:
+	var quer := not travado and Input.is_action_pressed("agachar")
+	if not quer and agachamento > 0.0 and _teto_baixo():
+		quer = true
+	agachamento = move_toward(agachamento, 1.0 if quer else 0.0, delta / maxf(tempo_agachar, 0.01))
+	var suave := smoothstep(0.0, 1.0, agachamento)
+	camera.position.y = _altura_olhos - descida_agachado * suave
+	if _capsula:
+		_capsula.height = _altura_capsula - descida_agachado * suave
+		_colisao.position.y = _capsula.height / 2.0
+
+
+## Algo logo acima da cabeça agachada impede de ficar em pé.
+func _teto_baixo() -> bool:
+	if _capsula == null or not corpo.is_inside_tree():
+		return false
+	var falta := _altura_capsula - _capsula.height
+	return falta > 0.01 and corpo.test_move(corpo.global_transform, Vector3.UP * falta)
+
+
 func tocar_cena(titulo: String) -> void:
 	if roteiro == null or texto_solto == null or titulo.is_empty() or titulo in _cenas_vistas:
 		return
@@ -302,7 +345,7 @@ func _colocar_em(ponto: PontoDeVista) -> void:
 
 ## O PontoDeVista marca onde ficam os olhos; o corpo fica abaixo dele.
 func _posicao_do_corpo(ponto: PontoDeVista) -> Vector3:
-	return ponto.global_position - Vector3(0.0, camera.position.y, 0.0)
+	return ponto.global_position - Vector3(0.0, _altura_olhos, 0.0)
 
 
 func _giro(ponto: PontoDeVista) -> float:

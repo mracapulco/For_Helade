@@ -256,3 +256,42 @@ func test_portas_abertas_dos_aposentos_tem_colisao() -> void:
 		var corpo := folha.get_node("Folha") as CSGBox3D
 		assert_not_null(corpo, "a folha da porta precisa ser sólida")
 		assert_true(corpo.use_collision)
+
+
+func test_ctrl_agacha_enquanto_segurado_e_levanta_ao_soltar() -> void:
+	var em_pe := cena.camera.position.y
+	Input.action_press("agachar")
+	await wait_physics_frames(30)
+	assert_almost_eq(cena.agachamento, 1.0, 0.01)
+	assert_almost_eq(cena.camera.position.y, em_pe - cena.descida_agachado, 0.01, "os olhos descem")
+	var corpo: CorpoNicholas = cena.get_node("Nicholas/CorpoNicholas")
+	await wait_frames(20)
+	assert_lt(corpo.quadril.position.y, 0.4, "o quadril desce com as pernas dobradas")
+	Input.action_press("pular")
+	await wait_physics_frames(3)
+	Input.action_release("pular")
+	assert_almost_eq(cena.corpo.velocity.y, 0.0, 0.01, "agachado não pula")
+	Input.action_release("agachar")
+	await wait_physics_frames(30)
+	assert_almost_eq(cena.agachamento, 0.0, 0.01)
+	assert_almost_eq(cena.camera.position.y, em_pe, 0.01, "levanta ao soltar")
+
+
+func test_agachado_nao_levanta_debaixo_de_algo_baixo() -> void:
+	Input.action_press("agachar")
+	await wait_physics_frames(30)
+	var teto := StaticBody3D.new()
+	var forma := CollisionShape3D.new()
+	var caixa := BoxShape3D.new()
+	caixa.size = Vector3(2.0, 0.1, 2.0)
+	forma.shape = caixa
+	teto.add_child(forma)
+	add_child_autofree(teto)
+	teto.global_position = cena.corpo.global_position + Vector3(0.0, 1.0, 0.0)
+	await wait_physics_frames(2)
+	Input.action_release("agachar")
+	await wait_physics_frames(30)
+	assert_gt(cena.agachamento, 0.9, "fica agachado enquanto há algo em cima")
+	teto.queue_free()
+	await wait_physics_frames(30)
+	assert_almost_eq(cena.agachamento, 0.0, 0.01)

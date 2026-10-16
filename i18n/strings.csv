@@ -13,7 +13,7 @@ TESTE_DIALOGO_VALORES,"Relação com Janet: %d
 Influência com Olympia: %d"
 TESTE_DIALOGO_INICIAR,Iniciar diálogo de teste
 TESTE_DIALOGO_ZERAR,Zerar valores
-PROLOGO_DICA_TECLADO,"WASD para andar, espaço para pular, mouse para olhar, Enter com a mira na porta para ir até ela. Clique para prender o mouse, Esc para soltar."
+PROLOGO_DICA_TECLADO,"WASD para andar, espaço para pular, Ctrl para agachar, mouse para olhar, Enter com a mira na porta para ir até ela. Clique para prender o mouse, Esc para soltar."
 MENU_CONTINUAR,Continuar
 MENU_CARREGAR,Carregar jogo
 MENU_NOVO_JOGO,Novo jogo

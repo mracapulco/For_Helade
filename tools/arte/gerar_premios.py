@@ -1,5 +1,5 @@
 # Arte provisória dos prêmios das charadas dos convidados (Próskopos e
-# Chymeía): ícones da bolsa (32×32) e, para o bordão, o desenho na mão. Usa
+# Chymeía): ícones da bolsa (32×32) e, para o bastão, o desenho na mão. Usa
 # as mesmas peças e a mesma paleta de gerar_armas.py e gerar_objetos.py.
 # Uso: python3 tools/arte/gerar_premios.py   (rodar na raiz do projeto)
 #      python3 tools/arte/gerar_premios.py --previa saida.png
@@ -17,7 +17,7 @@ PASTA = 'assets/art/convidados/premios'
 
 
 def bordao():
-    # Bordão de caminhada do Próskopos: vara longa de madeira clara, com a
+    # Bastão de caminhada do Próskopos: vara longa de madeira clara, com a
     # cabeça entalhada, faixa verde com anel dourado e ponteira de ferro.
     # Ponta para baixo, como as outras armas; o punho 2×2 fica vazio.
     q = Q(8, 40); g = armas.PEGA['bordao'] = (3, 7); gx, gy = g
@@ -97,4 +97,4 @@ if __name__ == '__main__':
             os.makedirs(os.path.dirname(caminho), exist_ok=True)
             im.save(caminho)
             print(caminho, im.size)
-        print('pega do bordão:', armas.PEGA['bordao'])
+        print('pega do bastão:', armas.PEGA['bordao'])

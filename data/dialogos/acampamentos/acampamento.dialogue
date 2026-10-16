@@ -35,7 +35,7 @@ Próskopos: Como de tudo e cresço. Dê-me água e eu morro. O que sou? [ID:ACAM
 - O fogo [ID:ACAMP_RAFAEL_OPC_FOGO]
 	$> Inventario.marcar_coletado("charada_proskopos")
 	$> Inventario.adicionar("bordao_proskopos")
-	Próskopos: Isso mesmo! Fique com o meu bordão. Ele já me tirou de muita enrascada na trilha. [ID:ACAMP_RAFAEL_013]
+	Próskopos: Isso mesmo! Fique com o meu bastão. Ele já me tirou de muita enrascada na trilha. [ID:ACAMP_RAFAEL_013]
 	Próskopos: E, ao partir, deixe o acampamento melhor do que o encontrou. [ID:ACAMP_RAFAEL_004]
 - A sombra [ID:ACAMP_RAFAEL_OPC_SOMBRA]
 	=> rafael_segunda

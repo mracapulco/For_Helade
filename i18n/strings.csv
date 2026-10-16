@@ -207,3 +207,24 @@ ITEM_ELIXIR_CHYMEIA_DESC,"Raro. Prêmio da charada de Chymeía. Cura toda a vida
 ITEM_RACAO_TRILHA_NOME,Ração de trilha
 ITEM_RACAO_TRILHA_DESC,Pão e frutas secas para a estrada. Recupera um pouco de vida.
 LOJA_CHYMEIA_NOME,Mercadorias de Chymeía
+LOJA_A_VENDA,À venda
+LOJA_SUA_BOLSA,Sua bolsa (vender)
+LOJA_NADA_A_VENDA,Nada à venda agora. Volte depois de descansar.
+LOJA_NADA_PARA_VENDER,Nada na bolsa que o mercador compre.
+LOJA_ESCOLHA_ITEM,Toque num item para ver o preço.
+LOJA_ITEM_PRECO,"%d moedas\nrestam %d"
+LOJA_ITEM_VENDA,"paga %d\nvocê tem %d"
+LOJA_PRECO,"Preço: %d moedas cada. Total: %d"
+LOJA_PAGA,"O mercador paga %d moedas cada. Total: %d"
+LOJA_COMPRAR,Comprar
+LOJA_VENDER,Vender
+LOJA_COMPROU,Comprado!
+LOJA_VENDEU,Vendido!
+LOJA_SEM_MOEDAS,Moedas insuficientes
+LOJA_BOLSA_CHEIA,Bolsa cheia
+LOJA_SEM_ESTOQUE,Acabou o estoque
+LOJA_COMPARA,Comparado ao equipado: %s
+LOJA_COMPARA_NADA,Você não tem nada equipado aí: %s
+LOJA_COMPARA_IGUAL,É o que você está usando.
+LOJA_COMPARA_SEM_DIFERENCA,mesmos bônus
+LOJA_VAI_DESEQUIPAR,Está equipado: será tirado ao vender.

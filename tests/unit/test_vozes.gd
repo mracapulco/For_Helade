@@ -21,7 +21,6 @@ func _ids(falas: Array[Dictionary]) -> Array:
 
 func test_config_tem_a_voz_do_nicholas() -> void:
 	var vozes := GeradorVozes.ler_vozes()
-	assert_eq(vozes.size(), 1)
 	assert_eq(vozes[0].nome, "nicholas")
 	assert_eq(vozes[0].voz_id, "WrT2M515LQuE5m5EYh0W")
 	assert_has(vozes[0].falantes, "Nicholas")
@@ -32,6 +31,8 @@ func test_prologo_so_a_narracao_do_nicholas() -> void:
 	var ids := _ids(falas)
 	assert_has(ids, "PROLOGO_003", "Narração em primeira pessoa")
 	assert_has(ids, "PROLOGO_014", "Althea?, dito por ele")
+	var althea: Dictionary = falas.filter(func(f: Dictionary) -> bool: return f.id == "PROLOGO_014")[0]
+	assert_eq(althea.voz, "nicholas_crianca", "Dito pelo Nicholas de 5 anos")
 	assert_does_not_have(ids, "PROLOGO_001", "Título de lugar")
 	assert_does_not_have(ids, "PROLOGO_018", "Fala de outra pessoa")
 	assert_does_not_have(ids, "PROLOGO_027", "Sussurros finais")
@@ -77,6 +78,20 @@ func test_npcs_usam_a_voz_coringa() -> void:
 	assert_eq(GeradorVozes.voz_da_fala("Janet", "X", vozes).nome, "janet", "Voz própria vence o coringa")
 	assert_eq(GeradorVozes.voz_da_fala("Mercador", "X", vozes).nome, "npcs")
 	assert_true(GeradorVozes.voz_da_fala("", "X", vozes).is_empty(), "Narração sem ID listado fica sem voz")
+
+
+func test_idade_pelo_roteiro_e_excecoes_por_fala() -> void:
+	var vozes: Array[Dictionary] = [
+		{"nome": "adulto", "voz_id": "a", "modelo": "m", "falantes": ["Nicholas"], "narracao": ["PROLOGO_003"]},
+		{"nome": "crianca", "voz_id": "c", "modelo": "m", "falantes": ["Nicholas"], "narracao": ["CAP1_045"],
+			"roteiros": ["capitulo_01"], "falas": ["PROLOGO_014"]},
+	]
+	var cap1 := "res://data/dialogos/capitulo_01/manha.dialogue"
+	assert_eq(GeradorVozes.voz_da_fala("Nicholas", "CAP1_044", vozes, cap1).nome, "crianca", "No capítulo 1 ele é criança")
+	assert_eq(GeradorVozes.voz_da_fala("Nicholas", "CAP5_001", vozes, "res://data/dialogos/capitulo_05/x.dialogue").nome, "adulto", "Fora dos roteiros da criança, vale a voz geral")
+	assert_eq(GeradorVozes.voz_da_fala("", "CAP1_045", vozes, cap1).nome, "crianca")
+	assert_eq(GeradorVozes.voz_da_fala("", "PROLOGO_003", vozes, PROLOGO).nome, "adulto")
+	assert_eq(GeradorVozes.voz_da_fala("", "PROLOGO_014", vozes, PROLOGO).nome, "crianca", "falas vence tudo")
 
 
 func test_falas_com_nome_usam_o_falante() -> void:

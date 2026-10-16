@@ -42,6 +42,8 @@ static func ler_vozes(caminho := CONFIG) -> Array[Dictionary]:
 			"sotaque": cfg.get_value(secao, "sotaque", ""),
 			"falantes": cfg.get_value(secao, "falantes", []),
 			"narracao": cfg.get_value(secao, "narracao", []),
+			"roteiros": cfg.get_value(secao, "roteiros", []),
+			"falas": cfg.get_value(secao, "falas", []),
 		})
 	return vozes
 
@@ -84,7 +86,7 @@ static func falas_do_roteiro(recurso: DialogueResource, vozes: Array[Dictionary]
 		if linha.get("type") != "dialogue" or id.is_empty():
 			continue
 		var personagem: String = linha.get("character", "")
-		var voz := voz_da_fala(personagem, id, vozes)
+		var voz := voz_da_fala(personagem, id, vozes, recurso.resource_path)
 		if not voz.is_empty():
 			falas.append({
 				"id": id,
@@ -100,21 +102,35 @@ static func falas_do_roteiro(recurso: DialogueResource, vozes: Array[Dictionary]
 	return falas
 
 
-## A voz de quem diz a fala. Um nome em "falantes" vence o "*" (a voz de
-## qualquer outro personagem com nome, para os NPCs). Falas sem nome só têm
-## voz se o ID estiver em "narracao". Sem voz: dicionário vazio.
-static func voz_da_fala(personagem: String, id: String, vozes: Array[Dictionary]) -> Dictionary:
+## A voz de quem diz a fala, nesta ordem:
+## 1. a voz que tem o ID da fala em "falas" (exceções, fala por fala);
+## 2. fala sem nome: a voz que tem o ID em "narracao";
+## 3. fala com nome: a voz com o nome em "falantes", preferindo a que tem em
+##    "roteiros" o roteiro desta fala (ex.: o Nicholas criança no capitulo_01);
+## 4. o "*" de "falantes" (NPCs), com a mesma preferência por roteiro.
+## Uma voz com "roteiros" só vale nesses roteiros. Sem voz: dicionário vazio.
+static func voz_da_fala(personagem: String, id: String, vozes: Array[Dictionary], roteiro := "") -> Dictionary:
+	for voz in vozes:
+		if id in voz.get("falas", []):
+			return voz
 	if personagem.is_empty():
 		for voz in vozes:
 			if id in voz.narracao:
 				return voz
 		return {}
-	for voz in vozes:
-		if personagem in voz.falantes:
-			return voz
-	for voz in vozes:
-		if "*" in voz.falantes:
-			return voz
+	for nome in [personagem, "*"]:
+		var geral := {}
+		for voz in vozes:
+			if not nome in voz.falantes:
+				continue
+			var roteiros: Array = voz.get("roteiros", [])
+			if roteiros.is_empty():
+				if geral.is_empty():
+					geral = voz
+			elif roteiros.any(func(r: String) -> bool: return r in roteiro):
+				return voz
+		if not geral.is_empty():
+			return geral
 	return {}
 
 

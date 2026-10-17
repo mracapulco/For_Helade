@@ -28,3 +28,4 @@ companheiro = ExtResource("8")
 marcador_companheiro = "coruja"
 mercador = ExtResource("m")
 fauna_da_mata = true
+loja = "acampamento_at"

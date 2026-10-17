@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="Personagem" format=3]
+
+[ext_resource type="Script" path="res://scripts/systems/personagem.gd" id="1_personagem"]
+[ext_resource type="Texture2D" path="res://assets/art/convidados/rafael/rafael_retrato.png" id="2_retrato"]
+[ext_resource type="Texture2D" path="res://assets/art/convidados/rafael/rafael_retrato_fala.png" id="3_fala"]
+
+[resource]
+script = ExtResource("1_personagem")
+nome_no_roteiro = "Próskopos"
+retratos = Dictionary[String, Texture2D]({
+"neutro": ExtResource("2_retrato")
+})
+retratos_fala = Dictionary[String, Texture2D]({
+"neutro": ExtResource("3_fala")
+})
+pixel_art = true
+cor_provisoria = Color(0.3, 0.3, 0.35, 1)

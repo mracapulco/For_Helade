@@ -21,8 +21,8 @@ func after_all() -> void:
 
 
 func _armar() -> void:
-	Inventario.adicionar("espada_teste")
-	Inventario.equipar("nicholas", "espada_teste")
+	Inventario.adicionar("espada_media")
+	Inventario.equipar("nicholas", "espada_media")
 
 
 func test_folha_tem_o_golpe_nas_duas_direcoes() -> void:

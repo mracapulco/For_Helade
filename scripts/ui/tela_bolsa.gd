@@ -175,6 +175,9 @@ func _atualizar_detalhe() -> void:
 	var tem_item := dados != null
 	nome_item.text = tr(dados.chave_nome) if tem_item else ""
 	descricao_item.text = tr(dados.chave_descricao) if tem_item else tr("BOLSA_ESCOLHA_ITEM")
+	var bonus := texto_bonus(dados) if tem_item else ""
+	if not bonus.is_empty():
+		descricao_item.text += "\n" + bonus
 	aviso_item.text = tr("BOLSA_ITEM_DA_HISTORIA") if tem_item and dados.e_da_historia() else ""
 	botao_usar.visible = tem_item and dados.pode_usar()
 	botao_equipar.visible = tem_item and dados.pode_equipar()
@@ -182,6 +185,31 @@ func _atualizar_detalhe() -> void:
 	if tem_item and dados.pode_equipar():
 		var equipado := Inventario.equipado(personagem, dados.encaixe) == item_escolhido
 		botao_equipar.text = tr("BOLSA_DESEQUIPAR") if equipado else tr("BOLSA_EQUIPAR")
+
+
+## Bônus do item numa linha, por exemplo "Ataque +7 · Velocidade +5%".
+## Só o que muda alguma coisa.
+static func texto_bonus(dados: Item) -> String:
+	var partes: PackedStringArray = []
+	if dados.duas_maos():
+		partes.append(TranslationServer.translate("BOLSA_DUAS_MAOS"))
+	if dados.ataque != 0:
+		partes.append(TranslationServer.translate("BOLSA_ATAQUE") % dados.ataque)
+	if dados.defesa != 0:
+		partes.append(TranslationServer.translate("BOLSA_DEFESA") % dados.defesa)
+	if dados.velocidade != 0:
+		partes.append(TranslationServer.translate("BOLSA_VELOCIDADE") % dados.velocidade)
+	if dados.alcance > Balanceamento.ALCANCE_PADRAO:
+		partes.append(TranslationServer.translate("BOLSA_ALCANCE"))
+	if dados.cura > 0:
+		partes.append(TranslationServer.translate("BOLSA_CURA") % dados.cura)
+	if dados.tem_efeito_temporario():
+		var segundos := roundi(dados.duracao_efeito)
+		if dados.velocidade_temporaria != 0:
+			partes.append(TranslationServer.translate("BOLSA_VELOCIDADE_TEMPORARIA") % [dados.velocidade_temporaria, segundos])
+		if dados.vida_extra != 0:
+			partes.append(TranslationServer.translate("BOLSA_VIDA_EXTRA") % [dados.vida_extra, segundos])
+	return " · ".join(partes)
 
 
 ## Cópia do ícone [constant ESCALA_ICONE] vezes maior, sem borrar os pixels.
@@ -216,7 +244,8 @@ func _botao_item(id: String) -> Button:
 	var texto := tr(dados.chave_nome)
 	if Inventario.quantidade(id) > 1:
 		texto += "\n×%d" % Inventario.quantidade(id)
-	for encaixe: Item.Encaixe in [Item.Encaixe.ARMA, Item.Encaixe.ARMADURA, Item.Encaixe.ACESSORIO]:
+	for encaixe: Item.Encaixe in [Item.Encaixe.ARMA, Item.Encaixe.ESCUDO, Item.Encaixe.ARMADURA,
+			Item.Encaixe.ELMO, Item.Encaixe.ACESSORIO]:
 		if Inventario.equipado(personagem, encaixe) == id:
 			texto += "\n" + tr("BOLSA_EQUIPADO")
 	botao.text = texto
@@ -230,7 +259,9 @@ func _botao_item(id: String) -> Button:
 func _por_itens_de_teste() -> void:
 	if Inventario.dinheiro() > 0 or not Inventario.ids_do_tipo(Item.Tipo.ARMA).is_empty():
 		return
-	Inventario.adicionar("espada_teste")
+	# Adulto (30 espaços) para o baú com todas as armas caber na sala de teste.
+	Inventario.mudar_faixa_etaria(Inventario.FaixaEtaria.ADULTO)
+	Inventario.adicionar("espada_media")
 	Inventario.adicionar("pocao_teste", 3)
 	Inventario.adicionar("carta_teste")
 	Inventario.ganhar_dinheiro(20)

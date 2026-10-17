@@ -29,3 +29,4 @@ semente = 1
 companheiro = ExtResource("10")
 marcador_companheiro = "cao"
 mercador = ExtResource("m")
+loja = "acampamento_oa"

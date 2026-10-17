@@ -14,13 +14,13 @@ Esta é a memória mais vívida que tenho da minha infância. [ID:PROLOGO_003]
 ~ acordar
 
 ## Nicholas acaba de abrir os olhos, na cama.
-No meio da noite ouço da minha cama agitos dos empregados, uma correria, [ID:PROLOGO_004]
+No meio da noite ouço da minha cama agitos dos empregados, uma correria. [ID:PROLOGO_004]
 => END
 
 ~ saindo_do_quarto
 
 ## Nicholas chega à porta do próprio quarto.
-Corri até os aposentos de minha mãe, a duquesa Neola de Olympia; [ID:PROLOGO_005]
+Foi até os aposentos de minha mãe, a duquesa Neola de Olympia, [ID:PROLOGO_005]
 => END
 
 ~ porta_aposentos
@@ -32,23 +32,23 @@ Corri até os aposentos de minha mãe, a duquesa Neola de Olympia; [ID:PROLOGO_0
 ~ aposentos_caos
 
 ## Nicholas entra nos aposentos. A partir daqui o controle trava.
-o cheiro de sangue era muito forte e os gritos… [ID:PROLOGO_007]
+O cheiro de sangue era muito forte, e tinham gritos… [ID:PROLOGO_007]
 Eu congelei. [ID:PROLOGO_008]
 => END
 
 ~ dossel
 
 ## A tela escurece; Nicholas olha para o dossel azul-escuro da cama.
-e eu fiquei ali, parado, imóvel, sem poder fazer nada; [ID:PROLOGO_009]
-acredito que minha mãe nem enxergava os pesados tecidos da cor azul escuro que forravam o teto de sua cama, [ID:PROLOGO_010]
-ninguém sentiu minha presença, [ID:PROLOGO_011]
+Eu fiquei ali, parado, sem poder fazer nada. [ID:PROLOGO_009]
+Acredito que minha mãe nem enxergava os pesados tecidos da cor azul escuro que forravam o teto de sua cama, [ID:PROLOGO_010]
+e ninguém sentiu minha presença ali. [ID:PROLOGO_011]
 => END
 
 ~ muda
 
 ## Althea nasce. Todos param.
 Althea saiu. Muda. [ID:PROLOGO_012]
-O silêncio profundo era sufocante, [ID:PROLOGO_013]
+O silêncio profundo era sufocante. [ID:PROLOGO_013]
 => END
 
 ~ nome
@@ -60,32 +60,32 @@ Althea? [ID:PROLOGO_014]
 ~ olhares
 
 ## Depois do nome, todos se viram para Nicholas.
-Os olhares se voltaram sobre mim tão rápido que sibilaram, [ID:PROLOGO_015]
+Os olhares se voltaram sobre mim tão rápido que sibilaram. [ID:PROLOGO_015]
 => END
 
 ~ choro
 
-Ela chorou. As duas, Althea e Neola, choraram. [ID:PROLOGO_016]
-minha mãe partiu deste mundo, deixando Althea para mim. [ID:PROLOGO_017]
+As duas, Althea e Neola, choraram. [ID:PROLOGO_016]
+Minha mãe partiu deste mundo, deixando Althea para mim. [ID:PROLOGO_017]
 => END
 
 ~ parabens
 
 ## Nicholas segura Althea; sussurros ao redor.
-— Parabéns Jovem Mestre, é uma menina. [ID:PROLOGO_018]
+— Parabéns Jovem Mestre, é uma menina! [ID:PROLOGO_018]
 => END
 
 ~ costume
 
-Mas meu pai não estava ali, [ID:PROLOGO_019]
-eu fui o primeiro a abraçá-la com delicadeza e dor; [ID:PROLOGO_020]
-e estando no meu lugar, já não sabia mais quem eu era. [ID:PROLOGO_021]
+Mas meu pai não estava ali. [ID:PROLOGO_019]
+Assim, eu fui o primeiro a abraçá-la com delicadeza e dor. [ID:PROLOGO_020]
+E estando no meu lugar, já não sabia mais quem eu era... [ID:PROLOGO_021]
 => END
 
 ~ depois
 
 ## Tela preta: o tempo passa.
-e a observamos dormir um sono profundo e merecido após tanto esforço. [ID:PROLOGO_022]
+A observamos dormir, em um sono profundo e merecido após tanto esforço. [ID:PROLOGO_022]
 => END
 
 ~ quarto_vazio
@@ -98,7 +98,7 @@ e a observamos dormir um sono profundo e merecido após tanto esforço. [ID:PROL
 
 ## Na varanda, olhando o mar.
 Este momento mudou minha vida drasticamente, [ID:PROLOGO_024]
-e cuidaria ainda mais da minha irmã do que imaginei que o faria. [ID:PROLOGO_025]
+eu cuidaria ainda mais da minha irmã do que imaginei que o faria. [ID:PROLOGO_025]
 => END
 
 ~ desde_entao

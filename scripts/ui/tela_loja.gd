@@ -65,6 +65,24 @@ func _ready() -> void:
 	Inventario.equipamento_mudou.connect(_ao_mudar_equipamento)
 	Lojas.estoque_mudou.connect(_ao_mudar_estoque)
 	tela.hide()
+	_abrir_se_for_a_cena_principal.call_deferred()
+
+
+## Rodando esta cena sozinha (F6), abre a loja de teste com moedas e itens.
+func _abrir_se_for_a_cena_principal() -> void:
+	if get_tree().current_scene != self:
+		return
+	Inventario.limpar()
+	Lojas.limpar()
+	Inventario.mudar_faixa_etaria(Inventario.FaixaEtaria.ADULTO)
+	Inventario.ganhar_dinheiro(60)
+	Inventario.adicionar("espada_media")
+	Inventario.equipar(personagem, "espada_media")
+	Inventario.adicionar("punhal")
+	Inventario.adicionar("pocao_vigor", 2)
+	Inventario.adicionar("carta_teste")
+	fechada.connect(get_tree().quit)
+	abrir("chymeia")
 
 
 func _input(evento: InputEvent) -> void:

@@ -17,6 +17,7 @@ const EXPRESSAO_PADRAO := "neutro"
 @export var auto_start: bool = false
 
 ## Ação que adianta a fala.
+## Enter (ui_accept) passa o texto; E fica só para interagir (Rafael, 17/10).
 @export var next_action: StringName = &"ui_accept"
 
 ## Ação que pula a digitação.

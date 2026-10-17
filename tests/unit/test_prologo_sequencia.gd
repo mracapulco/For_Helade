@@ -1,6 +1,8 @@
 extends GutTest
 ## Aposentos da duquesa, varanda e tela final (batidas 3 a 10 do plano).
 
+const FasesHistoria := preload("res://scripts/systems/fases_historia.gd")
+
 const CENA := preload("res://scenes/prologo/prologo.tscn")
 
 var cena: ControlePrimeiraPessoa
@@ -40,11 +42,11 @@ func _entrar_nos_aposentos() -> void:
 	alvo.tocado.emit(alvo)
 
 
-func _apertar_enter() -> void:
-	var enter := InputEventAction.new()
-	enter.action = "interagir"
-	enter.pressed = true
-	Input.parse_input_event(enter)
+func _apertar_e() -> void:
+	var tecla_e := InputEventAction.new()
+	tecla_e.action = "interagir"
+	tecla_e.pressed = true
+	Input.parse_input_event(tecla_e)
 	await wait_physics_frames(2)
 
 
@@ -62,13 +64,13 @@ func test_nos_aposentos_o_controle_trava_ate_dizer_o_nome() -> void:
 	assert_false(seq.botao_nome.visible)
 
 
-func test_enter_diz_o_nome_e_segura_althea() -> void:
+func test_e_diz_o_nome_e_segura_althea() -> void:
 	await _entrar_nos_aposentos()
 	await _ate_a_etapa("nome")
-	await _apertar_enter()
+	await _apertar_e()
 	await _ate_a_etapa("segurar")
 	assert_true(seq.alvo_althea.ativo)
-	await _apertar_enter()
+	await _apertar_e()
 	await _ate_a_etapa("nos_bracos")
 	assert_eq(seq.althea.get_parent(), cena.camera, "Althea nos braços de Nicholas")
 
@@ -105,3 +107,11 @@ func test_roteiro_tem_todos_os_trechos_da_sequencia() -> void:
 	assert_true(desde[0].ends_with("sussurravam:"), desde[0])
 	var parabens: Array[String] = await cena.frases_de("parabens")
 	assert_eq(parabens[0], "— Parabéns Jovem Mestre, é uma menina.")
+
+
+func test_ao_terminar_vai_para_o_mapa_no_capitulo_1() -> void:
+	var nova: SequenciaPrologo = CENA.instantiate().get_node("Sequencia")
+	assert_eq(nova.cena_depois, "res://scenes/mapa/mapa_helade.tscn")
+	assert_eq(nova.etapa_salva, "capitulo_1")
+	assert_eq(FasesHistoria.da_etapa(nova.etapa_salva).local, "atenas")
+	nova.get_parent().free()

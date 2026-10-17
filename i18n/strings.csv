@@ -5,7 +5,7 @@ EXPLORACAO_BOTAO_PULAR,Pular
 EXPLORACAO_BOTAO_GOLPE,Golpe
 PROLOGO_DICA_TOQUE,Toque no brilho dourado para se mover
 PROLOGO_DICA_SEGURAR_TOQUE,Toque no brilho para segurar Althea
-PROLOGO_DICA_SEGURAR_TECLADO,Clique no brilho ou aperte Enter para segurar Althea
+PROLOGO_DICA_SEGURAR_TECLADO,Clique no brilho ou aperte E para segurar Althea
 RETRATO_PROVISORIO,PROVISÓRIO
 RETRATO_FORA_DO_ELENCO,FORA DO ELENCO
 TESTE_DIALOGO_TITULO,Teste do sistema de diálogo (provisório)
@@ -13,7 +13,7 @@ TESTE_DIALOGO_VALORES,"Relação com Janet: %d
 Influência com Olympia: %d"
 TESTE_DIALOGO_INICIAR,Iniciar diálogo de teste
 TESTE_DIALOGO_ZERAR,Zerar valores
-PROLOGO_DICA_TECLADO,"WASD para andar, Shift para correr, espaço para pular, mouse para olhar, Enter para ir até o brilho. Clique para prender o mouse, Esc para soltar."
+PROLOGO_DICA_TECLADO,"WASD para andar, Shift para correr, espaço para pular, mouse para olhar, E para ir até o brilho. Clique para prender o mouse, Esc para soltar."
 MENU_CONTINUAR,Continuar
 MENU_CARREGAR,Carregar jogo
 MENU_NOVO_JOGO,Novo jogo
@@ -26,7 +26,7 @@ OPCOES_IDIOMA,Idioma do jogo
 IDIOMA_pt_BR,Português (Brasil)
 OPCOES_SECAO_CONTROLES,Controles
 OPCOES_SENSIBILIDADE,Sensibilidade do mouse
-OPCOES_TECLAS,"W A S D ou setas: andar · Shift: correr · Espaço: pular · Enter: interagir · Esc: soltar o mouse"
+OPCOES_TECLAS,"W A S D ou setas: andar · Shift: correr · Espaço: pular · E: interagir · Esc: soltar o mouse"
 OPCOES_SECAO_GRAFICOS,Gráficos
 OPCOES_TELA_CHEIA,Tela cheia
 OPCOES_VSYNC,Sincronização vertical (VSync)
@@ -127,3 +127,12 @@ CODICE_ATENAS_TITULO,Atenas
 CODICE_ATENAS_TEXTO,"Capital do Império de Hélade, fundada para educar os Abençoados."
 CODICE_PALACIO_IMPERIAL_TITULO,Palácio Imperial
 CODICE_PALACIO_IMPERIAL_TEXTO,"Morada do Imperador Varsélios, em Atenas."
+PAUSA_TITULO,Pausa
+PAUSA_BOTAO,Pausa
+PAUSA_VOLTAR_AO_JOGO,Voltar ao jogo
+PAUSA_MENU_INICIAL,Menu inicial
+PAUSA_SAIR,Sair do jogo
+PAUSA_CONFIRMAR_MENU,"Voltar ao menu inicial? O que não foi salvo será perdido."
+PAUSA_CONFIRMAR_SAIR,"Sair do jogo? O que não foi salvo será perdido."
+PAUSA_CONFIRMAR_SIM,Sim
+PAUSA_CONFIRMAR_NAO,Não

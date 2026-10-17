@@ -3,11 +3,19 @@ extends Node
 ## arquivo assets/audio/vozes/<ID da fala>.mp3, feito por
 ## scripts/ferramentas/gerar_vozes.gd. Sem áudio, a fala segue em silêncio.
 ## Toca no barramento "Voz" (volume nas Configurações).
+## Fala de coro (várias pessoas juntas, como os sussurros do fim do prólogo):
+## <ID>_1.mp3, <ID>_2.mp3... tocam todas ao mesmo tempo, cada uma um pouco
+## atrasada, para soar como gente de verdade e não em uníssono.
 
 const BARRAMENTO := &"Voz"
 const PASTA := "res://assets/audio/vozes"
+## Quantas vozes um coro pode ter.
+const MAXIMO_CORO := 8
+## Atraso entre uma voz do coro e a seguinte (segundos).
+const ATRASO_CORO := 0.12
 
 var _tocador: AudioStreamPlayer
+var _coro: Array[AudioStreamPlayer] = []
 ## Texto da fala -> ID, para as frases que chegam só com o texto.
 var _por_texto: Dictionary[String, String] = {}
 
@@ -17,6 +25,12 @@ func _ready() -> void:
 	_tocador.name = "Voz"
 	_tocador.bus = BARRAMENTO
 	add_child(_tocador)
+	for i in MAXIMO_CORO:
+		var tocador := AudioStreamPlayer.new()
+		tocador.name = "Coro%d" % (i + 1)
+		tocador.bus = BARRAMENTO
+		add_child(tocador)
+		_coro.append(tocador)
 	carregar_indice()
 
 
@@ -27,8 +41,9 @@ func carregar_indice(caminho := PASTA.path_join("indice.json")) -> void:
 		return
 	var dados: Variant = JSON.parse_string(FileAccess.get_file_as_string(caminho))
 	if dados is Dictionary:
-		for id: String in dados:
-			_por_texto[_normalizar(dados[id].get("texto", ""))] = id
+		for arquivo: String in dados:
+			# Nas vozes de coro o arquivo é <ID>_1, <ID>_2...: guarda o ID da fala.
+			_por_texto[_normalizar(dados[arquivo].get("texto", ""))] = dados[arquivo].get("fala", arquivo)
 
 
 func caminho_de(id: String) -> String:
@@ -36,17 +51,43 @@ func caminho_de(id: String) -> String:
 
 
 func tem(id: String) -> bool:
-	return not id.is_empty() and ResourceLoader.exists(caminho_de(id))
+	return not id.is_empty() and (ResourceLoader.exists(caminho_de(id)) or not vozes_do_coro(id).is_empty())
+
+
+## Os arquivos de uma fala de coro, em ordem (vazio se não for coro).
+func vozes_do_coro(id: String) -> PackedStringArray:
+	var arquivos := PackedStringArray()
+	for i in MAXIMO_CORO:
+		var arquivo := "%s_%d" % [id, i + 1]
+		if not ResourceLoader.exists(caminho_de(arquivo)):
+			break
+		arquivos.append(arquivo)
+	return arquivos
 
 
 ## Toca a fala [param id]. Devolve a duração em segundos (0 sem áudio).
 func tocar(id: String) -> float:
 	parar()
-	if not tem(id):
+	if id.is_empty():
 		return 0.0
-	_tocador.stream = load(caminho_de(id))
-	_tocador.play()
-	return _tocador.stream.get_length()
+	if ResourceLoader.exists(caminho_de(id)):
+		_tocador.stream = load(caminho_de(id))
+		_tocador.play()
+		return _tocador.stream.get_length()
+	var duracao := 0.0
+	var arquivos := vozes_do_coro(id)
+	for i in arquivos.size():
+		var tocador := _coro[i]
+		tocador.stream = load(caminho_de(arquivos[i]))
+		var atraso := ATRASO_CORO * i
+		if atraso > 0.0:
+			get_tree().create_timer(atraso).timeout.connect(func() -> void:
+				if tocador.stream:
+					tocador.play())
+		else:
+			tocador.play()
+		duracao = maxf(duracao, atraso + tocador.stream.get_length())
+	return duracao
 
 
 ## Toca a fala pelo texto, para quem só tem o texto (frases soltas).
@@ -61,10 +102,13 @@ func id_do_texto(texto: String) -> String:
 func parar() -> void:
 	if _tocador:
 		_tocador.stop()
+	for tocador in _coro:
+		tocador.stop()
+		tocador.stream = null
 
 
 func tocando() -> bool:
-	return _tocador != null and _tocador.playing
+	return _tocador != null and (_tocador.playing or _coro.any(func(t: AudioStreamPlayer) -> bool: return t.playing))
 
 
 static func _normalizar(texto: String) -> String:

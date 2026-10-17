@@ -5,6 +5,9 @@ extends RefCounted
 ## prontos (autoload Voz). Quem fala com qual voz está em data/vozes/vozes.cfg.
 ## Cada fala vira assets/audio/vozes/<ID da fala>.mp3. O índice guarda o texto
 ## de cada áudio: rodar de novo só gera o que é novo ou mudou.
+## Uma voz com uma lista em voz_id é um coro (várias pessoas dizendo a mesma
+## fala juntas): cada pessoa vira <ID>_1.mp3, <ID>_2.mp3... e o jogo toca
+## todas ao mesmo tempo.
 
 const CONFIG := "res://data/vozes/vozes.cfg"
 ## Emoção de cada fala (etiquetas do ElevenLabs v3, como "[sad]").
@@ -97,7 +100,8 @@ static func roteiros(pasta := PASTA_ROTEIROS) -> PackedStringArray:
 
 
 ## As falas de um roteiro que têm voz:
-## {id, texto, direcao, voz, voz_id, modelo, estabilidade}.
+## {id, arquivo, texto, direcao, voz, voz_id, modelo, estabilidade}.
+## Num coro, a mesma fala aparece uma vez por pessoa, cada uma com seu arquivo.
 ## Opções de escolha não entram (são rótulos do jogo, não falas).
 static func falas_do_roteiro(recurso: DialogueResource, vozes: Array[Dictionary], direcao := {}, pronuncia := {}) -> Array[Dictionary]:
 	var falas: Array[Dictionary] = []
@@ -108,20 +112,25 @@ static func falas_do_roteiro(recurso: DialogueResource, vozes: Array[Dictionary]
 			continue
 		var personagem: String = linha.get("character", "")
 		var voz := voz_da_fala(personagem, id, vozes, recurso.resource_path)
-		if not voz.is_empty():
-			var texto := limpar(linha.get("text", ""))
+		if voz.is_empty():
+			continue
+		var texto := limpar(linha.get("text", ""))
+		var coro: bool = voz.voz_id is Array
+		var ids: Array = voz.voz_id if coro else [voz.voz_id]
+		for i in ids.size():
 			falas.append({
 				"id": id,
+				"arquivo": "%s_%d" % [id, i + 1] if coro else id,
 				"texto": texto,
 				"falado": pronunciar(texto, pronuncia),
 				"direcao": direcao.get(id, ""),
 				"voz": voz.nome,
-				"voz_id": voz.voz_id,
+				"voz_id": ids[i],
 				"modelo": voz.modelo,
 				"estabilidade": voz.get("estabilidade", 0.5),
 				"sotaque": voz.get("sotaque", ""),
 			})
-	falas.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return a.id < b.id)
+	falas.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return a.arquivo < b.arquivo)
 	return falas
 
 
@@ -181,8 +190,9 @@ static func assinatura(fala: Dictionary) -> String:
 func pendentes(falas: Array[Dictionary], indice: Dictionary) -> Array[Dictionary]:
 	var lista: Array[Dictionary] = []
 	for fala in falas:
-		var feito: Dictionary = indice.get(fala.id, {})
-		if feito.get("assinatura", "") != assinatura(fala) or not FileAccess.file_exists(caminho_audio(fala.id)):
+		var arquivo: String = fala.get("arquivo", fala.id)
+		var feito: Dictionary = indice.get(arquivo, {})
+		if feito.get("assinatura", "") != assinatura(fala) or not FileAccess.file_exists(caminho_audio(arquivo)):
 			lista.append(fala)
 	return lista
 
@@ -234,16 +244,17 @@ func rodar(chave: String, vozes: Array[Dictionary] = ler_vozes(), arquivos := ro
 	for fala in fazer:
 		var resposta := pedir_com_novas_tentativas(fala, chave)
 		if resposta.erro.is_empty():
-			var arquivo := FileAccess.open(caminho_audio(fala.id), FileAccess.WRITE)
+			var nome: String = fala.get("arquivo", fala.id)
+			var arquivo := FileAccess.open(caminho_audio(nome), FileAccess.WRITE)
 			arquivo.store_buffer(resposta.audio)
 			arquivo.close()
-			indice[fala.id] = {"texto": fala.texto, "voz": fala.voz, "assinatura": assinatura(fala)}
+			indice[nome] = {"fala": fala.id, "texto": fala.texto, "voz": fala.voz, "assinatura": assinatura(fala)}
 			salvar_indice(indice)
 			resultado.geradas += 1
-			_anotar("Gerada %s: %s" % [fala.id, texto_para_voz(fala)])
+			_anotar("Gerada %s: %s" % [nome, texto_para_voz(fala)])
 		else:
-			resultado.erros.append("%s: %s" % [fala.id, resposta.erro])
-			_anotar("ERRO %s: %s" % [fala.id, resposta.erro])
+			resultado.erros.append("%s: %s" % [fala.get("arquivo", fala.id), resposta.erro])
+			_anotar("ERRO %s: %s" % [fala.get("arquivo", fala.id), resposta.erro])
 			# Chave errada ou sem créditos: não adianta tentar as outras.
 			if resposta.codigo in [401, 402, 403]:
 				break

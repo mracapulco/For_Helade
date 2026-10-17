@@ -22,7 +22,7 @@ func _ids(falas: Array[Dictionary]) -> Array:
 func test_config_tem_a_voz_do_nicholas() -> void:
 	var vozes := GeradorVozes.ler_vozes()
 	assert_eq(vozes[0].nome, "nicholas")
-	assert_eq(vozes[0].voz_id, "WrT2M515LQuE5m5EYh0W")
+	assert_eq(vozes[0].voz_id, "ELBrtmIkk40wCZ5YnlwM", "voz nova, 17/10/2026")
 	assert_has(vozes[0].falantes, "Nicholas")
 
 
@@ -35,8 +35,7 @@ func test_prologo_so_a_narracao_do_nicholas() -> void:
 	assert_eq(althea.voz, "nicholas_crianca", "Dito pelo Nicholas de 5 anos")
 	assert_does_not_have(ids, "PROLOGO_001", "Título de lugar")
 	assert_eq(falas.filter(func(f: Dictionary) -> bool: return f.id == "PROLOGO_018")[0].voz, "parteira", "Fala da moça que entrega Althea")
-	assert_does_not_have(ids, "PROLOGO_027", "Sussurros finais")
-	assert_eq(ids.size(), 24)
+	assert_eq(ids.size(), 24 + 2 + 3 + 4, "narração, nome, parteira e o coro dos sussurros")
 	assert_eq(falas[0].modelo, "eleven_v3")
 	assert_eq(falas[0].texto, "Esta é a memória mais vívida que tenho da minha infância.")
 
@@ -106,7 +105,51 @@ func test_pronuncia_so_muda_o_audio() -> void:
 
 func test_apollon_tem_voz() -> void:
 	var vozes := GeradorVozes.ler_vozes()
-	assert_eq(GeradorVozes.voz_da_fala("Apollon", "CAP1_066", vozes, "res://data/dialogos/capitulo_01/manha.dialogue").voz_id, "29Pm0vQJJRoVfMCsUKB6")
+	assert_eq(GeradorVozes.voz_da_fala("Apollon", "CAP1_066", vozes, "res://data/dialogos/capitulo_01/manha.dialogue").voz_id, "GIuLCSVfgJaUuh7hYOY8")
+
+
+func test_pany_tem_voz() -> void:
+	var vozes := GeradorVozes.ler_vozes()
+	assert_eq(GeradorVozes.voz_da_fala("Pany", "CAP1_053", vozes, "res://data/dialogos/capitulo_01/manha.dialogue").voz_id, "eBthAb30UYbt2nojGXeA")
+
+
+func test_sussurros_finais_sao_um_coro_que_cresce() -> void:
+	# Rafael (17/10/2026): duas vozes, depois três, depois quatro.
+	var falas := GeradorVozes.falas_do_roteiro(load(PROLOGO), GeradorVozes.ler_vozes(), GeradorVozes.ler_direcao())
+	var esperado := {"PROLOGO_027": 2, "PROLOGO_028": 3, "PROLOGO_029": 4}
+	for id: String in esperado:
+		var coro := falas.filter(func(f: Dictionary) -> bool: return f.id == id)
+		assert_eq(coro.size(), esperado[id], id)
+		var arquivos := coro.map(func(f: Dictionary) -> String: return f.arquivo)
+		var esperados := range(1, esperado[id] + 1).map(func(n: int) -> String: return "%s_%d" % [id, n])
+		assert_eq(arquivos, esperados, "um arquivo por pessoa do coro")
+		var ids_de_voz := coro.map(func(f: Dictionary) -> String: return f.voz_id)
+		for voz_id in ids_de_voz:
+			assert_eq(ids_de_voz.count(voz_id), 1, "cada pessoa com sua voz")
+		assert_string_contains(coro[0].direcao, "[whispers]")
+
+
+func test_coro_gera_cada_voz_separada() -> void:
+	var gerador := GeradorVozes.new()
+	gerador.pasta_saida = PASTA_TESTE
+	DirAccess.make_dir_recursive_absolute(PASTA_TESTE)
+	var um := {"id": "S", "arquivo": "S_1", "texto": "Por Hélade.", "voz": "c", "voz_id": "a", "modelo": "m"}
+	var dois := {"id": "S", "arquivo": "S_2", "texto": "Por Hélade.", "voz": "c", "voz_id": "b", "modelo": "m"}
+	FileAccess.open(gerador.caminho_audio("S_1"), FileAccess.WRITE).store_string("mp3")
+	var indice := {"S_1": {"assinatura": GeradorVozes.assinatura(um)}}
+	var falas: Array[Dictionary] = [um, dois]
+	var faltam := gerador.pendentes(falas, indice)
+	assert_eq(faltam.size(), 1)
+	assert_eq(faltam[0].arquivo, "S_2")
+
+
+func test_voz_acha_o_coro_pelo_texto() -> void:
+	DirAccess.make_dir_recursive_absolute(PASTA_TESTE)
+	var caminho := PASTA_TESTE.path_join("indice.json")
+	var indice := {"PROLOGO_027_1": {"fala": "PROLOGO_027", "texto": "Por Hélade."}, "PROLOGO_027_2": {"fala": "PROLOGO_027", "texto": "Por Hélade."}}
+	FileAccess.open(caminho, FileAccess.WRITE).store_string(JSON.stringify(indice))
+	Voz.carregar_indice(caminho)
+	assert_eq(Voz.id_do_texto("Por Hélade."), "PROLOGO_027")
 
 
 func test_falas_com_nome_usam_o_falante() -> void:

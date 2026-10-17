@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="Item" format=3]
+
+[ext_resource type="Script" path="res://scripts/systems/item.gd" id="1_item"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholders/combate/icone_escudo_agape.png" id="2_icone"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholders/combate/escudo_agape_na_mao.png" id="3_na_mao"]
+
+[resource]
+script = ExtResource("1_item")
+id = "escudo_agape"
+chave_nome = "ITEM_ESCUDO_AGAPE_NOME"
+chave_descricao = "ITEM_ESCUDO_AGAPE_DESC"
+icone = ExtResource("2_icone")
+visual_na_mao = ExtResource("3_na_mao")
+pega_na_mao = Vector2i(7, 8)
+tipo = 1
+encaixe = 4
+preco = 50
+origem = 2
+nivel = 1
+defesa = 7
+velocidade = -5

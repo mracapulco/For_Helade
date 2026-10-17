@@ -6,6 +6,10 @@ extends CanvasLayer
 
 ## Expressão usada quando a fala não tem a etiqueta [code][#retrato=...][/code].
 const EXPRESSAO_PADRAO := "neutro"
+## Ordem dos quadros da boca enquanto o texto aparece (índices da faixa de
+## fala: 0 fechada, 1 entreaberta, 2 aberta) e o tempo de cada um.
+const SEQUENCIA_FALA := [1, 2, 1, 0]
+const TEMPO_QUADRO_FALA := 0.09
 
 ## Recurso de diálogo (quando a caixa é colocada direto numa cena).
 @export var dialogue_resource: DialogueResource
@@ -40,6 +44,11 @@ var will_hide_balloon: bool = false
 var _fala_antes_das_escolhas := false
 var mutation_cooldown: Timer = Timer.new()
 var _locale: String = TranslationServer.get_locale()
+## Retrato parado da fala atual e os quadros da boca falando.
+var _retrato_parado: Texture2D
+var _quadros_fala: Array[Texture2D] = []
+var _tempo_fala := 0.0
+var _passo_fala := 0
 
 ## Fala atual. Ao receber null, a conversa acabou e a caixa fecha.
 var dialogue_line: DialogueLine:
@@ -80,9 +89,28 @@ func _ready() -> void:
 		start()
 
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
 	if is_instance_valid(dialogue_line):
 		progress.visible = not dialogue_label.is_typing and dialogue_line.responses.size() == 0
+	animar_boca(delta, is_instance_valid(dialogue_label) and dialogue_label.is_typing)
+
+
+## Mexe a boca do retrato enquanto o texto aparece; parado, mostra o retrato
+## de boca fechada.
+func animar_boca(delta: float, falando: bool) -> void:
+	if _quadros_fala.is_empty():
+		return
+	if not falando:
+		_tempo_fala = 0.0
+		_passo_fala = 0
+		retrato.texture = _retrato_parado
+		return
+	_tempo_fala += delta
+	if _tempo_fala >= TEMPO_QUADRO_FALA:
+		_tempo_fala = 0.0
+		_passo_fala = (_passo_fala + 1) % SEQUENCIA_FALA.size()
+	var quadro: int = mini(SEQUENCIA_FALA[_passo_fala], _quadros_fala.size() - 1)
+	retrato.texture = _quadros_fala[quadro]
 
 
 func _unhandled_input(_event: InputEvent) -> void:
@@ -203,6 +231,11 @@ func _mostrar_retrato() -> void:
 	retrato.get_parent().visible = tem_personagem
 	retrato.visible = textura != null
 	retrato.texture = textura
+	_retrato_parado = textura
+	_quadros_fala = personagem.quadros_fala(expressao) if personagem and textura else ([] as Array[Texture2D])
+	_passo_fala = 0
+	_tempo_fala = 0.0
+	retrato.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST if personagem and personagem.pixel_art else CanvasItem.TEXTURE_FILTER_PARENT_NODE
 	retrato_provisorio.visible = tem_personagem and textura == null
 	if retrato_provisorio.visible:
 		retrato_provisorio.color = personagem.cor_provisoria if personagem else Color(0.4, 0.1, 0.1)

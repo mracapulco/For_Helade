@@ -5,7 +5,7 @@ extends Node
 signal mudou
 
 const ARQUIVO := "user://configuracoes.cfg"
-const BARRAMENTOS := {"volume_geral": "Master", "volume_musica": "Musica", "volume_efeitos": "Efeitos"}
+const BARRAMENTOS := {"volume_geral": "Master", "volume_musica": "Musica", "volume_efeitos": "Efeitos", "volume_voz": "Voz"}
 
 var idioma := "pt_BR"
 ## Multiplica a sensibilidade do mouse na primeira pessoa (1 = padrão).
@@ -16,6 +16,7 @@ var vsync := true
 var volume_geral := 1.0
 var volume_musica := 0.8
 var volume_efeitos := 0.8
+var volume_voz := 1.0
 
 var arquivo := ARQUIVO
 
@@ -69,4 +70,4 @@ func idiomas_disponiveis() -> PackedStringArray:
 
 
 func _chaves() -> Array[String]:
-	return ["idioma", "sensibilidade_mouse", "tela_cheia", "vsync", "volume_geral", "volume_musica", "volume_efeitos"]
+	return ["idioma", "sensibilidade_mouse", "tela_cheia", "vsync", "volume_geral", "volume_musica", "volume_efeitos", "volume_voz"]

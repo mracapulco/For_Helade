@@ -122,6 +122,11 @@ func _aposentos() -> void:
 	botao_nome.grab_focus()
 	await _esperar("nome")
 	botao_nome.visible = false
+	# Nicholas diz o nome em voz alta (se houver voz gravada). A cena espera
+	# a voz terminar: a narração seguinte cortaria o nome no meio.
+	var voz_nome := Voz.tocar_texto(botao_nome.text)
+	if voz_nome > 0.0:
+		await get_tree().create_timer(voz_nome).timeout
 
 	_mudar("olhares")
 	# "tão rápido que sibilaram": todos se viram para Nicholas de uma vez.

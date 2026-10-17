@@ -1,6 +1,8 @@
 class_name AlvoToque
 extends Area3D
-## Brilho dourado que o jogador toca (ou clica) para levar a câmera até o `destino`.
+## Área que o jogador toca (ou clica) para levar a câmera até o `destino`:
+## fica na próxima passagem, sem nada desenhado (decisão do Rafael, 14/10/2026).
+## Se tiver um MeshInstance3D filho (o brilho de Althea), ele pulsa.
 ## Só aparece e só responde quando a câmera está no PontoDeVista pai.
 
 signal tocado(alvo: AlvoToque)

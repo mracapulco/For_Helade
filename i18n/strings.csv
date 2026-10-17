@@ -3,7 +3,7 @@ JOGO_TITULO,Por Hélade
 EXPLORACAO_BOTAO_CORRER,Correr
 EXPLORACAO_BOTAO_PULAR,Pular
 EXPLORACAO_BOTAO_GOLPE,Golpe
-PROLOGO_DICA_TOQUE,Toque no brilho dourado para se mover
+PROLOGO_DICA_TOQUE,Toque na porta para ir até ela
 PROLOGO_DICA_SEGURAR_TOQUE,Toque no brilho para segurar Althea
 PROLOGO_DICA_SEGURAR_TECLADO,Clique no brilho ou aperte E para segurar Althea
 RETRATO_PROVISORIO,PROVISÓRIO
@@ -13,7 +13,7 @@ TESTE_DIALOGO_VALORES,"Relação com Janet: %d
 Influência com Olympia: %d"
 TESTE_DIALOGO_INICIAR,Iniciar diálogo de teste
 TESTE_DIALOGO_ZERAR,Zerar valores
-PROLOGO_DICA_TECLADO,"WASD para andar, Shift para correr, espaço para pular, mouse para olhar, E para ir até o brilho. Clique para prender o mouse, Esc para soltar."
+PROLOGO_DICA_TECLADO,"WASD para andar, Shift para correr, espaço para pular, Ctrl para agachar, mouse para olhar, Enter com a mira na porta para ir até ela. Clique para prender o mouse, Esc para soltar."
 MENU_CONTINUAR,Continuar
 MENU_CARREGAR,Carregar jogo
 MENU_NOVO_JOGO,Novo jogo
@@ -34,6 +34,7 @@ OPCOES_SECAO_SOM,Som
 OPCOES_VOLUME_GERAL,Volume geral
 OPCOES_VOLUME_MUSICA,Música
 OPCOES_VOLUME_EFEITOS,Efeitos sonoros
+OPCOES_VOLUME_VOZ,Vozes
 ITEM_POCAO_TESTE_NOME,Poção de teste
 ITEM_POCAO_TESTE_DESC,Provisória. Recupera um pouco de vida.
 ITEM_POCAO_CURA_NOME,Poção de cura

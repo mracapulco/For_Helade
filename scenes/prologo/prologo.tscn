@@ -8,85 +8,51 @@
 [ext_resource type="Script" path="res://scripts/prologo/texto_solto.gd" id="6_uawdr"]
 [ext_resource type="Script" path="res://scripts/prologo/tela_final.gd" id="7_rnfgu"]
 [ext_resource type="Script" path="res://scripts/prologo/sequencia_prologo.gd" id="8_q2utl"]
+[ext_resource type="Script" path="res://scripts/prologo/pessoa_prologo.gd" id="12_pessoa"]
+[ext_resource type="Script" path="res://scripts/prologo/duquesa_na_cama.gd" id="13_duquesa"]
+[ext_resource type="Script" path="res://scripts/prologo/bebe_althea.gd" id="14_althea"]
+[ext_resource type="Script" path="res://scripts/prologo/corpo_nicholas.gd" id="15_corpo"]
+[ext_resource type="Script" path="res://scripts/prologo/passagens_prologo.gd" id="16_passagens"]
+[ext_resource type="Shader" path="res://assets/shaders/prologo/ceu_noite.gdshader" id="s_ceu"]
+[ext_resource type="Shader" path="res://assets/shaders/prologo/vinheta.gdshader" id="s_vinheta"]
+[ext_resource type="Script" path="res://scripts/prologo/sensacao_primeira_pessoa.gd" id="10_sensacao"]
+[ext_resource type="Script" path="res://scripts/prologo/som_prologo.gd" id="11_som"]
+[ext_resource type="PackedScene" path="res://scenes/prologo/cenario/exterior.tscn" id="c_exterior"]
+[ext_resource type="PackedScene" path="res://scenes/prologo/cenario/quarto_nicholas.tscn" id="c_quarto_nicholas"]
+[ext_resource type="PackedScene" path="res://scenes/prologo/cenario/corredor.tscn" id="c_corredor"]
+[ext_resource type="PackedScene" path="res://scenes/prologo/cenario/aposentos.tscn" id="c_aposentos"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ceu"]
+shader = ExtResource("s_ceu")
+
+[sub_resource type="Sky" id="Sky_noite"]
+sky_material = SubResource("ShaderMaterial_ceu")
 
 [sub_resource type="Environment" id="Environment_383km"]
-background_mode = 1
-background_color = Color(0.02, 0.03, 0.07, 1)
+background_mode = 2
+sky = SubResource("Sky_noite")
 ambient_light_source = 2
 ambient_light_color = Color(0.25, 0.3, 0.5, 1)
-ambient_light_energy = 0.35
+ambient_light_energy = 0.3
+tonemap_mode = 3
+tonemap_exposure = 1.15
+glow_enabled = true
+glow_intensity = 0.7
+glow_bloom = 0.04
+glow_hdr_threshold = 0.9
+fog_enabled = true
+fog_light_color = Color(0.05, 0.07, 0.12, 1)
+fog_density = 0.0025
+fog_sky_affect = 0.0
+adjustment_enabled = true
+adjustment_contrast = 1.08
+adjustment_saturation = 0.92
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_n33pe"]
-albedo_color = Color(0.16, 0.13, 0.12, 1)
-roughness = 0.9
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_gnccc"]
-albedo_color = Color(0.2, 0.22, 0.3, 1)
-roughness = 0.9
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_y0f6t"]
-albedo_color = Color(0.35, 0.22, 0.12, 1)
-roughness = 0.9
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_p113k"]
-albedo_color = Color(0.12, 0.16, 0.35, 1)
-roughness = 0.9
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_5k3mg"]
-albedo_color = Color(0.85, 0.65, 0.25, 1)
-roughness = 0.9
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_msarb"]
-albedo_color = Color(0.75, 0.72, 0.66, 1)
-roughness = 0.9
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_eejka"]
-albedo_color = Color(0.07, 0.09, 0.26, 1)
-roughness = 0.9
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_syvfp"]
-albedo_color = Color(0.42, 0.42, 0.48, 1)
-roughness = 0.9
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_gf1pi"]
-albedo_color = Color(0.03, 0.07, 0.18, 1)
-roughness = 0.9
-emission_enabled = true
-emission = Color(0.03, 0.07, 0.18, 1)
-emission_energy_multiplier = 0.25
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_daj6l"]
-albedo_color = Color(0.9, 0.92, 1, 1)
-roughness = 0.9
-emission_enabled = true
-emission = Color(0.9, 0.92, 1, 1)
-emission_energy_multiplier = 2.0
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_gbh0d"]
-albedo_color = Color(0.55, 0.5, 0.44, 1)
-roughness = 0.9
-
-[sub_resource type="CapsuleMesh" id="CapsuleMesh_rs64o"]
-material = SubResource("StandardMaterial3D_gbh0d")
-radius = 0.2
-height = 1.6
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_fvi6q"]
-albedo_color = Color(0.78, 0.66, 0.56, 1)
-roughness = 0.9
-
-[sub_resource type="BoxMesh" id="BoxMesh_cyt0c"]
-material = SubResource("StandardMaterial3D_fvi6q")
-size = Vector3(0.16, 0.18, 0.04)
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_uwdfn"]
-albedo_color = Color(0.92, 0.88, 0.8, 1)
-roughness = 0.9
-
-[sub_resource type="SphereMesh" id="SphereMesh_3yxbc"]
-material = SubResource("StandardMaterial3D_uwdfn")
-radius = 0.12
-height = 0.24
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_vinheta"]
+shader = ExtResource("s_vinheta")
+shader_parameter/vinheta = 0.35
+shader_parameter/desfoque = 0.0
+shader_parameter/granulacao = 0.03
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_828km"]
 size = Vector3(0.7, 0.7, 0.7)
@@ -103,89 +69,12 @@ material = SubResource("StandardMaterial3D_oda66")
 radius = 0.08
 height = 0.16
 
-[sub_resource type="CapsuleMesh" id="CapsuleMesh_sipn0"]
-material = SubResource("StandardMaterial3D_gbh0d")
-radius = 0.2
-height = 1.6
-
-[sub_resource type="BoxMesh" id="BoxMesh_tw5at"]
-material = SubResource("StandardMaterial3D_fvi6q")
-size = Vector3(0.16, 0.18, 0.04)
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_wyfcv"]
-albedo_color = Color(0.28, 0.26, 0.32, 1)
-roughness = 0.9
-
-[sub_resource type="CapsuleMesh" id="CapsuleMesh_1u7dh"]
-material = SubResource("StandardMaterial3D_wyfcv")
-radius = 0.2
-height = 1.6
-
-[sub_resource type="BoxMesh" id="BoxMesh_bfywl"]
-material = SubResource("StandardMaterial3D_fvi6q")
-size = Vector3(0.16, 0.18, 0.04)
-
-[sub_resource type="CapsuleMesh" id="CapsuleMesh_vu7pa"]
-material = SubResource("StandardMaterial3D_wyfcv")
-radius = 0.2
-height = 1.6
-
-[sub_resource type="BoxMesh" id="BoxMesh_4is6p"]
-material = SubResource("StandardMaterial3D_fvi6q")
-size = Vector3(0.16, 0.18, 0.04)
-
-[sub_resource type="CapsuleMesh" id="CapsuleMesh_6lm4u"]
-material = SubResource("StandardMaterial3D_wyfcv")
-radius = 0.2
-height = 1.6
-
-[sub_resource type="BoxMesh" id="BoxMesh_elmdc"]
-material = SubResource("StandardMaterial3D_fvi6q")
-size = Vector3(0.16, 0.18, 0.04)
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_t4lga"]
-size = Vector3(0.9, 0.9, 0.9)
-
-[sub_resource type="SphereMesh" id="SphereMesh_4nhw3"]
-material = SubResource("StandardMaterial3D_oda66")
-radius = 0.12
-height = 0.24
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_tyj37"]
-size = Vector3(0.9, 0.9, 0.9)
-
-[sub_resource type="SphereMesh" id="SphereMesh_br2w8"]
-material = SubResource("StandardMaterial3D_oda66")
-radius = 0.12
-height = 0.24
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_bpcub"]
-size = Vector3(0.9, 0.9, 0.9)
-
-[sub_resource type="SphereMesh" id="SphereMesh_57i2x"]
-material = SubResource("StandardMaterial3D_oda66")
-radius = 0.12
-height = 0.24
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_b6ysb"]
-size = Vector3(0.9, 0.9, 0.9)
-
-[sub_resource type="SphereMesh" id="SphereMesh_ctyak"]
-material = SubResource("StandardMaterial3D_oda66")
-radius = 0.12
-height = 0.24
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_0io05"]
-size = Vector3(0.9, 0.9, 0.9)
-
-[sub_resource type="SphereMesh" id="SphereMesh_56vmu"]
-material = SubResource("StandardMaterial3D_oda66")
-radius = 0.12
-height = 0.24
-
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_mfwf1"]
 radius = 0.25
 height = 1.15
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_passagem"]
+size = Vector3(1.6, 2.4, 1.6)
 
 [node name="Prologo" type="Node3D" unique_id=731583142 node_paths=PackedStringArray("corpo", "camera", "ponto_inicial", "dica", "mira", "abertura", "texto_solto")]
 script = ExtResource("1_viiba")
@@ -202,456 +91,344 @@ texto_solto = NodePath("Frases/TextoSolto")
 environment = SubResource("Environment_383km")
 
 [node name="Lua" type="DirectionalLight3D" parent="." unique_id=1457227152]
-transform = Transform3D(0.8660254, -0.38302222, 0.32139382, 0, 0.64278764, 0.76604444, -0.5, -0.66341394, 0.5566704, 0, 0, 0)
+transform = Transform3D(0.9866, -0.0688, 0.149, 0, 0.9085, 0.419, -0.1641, -0.4134, 0.896, 0, 0, 0)
 light_color = Color(0.6, 0.7, 1, 1)
-light_energy = 0.25
+light_energy = 0.4
+shadow_enabled = true
+directional_shadow_max_distance = 40.0
 
 [node name="Cenario" type="Node3D" parent="." unique_id=1663121402]
 
-[node name="QuartoNicholas" type="Node3D" parent="Cenario" unique_id=1364072108]
+[node name="Exterior" parent="Cenario" instance=ExtResource("c_exterior")]
 
-[node name="Chao" type="CSGBox3D" parent="Cenario/QuartoNicholas" unique_id=2858094]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, -0.05, 2)
-use_collision = true
-size = Vector3(4, 0.1, 4)
-material = SubResource("StandardMaterial3D_n33pe")
+[node name="QuartoNicholas" parent="Cenario" instance=ExtResource("c_quarto_nicholas")]
 
-[node name="Teto" type="CSGBox3D" parent="Cenario/QuartoNicholas" unique_id=2089089401]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 3.05, 2)
-use_collision = true
-size = Vector3(4, 0.1, 4)
-material = SubResource("StandardMaterial3D_gnccc")
+[node name="Corredor" parent="Cenario" instance=ExtResource("c_corredor")]
 
-[node name="ParedeOeste" type="CSGBox3D" parent="Cenario/QuartoNicholas" unique_id=753438910]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.05, 1.5, 2)
-use_collision = true
-size = Vector3(0.1, 3, 4)
-material = SubResource("StandardMaterial3D_gnccc")
+[node name="Aposentos" parent="Cenario" instance=ExtResource("c_aposentos")]
 
-[node name="ParedeNorte" type="CSGBox3D" parent="Cenario/QuartoNicholas" unique_id=180307043]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 1.5, -0.05)
-use_collision = true
-size = Vector3(4, 3, 0.1)
-material = SubResource("StandardMaterial3D_gnccc")
+[node name="Pessoas" type="Node3D" parent="." unique_id=1572308870]
 
-[node name="ParedeSul" type="CSGBox3D" parent="Cenario/QuartoNicholas" unique_id=1734304786]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 1.5, 4.05)
-use_collision = true
-size = Vector3(4, 3, 0.1)
-material = SubResource("StandardMaterial3D_gnccc")
+[node name="Parteira" type="Node3D" parent="Pessoas" unique_id=2063827996]
+transform = Transform3D(0.0, 0, -1.0, 0, 1, 0, 1.0, 0, 0.0, 10.75, 0, 8.1)
+script = ExtResource("12_pessoa")
+cor_roupa = Color(0.36, 0.3, 0.25, 1)
+mangas_arregacadas = true
+sangue = 0.85
+atividade = "trabalhando"
+semente = 1
+altura = 1.6
 
-[node name="ParedeLesteA" type="CSGBox3D" parent="Cenario/QuartoNicholas" unique_id=1406551093]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.05, 1.5, 0.7)
-use_collision = true
-size = Vector3(0.1, 3, 1.4)
-material = SubResource("StandardMaterial3D_gnccc")
+[node name="Althea" type="Node3D" parent="Pessoas/Parteira" unique_id=1233187584]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.0, -0.36)
+script = ExtResource("14_althea")
 
-[node name="ParedeLesteB" type="CSGBox3D" parent="Cenario/QuartoNicholas" unique_id=537588985]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.05, 1.5, 3.3)
-use_collision = true
-size = Vector3(0.1, 3, 1.4)
-material = SubResource("StandardMaterial3D_gnccc")
-
-[node name="VergaPorta" type="CSGBox3D" parent="Cenario/QuartoNicholas" unique_id=688196905]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.05, 2.6, 2)
-use_collision = true
-size = Vector3(0.1, 0.8, 1.2)
-material = SubResource("StandardMaterial3D_gnccc")
-
-[node name="Cama" type="CSGBox3D" parent="Cenario/QuartoNicholas" unique_id=136293002]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.2, 0.15, 2.3)
-use_collision = true
-size = Vector3(1.2, 0.3, 2)
-material = SubResource("StandardMaterial3D_y0f6t")
-
-[node name="Coberta" type="CSGBox3D" parent="Cenario/QuartoNicholas" unique_id=848493575]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.2, 0.33, 2.5)
-use_collision = true
-size = Vector3(1.15, 0.06, 1.6)
-material = SubResource("StandardMaterial3D_p113k")
-
-[node name="Travesseiro" type="CSGBox3D" parent="Cenario/QuartoNicholas" unique_id=1527786522]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.2, 0.42, 1.5)
-size = Vector3(0.9, 0.15, 0.4)
-material = SubResource("StandardMaterial3D_p113k")
-
-[node name="Vela" type="OmniLight3D" parent="Cenario/QuartoNicholas" unique_id=1711938038]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.6, 1, 0.6)
-light_color = Color(1, 0.7, 0.4, 1)
-light_energy = 1.2
-omni_range = 4.0
-
-[node name="Corredor" type="Node3D" parent="Cenario" unique_id=1911627218]
-
-[node name="Chao" type="CSGBox3D" parent="Cenario/Corredor" unique_id=1761853132]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, -0.05, 2)
-use_collision = true
-size = Vector3(10, 0.1, 2)
-material = SubResource("StandardMaterial3D_n33pe")
-
-[node name="Teto" type="CSGBox3D" parent="Cenario/Corredor" unique_id=639231787]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 3.05, 2)
-use_collision = true
-size = Vector3(10, 0.1, 2)
-material = SubResource("StandardMaterial3D_gnccc")
-
-[node name="ParedeNorte" type="CSGBox3D" parent="Cenario/Corredor" unique_id=262060194]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 1.5, 0.95)
-use_collision = true
-size = Vector3(10, 3, 0.1)
-material = SubResource("StandardMaterial3D_gnccc")
-
-[node name="ParedeSul" type="CSGBox3D" parent="Cenario/Corredor" unique_id=2064666645]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 1.5, 3.05)
-use_collision = true
-size = Vector3(10, 3, 0.1)
-material = SubResource("StandardMaterial3D_gnccc")
-
-[node name="PortaAposentos" type="CSGBox3D" parent="Cenario/Corredor" unique_id=1248528355]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.65, 1.15, 1.45)
-use_collision = true
-size = Vector3(1.2, 2.3, 0.06)
-material = SubResource("StandardMaterial3D_y0f6t")
-
-[node name="MolduraPorta" type="CSGBox3D" parent="Cenario/Corredor" unique_id=732588263]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.99, 2.35, 2)
-use_collision = true
-size = Vector3(0.05, 0.1, 1.4)
-material = SubResource("StandardMaterial3D_5k3mg")
-
-[node name="Tocha1" type="OmniLight3D" parent="Cenario/Corredor" unique_id=587403919]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 2, 1.2)
-light_color = Color(1, 0.6, 0.3, 1)
-omni_range = 4.5
-
-[node name="Tocha2" type="OmniLight3D" parent="Cenario/Corredor" unique_id=1550354816]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.5, 2, 2.8)
-light_color = Color(1, 0.6, 0.3, 1)
-omni_range = 4.5
-
-[node name="LuzPorta" type="OmniLight3D" parent="Cenario/Corredor" unique_id=333309578]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.4, 1.8, 2)
-light_color = Color(1, 0.75, 0.45, 1)
-light_energy = 0.8
-omni_range = 2.5
-
-[node name="Aposentos" type="Node3D" parent="Cenario" unique_id=1501862351]
-
-[node name="Chao" type="CSGBox3D" parent="Cenario/Aposentos" unique_id=1507633805]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13.5, -0.05, 2)
-use_collision = true
-size = Vector3(7, 0.1, 6)
-material = SubResource("StandardMaterial3D_n33pe")
-
-[node name="Teto" type="CSGBox3D" parent="Cenario/Aposentos" unique_id=136141468]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13.5, 3.25, 2)
-use_collision = true
-size = Vector3(7, 0.1, 6)
-material = SubResource("StandardMaterial3D_gnccc")
-
-[node name="ParedeOesteA" type="CSGBox3D" parent="Cenario/Aposentos" unique_id=1073718961]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.05, 1.6, 0.2)
-use_collision = true
-size = Vector3(0.1, 3.2, 2.4)
-material = SubResource("StandardMaterial3D_gnccc")
-
-[node name="ParedeOesteB" type="CSGBox3D" parent="Cenario/Aposentos" unique_id=324709298]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.05, 1.6, 3.8)
-use_collision = true
-size = Vector3(0.1, 3.2, 2.4)
-material = SubResource("StandardMaterial3D_gnccc")
-
-[node name="VergaPorta" type="CSGBox3D" parent="Cenario/Aposentos" unique_id=1731212499]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.05, 2.75, 2)
-use_collision = true
-size = Vector3(0.1, 0.9, 1.2)
-material = SubResource("StandardMaterial3D_gnccc")
-
-[node name="ParedeNorte" type="CSGBox3D" parent="Cenario/Aposentos" unique_id=30377157]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13.5, 1.6, -1.05)
-use_collision = true
-size = Vector3(7, 3.2, 0.1)
-material = SubResource("StandardMaterial3D_gnccc")
-
-[node name="ParedeLeste" type="CSGBox3D" parent="Cenario/Aposentos" unique_id=268417268]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17.05, 1.6, 2)
-use_collision = true
-size = Vector3(0.1, 3.2, 6)
-material = SubResource("StandardMaterial3D_gnccc")
-
-[node name="ParedeSulA" type="CSGBox3D" parent="Cenario/Aposentos" unique_id=727154344]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.1, 1.6, 5.05)
-use_collision = true
-size = Vector3(2.2, 3.2, 0.1)
-material = SubResource("StandardMaterial3D_gnccc")
-
-[node name="ParedeSulB" type="CSGBox3D" parent="Cenario/Aposentos" unique_id=178901654]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15.6, 1.6, 5.05)
-use_collision = true
-size = Vector3(2.8, 3.2, 0.1)
-material = SubResource("StandardMaterial3D_gnccc")
-
-[node name="VergaVaranda" type="CSGBox3D" parent="Cenario/Aposentos" unique_id=776008654]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13.2, 2.8, 5.05)
-use_collision = true
-size = Vector3(2, 0.8, 0.1)
-material = SubResource("StandardMaterial3D_gnccc")
-
-[node name="CamaDuquesa" type="CSGBox3D" parent="Cenario/Aposentos" unique_id=351534007]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15.6, 0.3, 2)
-use_collision = true
-size = Vector3(2.2, 0.6, 2.6)
-material = SubResource("StandardMaterial3D_y0f6t")
-
-[node name="Lencol" type="CSGBox3D" parent="Cenario/Aposentos" unique_id=1825395514]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15.6, 0.64, 2)
-use_collision = true
-size = Vector3(2.1, 0.08, 2.5)
-material = SubResource("StandardMaterial3D_msarb")
-
-[node name="Dossel" type="CSGBox3D" parent="Cenario/Aposentos" unique_id=1506230738]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15.6, 2.35, 2)
-use_collision = true
-size = Vector3(2.4, 0.1, 2.8)
-material = SubResource("StandardMaterial3D_eejka")
-
-[node name="Coluna1" type="CSGBox3D" parent="Cenario/Aposentos" unique_id=620540265]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14.5, 1.2, 0.7)
-use_collision = true
-size = Vector3(0.1, 2.4, 0.1)
-material = SubResource("StandardMaterial3D_y0f6t")
-
-[node name="Coluna2" type="CSGBox3D" parent="Cenario/Aposentos" unique_id=1657319101]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16.7, 1.2, 0.7)
-use_collision = true
-size = Vector3(0.1, 2.4, 0.1)
-material = SubResource("StandardMaterial3D_y0f6t")
-
-[node name="Coluna3" type="CSGBox3D" parent="Cenario/Aposentos" unique_id=1338860111]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14.5, 1.2, 3.3)
-use_collision = true
-size = Vector3(0.1, 2.4, 0.1)
-material = SubResource("StandardMaterial3D_y0f6t")
-
-[node name="Coluna4" type="CSGBox3D" parent="Cenario/Aposentos" unique_id=1647815940]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16.7, 1.2, 3.3)
-use_collision = true
-size = Vector3(0.1, 2.4, 0.1)
-material = SubResource("StandardMaterial3D_y0f6t")
-
-[node name="CortinaLeste" type="CSGBox3D" parent="Cenario/Aposentos" unique_id=1686589864]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16.75, 1.5, 2)
-use_collision = true
-size = Vector3(0.05, 1.7, 2.6)
-material = SubResource("StandardMaterial3D_eejka")
-
-[node name="VelaCama" type="OmniLight3D" parent="Cenario/Aposentos" unique_id=56085049]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, 1.4, 0.2)
-light_color = Color(1, 0.7, 0.4, 1)
-light_energy = 1.4
-
-[node name="VelaPorta" type="OmniLight3D" parent="Cenario/Aposentos" unique_id=375604664]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11, 1.6, 4.4)
-light_color = Color(1, 0.7, 0.4, 1)
-light_energy = 0.8
-omni_range = 3.5
-
-[node name="ChaoVaranda" type="CSGBox3D" parent="Cenario/Aposentos" unique_id=1877036958]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13.5, -0.05, 6.6)
-use_collision = true
-size = Vector3(5, 0.1, 3)
-material = SubResource("StandardMaterial3D_syvfp")
-
-[node name="ParapeitoSul" type="CSGBox3D" parent="Cenario/Aposentos" unique_id=746807131]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13.5, 0.4, 8.05)
-use_collision = true
-size = Vector3(5, 0.8, 0.12)
-material = SubResource("StandardMaterial3D_syvfp")
-
-[node name="ParapeitoOeste" type="CSGBox3D" parent="Cenario/Aposentos" unique_id=573409122]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.05, 0.4, 6.6)
-use_collision = true
-size = Vector3(0.12, 0.8, 3)
-material = SubResource("StandardMaterial3D_syvfp")
-
-[node name="ParapeitoLeste" type="CSGBox3D" parent="Cenario/Aposentos" unique_id=1161420150]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15.95, 0.4, 6.6)
-use_collision = true
-size = Vector3(0.12, 0.8, 3)
-material = SubResource("StandardMaterial3D_syvfp")
-
-[node name="Mar" type="CSGBox3D" parent="Cenario/Aposentos" unique_id=854792279]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13.5, -12, 160)
-size = Vector3(700, 0.1, 320)
-material = SubResource("StandardMaterial3D_gf1pi")
-
-[node name="LuaNoCeu" type="CSGSphere3D" parent="Cenario/Aposentos" unique_id=1475350551]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30, 40, 170)
-radius = 7.0
-material = SubResource("StandardMaterial3D_daj6l")
-
-[node name="Figuras" type="Node3D" parent="Cenario/Aposentos" unique_id=1572308870]
-
-[node name="Parteira" type="Node3D" parent="Cenario/Aposentos/Figuras" unique_id=2063827996]
-transform = Transform3D(-0.3939192, 0, -0.9191451, 0, 1, 0, 0.9191451, 0, -0.3939192, 14.2, 0, 1.4)
-
-[node name="Corpo" type="MeshInstance3D" parent="Cenario/Aposentos/Figuras/Parteira" unique_id=502136178]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
-mesh = SubResource("CapsuleMesh_rs64o")
-
-[node name="Rosto" type="MeshInstance3D" parent="Cenario/Aposentos/Figuras/Parteira" unique_id=328816597]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.42, -0.19)
-mesh = SubResource("BoxMesh_cyt0c")
-
-[node name="Althea" type="Node3D" parent="Cenario/Aposentos/Figuras/Parteira" unique_id=1233187584]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.95, -0.32)
-
-[node name="Manta" type="MeshInstance3D" parent="Cenario/Aposentos/Figuras/Parteira/Althea" unique_id=486613686]
-transform = Transform3D(1, 0, 0, 0, 0.8, 0, 0, 0, 1.5, 0, 0, 0)
-mesh = SubResource("SphereMesh_3yxbc")
-
-[node name="AlvoAlthea" type="Area3D" parent="Cenario/Aposentos/Figuras/Parteira/Althea" unique_id=2022474918]
+[node name="AlvoAlthea" type="Area3D" parent="Pessoas/Parteira/Althea" unique_id=2022474918]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.18, 0)
 script = ExtResource("3_nnoio")
 
-[node name="Colisao" type="CollisionShape3D" parent="Cenario/Aposentos/Figuras/Parteira/Althea/AlvoAlthea" unique_id=536295681]
+[node name="Colisao" type="CollisionShape3D" parent="Pessoas/Parteira/Althea/AlvoAlthea" unique_id=536295681]
 shape = SubResource("BoxShape3D_828km")
 
-[node name="Brilho" type="MeshInstance3D" parent="Cenario/Aposentos/Figuras/Parteira/Althea/AlvoAlthea" unique_id=1662163392]
+[node name="Brilho" type="MeshInstance3D" parent="Pessoas/Parteira/Althea/AlvoAlthea" unique_id=1662163392]
 mesh = SubResource("SphereMesh_e2xxx")
 
-[node name="Parteira2" type="Node3D" parent="Cenario/Aposentos/Figuras" unique_id=1329276407]
-transform = Transform3D(0.47409979, 0, -0.8804711, 0, 1, 0, 0.8804711, 0, 0.47409979, 14.3, 0, 2.7)
+[node name="Parteira2" type="Node3D" parent="Pessoas" unique_id=1329276407]
+transform = Transform3D(-1.0, 0, 0.0, 0, 1, 0, -0.0, 0, -1.0, 12.35, 0, 6.45)
+script = ExtResource("12_pessoa")
+cor_roupa = Color(0.32, 0.29, 0.26, 1)
+mangas_arregacadas = true
+sangue = 0.6
+atividade = "trabalhando"
+semente = 2
+altura = 1.66
 
-[node name="Corpo" type="MeshInstance3D" parent="Cenario/Aposentos/Figuras/Parteira2" unique_id=298613538]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
-mesh = SubResource("CapsuleMesh_sipn0")
+[node name="Empregada1" type="Node3D" parent="Pessoas" unique_id=2105177422]
+transform = Transform3D(1.0, 0, 0.0, 0, 1, 0, -0.0, 0, 1.0, 13.0, 0, 9.75)
+script = ExtResource("12_pessoa")
+cor_roupa = Color(0.27, 0.27, 0.3, 1)
+atividade = "trabalhando"
+semente = 3
+altura = 1.58
 
-[node name="Rosto" type="MeshInstance3D" parent="Cenario/Aposentos/Figuras/Parteira2" unique_id=442131582]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.42, -0.19)
-mesh = SubResource("BoxMesh_tw5at")
+[node name="Empregada2" type="Node3D" parent="Pessoas" unique_id=1407864402]
+transform = Transform3D(-0.707107, 0, 0.707107, 0, 1, 0, -0.707107, 0, -0.707107, 11.0, 0, 5.6)
+script = ExtResource("12_pessoa")
+cor_roupa = Color(0.4, 0.34, 0.27, 1)
+atividade = "trabalhando"
+semente = 4
+altura = 1.63
+touca = false
+cor_cabelo = Color(0.3, 0.2, 0.12, 1)
 
-[node name="Empregada1" type="Node3D" parent="Cenario/Aposentos/Figuras" unique_id=2105177422]
-transform = Transform3D(-0.987763, 0, -0.15596268, 0, 1, 0, 0.15596269, 0, -0.9877629, 15.3, 0, 0.1)
+[node name="Empregada3" type="Node3D" parent="Pessoas" unique_id=657885039]
+transform = Transform3D(0.866025, 0, 0.5, 0, 1, 0, -0.5, 0, 0.866025, 11.3, 0, 9.85)
+script = ExtResource("12_pessoa")
+cor_roupa = Color(0.26, 0.24, 0.23, 1)
+atividade = "carregando"
+semente = 5
+altura = 1.55
 
-[node name="Corpo" type="MeshInstance3D" parent="Cenario/Aposentos/Figuras/Empregada1" unique_id=1630933588]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
-mesh = SubResource("CapsuleMesh_1u7dh")
+[node name="Duquesa" type="Node3D" parent="." unique_id=1844210931]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 12.75, 0.72, 8.1)
+script = ExtResource("13_duquesa")
 
-[node name="Rosto" type="MeshInstance3D" parent="Cenario/Aposentos/Figuras/Empregada1" unique_id=894667897]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.42, -0.19)
-mesh = SubResource("BoxMesh_bfywl")
+[node name="Passagens" type="Node3D" parent="." node_paths=PackedStringArray("controle", "sequencia")]
+script = ExtResource("16_passagens")
+controle = NodePath("..")
+sequencia = NodePath("../Sequencia")
+gatilhos = {
+"Correria1": "PortaQuarto",
+"Correria2": "PortaQuarto",
+"Correria3": "Corredor",
+"Correria4": "Cama",
+"Correria5": "Cama",
+"Correria6": "Cama",
+"Janet": "etapa:quarto_vazio"
+}
+velocidades = {
+"Correria1": 3.2,
+"Correria2": 2.9,
+"Correria3": 2.7,
+"Correria4": 3.0,
+"Correria5": 3.3,
+"Correria6": 2.8,
+"Janet": 1.0
+}
+atividades = {
+"Janet": "levando_roupas"
+}
+aparecem_antes = Array[String](["Janet"])
+atrasos = {
+"Correria1": 0.6,
+"Correria2": 2.2,
+"Correria4": 1.0,
+"Correria5": 3.5,
+"Correria6": 6.0,
+"Janet": 3.2
+}
+etapas_que_encerram = Array[String](["caos", "varanda"])
+repetem = Array[String](["Correria4", "Correria5", "Correria6"])
 
-[node name="Empregada2" type="Node3D" parent="Cenario/Aposentos/Figuras" unique_id=1407864402]
-transform = Transform3D(0.99450547, 0, 0.10468468, 0, 1, 0, -0.10468468, 0, 0.99450547, 15.8, 0, 3.9)
+[node name="Correria1" type="Node3D" parent="Passagens"]
+script = ExtResource("12_pessoa")
+roupa = 1
+cor_roupa = Color(0.33, 0.27, 0.2, 1)
+cor_cabelo = Color(0.2, 0.14, 0.09, 1)
+semente = 11
+altura = 1.72
 
-[node name="Corpo" type="MeshInstance3D" parent="Cenario/Aposentos/Figuras/Empregada2" unique_id=171694005]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
-mesh = SubResource("CapsuleMesh_vu7pa")
+[node name="Correria2" type="Node3D" parent="Passagens"]
+script = ExtResource("12_pessoa")
+cor_roupa = Color(0.3, 0.29, 0.31, 1)
+semente = 12
+altura = 1.6
 
-[node name="Rosto" type="MeshInstance3D" parent="Cenario/Aposentos/Figuras/Empregada2" unique_id=1845760345]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.42, -0.19)
-mesh = SubResource("BoxMesh_4is6p")
+[node name="Correria3" type="Node3D" parent="Passagens"]
+script = ExtResource("12_pessoa")
+cor_roupa = Color(0.38, 0.32, 0.26, 1)
+touca = false
+cor_cabelo = Color(0.24, 0.16, 0.1, 1)
+semente = 13
+altura = 1.57
 
-[node name="Empregada3" type="Node3D" parent="Cenario/Aposentos/Figuras" unique_id=657885039]
-transform = Transform3D(-0.6561787, 0, -0.75460553, 0, 1, 0, 0.75460553, 0, -0.6561787, 13.3, 0, 0)
+[node name="CaminhoCorreria1" type="Node3D" parent="Passagens"]
 
-[node name="Corpo" type="MeshInstance3D" parent="Cenario/Aposentos/Figuras/Empregada3" unique_id=544818314]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
-mesh = SubResource("CapsuleMesh_6lm4u")
+[node name="P0" type="Marker3D" parent="Passagens/CaminhoCorreria1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.0, 0, 5.6)
 
-[node name="Rosto" type="MeshInstance3D" parent="Cenario/Aposentos/Figuras/Empregada3" unique_id=543466011]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.42, -0.19)
-mesh = SubResource("BoxMesh_elmdc")
+[node name="P1" type="Marker3D" parent="Passagens/CaminhoCorreria1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.0, 0, 3.0)
+
+[node name="P2" type="Marker3D" parent="Passagens/CaminhoCorreria1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.8, 0, 1.3)
+
+[node name="P3" type="Marker3D" parent="Passagens/CaminhoCorreria1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14.7, 0, 1.3)
+
+[node name="CaminhoCorreria2" type="Node3D" parent="Passagens"]
+
+[node name="P0" type="Marker3D" parent="Passagens/CaminhoCorreria2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14.7, 0, 1.5)
+
+[node name="P1" type="Marker3D" parent="Passagens/CaminhoCorreria2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.4, 0, 1.5)
+
+[node name="P2" type="Marker3D" parent="Passagens/CaminhoCorreria2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.0, 0, 3.0)
+
+[node name="P3" type="Marker3D" parent="Passagens/CaminhoCorreria2"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.0, 0, 5.6)
+
+[node name="CaminhoCorreria3" type="Node3D" parent="Passagens"]
+
+[node name="P0" type="Marker3D" parent="Passagens/CaminhoCorreria3"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.0, 0, 5.6)
+
+[node name="P1" type="Marker3D" parent="Passagens/CaminhoCorreria3"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.0, 0, 3.0)
+
+[node name="P2" type="Marker3D" parent="Passagens/CaminhoCorreria3"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.8, 0, 0.9)
+
+[node name="P3" type="Marker3D" parent="Passagens/CaminhoCorreria3"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14.7, 0, 1.0)
+
+[node name="Correria4" type="Node3D" parent="Passagens"]
+script = ExtResource("12_pessoa")
+cor_roupa = Color(0.27, 0.25, 0.22, 1)
+semente = 15
+altura = 1.62
+
+[node name="Correria5" type="Node3D" parent="Passagens"]
+script = ExtResource("12_pessoa")
+cor_roupa = Color(0.35, 0.3, 0.33, 1)
+touca = false
+cor_cabelo = Color(0.12, 0.09, 0.07, 1)
+semente = 16
+altura = 1.55
+
+[node name="Correria6" type="Node3D" parent="Passagens"]
+script = ExtResource("12_pessoa")
+cor_roupa = Color(0.24, 0.27, 0.25, 1)
+semente = 17
+altura = 1.66
+
+[node name="CaminhoCorreria4" type="Node3D" parent="Passagens"]
+
+[node name="P0" type="Marker3D" parent="Passagens/CaminhoCorreria4"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14.7, 0, 1.6)
+
+[node name="P1" type="Marker3D" parent="Passagens/CaminhoCorreria4"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14.7, 0, 1.6)
+
+[node name="CaminhoCorreria5" type="Node3D" parent="Passagens"]
+
+[node name="P0" type="Marker3D" parent="Passagens/CaminhoCorreria5"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14.7, 0, 1.1)
+
+[node name="P1" type="Marker3D" parent="Passagens/CaminhoCorreria5"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14.7, 0, 1.1)
+
+[node name="CaminhoCorreria6" type="Node3D" parent="Passagens"]
+
+[node name="P0" type="Marker3D" parent="Passagens/CaminhoCorreria6"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.0, 0, 5.6)
+
+[node name="P1" type="Marker3D" parent="Passagens/CaminhoCorreria6"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.0, 0, 3.0)
+
+[node name="P2" type="Marker3D" parent="Passagens/CaminhoCorreria6"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.8, 0, 1.2)
+
+[node name="P3" type="Marker3D" parent="Passagens/CaminhoCorreria6"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14.7, 0, 1.2)
+
+[node name="Janet" type="Node3D" parent="Passagens"]
+script = ExtResource("12_pessoa")
+cor_roupa = Color(0.22, 0.24, 0.3, 1)
+touca = false
+cor_cabelo = Color(0.26, 0.17, 0.1, 1)
+roupas_dobradas = true
+semente = 14
+altura = 1.6
+
+[node name="CaminhoJanet" type="Node3D" parent="Passagens"]
+
+[node name="P0" type="Marker3D" parent="Passagens/CaminhoJanet"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.9, 0, 11.7)
+
+[node name="P1" type="Marker3D" parent="Passagens/CaminhoJanet"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.0, 0, 11.3)
+
+[node name="P2" type="Marker3D" parent="Passagens/CaminhoJanet"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.6, 0, 10.0)
+
+[node name="P3" type="Marker3D" parent="Passagens/CaminhoJanet"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.8, 0, 6.0)
+
+[node name="P4" type="Marker3D" parent="Passagens/CaminhoJanet"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.6, 0, 4.4)
+
+[node name="P5" type="Marker3D" parent="Passagens/CaminhoJanet"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.0, 0, 2.6)
 
 [node name="Pontos" type="Node3D" parent="." unique_id=1031558735]
 
 [node name="Cama" type="Marker3D" parent="Pontos" unique_id=1710232265]
-transform = Transform3D(0.1842885, 0.12280366, -0.97517025, 0, 0.99216384, 0.12494367, 0.9828722, -0.023025682, 0.18284439, -3.2, 1.41, 2.6)
+transform = Transform3D(0.915315, 0.0154711, -0.402441, 0, 0.999262, 0.0384149, 0.402739, -0.0351617, 0.914639, -11.2, 1.41, 8.6)
 script = ExtResource("4_73s4l")
 cena_ao_chegar = "acordar"
 
 [node name="AlvoPortaQuarto" type="Area3D" parent="Pontos/Cama" unique_id=922735064 node_paths=PackedStringArray("destino")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.036857724, 0.02456081, -3.4765124)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0604108, 0.0946519, -5.3256)
 script = ExtResource("3_nnoio")
 destino = NodePath("../../PortaQuarto")
 
 [node name="Colisao" type="CollisionShape3D" parent="Pontos/Cama/AlvoPortaQuarto" unique_id=907662393]
-shape = SubResource("BoxShape3D_t4lga")
-
-[node name="Brilho" type="MeshInstance3D" parent="Pontos/Cama/AlvoPortaQuarto" unique_id=778443076]
-mesh = SubResource("SphereMesh_4nhw3")
+shape = SubResource("BoxShape3D_passagem")
 
 [node name="PortaQuarto" type="Marker3D" parent="Pontos" unique_id=140264441]
-transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, -0.3, 1.05, 2)
+transform = Transform3D(0.0444006, -0.0166315, -0.998875, 0, 0.999861, -0.0166479, 0.999014, 0.000739178, 0.0443945, -9, 1.05, 2.3)
 script = ExtResource("4_73s4l")
 cena_ao_chegar = "saindo_do_quarto"
 
 [node name="AlvoCorredor" type="Area3D" parent="Pontos/PortaQuarto" unique_id=482068998 node_paths=PackedStringArray("destino")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.14999998, -5.3)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0999014, -7.39178e-05, -9.01457)
 script = ExtResource("3_nnoio")
 destino = NodePath("../../Corredor")
 
 [node name="Colisao" type="CollisionShape3D" parent="Pontos/PortaQuarto/AlvoCorredor" unique_id=1849770173]
-shape = SubResource("BoxShape3D_tyj37")
-
-[node name="Brilho" type="MeshInstance3D" parent="Pontos/PortaQuarto/AlvoCorredor" unique_id=2068315777]
-mesh = SubResource("SphereMesh_br2w8")
+shape = SubResource("BoxShape3D_passagem")
 
 [node name="Corredor" type="Marker3D" parent="Pontos" unique_id=446099779]
-transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 5, 1.05, 2)
+transform = Transform3D(-0.21693, -0.0370321, -0.975484, 0, 0.99928, -0.0379355, 0.976187, -0.00822937, -0.216774, 0, 1.05, 1.8)
 script = ExtResource("4_73s4l")
 
 [node name="AlvoPortaAposentos" type="Area3D" parent="Pontos/Corredor" unique_id=2016095527 node_paths=PackedStringArray("destino")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.049999952, -4.8)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0488094, 0.100339, -9.21914)
 script = ExtResource("3_nnoio")
 destino = NodePath("../../PortaAposentos")
 
 [node name="Colisao" type="CollisionShape3D" parent="Pontos/Corredor/AlvoPortaAposentos" unique_id=1550872479]
-shape = SubResource("BoxShape3D_bpcub")
-
-[node name="Brilho" type="MeshInstance3D" parent="Pontos/Corredor/AlvoPortaAposentos" unique_id=1998584399]
-mesh = SubResource("SphereMesh_57i2x")
+shape = SubResource("BoxShape3D_passagem")
 
 [node name="PortaAposentos" type="Marker3D" parent="Pontos" unique_id=454180126]
-transform = Transform3D(0, -0.15437685, -0.988012, 0, 0.988012, -0.15437685, 1, 0, 0, 8.4, 1.05, 2)
+transform = Transform3D(-0.843661, -0.0512357, -0.534425, 0, 0.995436, -0.0954331, 0.536875, -0.0805132, -0.839811, 7.6, 1.05, 2.4)
 script = ExtResource("4_73s4l")
+raio_chegada = 2.0
 cena_ao_chegar = "porta_aposentos"
 
 [node name="AlvoEntrada" type="Area3D" parent="Pontos/PortaAposentos" unique_id=228803094 node_paths=PackedStringArray("destino")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.37359208, -2.0671072)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.21475, 0.166882, -2.97465)
 script = ExtResource("3_nnoio")
 destino = NodePath("../../Entrada")
 
 [node name="Colisao" type="CollisionShape3D" parent="Pontos/PortaAposentos/AlvoEntrada" unique_id=1609453308]
-shape = SubResource("BoxShape3D_b6ysb")
-
-[node name="Brilho" type="MeshInstance3D" parent="Pontos/PortaAposentos/AlvoEntrada" unique_id=1531726906]
-mesh = SubResource("SphereMesh_ctyak")
+shape = SubResource("BoxShape3D_passagem")
 
 [node name="Entrada" type="Marker3D" parent="Pontos" unique_id=2114255321]
-transform = Transform3D(0, 0.011627109, -0.99993235, 0, 0.99993235, 0.011627109, 1, 0, 0, 11.3, 1.05, 2)
+transform = Transform3D(-0.652523, 0.0714569, -0.754392, 0, 0.995544, 0.094299, 0.757769, 0.0615323, -0.649615, 9, 1.05, 5)
 script = ExtResource("4_73s4l")
+raio_chegada = 1.2
 
 [node name="QuartoVazio" type="Marker3D" parent="Pontos" unique_id=1383637411]
-transform = Transform3D(-0.919145, 0.019373076, -0.39344257, 0, 0.9987898, 0.04918032, 0.39391926, 0.045203846, -0.91803277, 12, 1.05, 3.2)
+transform = Transform3D(-0.975133, 0.00245564, -0.221607, 0, 0.999939, 0.0110804, 0.221621, 0.0108048, -0.975073, 8, 1.05, 9.6)
 script = ExtResource("4_73s4l")
 cena_ao_chegar = "quarto_vazio"
 
 [node name="AlvoVaranda" type="Area3D" parent="Pontos/QuartoVazio" unique_id=1287729802 node_paths=PackedStringArray("destino")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.15756798, 0.08179748, -2.6778688)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.277026, 0.486463, -3.2881)
 script = ExtResource("3_nnoio")
 destino = NodePath("../../Varanda")
 
 [node name="Colisao" type="CollisionShape3D" parent="Pontos/QuartoVazio/AlvoVaranda" unique_id=1739977214]
-shape = SubResource("BoxShape3D_0io05")
-
-[node name="Brilho" type="MeshInstance3D" parent="Pontos/QuartoVazio/AlvoVaranda" unique_id=1926107486]
-mesh = SubResource("SphereMesh_56vmu")
+shape = SubResource("BoxShape3D_passagem")
 
 [node name="Varanda" type="Marker3D" parent="Pontos" unique_id=1266870003]
-transform = Transform3D(-1, 0, 0, 0, 0.99988115, 0.015416667, 0, 0.015416667, -0.99988115, 13.2, 1.05, 7.3)
+transform = Transform3D(-1, 5.16437e-18, -1.22356e-16, 0, 0.99911, 0.0421702, 1.22465e-16, 0.0421702, -0.99911, 9, 1.05, 14.6)
 script = ExtResource("4_73s4l")
+raio_chegada = 1.9
 
 [node name="Nicholas" type="CharacterBody3D" parent="." unique_id=2074645200]
 
@@ -659,10 +436,24 @@ script = ExtResource("4_73s4l")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.575, 0)
 shape = SubResource("CapsuleShape3D_mfwf1")
 
+[node name="CorpoNicholas" type="Node3D" parent="Nicholas" node_paths=PackedStringArray("controle")]
+script = ExtResource("15_corpo")
+controle = NodePath("../..")
+
 [node name="Camera" type="Camera3D" parent="Nicholas" unique_id=1700370543]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.05, 0)
 current = true
 fov = 70.0
+
+[node name="Visao" type="CanvasLayer" parent="."]
+layer = 0
+
+[node name="Vinheta" type="ColorRect" parent="Visao"]
+material = SubResource("ShaderMaterial_vinheta")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
 
 [node name="Hud" type="CanvasLayer" parent="." unique_id=10275560]
 
@@ -797,7 +588,7 @@ theme_override_font_sizes/font_size = 72
 theme_override_colors/font_color = Color(0.9, 0.7, 0.3, 1)
 horizontal_alignment = 1
 
-[node name="Sequencia" type="Node" parent="." unique_id=805272105 node_paths=PackedStringArray("controle", "ponto_entrada", "ponto_quarto_vazio", "ponto_varanda", "cama", "dossel", "figuras", "parteira", "althea", "alvo_althea", "vela_cama", "escuro", "botao_nome", "tela_final")]
+[node name="Sequencia" type="Node" parent="." unique_id=805272105 node_paths=PackedStringArray("controle", "ponto_entrada", "ponto_quarto_vazio", "ponto_varanda", "cama", "dossel", "figuras", "duquesa", "parteira", "althea", "corpo_nicholas", "alvo_althea", "vela_cama", "escuro", "botao_nome", "tela_final")]
 script = ExtResource("8_q2utl")
 controle = NodePath("..")
 ponto_entrada = NodePath("../Pontos/Entrada")
@@ -805,11 +596,24 @@ ponto_quarto_vazio = NodePath("../Pontos/QuartoVazio")
 ponto_varanda = NodePath("../Pontos/Varanda")
 cama = NodePath("../Cenario/Aposentos/CamaDuquesa")
 dossel = NodePath("../Cenario/Aposentos/Dossel")
-figuras = NodePath("../Cenario/Aposentos/Figuras")
-parteira = NodePath("../Cenario/Aposentos/Figuras/Parteira")
-althea = NodePath("../Cenario/Aposentos/Figuras/Parteira/Althea")
-alvo_althea = NodePath("../Cenario/Aposentos/Figuras/Parteira/Althea/AlvoAlthea")
+figuras = NodePath("../Pessoas")
+duquesa = NodePath("../Duquesa")
+parteira = NodePath("../Pessoas/Parteira")
+althea = NodePath("../Pessoas/Parteira/Althea")
+corpo_nicholas = NodePath("../Nicholas/CorpoNicholas")
+alvo_althea = NodePath("../Pessoas/Parteira/Althea/AlvoAlthea")
 vela_cama = NodePath("../Cenario/Aposentos/VelaCama")
 escuro = NodePath("../Escuro/Tela")
 botao_nome = NodePath("../Escolha/BotaoNome")
 tela_final = NodePath("../TelaFinal")
+
+[node name="Sensacao" type="Node" parent="." node_paths=PackedStringArray("controle", "sequencia", "vinheta")]
+script = ExtResource("10_sensacao")
+controle = NodePath("..")
+sequencia = NodePath("../Sequencia")
+vinheta = NodePath("../Visao/Vinheta")
+
+[node name="Som" type="Node" parent="." node_paths=PackedStringArray("controle", "sequencia")]
+script = ExtResource("11_som")
+controle = NodePath("..")
+sequencia = NodePath("../Sequencia")

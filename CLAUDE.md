@@ -27,7 +27,7 @@ O jogo é uma **segunda forma de percorrer a história**: começa e termina como
 ### Narrativa
 - História principal **fiel ao livro**; o final não muda.
 - Escolhas do jogador só em momentos pontuais (o que Nicholas diz, quem procura). Elas afetam relações e influência, nunca o rumo principal.
-- **Sem narração falada.** Texto com retratos dos personagens, música e som ambiente.
+- Texto com retratos dos personagens, música e som ambiente. **Voz do Nicholas** gerada pelo ElevenLabs (decisão de 16/10/2026): `data/vozes/vozes.cfg` diz quem tem voz; o gerador `scripts/ferramentas/gerar_vozes.gd` roda no editor do Godot e salva `assets/audio/vozes/<ID>.mp3`; o autoload `Voz` toca o áudio da fala pelo ID (sem áudio, a fala segue em silêncio).
 - **Conflitos:** debates na corte e embates políticos continuam como "duelos" de argumentos. Combate (tempo real, como Diablo) é para estradas, mar, ruínas e as lutas do livro; não muda o rumo da história.
 - **Itens de combate:** cada arma e proteção é um `.tres` em `data/itens/` com bônus de ataque, defesa e velocidade. Todo item gasta exatamente o orçamento de pontos do `Balanceamento` (`scripts/systems/balanceamento.gd`); um teste GUT confere todos.
 - **Códice** desbloqueável: Abençoados, casas, regiões, lenda do Ano Dourado. Pode ter conteúdo inédito da autora.

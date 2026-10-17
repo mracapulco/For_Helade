@@ -83,12 +83,15 @@ func test_percorre_tudo_ate_o_titulo() -> void:
 	await _ate_a_etapa("segurar")
 	seq.alvo_althea.tocado.emit(seq.alvo_althea)
 	await _ate_a_etapa("quarto_vazio")
+	# A etapa começa ainda no escuro; o controle volta quando a tela clareia.
+	await wait_until(func() -> bool: return not cena.travado, 3.0)
 	assert_false(cena.travado, "o controle volta no quarto vazio")
 	assert_false(seq.figuras.visible)
 	assert_eq(cena.ponto_atual, _ponto("QuartoVazio"))
 	var alvo: AlvoToque = _ponto("QuartoVazio").alvos()[0]
 	alvo.tocado.emit(alvo)
 	await _ate_a_etapa("final")
+	assert_false(cena.travado, "no escurecer final Nicholas ainda anda")
 	await wait_until(func() -> bool: return seq.etapa == "fim", 5.0)
 	assert_signal_emitted(seq, "terminou")
 	var linhas: Array[String] = []
@@ -106,7 +109,7 @@ func test_roteiro_tem_todos_os_trechos_da_sequencia() -> void:
 	var desde: Array[String] = await cena.frases_de("desde_entao")
 	assert_true(desde[0].ends_with("sussurravam:"), desde[0])
 	var parabens: Array[String] = await cena.frases_de("parabens")
-	assert_eq(parabens[0], "— Parabéns Jovem Mestre, é uma menina.")
+	assert_eq(parabens[0], "— Parabéns Jovem Mestre, é uma menina!")
 
 
 func test_ao_terminar_vai_para_o_mapa_no_capitulo_1() -> void:

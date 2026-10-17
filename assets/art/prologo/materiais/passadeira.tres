@@ -1,0 +1,17 @@
+[gd_resource type="StandardMaterial3D" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/art/prologo/texturas/passadeira_cor.jpg" id="1_cor"]
+[ext_resource type="Texture2D" path="res://assets/art/prologo/texturas/passadeira_normal.png" id="2_normal"]
+[ext_resource type="Texture2D" path="res://assets/art/prologo/texturas/passadeira_aspereza.jpg" id="3_aspereza"]
+
+[resource]
+resource_name = "passadeira"
+texture_filter = 5
+albedo_color = Color(1, 1, 1, 1)
+albedo_texture = ExtResource("1_cor")
+roughness = 1.0
+roughness_texture = ExtResource("3_aspereza")
+roughness_texture_channel = 4
+normal_enabled = true
+normal_texture = ExtResource("2_normal")
+uv1_scale = Vector3(17.5, 1, 1)

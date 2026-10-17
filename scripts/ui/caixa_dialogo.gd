@@ -6,6 +6,10 @@ extends CanvasLayer
 
 ## Expressão usada quando a fala não tem a etiqueta [code][#retrato=...][/code].
 const EXPRESSAO_PADRAO := "neutro"
+## Ordem dos quadros da boca enquanto o texto aparece (índices da faixa de
+## fala: 0 fechada, 1 entreaberta, 2 aberta) e o tempo de cada um.
+const SEQUENCIA_FALA := [1, 2, 1, 0]
+const TEMPO_QUADRO_FALA := 0.09
 
 ## Recurso de diálogo (quando a caixa é colocada direto numa cena).
 @export var dialogue_resource: DialogueResource
@@ -17,10 +21,16 @@ const EXPRESSAO_PADRAO := "neutro"
 @export var auto_start: bool = false
 
 ## Ação que adianta a fala.
+## Enter (ui_accept) passa o texto; E fica só para interagir (Rafael, 17/10).
 @export var next_action: StringName = &"ui_accept"
 
 ## Ação que pula a digitação.
 @export var skip_action: StringName = &"ui_cancel"
+
+## Com true, as escolhas aparecem sempre sozinhas, embaixo, sem cobrir a
+## cena (a carruagem do Capítulo 01): uma fala que vem junto com escolhas
+## aparece primeiro e, depois de Enter ou de um toque, dá lugar a elas.
+static var escolhas_embaixo := false
 
 ## Estados extras repassados ao Dialogue Manager.
 var temporary_game_states: Array = []
@@ -30,8 +40,15 @@ var locals: Dictionary = {}
 
 var is_waiting_for_input: bool = false
 var will_hide_balloon: bool = false
+## A fala antes das escolhas está na tela; o próximo Enter mostra as escolhas.
+var _fala_antes_das_escolhas := false
 var mutation_cooldown: Timer = Timer.new()
 var _locale: String = TranslationServer.get_locale()
+## Retrato parado da fala atual e os quadros da boca falando.
+var _retrato_parado: Texture2D
+var _quadros_fala: Array[Texture2D] = []
+var _tempo_fala := 0.0
+var _passo_fala := 0
 
 ## Fala atual. Ao receber null, a conversa acabou e a caixa fecha.
 var dialogue_line: DialogueLine:
@@ -72,9 +89,28 @@ func _ready() -> void:
 		start()
 
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
 	if is_instance_valid(dialogue_line):
 		progress.visible = not dialogue_label.is_typing and dialogue_line.responses.size() == 0
+	animar_boca(delta, is_instance_valid(dialogue_label) and dialogue_label.is_typing)
+
+
+## Mexe a boca do retrato enquanto o texto aparece; parado, mostra o retrato
+## de boca fechada.
+func animar_boca(delta: float, falando: bool) -> void:
+	if _quadros_fala.is_empty():
+		return
+	if not falando:
+		_tempo_fala = 0.0
+		_passo_fala = 0
+		retrato.texture = _retrato_parado
+		return
+	_tempo_fala += delta
+	if _tempo_fala >= TEMPO_QUADRO_FALA:
+		_tempo_fala = 0.0
+		_passo_fala = (_passo_fala + 1) % SEQUENCIA_FALA.size()
+	var quadro: int = mini(SEQUENCIA_FALA[_passo_fala], _quadros_fala.size() - 1)
+	retrato.texture = _quadros_fala[quadro]
 
 
 func _unhandled_input(_event: InputEvent) -> void:
@@ -125,13 +161,24 @@ func apply_dialogue_line() -> void:
 
 	balloon.show()
 	will_hide_balloon = false
+	# Escolha sem fala antes: só os botões, embaixo, no lugar da caixa de texto
+	# (sem a caixa vazia e sem cobrir a cena).
+	var so_escolhas := dialogue_line.text.is_empty() and dialogue_line.character.is_empty() \
+			and dialogue_line.responses.size() > 0
+	_escolhas_embaixo(so_escolhas)
+	_fala_antes_das_escolhas = false
 
 	dialogue_label.show()
 	if not dialogue_line.text.is_empty():
 		dialogue_label.type_out()
 		await dialogue_label.finished_typing
 
-	if dialogue_line.responses.size() > 0:
+	if dialogue_line.responses.size() > 0 and escolhas_embaixo and not so_escolhas:
+		_fala_antes_das_escolhas = true
+		is_waiting_for_input = true
+		balloon.focus_mode = Control.FOCUS_ALL
+		balloon.grab_focus()
+	elif dialogue_line.responses.size() > 0:
 		balloon.focus_mode = Control.FOCUS_NONE
 		responses_menu.show()
 	elif dialogue_line.time != "":
@@ -142,6 +189,23 @@ func apply_dialogue_line() -> void:
 		is_waiting_for_input = true
 		balloon.focus_mode = Control.FOCUS_ALL
 		balloon.grab_focus()
+
+
+## Só os botões, embaixo, no lugar da caixa de texto; ou a caixa de texto
+## com as escolhas no meio da tela.
+func _escolhas_embaixo(sim: bool) -> void:
+	$Balloon/Margem/Painel.visible = not sim
+	var area_escolhas: Control = $Balloon/AreaEscolhas
+	area_escolhas.offset_top = 380.0 if sim else 0.0
+	area_escolhas.offset_bottom = 0.0 if sim else -260.0
+
+
+func _mostrar_escolhas_embaixo() -> void:
+	_fala_antes_das_escolhas = false
+	is_waiting_for_input = false
+	_escolhas_embaixo(true)
+	balloon.focus_mode = Control.FOCUS_NONE
+	responses_menu.show()
 
 
 ## Vai para a próxima fala.
@@ -167,6 +231,11 @@ func _mostrar_retrato() -> void:
 	retrato.get_parent().visible = tem_personagem
 	retrato.visible = textura != null
 	retrato.texture = textura
+	_retrato_parado = textura
+	_quadros_fala = personagem.quadros_fala(expressao) if personagem and textura else ([] as Array[Texture2D])
+	_passo_fala = 0
+	_tempo_fala = 0.0
+	retrato.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST if personagem and personagem.pixel_art else CanvasItem.TEXTURE_FILTER_PARENT_NODE
 	retrato_provisorio.visible = tem_personagem and textura == null
 	if retrato_provisorio.visible:
 		retrato_provisorio.color = personagem.cor_provisoria if personagem else Color(0.4, 0.1, 0.1)
@@ -204,6 +273,13 @@ func _on_balloon_gui_input(event: InputEvent) -> void:
 			return
 
 	if not is_waiting_for_input: return
+	if _fala_antes_das_escolhas:
+		var clique: bool = event is InputEventMouseButton and event.is_pressed() \
+				and event.button_index == MOUSE_BUTTON_LEFT
+		if clique or event.is_action_pressed(next_action):
+			get_viewport().set_input_as_handled()
+			_mostrar_escolhas_embaixo()
+		return
 	if dialogue_line.responses.size() > 0: return
 
 	get_viewport().set_input_as_handled()

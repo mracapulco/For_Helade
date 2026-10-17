@@ -1,5 +1,5 @@
 extends GutTest
-## Tela do mapa: Nicholas anda entre os locais por toque, setas e Enter;
+## Tela do mapa: Nicholas anda entre os locais por toque, setas e E;
 ## névoa sobre o que não foi descoberto; dia e noite.
 
 const FasesHistoria := preload("res://scripts/systems/fases_historia.gd")
@@ -96,7 +96,7 @@ func test_tocar_no_local_atual_entra() -> void:
 	assert_signal_emitted_with_parameters(mapa, "entrada_pedida", ["olympia"])
 
 
-func test_enter_entra_e_avisa_sem_cena() -> void:
+func test_e_entra_e_avisa_sem_cena() -> void:
 	watch_signals(mapa)
 	_apertar(&"interagir")
 	assert_signal_emitted_with_parameters(mapa, "entrada_pedida", ["olympia"])
@@ -271,7 +271,7 @@ func test_na_fase_nao_anda_pelo_mapa() -> void:
 	assert_eq(mapa.local_atual, "atenas")
 
 
-func test_na_fase_enter_abre_a_cidade() -> void:
+func test_na_fase_e_abre_a_cidade() -> void:
 	await _abrir_na_fase()
 	watch_signals(mapa)
 	_apertar(&"interagir")

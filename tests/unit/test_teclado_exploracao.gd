@@ -186,3 +186,28 @@ func test_parado_ha_pouco_ainda_conta_como_andando() -> void:
 	await wait_physics_frames(3)
 	assert_ne(personagem.global_position, depois_do_passo, "Acabou de andar: vira e segue.")
 	Input.action_release("mover_direita")
+
+
+func _tecla(codigo: Key) -> InputEventKey:
+	var tecla := InputEventKey.new()
+	tecla.physical_keycode = codigo
+	tecla.pressed = true
+	return tecla
+
+
+func test_e_e_a_tecla_de_interagir_e_enter_nao() -> void:
+	assert_true(InputMap.event_is_action(_tecla(KEY_E), &"interagir"), "E interage")
+	assert_false(InputMap.event_is_action(_tecla(KEY_ENTER), &"interagir"), "Enter não interage mais")
+
+
+func test_enter_passa_o_texto_e_e_nao() -> void:
+	var enter := InputEventKey.new()
+	enter.keycode = KEY_ENTER
+	enter.pressed = true
+	assert_true(InputMap.event_is_action(enter, &"ui_accept"), "Enter passa o texto")
+	assert_false(InputMap.event_is_action(_tecla(KEY_E), &"ui_accept"), "E não passa o texto")
+
+
+func test_e_nao_esta_em_outra_acao_do_jogo() -> void:
+	for acao in ["mover_frente", "mover_tras", "mover_esquerda", "mover_direita", "correr", "pular", "abrir_bolsa", "liberar_mouse"]:
+		assert_false(InputMap.event_is_action(_tecla(KEY_E), acao), acao)

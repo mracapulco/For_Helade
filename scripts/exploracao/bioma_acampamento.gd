@@ -55,6 +55,8 @@ enum Lado {
 @export_group("Companhia")
 ## Mercador do acampamento: faixa de 4 quadros de 32×48 (parado, respirando).
 @export var mercador: Texture2D
+## Loja do mercador (id em res://data/lojas/); vazio = ele não vende nada.
+@export var loja := ""
 ## Animal ou viajante que fica perto da fogueira.
 @export var companheiro: Texture2D
 ## Marcador (~ nome) em data/dialogos/acampamentos/acampamento.dialogue.

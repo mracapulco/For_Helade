@@ -53,7 +53,7 @@ func test_novo_jogo_vai_para_o_prologo_e_zera_valores() -> void:
 
 func test_continuar_sem_missao_vai_para_o_mapa_no_acampamento_salvo() -> void:
 	Mundo.local_no_mapa = "og_acampamento"
-	Progresso.salvar("capitulo_1")
+	Progresso.salvar("etapa_sem_missao")
 	Mundo.limpar()
 	await _abrir_menu()
 	assert_true(menu.botao_continuar.visible)
@@ -66,9 +66,9 @@ func test_continuar_sem_missao_vai_para_o_mapa_no_acampamento_salvo() -> void:
 
 func test_continuar_abre_o_espaco_salvo_por_ultimo() -> void:
 	Mundo.local_no_mapa = "oa_acampamento"
-	Progresso.salvar("capitulo_1", 7)
+	Progresso.salvar("etapa_sem_missao", 7)
 	Mundo.local_no_mapa = "ot_acampamento"
-	Progresso.salvar("capitulo_1", 2)
+	Progresso.salvar("etapa_sem_missao", 2)
 	Mundo.limpar()
 	await _abrir_menu()
 	menu.botao_continuar.pressed.emit()
@@ -78,9 +78,9 @@ func test_continuar_abre_o_espaco_salvo_por_ultimo() -> void:
 
 func test_carregar_jogo_mostra_os_dez_espacos_e_abre_o_escolhido() -> void:
 	Mundo.local_no_mapa = "oa_acampamento"
-	Progresso.salvar("capitulo_1", 3)
+	Progresso.salvar("etapa_sem_missao", 3)
 	Mundo.local_no_mapa = "ot_acampamento"
-	Progresso.salvar("capitulo_1", 5)
+	Progresso.salvar("etapa_sem_missao", 5)
 	Mundo.limpar()
 	await _abrir_menu()
 	menu.botao_carregar.pressed.emit()
@@ -106,7 +106,7 @@ func test_carregar_jogo_mostra_os_dez_espacos_e_abre_o_escolhido() -> void:
 
 
 func test_carregar_jogo_volta_sem_escolher() -> void:
-	Progresso.salvar("capitulo_1", 1)
+	Progresso.salvar("etapa_sem_missao", 1)
 	await _abrir_menu()
 	menu.botao_carregar.pressed.emit()
 	menu.tela_espacos.botao_voltar.pressed.emit()
@@ -125,11 +125,11 @@ func test_continuar_abre_a_parte_salva() -> void:
 func test_salvar_e_carregar_guarda_relacoes_e_influencia() -> void:
 	Relacoes.ajustar("janet", 2)
 	Influencia.ajustar("olympia", -1)
-	Progresso.salvar("capitulo_1")
+	Progresso.salvar("etapa_sem_missao")
 	Relacoes.limpar()
 	Influencia.limpar()
 	assert_true(Progresso.carregar())
-	assert_eq(Progresso.etapa, "capitulo_1")
+	assert_eq(Progresso.etapa, "etapa_sem_missao")
 	assert_eq(Relacoes.valor("janet"), 2)
 	assert_eq(Influencia.valor("olympia"), -1)
 
@@ -176,7 +176,7 @@ func test_textos_vem_da_traducao() -> void:
 
 
 func test_novo_jogo_nao_apaga_os_espacos() -> void:
-	Progresso.salvar("capitulo_1", 1)
+	Progresso.salvar("etapa_sem_missao", 1)
 	await _abrir_menu()
 	menu.botao_novo_jogo.pressed.emit()
 	assert_eq(menu.cena_pedida, "res://scenes/prologo/prologo.tscn")
@@ -240,3 +240,10 @@ func test_excluir_o_ultimo_jogo_esconde_continuar() -> void:
 	tela.botao_voltar.pressed.emit()
 	assert_false(menu.botao_continuar.visible)
 	assert_false(menu.botao_carregar.visible)
+
+
+func test_continuar_no_capitulo_1_abre_a_missao() -> void:
+	Progresso.salvar("capitulo_1")
+	await _abrir_menu()
+	menu.botao_continuar.pressed.emit()
+	assert_eq(menu.cena_pedida, "res://scenes/capitulo_01/capitulo_01.tscn")

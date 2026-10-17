@@ -1,11 +1,12 @@
 class_name PersonagemExploracao
 extends CharacterBody2D
 ## Personagem da exploração.
-## Toque ou clique: anda até o ponto, desviando dos obstáculos; segurar e
-## arrastar atualiza o destino. Mouse e toque passam pelo mesmo caminho (o
-## projeto emula toque com o mouse).
+## Clicar ou tocar no chão não anda (Rafael, 14/10: ficou ruim; o celular
+## terá outro controle depois). Clicar ou tocar num interagível ao alcance
+## interage com ele. Mouse e toque passam pelo mesmo caminho (o projeto emula
+## toque com o mouse).
 ## Teclado (PC): WASD ou setas para andar, Shift para correr, Espaço para pular,
-## Enter para interagir com o interagível mais próximo ao alcance.
+## E para interagir com o interagível mais próximo ao alcance.
 ## Golpe: com uma arma equipada, o clique esquerdo (ou o botão Golpe, no
 ## celular) golpeia para onde ele olha. Sem arma, com um inimigo vivo
 ## por perto ([member raio_combate]), o mesmo clique dá um soco (ataque base). No PC o clique só golpeia e o Enter
@@ -140,10 +141,6 @@ func _unhandled_input(event: InputEvent) -> void:
 	if toque:
 		tocar(tela_para_mundo(event.position))
 		get_viewport().set_input_as_handled()
-	elif event is InputEventScreenDrag:
-		alvo_interacao = null
-		ir_para(tela_para_mundo(event.position))
-		get_viewport().set_input_as_handled()
 	elif event.is_action_pressed("golpear") and pode_golpear():
 		golpear()
 		get_viewport().set_input_as_handled()
@@ -162,15 +159,12 @@ func tela_para_mundo(posicao_tela: Vector2) -> Vector2:
 	return get_canvas_transform().affine_inverse() * posicao_tela
 
 
-## O jogador tocou neste ponto do mundo: interage se for um Interagivel,
-## senão anda até lá.
+## O jogador tocou neste ponto do mundo: interage se for um Interagivel ao
+## alcance. Tocar no chão não faz nada.
 func tocar(posicao_mundo: Vector2) -> void:
 	var alvo := interagivel_em(posicao_mundo)
-	if alvo:
+	if alvo and alvo.ao_alcance(global_position):
 		interagir_com(alvo)
-	else:
-		alvo_interacao = null
-		ir_para(posicao_mundo)
 
 
 ## O Interagivel cuja área de toque cobre esse ponto, ou null.
@@ -465,7 +459,7 @@ func _ao_comecar_dialogo(_recurso: DialogueResource) -> void:
 
 
 func _ao_terminar_dialogo(_recurso: DialogueResource) -> void:
-	# Espera um instante para o mesmo Enter ou toque que fechou a conversa
+	# Espera um instante para o mesmo E ou toque que fechou a conversa
 	# não abrir outra nem mandar o personagem andar.
 	await get_tree().create_timer(0.2).timeout
 	em_dialogo = false
@@ -550,15 +544,24 @@ func _andar_na_grade(teclas: Vector2, rapidez: float, delta: float) -> void:
 			_espera_virar -= delta
 			velocity = Vector2.ZERO
 			return
-		var proxima := centro_da_casa(casa_de(global_position) + passo)
 		direcao_olhar = rumo
-		if (not test_move(global_transform, proxima - global_position) and casa_andavel(proxima)
-				and GradeOcupacao.ocupar(casa_de(proxima), self)):
-			_casa_origem = centro_da_casa(casa_de(global_position))
-			_casa_destino = proxima
-		else:
+		# Na diagonal da grade, se a casa estiver fechada (parede de um lado,
+		# como num corredor), escorrega pelo eixo que estiver livre.
+		var tentativas: Array[Vector2i] = [passo]
+		if passo.x != 0 and passo.y != 0:
+			tentativas.append_array([Vector2i(passo.x, 0), Vector2i(0, passo.y)])
+		var proxima := Vector2.INF
+		for tentativa in tentativas:
+			var casa := centro_da_casa(casa_de(global_position) + tentativa)
+			if (not test_move(global_transform, casa - global_position) and casa_andavel(casa)
+					and GradeOcupacao.ocupar(casa_de(casa), self)):
+				proxima = casa
+				break
+		if proxima == Vector2.INF:
 			velocity = Vector2.ZERO
 			return
+		_casa_origem = centro_da_casa(casa_de(global_position))
+		_casa_destino = proxima
 	var falta := _casa_destino - global_position
 	var anda := rapidez * delta
 	velocity = falta.normalized() * rapidez

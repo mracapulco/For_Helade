@@ -13,6 +13,16 @@
 [ext_resource type="Texture2D" path="res://assets/art/placeholders/exploracao/anfora.png" id="11_anfora"]
 [ext_resource type="Texture2D" path="res://assets/art/placeholders/exploracao/braseiro.png" id="12_braseiro"]
 [ext_resource type="Texture2D" path="res://assets/art/placeholders/exploracao/arvore.png" id="13_arvore"]
+[ext_resource type="SpriteFrames" path="res://assets/art/personagens/nicholas/nicholas_11_exploracao.tres" id="14_nicholas_11"]
+[ext_resource type="SpriteFrames" path="res://assets/art/personagens/althea/althea_6_exploracao.tres" id="15_althea_6"]
+[ext_resource type="SpriteFrames" path="res://assets/art/personagens/ophelia/ophelia_11_exploracao.tres" id="16_ophelia_11"]
+[ext_resource type="SpriteFrames" path="res://assets/art/convidados/rafael/rafael_exploracao.tres" id="17_rafael"]
+[ext_resource type="SpriteFrames" path="res://assets/art/convidados/shara/shara_exploracao.tres" id="18_shara"]
+[ext_resource type="SpriteFrames" path="res://assets/art/personagens/ophelia/ophelia_adolescente_exploracao.tres" id="19_ophelia_adolescente"]
+[ext_resource type="SpriteFrames" path="res://assets/art/personagens/ophelia/ophelia_adulta_exploracao.tres" id="20_ophelia_adulta"]
+[ext_resource type="SpriteFrames" path="res://assets/art/personagens/nicholas/nicholas_adolescente_exploracao.tres" id="21_nicholas_adolescente"]
+[ext_resource type="SpriteFrames" path="res://assets/art/personagens/althea/althea_adolescente_exploracao.tres" id="22_althea_adolescente"]
+[ext_resource type="SpriteFrames" path="res://assets/art/personagens/althea/althea_adulta_exploracao.tres" id="23_althea_adulta"]
 
 [node name="VitrineArte" type="Node2D"]
 texture_filter = 1
@@ -109,3 +119,108 @@ offset = Vector2(0, -13)
 position = Vector2(-112, 136)
 texture = ExtResource("13_arvore")
 offset = Vector2(0, -26)
+
+[node name="Nicholas11" type="AnimatedSprite2D" parent="."]
+position = Vector2(-144, 88)
+sprite_frames = ExtResource("14_nicholas_11")
+animation = &"andando_frente"
+autoplay = "andando_frente"
+offset = Vector2(0, -22)
+
+[node name="Althea6" type="AnimatedSprite2D" parent="."]
+position = Vector2(-176, 104)
+sprite_frames = ExtResource("15_althea_6")
+animation = &"andando_frente"
+autoplay = "andando_frente"
+offset = Vector2(0, -22)
+
+[node name="Ophelia11" type="AnimatedSprite2D" parent="."]
+position = Vector2(-112, 104)
+sprite_frames = ExtResource("16_ophelia_11")
+animation = &"andando_frente"
+autoplay = "andando_frente"
+offset = Vector2(0, -22)
+
+[node name="Nicholas11Costas" type="AnimatedSprite2D" parent="."]
+position = Vector2(-176, 72)
+sprite_frames = ExtResource("14_nicholas_11")
+animation = &"parado_costas"
+autoplay = "parado_costas"
+offset = Vector2(0, -22)
+
+[node name="Althea6Costas" type="AnimatedSprite2D" parent="."]
+position = Vector2(-208, 88)
+sprite_frames = ExtResource("15_althea_6")
+animation = &"parado_costas"
+autoplay = "parado_costas"
+offset = Vector2(0, -22)
+
+[node name="Ophelia11Costas" type="AnimatedSprite2D" parent="."]
+position = Vector2(-144, 120)
+sprite_frames = ExtResource("16_ophelia_11")
+animation = &"correndo_costas"
+autoplay = "correndo_costas"
+offset = Vector2(0, -22)
+
+[node name="Rafael" type="AnimatedSprite2D" parent="."]
+position = Vector2(224, 64)
+sprite_frames = ExtResource("17_rafael")
+animation = &"andando_frente"
+autoplay = "andando_frente"
+offset = Vector2(0, -22)
+
+[node name="OpheliaAdolescente" type="AnimatedSprite2D" parent="."]
+position = Vector2(-80, 136)
+sprite_frames = ExtResource("19_ophelia_adolescente")
+animation = &"andando_frente"
+autoplay = "andando_frente"
+offset = Vector2(0, -22)
+
+[node name="Shara" type="AnimatedSprite2D" parent="."]
+position = Vector2(256, 80)
+sprite_frames = ExtResource("18_shara")
+animation = &"andando_frente"
+autoplay = "andando_frente"
+offset = Vector2(0, -22)
+
+[node name="OpheliaAdulta" type="AnimatedSprite2D" parent="."]
+position = Vector2(-48, 152)
+sprite_frames = ExtResource("20_ophelia_adulta")
+animation = &"andando_frente"
+autoplay = "andando_frente"
+offset = Vector2(0, -22)
+
+[node name="RafaelCostas" type="AnimatedSprite2D" parent="."]
+position = Vector2(256, 48)
+sprite_frames = ExtResource("17_rafael")
+animation = &"parado_costas"
+autoplay = "parado_costas"
+offset = Vector2(0, -22)
+
+[node name="SharaCostas" type="AnimatedSprite2D" parent="."]
+position = Vector2(288, 64)
+sprite_frames = ExtResource("18_shara")
+animation = &"andando_costas"
+autoplay = "andando_costas"
+offset = Vector2(0, -22)
+
+[node name="NicholasAdolescente" type="AnimatedSprite2D" parent="."]
+position = Vector2(-112, 152)
+sprite_frames = ExtResource("21_nicholas_adolescente")
+animation = &"andando_frente"
+autoplay = "andando_frente"
+offset = Vector2(0, -22)
+
+[node name="AltheaAdolescente" type="AnimatedSprite2D" parent="."]
+position = Vector2(-144, 152)
+sprite_frames = ExtResource("22_althea_adolescente")
+animation = &"andando_frente"
+autoplay = "andando_frente"
+offset = Vector2(0, -22)
+
+[node name="AltheaAdulta" type="AnimatedSprite2D" parent="."]
+position = Vector2(-16, 168)
+sprite_frames = ExtResource("23_althea_adulta")
+animation = &"andando_frente"
+autoplay = "andando_frente"
+offset = Vector2(0, -22)

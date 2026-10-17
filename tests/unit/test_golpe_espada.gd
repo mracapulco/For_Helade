@@ -187,14 +187,15 @@ func test_clique_num_interagivel_golpeia_e_nao_interage() -> void:
 	assert_signal_not_emitted(objeto, "interagido", "O clique não interage; isso é no Enter.")
 
 
-func test_toque_de_verdade_armado_continua_andando() -> void:
+func test_toque_de_verdade_armado_nao_golpeia() -> void:
 	_armar()
 	var toque := InputEventScreenTouch.new()
 	toque.device = 0
 	toque.pressed = true
 	toque.position = Vector2(100, 100)
 	personagem._unhandled_input(toque)
-	assert_true(personagem.andando, "no celular, tocar no chão anda; o golpe é no botão")
+	assert_false(personagem.golpeando, "no celular, o golpe é no botão")
+	assert_false(personagem.andando, "tocar no chão não anda mais")
 
 
 func test_botao_golpe_so_aparece_armado() -> void:

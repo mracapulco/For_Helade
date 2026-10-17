@@ -13,3 +13,4 @@ export_credentials.cfg
 # Sistema operacional
 .DS_Store
 Thumbs.db
+__pycache__/

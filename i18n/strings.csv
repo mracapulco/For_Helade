@@ -5,7 +5,7 @@ EXPLORACAO_BOTAO_PULAR,Pular
 EXPLORACAO_BOTAO_GOLPE,Golpe
 PROLOGO_DICA_TOQUE,Toque no brilho dourado para se mover
 PROLOGO_DICA_SEGURAR_TOQUE,Toque no brilho para segurar Althea
-PROLOGO_DICA_SEGURAR_TECLADO,Clique no brilho ou aperte Enter para segurar Althea
+PROLOGO_DICA_SEGURAR_TECLADO,Clique no brilho ou aperte E para segurar Althea
 RETRATO_PROVISORIO,PROVISÓRIO
 RETRATO_FORA_DO_ELENCO,FORA DO ELENCO
 TESTE_DIALOGO_TITULO,Teste do sistema de diálogo (provisório)
@@ -13,7 +13,7 @@ TESTE_DIALOGO_VALORES,"Relação com Janet: %d
 Influência com Olympia: %d"
 TESTE_DIALOGO_INICIAR,Iniciar diálogo de teste
 TESTE_DIALOGO_ZERAR,Zerar valores
-PROLOGO_DICA_TECLADO,"WASD para andar, Shift para correr, espaço para pular, mouse para olhar, Enter para ir até o brilho. Clique para prender o mouse, Esc para soltar."
+PROLOGO_DICA_TECLADO,"WASD para andar, Shift para correr, espaço para pular, mouse para olhar, E para ir até o brilho. Clique para prender o mouse, Esc para soltar."
 MENU_CONTINUAR,Continuar
 MENU_CARREGAR,Carregar jogo
 MENU_NOVO_JOGO,Novo jogo
@@ -26,7 +26,7 @@ OPCOES_IDIOMA,Idioma do jogo
 IDIOMA_pt_BR,Português (Brasil)
 OPCOES_SECAO_CONTROLES,Controles
 OPCOES_SENSIBILIDADE,Sensibilidade do mouse
-OPCOES_TECLAS,"W A S D ou setas: andar · Shift: correr · Espaço: pular · Enter: interagir · Esc: soltar o mouse"
+OPCOES_TECLAS,"W A S D ou setas: andar · Shift: correr · Espaço: pular · E: interagir · Esc: soltar o mouse"
 OPCOES_SECAO_GRAFICOS,Gráficos
 OPCOES_TELA_CHEIA,Tela cheia
 OPCOES_VSYNC,Sincronização vertical (VSync)
@@ -128,6 +128,8 @@ BOLSA_DESEQUIPAR,Desequipar
 BOLSA_LARGAR,Largar
 BOLSA_EQUIPADO,(equipado)
 AVISO_MOEDAS,+ %d moedas
+AVISO_OLHAR,Olhar de Nicholas: %s
+AVISO_CODICE,Códice: %s
 AVISO_BOLSA_CHEIA,Bolsa cheia
 AVISO_PESADO_DEMAIS,Pesado demais por enquanto
 AVISO_SUBIU_NIVEL,Subiu para o nível %d!
@@ -189,6 +191,21 @@ ESPACOS_CONFIRMAR_EXCLUIR,Excluir este jogo salvo? Não dá para desfazer.
 ESPACOS_CONFIRMAR_SIM_EXCLUIR,"Sim, excluir"
 ETAPA_PROLOGO,Prólogo
 ETAPA_CAPITULO_1,Capítulo 1
+CAP1_PROVISORIO_CONTINUA,"[Provisório] A manhã continua no próximo passo, com a chegada do duque."
+CODICE_ROUPAS_SIMPLES_TITULO,Roupas simples
+CODICE_ROUPAS_SIMPLES_TEXTO,"Simples demais, segundo o pai. Nicholas preferia assim."
+CODICE_FAIXA_DOURADA_TITULO,A faixa dourada
+CODICE_FAIXA_DOURADA_TEXTO,"Uma faixa dourada começou a surgir no horizonte, avançando pelas janelas."
+CODICE_MONSTRO_MARINHO_TITULO,O monstro marinho
+CODICE_MONSTRO_MARINHO_TEXTO,Althea dormia abraçada à pelúcia de um monstro marinho.
+CODICE_PRESENTES_TITULO,Os presentes
+CODICE_PRESENTES_TEXTO,"Pequenos animais de madeira pintados à mão, bordados de diversas cores e um vestido azul simples, mas rico em detalhes."
+CODICE_IMPERATRIZ_CALLIE_TITULO,Imperatriz Callie
+CODICE_IMPERATRIZ_CALLIE_TEXTO,Faleceu dois meses antes do aniversário de Althea.
+CODICE_ATENAS_TITULO,Atenas
+CODICE_ATENAS_TEXTO,"Capital do Império de Hélade, fundada para educar os Abençoados."
+CODICE_PALACIO_IMPERIAL_TITULO,Palácio Imperial
+CODICE_PALACIO_IMPERIAL_TEXTO,"Morada do Imperador Varsélios, em Atenas."
 PAUSA_TITULO,Pausa
 PAUSA_BOTAO,Pausa
 PAUSA_VOLTAR_AO_JOGO,Voltar ao jogo
@@ -198,3 +215,34 @@ PAUSA_CONFIRMAR_MENU,"Voltar ao menu inicial? O que não foi salvo será perdido
 PAUSA_CONFIRMAR_SAIR,"Sair do jogo? O que não foi salvo será perdido."
 PAUSA_CONFIRMAR_SIM,Sim
 PAUSA_CONFIRMAR_NAO,Não
+ITEM_BORDAO_PROSKOPOS_NOME,Bastão de Próskopos
+ITEM_BORDAO_PROSKOPOS_DESC,"Raro. Prêmio da charada de Próskopos. Duas mãos: golpeia duas casas à frente, é leve e ajuda a aparar golpes."
+ITEM_ELIXIR_CHYMEIA_NOME,Elixir de Chymeía
+ITEM_ELIXIR_CHYMEIA_DESC,"Raro. Prêmio da charada de Chymeía. Cura toda a vida e, por um minuto, dá vigor e rapidez."
+ITEM_RACAO_TRILHA_NOME,Ração de trilha
+ITEM_RACAO_TRILHA_DESC,Pão e frutas secas para a estrada. Recupera um pouco de vida.
+LOJA_CHYMEIA_NOME,Mercadorias de Chymeía
+LOJA_A_VENDA,À venda
+LOJA_SUA_BOLSA,Sua bolsa (vender)
+LOJA_NADA_A_VENDA,Nada à venda agora. Volte depois de descansar.
+LOJA_NADA_PARA_VENDER,Nada na bolsa que o mercador compre.
+LOJA_ESCOLHA_ITEM,Toque num item para ver o preço.
+LOJA_ITEM_PRECO,"%d moedas\nrestam %d"
+LOJA_ITEM_VENDA,"paga %d\nvocê tem %d"
+LOJA_PRECO,"Preço: %d moedas cada. Total: %d"
+LOJA_PAGA,"O mercador paga %d moedas cada. Total: %d"
+LOJA_COMPRAR,Comprar
+LOJA_VENDER,Vender
+LOJA_COMPROU,Comprado!
+LOJA_VENDEU,Vendido!
+LOJA_SEM_MOEDAS,Moedas insuficientes
+LOJA_BOLSA_CHEIA,Bolsa cheia
+LOJA_SEM_ESTOQUE,Acabou o estoque
+LOJA_COMPARA,Comparado ao equipado: %s
+LOJA_COMPARA_NADA,Você não tem nada equipado aí: %s
+LOJA_COMPARA_IGUAL,É o que você está usando.
+LOJA_COMPARA_SEM_DIFERENCA,mesmos bônus
+LOJA_VAI_DESEQUIPAR,Está equipado: será tirado ao vender.
+LOJA_MERCADOR_KHRONOSSES_NOME,Mercador do acampamento (Khronosses)
+LOJA_MERCADOR_AGAPE_NOME,Mercador do acampamento (Ágape)
+LOJA_MERCADOR_OLYMPIA_NOME,Mercador do acampamento (Olympia)

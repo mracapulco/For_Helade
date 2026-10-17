@@ -36,7 +36,7 @@ O jogo é uma **segunda forma de percorrer a história**: começa e termina como
 - **Engine:** Godot 4 (build padrão, **não** a .NET).
 - **Linguagem:** GDScript.
 - **Plataforma:** PC primeiro (para testar); celular (Android) depois.
-- Controle por **clique para mover**, para funcionar igual no toque. A interface deve ser pensada para toque desde o início (botões grandes, sem depender de hover ou teclado).
+- Controle no PC por **teclado** (WASD/setas, Enter para interagir). **Clicar no chão para andar foi removido** (decisão de 14/10/2026: ficou ruim); o controle do celular será outro, decidido depois. A interface continua pensada para toque (botões grandes, sem depender de hover).
 - Testes de lógica com **GUT** ou **gdUnit4** (influência, save/load, progressão).
 - Versionamento com **git**, com commits pequenos.
 - **Roteiro e diálogo:** arquivos `.dialogue` do plugin **Dialogue Manager** em `data/dialogos/`, com pt-BR no próprio arquivo e `[ID:...]` fixo por fala para tradução (POT/PO). Retrato por etiqueta `[#retrato=expressao]`; escolhas chamam `Relacoes.ajustar(...)` e `Influencia.ajustar(...)` e sempre voltam para a linha principal. Detalhes no README.

@@ -5,11 +5,11 @@ extends Control
 ## Continuar abre o jogo salvo por último; Carregar jogo mostra os 10 espaços.
 
 ## Missões com cena própria: quem salvou numa delas volta direto para ela.
-## Qualquer outra parte da história (por exemplo, o capítulo 1, que ainda
-## não tem missão) volta para o mapa, no lugar onde salvou: o último
-## acampamento ou, quando existir, o reino.
+## Qualquer outra parte da história volta para o mapa, no lugar onde salvou:
+## o último acampamento ou, quando existir, o reino.
 const CENAS := {
 	"prologo": "res://scenes/prologo/prologo.tscn",
+	"capitulo_1": "res://scenes/capitulo_01/capitulo_01.tscn",
 }
 const CENA_MAPA := "res://scenes/mapa/mapa_helade.tscn"
 const CENA_NOVO_JOGO := "res://scenes/prologo/prologo.tscn"

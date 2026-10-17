@@ -1,7 +1,9 @@
 class_name AvisoItens
 extends CanvasLayer
-## Avisos curtos no alto da tela quando a bolsa ganha algo:
-## "+ Poção de teste ×2", "+ 15 moedas". Cada um some sozinho.
+## Avisos curtos no alto da tela quando a bolsa ganha algo
+## ("+ Poção de teste ×2", "+ 15 moedas") ou quando o [code]Codice[/code]
+## anota uma entrada ("Olhar de Nicholas: Roupas simples", "Códice: Atenas").
+## Cada um some sozinho.
 
 ## Segundos que cada aviso fica na tela antes de sumir.
 @export var duracao := 2.5
@@ -22,6 +24,7 @@ func _ready() -> void:
 	add_child(coluna)
 	Inventario.recebeu.connect(_ao_receber)
 	Inventario.dinheiro_recebido.connect(_ao_receber_dinheiro)
+	Codice.anotado.connect(_ao_anotar)
 	Inventario.bolsa_cheia.connect(_ao_encher_bolsa)
 	Inventario.pesado_demais.connect(_ao_tentar_pesado)
 	Experiencia.subiu.connect(_ao_subir_de_nivel)
@@ -61,6 +64,11 @@ func _ao_receber(id: String, quantidade: int) -> void:
 
 func _ao_receber_dinheiro(valor: int) -> void:
 	mostrar(tr("AVISO_MOEDAS") % valor)
+
+
+func _ao_anotar(id: String) -> void:
+	var chave := "AVISO_OLHAR" if Codice.tipo(id) == Codice.TIPO_OLHAR else "AVISO_CODICE"
+	mostrar(tr(chave) % Codice.titulo(id))
 
 
 func _ao_encher_bolsa() -> void:

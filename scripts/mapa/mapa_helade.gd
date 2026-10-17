@@ -3,7 +3,7 @@ extends Node2D
 ## Tela de viagem entre os lugares de Hélade, no jeito do mapa do Super Mario
 ## World: Nicholas fica em cima de um local e anda pelos caminhos até outro.
 ## Toque/clique num local liberado para ir até ele; toque de novo (ou no botão
-## Entrar, ou Enter) para entrar. Setas/WASD pulam para o vizinho naquela direção.
+## Entrar, ou E) para entrar. Setas/WASD pulam para o vizinho naquela direção.
 ## O que ainda não foi descoberto fica sob a névoa: ao chegar num lugar, os
 ## vizinhos dele aparecem. Dia e noite vêm do autoload Mundo.
 ##

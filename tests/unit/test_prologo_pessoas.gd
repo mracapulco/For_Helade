@@ -345,3 +345,49 @@ func test_janet_so_aparece_no_quarto_vazio_e_sai_com_as_roupas() -> void:
 	await wait_until(func() -> bool: return not janet.visible, 15.0)
 	assert_false(janet.visible, "saiu pela porta")
 	assert_lt(janet.global_position.z, 3.6, "saiu para o corredor")
+
+
+# --- Esbarrão nas pessoas (pedido do Rafael, 17/10/2026) ---
+
+## Uma empregada só para o teste, na frente de Nicholas; as outras somem.
+func _empregada_na_frente(distancia: float) -> PessoaPrologo:
+	cena.colocar_em(_ponto("Corredor"))
+	for outra: Node3D in get_tree().get_nodes_in_group(PessoaPrologo.GRUPO):
+		outra.visible = false
+	var pessoa := PessoaPrologo.new()
+	cena.add_child(pessoa)
+	var frente := -cena.corpo.global_basis.z
+	frente.y = 0.0
+	pessoa.global_position = cena.corpo.global_position + frente.normalized() * distancia
+	pessoa.global_position.y = 0.0
+	await wait_physics_frames(2)
+	return pessoa
+
+
+func _no_chao(v: Vector3) -> Vector2:
+	return Vector2(v.x, v.z)
+
+
+func test_nicholas_nao_atravessa_quem_esta_parado() -> void:
+	var pessoa := await _empregada_na_frente(0.9)
+	Input.action_press("mover_frente")
+	await wait_physics_frames(90)
+	Input.action_release("mover_frente")
+	var distancia := _no_chao(cena.corpo.global_position).distance_to(_no_chao(pessoa.global_position))
+	assert_gt(distancia, (pessoa.raio + cena.raio_esbarrao) * 0.8, "parou nela, não passou por dentro")
+	var frente := _no_chao(-cena.corpo.global_basis.z)
+	assert_lt(frente.dot(_no_chao(cena.corpo.global_position - pessoa.global_position)), 0.0, "continua do lado de cá")
+
+
+func test_quem_passa_correndo_empurra_para_o_lado_sem_arrastar() -> void:
+	var pessoa := await _empregada_na_frente(2.0)
+	var inicio := cena.corpo.global_position
+	var vai := _no_chao(inicio - pessoa.global_position).normalized()
+	# Ela corre direto contra Nicholas e segue em frente.
+	var corrida := create_tween().set_process_mode(Tween.TWEEN_PROCESS_PHYSICS)
+	corrida.tween_property(pessoa, "global_position", pessoa.global_position + Vector3(vai.x, 0.0, vai.y) * 4.0, 4.0 / 3.0)
+	await corrida.finished
+	await wait_physics_frames(5)
+	var andou := _no_chao(cena.corpo.global_position - inicio)
+	assert_gt(absf(andou.dot(vai.orthogonal())), 0.25, "empurrado para o lado")
+	assert_lt(absf(andou.dot(vai)), 0.6, "não foi arrastado junto")

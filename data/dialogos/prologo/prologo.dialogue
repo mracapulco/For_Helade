@@ -25,8 +25,8 @@ Corri até os aposentos de minha mãe, a duquesa Neola de Olympia; [ID:PROLOGO_0
 
 ~ porta_aposentos
 
-## Diante da porta dos aposentos da duquesa. A cena lá dentro entra no passo 3.
-com muita alegria e um coraçãozinho batendo rápido [ID:PROLOGO_006]
+## Diante da porta dos aposentos da duquesa. Sem frase aqui: Rafael tirou
+## "com muita alegria..." em 17/10/2026.
 => END
 
 ~ aposentos_caos
@@ -90,8 +90,8 @@ e a observamos dormir um sono profundo e merecido após tanto esforço. [ID:PROL
 
 ~ quarto_vazio
 
-## Os olhos abrem no quarto já vazio; o controle volta.
-Limparam o caloroso quarto de minha mãe, [ID:PROLOGO_023]
+## Os olhos abrem no quarto já vazio; o controle volta. Sem frase aqui:
+## Rafael tirou "Limparam o caloroso quarto..." em 17/10/2026.
 => END
 
 ~ varanda

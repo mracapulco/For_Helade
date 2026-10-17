@@ -104,12 +104,32 @@ var _olhar := Vector2.ZERO
 var _olhar_tween: Tween
 var _partida := 0.0
 var _pescoco_parado := Vector3.ZERO
+var _posicao_anterior := Vector3.ZERO
+
+## Grupo das pessoas em que Nicholas esbarra (ControlePrimeiraPessoa).
+const GRUPO := &"pessoas_prologo"
+## Raio do corpo para o esbarrão (metros, no chão).
+@export var raio := 0.26
+## Velocidade com que anda ou corre agora (só no chão), para quem esbarra
+## nela saber para que lado ela vai.
+var velocidade := Vector3.ZERO
 
 
 func _ready() -> void:
+	if not Engine.is_editor_hint():
+		add_to_group(GRUPO)
+	_posicao_anterior = global_position if is_inside_tree() else position
 	_montar()
 	_tempo = float(semente) * 1.37
 	_posar(1.0)
+
+
+func _physics_process(delta: float) -> void:
+	if Engine.is_editor_hint() or delta <= 0.0:
+		return
+	var andou := global_position - _posicao_anterior
+	_posicao_anterior = global_position
+	velocidade = Vector3(andou.x, 0.0, andou.z) / delta
 
 
 func _process(delta: float) -> void:

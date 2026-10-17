@@ -47,8 +47,9 @@ const ETAPAS := {
 	"depois": {"fogo": 0.1},
 	# No quarto vazio o mar é calculado pela distância à varanda (alvos_quarto_vazio).
 	"quarto_vazio": {"fogo": 0.3, "vento_mar": 0.3},
-	"varanda": {"ondas": 0.98, "vento_mar": 0.46, "grilos": 0.3},
-	"final": {"ondas": 0.39},
+	# Mar mais baixo desde que a narração ganhou voz (Rafael, 17/10/2026).
+	"varanda": {"ondas": 0.55, "vento_mar": 0.3, "grilos": 0.25},
+	"final": {"ondas": 0.3},
 	"fim": {},
 }
 const MUSICA := "res://assets/audio/music/prologo/"

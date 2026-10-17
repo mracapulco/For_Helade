@@ -39,6 +39,12 @@ signal chegou(ponto: PontoDeVista)
 ## Ctrl segurado: quanto os olhos descem e a rapidez de andar agachado.
 @export var descida_agachado := 0.3
 @export var velocidade_agachado := 0.7
+## Raio de Nicholas para esbarrar nas pessoas (metros, no chão).
+@export var raio_esbarrao := 0.2
+## Quão rápido sai de dentro de alguém: m/s por metro de sobreposição.
+@export var firmeza_esbarrao := 12.0
+## O empurrão mais forte, em m/s (só um passo para o lado, não um arrasto).
+@export var empurrao_maximo := 2.2
 ## Segundos para abaixar ou levantar por inteiro.
 @export var tempo_agachar := 0.18
 @export var sensibilidade_mouse := 0.0025
@@ -142,6 +148,7 @@ func _physics_process(delta: float) -> void:
 	var rapidez := velocidade_correndo if correndo else lerpf(velocidade, velocidade_agachado, agachamento)
 	corpo.velocity.x = passo.x * rapidez
 	corpo.velocity.z = passo.z * rapidez
+	_esbarrar_nas_pessoas(delta)
 	if corpo.is_on_floor():
 		var pula := not travado and not agachado and Input.is_action_just_pressed("pular")
 		corpo.velocity.y = impulso_pulo if pula else 0.0
@@ -372,3 +379,38 @@ func _todos_os_alvos(no: Node) -> Array[AlvoToque]:
 			lista.append(filho)
 		lista.append_array(_todos_os_alvos(filho))
 	return lista
+
+
+## Nicholas não atravessa as pessoas do castelo (pedido do Rafael, 17/10/2026).
+## Andando contra alguém parado, ele para nela; se alguém correndo esbarra
+## nele, ele é empurrado um pouco para o lado e escapa, sem ser arrastado
+## junto. O empurrão entra na velocidade, então as paredes continuam valendo.
+func _esbarrar_nas_pessoas(delta: float) -> void:
+	if delta <= 0.0 or travado:
+		return
+	var aqui := Vector2(corpo.global_position.x, corpo.global_position.z)
+	for pessoa: PessoaPrologo in get_tree().get_nodes_in_group(PessoaPrologo.GRUPO):
+		if not pessoa.is_visible_in_tree():
+			continue
+		var la := Vector2(pessoa.global_position.x, pessoa.global_position.z)
+		var distancia := aqui.distance_to(la)
+		var minimo := pessoa.raio + raio_esbarrao
+		if distancia >= minimo:
+			continue
+		var fora := (aqui - la).normalized() if distancia > 0.001 else Vector2.RIGHT
+		var vai := Vector2(pessoa.velocidade.x, pessoa.velocidade.z)
+		if vai.length() > 0.3:
+			# Ela está passando: o empurrão é de lado, para fora do caminho dela.
+			var lado := vai.normalized().orthogonal()
+			if lado.dot(fora) < 0.0:
+				lado = -lado
+			fora = (lado * 0.85 + fora * 0.15).normalized()
+		var plano := Vector2(corpo.velocity.x, corpo.velocity.z)
+		# Não entra mais nela.
+		var contra := plano.dot(-fora)
+		if contra > 0.0:
+			plano += fora * contra
+		# Sai de dentro aos poucos, sem tranco.
+		plano += fora * minf(empurrao_maximo, (minimo - distancia) * firmeza_esbarrao)
+		corpo.velocity.x = plano.x
+		corpo.velocity.z = plano.y

@@ -35,7 +35,7 @@ const OMBRO_POR_FAIXA: Array[Vector2] = [Vector2(22, 28), Vector2(22, 21), Vecto
 ## Quantos pixels a cabeça e o tronco ficam mais baixos que os do adulto,
 ## para o elmo e a armadura (desenhados no corpo do adulto) caírem no lugar.
 ## Provisório até haver desenhos de proteção para cada idade.
-const DESCIDA_CABECA: Array[int] = [14, 7, 0]
+const DESCIDA_CABECA: Array[int] = [10, 3, 0]
 const DESCIDA_TRONCO: Array[int] = [8, 1, 0]
 
 

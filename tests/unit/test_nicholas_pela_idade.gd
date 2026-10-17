@@ -42,7 +42,7 @@ func test_menino_tem_a_mao_mais_baixa_que_o_adulto() -> void:
 
 func test_elmo_desce_com_a_cabeca_e_armadura_com_o_tronco() -> void:
 	assert_eq(AparenciaNicholas.descida(Inventario.FaixaEtaria.ADULTO, Item.Encaixe.ELMO), 0)
-	assert_eq(AparenciaNicholas.descida(Inventario.FaixaEtaria.CRIANCA, Item.Encaixe.ELMO), 14)
+	assert_eq(AparenciaNicholas.descida(Inventario.FaixaEtaria.CRIANCA, Item.Encaixe.ELMO), 10)
 	assert_eq(AparenciaNicholas.descida(Inventario.FaixaEtaria.ADOLESCENTE, Item.Encaixe.ARMADURA), 1)
 
 
@@ -87,4 +87,4 @@ func test_elmo_do_menino_desce_ate_a_cabeca() -> void:
 	Inventario.adicionar(id)
 	assert_true(Inventario.equipar("nicholas", id))
 	await wait_process_frames(2)
-	assert_eq(elmo.offset, visual.offset + Vector2(0, 14))
+	assert_eq(elmo.offset, visual.offset + Vector2(0, 10))

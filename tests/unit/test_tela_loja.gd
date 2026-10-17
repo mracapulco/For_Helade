@@ -119,3 +119,14 @@ func test_comparacao_com_o_equipado() -> void:
 		tr("LOJA_COMPARA") % "Ataque -2 · Defesa -2 · Velocidade +20%")
 	assert_eq(TelaLoja.texto_comparacao(espada, "nicholas"), tr("LOJA_COMPARA_IGUAL"))
 	assert_eq(TelaLoja.texto_comparacao(Inventario.item("pocao_cura"), "nicholas"), "")
+
+
+func test_tocar_num_item_pelo_botao_nao_quebra() -> void:
+	tela.abrir("chymeia")
+	var botao: Button = tela.lista_loja.get_node("pocao_cura")
+	botao.pressed.emit()
+	assert_eq(tela.item_escolhido, "pocao_cura")
+	assert_true(tela.aberta())
+	assert_true(tela.lista_loja.has_node("pocao_cura"))
+	await wait_process_frames(2)
+	assert_eq(tela.lista_loja.get_child_count(), Lojas.mercadorias("chymeia").size())

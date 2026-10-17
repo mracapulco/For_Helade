@@ -239,9 +239,10 @@ func _atualizar() -> void:
 func _encher(lista: GridContainer, lado_lista: Lado, ids: Array[String]) -> void:
 	var foco := get_viewport().gui_get_focus_owner() if is_inside_tree() else null
 	var nome_foco := foco.name if foco and foco.get_parent() == lista else &""
+	# queue_free, e não free: o botão apertado ainda está emitindo o sinal.
 	for filho in lista.get_children():
 		lista.remove_child(filho)
-		filho.free()
+		filho.queue_free()
 	for id in ids:
 		var botao := _botao_item(lado_lista, id)
 		lista.add_child(botao)

@@ -133,7 +133,10 @@ func test_barraca_salva_no_espaco_escolhido_sem_mudar_a_etapa() -> void:
 	Progresso.etapa = "etapa_de_teste"
 	watch_signals(acampamento)
 	acampamento.barraca.interagir()
-	acampamento.tela_espacos.escolher(4)
+	acampamento.tela_espacos.botoes[3].pressed.emit()
+	assert_false(Progresso.espaco_ocupado(4), "tocar no espaço só seleciona")
+	assert_eq(acampamento.tela_espacos.botao_acao.text, "ESPACOS_SALVAR")
+	acampamento.tela_espacos.botao_acao.pressed.emit()
 	assert_signal_emitted(acampamento, "salvo")
 	assert_false(acampamento.tela_espacos.aberta())
 	assert_false(get_tree().paused)

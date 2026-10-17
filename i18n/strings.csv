@@ -178,8 +178,8 @@ ESPACOS_CONFIRMAR_SUBSTITUIR,Este espaço já tem um jogo salvo. Salvar por cima
 ESPACOS_CONFIRMAR_SIM,"Sim, salvar"
 ESPACOS_CONFIRMAR_NAO,Não
 ESPACOS_EXCLUIR,Excluir
-ESPACOS_CANCELAR_EXCLUIR,Cancelar
-ESPACOS_TITULO_EXCLUIR,Escolha o jogo salvo para excluir
+ESPACOS_CARREGAR,Carregar
+ESPACOS_SALVAR,Salvar aqui
 ESPACOS_CONFIRMAR_EXCLUIR,Excluir este jogo salvo? Não dá para desfazer.
 ESPACOS_CONFIRMAR_SIM_EXCLUIR,"Sim, excluir"
 ETAPA_PROLOGO,Prólogo

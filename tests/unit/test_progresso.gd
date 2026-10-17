@@ -48,6 +48,14 @@ func test_com_tudo_cheio_jogo_novo_nao_salva_por_cima_sozinho() -> void:
 		assert_eq(Progresso.resumo(espaco).etapa, "capitulo_1")
 
 
+func test_com_tudo_cheio_a_historia_avanca_mesmo_sem_salvar() -> void:
+	for espaco in range(1, 11):
+		Progresso.salvar("prologo", espaco)
+	Progresso.novo_jogo()
+	assert_false(Progresso.salvar("capitulo_1"))
+	assert_eq(Progresso.etapa, "capitulo_1", "o mapa abre na fase certa (Atenas)")
+
+
 func test_mais_recente_e_o_ultimo_salvo() -> void:
 	assert_eq(Progresso.espaco_mais_recente(), 0)
 	assert_false(Progresso.tem_jogo_salvo())

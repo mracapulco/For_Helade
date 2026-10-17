@@ -5,8 +5,13 @@ extends AnimatedSprite2D
 ## As animações se chamam "acao_direcao": "frente" olha para baixo e para a
 ## direita, "costas" para cima e para a direita; para a esquerda, espelha.
 
+const AparenciaNicholas := preload("res://scripts/systems/aparencia_nicholas.gd")
+
 ## Personagem que este desenho acompanha. Se vazio, usa o avô (Personagem/Corpo/Visual).
 @export var personagem: PersonagemExploracao
+## Desenha Nicholas na idade atual da história ([member Inventario.faixa_etaria])
+## em vez dos quadros postos na cena, e acompanha quando ela muda.
+@export var nicholas_pela_idade := false
 
 var direcao := "frente"
 var interagindo := false
@@ -19,6 +24,9 @@ func _ready() -> void:
 	DialogueManager.dialogue_ended.connect(_ao_terminar_dialogo)
 	if personagem:
 		personagem.golpeou.connect(_ao_golpear)
+	if nicholas_pela_idade:
+		sprite_frames = AparenciaNicholas.quadros_atuais()
+		Inventario.faixa_etaria_mudou.connect(_ao_mudar_idade)
 	if sprite_frames:
 		play(&"parado_frente")
 
@@ -35,6 +43,9 @@ func _process(_delta: float) -> void:
 	# O equipamento acelera ou atrasa o passo e o golpe.
 	speed_scale = personagem.ritmo()
 	var nome := StringName("%s_%s" % [acao, direcao])
+	if not sprite_frames.has_animation(nome):
+		# Desenhos sem golpe (Nicholas criança e adolescente) usam o de interagir.
+		nome = StringName("interagindo_%s" % direcao)
 	if animation != nome:
 		play(nome)
 
@@ -80,3 +91,7 @@ func _ao_comecar_dialogo(_recurso: DialogueResource) -> void:
 
 func _ao_terminar_dialogo(_recurso: DialogueResource) -> void:
 	interagindo = false
+
+
+func _ao_mudar_idade(faixa: int) -> void:
+	sprite_frames = AparenciaNicholas.quadros(faixa)

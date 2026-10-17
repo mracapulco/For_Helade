@@ -408,3 +408,12 @@ func test_chegar_perto_da_garota_faz_ela_se_virar() -> void:
 func test_o_ar_do_sonho_mostra_que_nao_e_real() -> void:
 	assert_true(capitulo.has_node("ArDoSonho"))
 	assert_true(capitulo.get_node("ArDoSonho").has_node("Poeira"))
+
+
+func test_no_sonho_nicholas_anda_devagar_ao_som_do_relogio() -> void:
+	assert_eq(capitulo.jogador.velocidade, Capitulo01.VELOCIDADE_NO_SONHO)
+	assert_eq(capitulo.jogador.multiplicador_corrida, 1.0, "no sonho ele não corre")
+	assert_true(capitulo.get_node("ArDoSonho").has_node("TicTac"))
+	capitulo.chegar_na_garota()
+	await _esperar_etapa("quarto")
+	assert_gt(capitulo.jogador.velocidade, Capitulo01.VELOCIDADE_NO_SONHO, "acordado, volta ao passo normal")

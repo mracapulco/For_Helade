@@ -37,6 +37,13 @@ const CRIADA := preload("res://assets/art/placeholders/exploracao/criada_proviso
 const ARTE := "res://assets/art/capitulo_01/"
 ## O ar do sonho treme de leve, como calor (só no sonho).
 const TREMOR_DO_SONHO := preload("res://scripts/capitulo_01/tremor_do_sonho.gdshader")
+## O relógio lento do sonho ("Tic. Tac."), em loop enquanto o sonho dura.
+const TIC_TAC := preload("res://assets/audio/sfx/capitulo_01/tic_tac.wav")
+## No sonho Nicholas anda devagar (e não corre): só alcança a garota perto da
+## porta, depois de as frases passarem (Rafael, 17/10/2026).
+const VELOCIDADE_NO_SONHO := 26.0
+## Quanto a garota leva para ir até a porta (um pouco mais rápida que ele).
+const TEMPO_DA_GAROTA := 5.0
 ## Móveis em caixa isométrica (armário, baú): o centro da casa fica a esta
 ## altura da base da imagem (tools/arte/gerar_capitulo_01.py, PE_CAIXA).
 const PE_CAIXA := 17.0
@@ -106,6 +113,8 @@ var toques_na_cama := 0
 var _andar_garota: Tween
 ## O ar do sonho (poeira dourada e o tremor do calor), só no sonho.
 var _ar_do_sonho: CanvasLayer
+## Velocidade e corrida de Nicholas antes do sonho, para devolver ao acordar.
+var _passo_fora_do_sonho := Vector2.ZERO
 
 ## Objetos da sala atual que a sequência usa.
 var objetos := {}
@@ -153,10 +162,14 @@ func montar_sonho() -> void:
 	_entrar(Vector2i(10, 2))
 	_mudar("sonho")
 	_ligar_ar_do_sonho(true)
+	_passo_fora_do_sonho = Vector2(jogador.velocidade, jogador.multiplicador_corrida)
+	jogador.velocidade = VELOCIDADE_NO_SONHO
+	jogador.multiplicador_corrida = 1.0
+	# Ela segue pelo corredor um pouco mais rápido que ele e para diante da
+	# porta: ele só a alcança ali, quando as frases já passaram.
+	_andar_garota = _andar(garota, sala.centro(Vector2i(2, 1)), TEMPO_DA_GAROTA)
 	await _clarear()
 	_frases("frases_sonho")
-	# Ela segue pelo corredor e para diante da porta.
-	_andar_garota = _andar(garota, sala.centro(Vector2i(2, 1)), 9.0)
 
 
 ## Nicholas chegou até a garota: ela se vira para ele ("À sua frente, ela
@@ -178,6 +191,8 @@ func chegar_na_garota() -> void:
 	await _frases("frases_porta_do_sonho")
 	await _escurecer()
 	_ligar_ar_do_sonho(false)
+	jogador.velocidade = _passo_fora_do_sonho.x
+	jogador.multiplicador_corrida = _passo_fora_do_sonho.y
 	await montar_quarto()
 
 
@@ -190,8 +205,8 @@ func perto_da_garota() -> bool:
 	return maxi(absi(diferenca.x), absi(diferenca.y)) <= 1
 
 
-## No sonho, poeira dourada flutua devagar e o ar treme como calor: o
-## corredor não é real (Rafael, 17/10/2026).
+## No sonho, poeira dourada flutua devagar, o ar treme como calor e um
+## relógio lento marca "Tic. Tac.": o corredor não é real (Rafael, 17/10/2026).
 func _ligar_ar_do_sonho(ligar: bool) -> void:
 	if _ar_do_sonho:
 		_ar_do_sonho.queue_free()
@@ -230,6 +245,13 @@ func _ligar_ar_do_sonho(ligar: bool) -> void:
 	brilho.add_point(0.5, Color(1.0, 0.85, 0.5, 0.75))
 	poeira.color_ramp = brilho
 	_ar_do_sonho.add_child(poeira)
+	var relogio := AudioStreamPlayer.new()
+	relogio.name = "TicTac"
+	relogio.stream = TIC_TAC
+	relogio.bus = &"Efeitos"
+	relogio.volume_db = -6.0
+	relogio.autoplay = true
+	_ar_do_sonho.add_child(relogio)
 	add_child(_ar_do_sonho)
 	# Abaixo da cortina, das frases e dos botões.
 	move_child(_ar_do_sonho, 1)

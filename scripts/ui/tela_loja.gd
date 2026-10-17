@@ -129,7 +129,7 @@ func maximo() -> int:
 ## O que a bolsa tem que este mercador compra (os da história ficam de fora).
 func itens_para_vender() -> Array[String]:
 	var ids: Array[String] = []
-	for tipo: Item.Tipo in TelaBolsa.ABAS:
+	for tipo: Item.Tipo in Item.Tipo.values():
 		for id in Inventario.ids_do_tipo(tipo):
 			if Lojas.pode_vender(id) == Lojas.Resultado.OK:
 				ids.append(id)

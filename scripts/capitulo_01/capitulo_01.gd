@@ -41,6 +41,15 @@ const PE_CAIXA := 17.0
 ## linha do quadril nas folhas dos personagens (quadros de 32×48).
 const ALTURA_ASSENTO := 12.0
 const LINHA_QUADRIL := 37
+## Comprimento da coxa de quem está sentado, em casas.
+const COXA := 0.25
+## Centro da carruagem no chão, dentro das imagens dela, e a altura do piso.
+const CARRO_ORIGEM := Vector2(150, 128)
+const CARRO_CHAO := 18.0
+## A rua e as margens andam uma casa a cada tanto (o mesmo para as duas, para
+## não escorregarem uma sobre a outra); a paisagem se repete a cada tantas casas.
+const SEGUNDOS_POR_CASA := 0.8
+const PERIODO_MARGEM := 10
 
 ## Luz de cada momento.
 const TOM_SONHO := Color(1.0, 0.7, 0.5)
@@ -50,9 +59,13 @@ const TOM_AMANHECER := Color(1.0, 0.9, 0.74)
 
 ## As duas extremidades do corredor (casas do chão) para onde Nicholas olha
 ## enquanto espera o cortejo.
-const EXTREMIDADES := {"extremidade_esq": Vector2i(1, 1), "extremidade_dir": Vector2i(25, 1)}
+const EXTREMIDADES := {"extremidade_esq": Vector2i(1, 1), "extremidade_dir": Vector2i(16, 1)}
 ## Casa do chão diante da porta de Althea, onde Nicholas espera.
-const PORTA_ALTHEA_CHAO := Vector2i(12, 1)
+const PORTA_ALTHEA_CHAO := Vector2i(5, 1)
+## Para onde ele olha (na tela) quando vira para cada extremidade.
+const RUMO_EXTREMIDADES := {"extremidade_esq": Vector2(-2, -1), "extremidade_dir": Vector2(2, 1)}
+## Quanto tempo virado para uma extremidade conta como olhar para ela.
+const TEMPO_OLHANDO := 0.5
 
 ## Multiplica os tempos (os testes usam 0: tudo acontece na hora).
 @export var escala_tempo := 1.0
@@ -76,6 +89,14 @@ var viu_espelho := false
 var vestido := false
 ## Extremidades do corredor para onde Nicholas já olhou, esperando o cortejo.
 var extremidades_vistas: Array[String] = []
+## Onde fica o desenho de Nicholas sentado (para ele se inclinar e voltar).
+var _offset_sentado_x := 0.0
+## Brilho das janelas das pontas do corredor, até ele olhar por elas.
+var brilhos := {}
+## Para onde ele olhava quando começou a esperar, e quanto tempo já está
+## virado para cada extremidade.
+var _olhar_na_porta := Vector2.ZERO
+var _tempo_olhando := {}
 ## Quantas vezes Nicholas já tocou Althea na cama.
 var toques_na_cama := 0
 
@@ -197,35 +218,57 @@ func sair_do_quarto() -> void:
 # --- 3. o corredor e o cortejo ------------------------------------------
 
 func montar_corredor() -> void:
-	# Um corredor comprido, com outras portas (fechadas); oito passos entre a
-	# porta dele e a de Althea.
-	_nova_sala(26, 3, TOM_MADRUGADA)
+	# Um corredor com outras portas (fechadas); oito passos entre a porta dele
+	# e a de Althea.
+	_nova_sala(17, 3, TOM_MADRUGADA)
 	sala.piso = "passadeira"
 	# Portas fechadas ficam na própria parede; só a de Althea, o destino, é
 	# um vão com a porta.
-	for x in [3, 7, 20, 24]:
-		var nome := "porta_nicholas" if x == 20 else "porta_fechada_%d" % x
+	for x in [2, 9, 13]:
+		var nome := "porta_nicholas" if x == 13 else "porta_fechada_%d" % x
 		objetos[nome] = sala.pendurar(nome.to_pascal_case(), load(ARTE + "parede/porta_esq.png"), Vector2i(x, 0))
-	sala.abrir_vao(Vector2i(12, 0))
-	_objeto("porta_althea", "porta.png", Vector2i(12, 0), true).get_node("Interagivel") \
+	sala.abrir_vao(Vector2i(5, 0))
+	_objeto("porta_althea", "porta.png", Vector2i(5, 0), true).get_node("Interagivel") \
 		.interagido.connect(esperar_cortejo)
 	# Como o corredor do Castelo Olympia no prólogo: tochas, quadros do mapa,
 	# tapeçarias e a espada sobre a placa.
-	_pendurar({"tapecaria_esq": Vector2i(1, 0), "tocha_esq": Vector2i(5, 0),
-		"quadro_atenas_esq": Vector2i(9, 0), "tocha_esq#2": Vector2i(10, 0),
-		"espada_placa_esq": Vector2i(15, 0), "quadro_norte_esq": Vector2i(17, 0),
-		"tocha_esq#3": Vector2i(18, 0), "tocha_esq#4": Vector2i(22, 0),
-		"arandela_dir": Vector2i(0, 1), "tapecaria_dir": Vector2i(0, 2)})
+	_pendurar({"tapecaria_esq": Vector2i(1, 0), "tocha_esq": Vector2i(4, 0),
+		"quadro_atenas_esq": Vector2i(7, 0), "tocha_esq#2": Vector2i(8, 0),
+		"espada_placa_esq": Vector2i(11, 0), "tocha_esq#3": Vector2i(12, 0),
+		"quadro_norte_esq": Vector2i(14, 0), "tocha_esq#4": Vector2i(15, 0),
+		"tapecaria_dir": Vector2i(0, 2)})
+	# As duas pontas do corredor terminam numa janela, para onde ele olha
+	# enquanto espera (a faixa dourada do amanhecer entra por elas).
+	objetos["janela_esq"] = sala.pendurar("JanelaEsq", load(ARTE + "parede/janela_alta_dir.png"), Vector2i(0, 1))
+	objetos["janela_dir"] = sala.pendurar("JanelaDir", load(ARTE + "parede/janela_alta_esq.png"), Vector2i(16, 0))
 	# Para onde ele olha enquanto espera: as duas extremidades do corredor.
 	for nome: String in EXTREMIDADES:
 		_ponto(nome, EXTREMIDADES[nome]).get_node("Interagivel").interagido \
 			.connect(olhar_extremidade.bind(nome))
-	_entrar(Vector2i(20, 1))
+	_entrar(Vector2i(13, 1))
 	# Só depois de entrar na árvore (o _ready do Interagivel o liga de novo).
 	for nome: String in EXTREMIDADES:
 		_ativar(objetos[nome], false)
 	_mudar("corredor")
 	await _clarear()
+
+
+## Esperando na porta, virar para uma das pontas do corredor (ou andar até
+## ela) por um instante conta como olhar para aquela extremidade.
+func _physics_process(delta: float) -> void:
+	if etapa != "esperando" or jogador.direcao_olhar.is_equal_approx(_olhar_na_porta):
+		return
+	_olhar_na_porta = Vector2.INF
+	for nome: String in RUMO_EXTREMIDADES:
+		if extremidades_vistas.has(nome):
+			continue
+		var rumo: Vector2 = RUMO_EXTREMIDADES[nome].normalized()
+		if jogador.direcao_olhar.normalized().dot(rumo) < 0.95:
+			_tempo_olhando[nome] = 0.0
+			continue
+		_tempo_olhando[nome] = _tempo_olhando.get(nome, 0.0) + delta
+		if _tempo_olhando[nome] >= TEMPO_OLHANDO:
+			olhar_extremidade(nome)
 
 
 func esperar_cortejo() -> void:
@@ -237,6 +280,15 @@ func esperar_cortejo() -> void:
 	_frases("frases_esperando")
 	for nome: String in EXTREMIDADES:
 		_ativar(objetos[nome], true)
+	# Basta virar para uma ponta (sem ir até lá) para olhar para ela.
+	_olhar_na_porta = jogador.direcao_olhar
+	_tempo_olhando.clear()
+	# As janelas das pontas brilham até ele olhar por elas.
+	for janela: String in ["janela_esq", "janela_dir"]:
+		var brilho := create_tween().set_loops()
+		brilho.tween_property(objetos[janela], "modulate", Color(1.6, 1.4, 1.0), 0.6)
+		brilho.tween_property(objetos[janela], "modulate", Color.WHITE, 0.6)
+		brilhos[janela] = brilho
 
 
 ## "Ele olhou para uma das extremidades do corredor. Depois para a outra.
@@ -246,6 +298,12 @@ func olhar_extremidade(nome: String) -> void:
 		return
 	extremidades_vistas.append(nome)
 	_ativar(objetos[nome], false)
+	var janela := "janela_esq" if nome == "extremidade_esq" else "janela_dir"
+	if brilhos.has(janela):
+		brilhos[janela].kill()
+		brilhos.erase(janela)
+		objetos[janela].modulate = Color.WHITE
+	jogador.direcao_olhar = (objetos[janela].position - jogador.position).normalized()
 	if extremidades_vistas.size() == 1:
 		Codice.anotar("faixa_dourada")
 	if extremidades_vistas.size() < EXTREMIDADES.size():
@@ -268,10 +326,10 @@ func olhar_extremidade(nome: String) -> void:
 func _chegada_do_cortejo() -> void:
 	# O pequeno cortejo surge ao longe e vem até a porta.
 	var chegadas := {
-		"pany": [Vector2i(1, 2), Vector2i(11, 2)],
-		"carrinho": [Vector2i(1, 1), Vector2i(10, 2)],
-		"criada_1": [Vector2i(1, 2), Vector2i(10, 1)],
-		"criada_2": [Vector2i(1, 1), Vector2i(9, 2)],
+		"pany": [Vector2i(1, 2), Vector2i(4, 2)],
+		"carrinho": [Vector2i(1, 1), Vector2i(3, 2)],
+		"criada_1": [Vector2i(1, 2), Vector2i(3, 1)],
+		"criada_2": [Vector2i(1, 1), Vector2i(2, 2)],
 	}
 	var texturas := {
 		"pany": load(ARTE + "pany_provisoria.png"),
@@ -402,19 +460,110 @@ func lado_da_cama_perto_de_nicholas() -> Vector2i:
 
 
 ## Personagem sentado no banco: o quadro parado, de frente, cortado no quadril.
-func _sentado(nome: String, quadros: SpriteFrames, casa: Vector2i) -> Sprite2D:
-	var quadro := quadros.get_frame_texture(&"parado_frente", 0) as AtlasTexture
-	var corte := AtlasTexture.new()
-	corte.atlas = quadro.atlas
-	corte.region = Rect2(quadro.region.position, Vector2(quadro.region.size.x, LINHA_QUADRIL))
+func _sentado_em(nome: String, quadros: SpriteFrames, pai: Node2D, posicao: Vector2) -> Sprite2D:
 	var sprite := Sprite2D.new()
 	sprite.name = nome
-	sprite.texture = corte
+	sprite.texture = imagem_sentada(quadros)
 	sprite.centered = false
-	sprite.position = sala.centro(casa)
-	sprite.offset = Vector2(-quadro.region.size.x / 2.0, -ALTURA_ASSENTO - LINHA_QUADRIL)
-	sala.add_child(sprite)
+	sprite.position = posicao
+	# Os pés no meio da largura do quadro em pé, à esquerda da imagem.
+	var meio := (sprite.texture.get_width() - 2 * roundi(16.0 * COXA)) / 2.0
+	sprite.offset = Vector2(-meio, -sprite.texture.get_height())
+	pai.add_child(sprite)
 	return sprite
+
+
+## A pessoa sentada, montada do quadro em pé: o tronco até o quadril, as coxas
+## indo para a frente (para +b, que na tela é para baixo e à esquerda) e as
+## canelas descendo até o chão. A base da imagem é o chão sob os pés, no meio
+## dos pés; o quadril fica [constant COXA] casa para trás e
+## [constant ALTURA_ASSENTO] pixels acima do chão.
+## [param tronco]: de qual animação vem o tronco (de costas, para olhar pela
+## janela de trás); [param espelhar] vira só o tronco para a esquerda (as
+## pernas continuam para a frente, como quem gira no banco).
+static func imagem_sentada(quadros: SpriteFrames, tronco := &"parado_frente", espelhar := false) -> ImageTexture:
+	var corpo := _quadro_parado(quadros, &"parado_frente")
+	var de_cima := _quadro_parado(quadros, tronco)
+	if espelhar:
+		de_cima.flip_x()
+	var largura := corpo.get_width()
+	var pe := corpo.get_used_rect().end.y - 1
+	# A coxa, em pixels da tela: anda COXA casa em +b (2 px para a esquerda a
+	# cada 1 para baixo).
+	var desce := int(round(16.0 * COXA))
+	var recua := 2 * desce
+	var canela := int(ALTURA_ASSENTO)
+	var altura := LINHA_QUADRIL + desce + canela
+	var sentada := Image.create(largura + recua, altura, false, Image.FORMAT_RGBA8)
+	sentada.blit_rect(de_cima, Rect2i(0, 0, largura, LINHA_QUADRIL), Vector2i(recua, 0))
+	# Coxas: a linha do quadril, deslizando para baixo e para a esquerda.
+	for k in desce:
+		var linha := LINHA_QUADRIL + mini(k, 1)
+		sentada.blit_rect(corpo, Rect2i(0, linha, largura, 1), Vector2i(recua - 2 * (k + 1), LINHA_QUADRIL + k))
+	# Canelas e pés: o resto das pernas, esticado até o chão.
+	var origem := LINHA_QUADRIL + 2
+	var fonte := pe - origem + 1
+	for i in canela:
+		var linha := origem + int(float(i) * fonte / canela)
+		sentada.blit_rect(corpo, Rect2i(0, linha, largura, 1), Vector2i(0, LINHA_QUADRIL + desce + i))
+	return ImageTexture.create_from_image(sentada)
+
+
+static func _quadro_parado(quadros: SpriteFrames, animacao: StringName) -> Image:
+	var quadro := quadros.get_frame_texture(animacao, 0) as AtlasTexture
+	var folha := quadro.atlas.get_image()
+	if folha.is_compressed():
+		folha.decompress()
+	folha.convert(Image.FORMAT_RGBA8)
+	return folha.get_region(Rect2i(quadro.region))
+
+
+## Muda a pose de quem está sentado na carruagem.
+func _pose(nome: String, quadros: SpriteFrames, tronco: StringName, espelhar: bool) -> void:
+	var sprite: Sprite2D = objetos.get(nome)
+	if sprite:
+		sprite.texture = imagem_sentada(quadros, tronco, espelhar)
+
+
+## Na carruagem, cada fala do menu da janela move a cena: Nicholas gira no
+## banco para a janela escolhida e a câmera vai junto; de volta ao menu, ele
+## volta a olhar para a frente.
+func _ao_ver_fala_na_carruagem(linha: DialogueLine) -> void:
+	match linha.static_id:
+		"CAP1_104":
+			_olhar_janela(true)
+		"CAP1_105":
+			_olhar_janela(false)
+		_:
+			if not linha.responses.is_empty():
+				_olhar_janela_fim()
+
+
+func _olhar_janela(esquerda: bool) -> void:
+	# A janela da esquerda fica na parede da esquerda (acima e à esquerda na
+	# tela); a da direita, na parede do fundo, atrás do banco.
+	_pose("nicholas_sentado", QUADROS_VESTIDO, &"parado_costas", esquerda)
+	var lado := Vector2(-1, -0.5) if esquerda else Vector2(1, -0.5)
+	_mover_suave(objetos["nicholas_sentado"], "offset:x", _offset_sentado_x + lado.x * 2.0)
+	_mover_suave(jogador.get_node("Camera"), "offset", lado * 28.0)
+
+
+func _olhar_janela_fim() -> void:
+	_pose("nicholas_sentado", QUADROS_VESTIDO, &"parado_frente", false)
+	_mover_suave(objetos["nicholas_sentado"], "offset:x", _offset_sentado_x)
+	_mover_suave(jogador.get_node("Camera"), "offset", Vector2.ZERO)
+
+
+## "Voltar-se para Althea": os dois se viram um para o outro.
+func _voltar_para_althea() -> void:
+	_olhar_janela_fim()
+	_pose("nicholas_sentado", QUADROS_VESTIDO, &"parado_frente", true)
+	_pose("althea", QUADROS_ALTHEA, &"parado_frente", false)
+	await _esperar(0.4)
+
+
+func _mover_suave(no: Node, propriedade: String, valor: Variant) -> void:
+	create_tween().set_trans(Tween.TRANS_SINE).tween_property(no, propriedade, valor, 0.35)
 
 
 ## Conversa na caixa e, quando ela fecha, Nicholas continua parado (a caixa
@@ -516,33 +665,67 @@ func chegada_do_duque() -> void:
 # --- 6. a carruagem ----------------------------------------------------------
 
 func montar_carruagem() -> void:
-	_nova_sala(4, 3, TOM_AMANHECER)
-	sala.parede_madeira = true
-	_pendurar({"janela_carruagem_esq": Vector2i(2, 0), "janela_carruagem_dir": Vector2i(0, 2)})
-	for x in [1, 2, 3]:
-		var banco := sala.adicionar_objeto("Banco%d" % x, load(ARTE + "banco_carruagem.png"), Vector2i(x, 1),
-			false, false, PE_CAIXA)
-		banco.position.y -= 2.0
-	# Os dois lado a lado no banco do fundo: só da cintura para cima, com o
-	# quadril no assento (o banco cobre as pernas).
-	objetos["althea"] = _sentado("Althea", QUADROS_ALTHEA, Vector2i(1, 1))
-	_entrar(Vector2i(2, 1))
+	# A rua de pedra, sem paredes, e a carruagem por fora, em corte: as rodas
+	# giram e a rua corre para trás (Rafael, 15/10: a sala de paredes grossas
+	# não parecia um veículo).
+	_nova_sala(30, 17, TOM_AMANHECER)
+	sala.piso = "estrada"
+	sala.sem_paredes = true
+	var casa := Vector2i(15, 8)
+	var carro := Node2D.new()
+	carro.name = "Carruagem"
+	carro.z_index = 1
+	carro.position = sala.centro(casa)
+	sala.add_child(carro)
+	carro.add_child(_parte_do_carro("Fundo", "carruagem_fundo.png", 1))
+	# Os dois lado a lado no banco, sentados, com os pés no chão da carruagem
+	# rente à beira do assento.
+	objetos["althea"] = _sentado_em("Althea", QUADROS_ALTHEA, carro, ponto_carruagem(-0.7, -0.38 + COXA, CARRO_CHAO))
+	objetos["nicholas_sentado"] = _sentado_em("NicholasSentado", QUADROS_VESTIDO, carro,
+		ponto_carruagem(0.3, -0.38 + COXA, CARRO_CHAO))
+	var frente := _parte_do_carro("Frente", "carruagem_frente.png", 3)
+	carro.add_child(frente)
+	_entrar(casa)
 	_travar(true)
 	jogador.get_node("Corpo").visible = false
 	jogador.get_node("Sombra").visible = false
-	objetos["nicholas_sentado"] = _sentado("NicholasSentado", QUADROS_VESTIDO, Vector2i(2, 1))
+	# Mais perto, para ver os dois dentro da carruagem.
+	var camera: Camera2D = jogador.get_node("Camera")
+	var zoom_antes := camera.zoom
+	camera.zoom = zoom_antes * 1.2
 	_mudar("carruagem")
 	var balanco := create_tween().set_loops()
-	balanco.tween_property(sala, "position:y", 1.0, 0.35)
-	balanco.tween_property(sala, "position:y", 0.0, 0.35)
+	balanco.tween_property(carro, "position:y", carro.position.y + 1.0, 0.35)
+	balanco.tween_property(carro, "position:y", carro.position.y, 0.35)
+	var rodas := create_tween().set_loops()
+	rodas.tween_callback(func() -> void: frente.frame = (frente.frame + 1) % 3).set_delay(0.12)
+	# Duas casas por volta, para o desenho alternado das lajes emendar.
+	var rua := create_tween().set_loops()
+	rua.tween_property(sala.chao, "position", Vector2(-64, -32), 2 * SEGUNDOS_POR_CASA).from(Vector2.ZERO)
+	var margens := _margens_da_rua()
+	var paisagem := create_tween().set_loops()
+	for margem in margens:
+		paisagem.parallel().tween_property(margem, "position", -PERIODO_MARGEM * Vector2(32, 16),
+			PERIODO_MARGEM * SEGUNDOS_POR_CASA).from(Vector2.ZERO)
 	await _clarear()
 	Codice.anotar("imperatriz_callie")
 	await _frases("frases_carruagem")
 	# Antes da conversa, Nicholas olha pelas janelas (até se voltar para Althea).
+	_offset_sentado_x = objetos["nicholas_sentado"].offset.x
+	DialogueManager.got_dialogue.connect(_ao_ver_fala_na_carruagem)
+	# As escolhas das janelas ficam sempre embaixo, para ver a carruagem.
+	CaixaDialogo.escolhas_embaixo = true
 	await _falar_travado("janela")
+	CaixaDialogo.escolhas_embaixo = false
+	DialogueManager.got_dialogue.disconnect(_ao_ver_fala_na_carruagem)
+	await _voltar_para_althea()
 	await _falar_travado("carruagem")
 	await _escurecer()
 	balanco.kill()
+	rodas.kill()
+	rua.kill()
+	paisagem.kill()
+	camera.zoom = zoom_antes
 	jogador.get_node("Corpo").visible = true
 	jogador.get_node("Sombra").visible = true
 	_mudar("fim")
@@ -554,6 +737,70 @@ func montar_carruagem() -> void:
 
 # --- ajudas ---------------------------------------------------------------
 
+## Ponto da carruagem em pixels, a partir do centro dela no chão: [param a] e
+## [param b] em casas, [param h] em pixels de altura. É a mesma conta de
+## tools/arte/gerar_capitulo_01.py (_carro_t), que desenha a carruagem.
+static func ponto_carruagem(a: float, b: float, h: float) -> Vector2:
+	return Vector2(32.0 * (a - b), 16.0 * (a + b) - h)
+
+
+## As margens da rua passando: do outro lado, ciprestes, oliveiras e colunas
+## (atrás da carruagem); do lado de cá, só coisas baixas (canteiros e uma
+## coluna ou outra), para não esconder Nicholas e Althea. O desenho se repete a
+## cada [constant PERIODO_MARGEM] casas, e o laço volta sem emenda.
+func _margens_da_rua() -> Array[Node2D]:
+	var longe := Node2D.new()
+	longe.name = "MargemLonge"
+	longe.y_sort_enabled = true
+	var perto := Node2D.new()
+	perto.name = "MargemPerto"
+	perto.y_sort_enabled = true
+	perto.z_index = 2
+	sala.add_child(longe)
+	sala.add_child(perto)
+	var sorte := RandomNumberGenerator.new()
+	sorte.seed = 1012
+	var meio := sala.profundidade / 2
+	var altas := ["cipreste", "cipreste", "cipreste", "oliveira", "oliveira", "oliveira", "coluna",
+		"canteiro", "canteiro"]
+	var baixas := ["canteiro", "canteiro", "canteiro", "canteiro", "coluna"]
+	for x0 in PERIODO_MARGEM:
+		for y in range(meio - 8, meio - 1):
+			if sorte.randf() < 0.3:
+				_enfeite_da_margem(longe, altas[sorte.randi() % altas.size()], x0, y, sorte)
+		for y in range(meio + 2, meio + 9):
+			if sorte.randf() < 0.14:
+				_enfeite_da_margem(perto, baixas[sorte.randi() % baixas.size()], x0, y, sorte)
+	return [longe, perto]
+
+
+## Põe o mesmo enfeite em x0, x0 + período, x0 + 2 períodos..., ao longo da
+## rua inteira, para a paisagem se repetir enquanto corre.
+func _enfeite_da_margem(margem: Node2D, nome: String, x0: int, y: int, sorte: RandomNumberGenerator) -> void:
+	var textura: Texture2D = load(ARTE + "margem/%s.png" % nome)
+	var desvio := Vector2(sorte.randf_range(-8, 8), sorte.randf_range(-3, 3))
+	var x := x0
+	while x < sala.largura + PERIODO_MARGEM:
+		var enfeite := Sprite2D.new()
+		enfeite.texture = textura
+		enfeite.centered = false
+		enfeite.offset = Vector2(-textura.get_width() / 2.0, -textura.get_height() + 3)
+		enfeite.position = sala.centro(Vector2i(x, y)) + desvio
+		margem.add_child(enfeite)
+		x += PERIODO_MARGEM
+
+
+## Uma das duas imagens da carruagem (mesma origem: o centro no chão).
+func _parte_do_carro(nome: String, arquivo: String, quadros: int) -> Sprite2D:
+	var parte := Sprite2D.new()
+	parte.name = nome
+	parte.texture = load(ARTE + arquivo)
+	parte.hframes = quadros
+	parte.centered = false
+	parte.offset = -CARRO_ORIGEM
+	return parte
+
+
 func _mudar(nova: String) -> void:
 	etapa = nova
 	etapa_mudou.emit(nova)
@@ -563,6 +810,10 @@ func _nova_sala(largura: int, profundidade: int, tom: Color) -> void:
 	if sala:
 		if jogador.get_parent() == sala:
 			sala.remove_child(jogador)
+		# Sai da árvore já: senão os móveis da sala velha entram na navegação
+		# da nova (o mesmo grupo de obstáculos) e fecham casas que estão livres.
+		if sala.get_parent():
+			sala.get_parent().remove_child(sala)
 		sala.queue_free()
 	objetos.clear()
 	sala = SalaMontada.new()

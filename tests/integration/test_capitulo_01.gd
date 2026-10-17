@@ -333,9 +333,10 @@ func test_nicholas_anda_mais_devagar() -> void:
 	assert_lt(capitulo.jogador.velocidade, 90.0)
 
 
-func test_corredor_comprido_com_outras_portas() -> void:
+func test_corredor_com_outras_portas_e_nao_comprido_demais() -> void:
+	# Rafael, 16/10/2026: o corredor de 26 casas era comprido demais.
 	await _ate_o_corredor()
-	assert_gte(capitulo.sala.largura, 24)
+	assert_between(capitulo.sala.largura, 12, 18)
 	var fechadas := capitulo.objetos.keys().filter(func(k: String) -> bool: return k.begins_with("porta_fechada"))
 	assert_gte(fechadas.size(), 2)
 
@@ -343,7 +344,7 @@ func test_corredor_comprido_com_outras_portas() -> void:
 func _anotar_carruagem(etapa: String) -> void:
 	if etapa == "carruagem":
 		na_carruagem = {"apollon": capitulo.objetos.has("apollon"),
-			"madeira": capitulo.sala.parede_madeira, "sentado": capitulo.jogador.em_dialogo}
+			"carro": capitulo.sala.has_node("Carruagem"), "sentado": capitulo.jogador.em_dialogo}
 
 
 func test_o_duque_entra_e_depois_a_carruagem() -> void:
@@ -359,5 +360,26 @@ func test_o_duque_entra_e_depois_a_carruagem() -> void:
 	await _esperar_etapa("fim")
 	assert_false(na_carruagem.is_empty(), "passou pela carruagem")
 	assert_false(na_carruagem.get("apollon", true), "o duque já partiu")
-	assert_true(na_carruagem.get("madeira", false), "por dentro da carruagem")
+	assert_true(na_carruagem.get("carro", false), "a carruagem na rua")
 	assert_true(na_carruagem.get("sentado", false), "Nicholas fica sentado")
+
+
+func test_moveis_do_quarto_nao_fecham_casas_do_corredor() -> void:
+	# Antes, a navegação do corredor contava os móveis do quarto que ainda
+	# não tinha saído da árvore: a casa (4, 1) ficava fechada.
+	await _ate_o_corredor()
+	await wait_physics_frames(5)
+	for x in range(1, capitulo.sala.largura):
+		for y in [1, 2]:
+			var centro: Vector2 = capitulo.sala.centro(Vector2i(x, y))
+			assert_true(capitulo.jogador.casa_andavel(centro), "casa %s livre" % Vector2i(x, y))
+
+
+func test_virar_para_a_ponta_conta_como_olhar() -> void:
+	await _ate_o_corredor()
+	_interagir("porta_althea")
+	await _esperar_etapa("esperando")
+	capitulo.jogador.direcao_olhar = Vector2(-2, -1).normalized()
+	await wait_seconds(Capitulo01.TEMPO_OLHANDO + 0.3)
+	assert_true(capitulo.extremidades_vistas.has("extremidade_esq"))
+	assert_false(capitulo.extremidades_vistas.has("extremidade_dir"))

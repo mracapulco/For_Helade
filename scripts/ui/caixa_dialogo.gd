@@ -26,6 +26,11 @@ const TEMPO_QUADRO_FALA := 0.09
 ## Ação que pula a digitação.
 @export var skip_action: StringName = &"ui_cancel"
 
+## Com true, as escolhas aparecem sempre sozinhas, embaixo, sem cobrir a
+## cena (a carruagem do Capítulo 01): uma fala que vem junto com escolhas
+## aparece primeiro e, depois de Enter ou de um toque, dá lugar a elas.
+static var escolhas_embaixo := false
+
 ## Estados extras repassados ao Dialogue Manager.
 var temporary_game_states: Array = []
 
@@ -34,6 +39,8 @@ var locals: Dictionary = {}
 
 var is_waiting_for_input: bool = false
 var will_hide_balloon: bool = false
+## A fala antes das escolhas está na tela; o próximo Enter mostra as escolhas.
+var _fala_antes_das_escolhas := false
 var mutation_cooldown: Timer = Timer.new()
 var _locale: String = TranslationServer.get_locale()
 ## Retrato parado da fala atual e os quadros da boca falando.
@@ -153,16 +160,24 @@ func apply_dialogue_line() -> void:
 
 	balloon.show()
 	will_hide_balloon = false
-	# Escolha sem fala antes: só os botões, sem a caixa de texto vazia.
-	$Balloon/Margem/Painel.visible = not (dialogue_line.text.is_empty() and dialogue_line.character.is_empty() \
-			and dialogue_line.responses.size() > 0)
+	# Escolha sem fala antes: só os botões, embaixo, no lugar da caixa de texto
+	# (sem a caixa vazia e sem cobrir a cena).
+	var so_escolhas := dialogue_line.text.is_empty() and dialogue_line.character.is_empty() \
+			and dialogue_line.responses.size() > 0
+	_escolhas_embaixo(so_escolhas)
+	_fala_antes_das_escolhas = false
 
 	dialogue_label.show()
 	if not dialogue_line.text.is_empty():
 		dialogue_label.type_out()
 		await dialogue_label.finished_typing
 
-	if dialogue_line.responses.size() > 0:
+	if dialogue_line.responses.size() > 0 and escolhas_embaixo and not so_escolhas:
+		_fala_antes_das_escolhas = true
+		is_waiting_for_input = true
+		balloon.focus_mode = Control.FOCUS_ALL
+		balloon.grab_focus()
+	elif dialogue_line.responses.size() > 0:
 		balloon.focus_mode = Control.FOCUS_NONE
 		responses_menu.show()
 	elif dialogue_line.time != "":
@@ -173,6 +188,23 @@ func apply_dialogue_line() -> void:
 		is_waiting_for_input = true
 		balloon.focus_mode = Control.FOCUS_ALL
 		balloon.grab_focus()
+
+
+## Só os botões, embaixo, no lugar da caixa de texto; ou a caixa de texto
+## com as escolhas no meio da tela.
+func _escolhas_embaixo(sim: bool) -> void:
+	$Balloon/Margem/Painel.visible = not sim
+	var area_escolhas: Control = $Balloon/AreaEscolhas
+	area_escolhas.offset_top = 380.0 if sim else 0.0
+	area_escolhas.offset_bottom = 0.0 if sim else -260.0
+
+
+func _mostrar_escolhas_embaixo() -> void:
+	_fala_antes_das_escolhas = false
+	is_waiting_for_input = false
+	_escolhas_embaixo(true)
+	balloon.focus_mode = Control.FOCUS_NONE
+	responses_menu.show()
 
 
 ## Vai para a próxima fala.
@@ -240,6 +272,13 @@ func _on_balloon_gui_input(event: InputEvent) -> void:
 			return
 
 	if not is_waiting_for_input: return
+	if _fala_antes_das_escolhas:
+		var clique: bool = event is InputEventMouseButton and event.is_pressed() \
+				and event.button_index == MOUSE_BUTTON_LEFT
+		if clique or event.is_action_pressed(next_action):
+			get_viewport().set_input_as_handled()
+			_mostrar_escolhas_embaixo()
+		return
 	if dialogue_line.responses.size() > 0: return
 
 	get_viewport().set_input_as_handled()

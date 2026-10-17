@@ -51,6 +51,22 @@ PERSONAGENS = {
             sapato='#C8A08E', sapato_sombra='#9E7468',
         ),
     ),
+    # Nicholas adolescente, entre o menino de colete e o adulto da capa. O
+    # livro ainda não chegou a essa idade: roupa e altura são inferência,
+    # provisórias. Túnica azul de Olympia até o meio das coxas, mangas
+    # cinza-claras, cinto de couro com fivela dourada, calça escura e botas.
+    'nicholas_adolescente': dict(
+        topo=10, tronco=11, largura=4, cabelo='rebelde', roupa='colete', aba=3,
+        enfeites=('cinto',),
+        cores=dict(
+            cab_luz='#F6EED2', cab='#E3D5AE', cab_sombra='#B9A882', cab_fundo='#8C7C5C',
+            camisa_luz='#E4E7EC', camisa='#C9CED8', camisa_sombra='#9AA3B3',
+            manga='#C9CED8', manga_sombra='#9AA3B3',
+            colete='#3E5A7A', colete_sombra='#2B3D55',
+            cinto='#4A3428',
+            calca='#23262F', calca_sombra='#15171C',
+        ),
+    ),
     # Apollon, duque de Olympia e Conselheiro Imperial (Capítulo 01). O livro
     # não o descreve: o loiro-pálido dos Olympia, o colete azul escuro da
     # casa e um casaco longo de duque com botões dourados são inferência,
@@ -77,18 +93,75 @@ PERSONAGENS = {
             calca='#D9D4CA', calca_sombra='#A9A398',   # meias claras
         ),
     ),
-    # Ophelia aos 11: mais alta que Nicholas; pele escura "tal qual caramelo";
-    # vestido simples rubro, a cor do Império; cabelo longo ondulado passando
-    # da cintura, com duas tranças que saem das têmporas e se encontram atrás
-    # da cabeça; olhos azul-pálidos. Cabelo escuro: inferência pela garota da
-    # visão; no palácio o livro não diz a cor.
+    # Althea adolescente e adulta: a mesma Althea crescida (o loiro-pálido
+    # curto e rebelde e os olhos azuis da mãe), cada fase com outra roupa, a
+    # pedido do Rafael (15/10). O livro ainda não mostrou essas idades: roupas
+    # e alturas são inferência, provisórias. Ela é 5 anos mais nova que
+    # Nicholas; adulta, fica um pouco mais baixa que ele e Ophelia.
+    # Adolescente: vestido longo azul com mangas claras e gola dourada.
+    'althea_adolescente': dict(
+        topo=13, tronco=10, largura=3, cabelo='ombros', roupa='vestido_longo', saia_passo=4,
+        olho='#3F7CC4', bochecha='#D98C84', enfeites=('gola',),
+        cores=dict(
+            cab_luz='#F6EED2', cab='#E3D5AE', cab_sombra='#B9A882', cab_fundo='#8C7C5C',
+            vestido_luz='#86A8CE', vestido='#5E86B4', vestido_sombra='#3E5F88',
+            manga='#E4ECF4', manga_sombra='#B7C4D4',
+            calca='#3E5F88', calca_sombra='#2B3D55',
+        ),
+    ),
+    # Adulta: vestido azul-escuro de Olympia, faixa e barra douradas.
+    'althea_adulta': dict(
+        topo=8, tronco=11, largura=4, cabelo='ombros', roupa='vestido_longo', saia_passo=5,
+        olho='#3F7CC4', enfeites=('faixa', 'barra'),
+        cores=dict(
+            cab_luz='#F6EED2', cab='#E3D5AE', cab_sombra='#B9A882', cab_fundo='#8C7C5C',
+            vestido_luz='#3E5A7A', vestido='#2B3D55', vestido_sombra='#13253C',
+            calca='#13253C', calca_sombra='#0B1726',
+        ),
+    ),
+    # Ophelia aos 11: pele escura "tal qual caramelo"; vestido simples rubro,
+    # a cor do Império; cabelo longo ondulado passando da cintura, com duas
+    # tranças que saem das têmporas e se encontram atrás da cabeça; olhos
+    # azul-pálidos. Cabelo escuro: inferência pela garota da visão; no palácio
+    # o livro não diz a cor. O livro diz que ela é mais alta que Nicholas, mas
+    # Rafael pediu (15/10) os dois da mesma altura em cada idade.
     'ophelia_11': dict(
-        topo=12, tronco=10, largura=4, cabelo='longo', roupa='vestido_longo',
+        topo=17, tronco=9, largura=4, cabelo='longo', roupa='vestido_longo',
         pele=dict(pele_luz='#C48A5E', pele='#A06A44', pele_sombra='#76482C'),
         cores=dict(
             cab_luz='#5C4234', cab='#3A2820', cab_sombra='#24170F', cab_fundo='#170E09',
             vestido_luz='#B8343A', vestido='#8E1F25', vestido_sombra='#5E1218',
             calca='#5E1218', calca_sombra='#3E0B10',
+        ),
+    ),
+    # Ophelia adolescente e adulta: a mesma Ophelia crescida (cabelo, tranças
+    # e o rubro do Império), cada fase com outra roupa, a pedido do Rafael
+    # (15/10). O livro ainda não mostrou como ela é nessas idades: roupas e
+    # alturas são inferência, provisórias. A adolescente tem a altura do
+    # Nicholas adolescente; a adulta, a do Nicholas adulto (gerar_nicholas.py).
+    # Adolescente: vestido rubro com mangas claras e faixa dourada na cintura.
+    'ophelia_adolescente': dict(
+        topo=10, tronco=11, largura=4, cabelo='longo', roupa='vestido_longo', saia_passo=4,
+        enfeites=('faixa',),
+        pele=dict(pele_luz='#C48A5E', pele='#A06A44', pele_sombra='#76482C'),
+        cores=dict(
+            cab_luz='#5C4234', cab='#3A2820', cab_sombra='#24170F', cab_fundo='#170E09',
+            vestido_luz='#B8343A', vestido='#8E1F25', vestido_sombra='#5E1218',
+            manga='#EDE3D2', manga_sombra='#C9B79C',
+            calca='#5E1218', calca_sombra='#3E0B10',
+        ),
+    ),
+    # Adulta: vestido de corte imperial, rubro mais escuro, gola e barra
+    # bordadas de ouro e um manto claro preso nos ombros.
+    'ophelia_adulta': dict(
+        topo=4, tronco=12, largura=4, cabelo='longo', roupa='vestido_longo', saia_passo=5,
+        enfeites=('gola', 'barra'),
+        pele=dict(pele_luz='#C48A5E', pele='#A06A44', pele_sombra='#76482C'),
+        cores=dict(
+            cab_luz='#5C4234', cab='#3A2820', cab_sombra='#24170F', cab_fundo='#170E09',
+            vestido_luz='#9E2630', vestido='#74141C', vestido_sombra='#4A0C12',
+            capa='#E8E1D4', capa_sombra='#B8AE9C',
+            calca='#4A0C12', calca_sombra='#2E070B',
         ),
     ),
 }
@@ -395,78 +468,138 @@ def casual_costas(q, cfg, x, yt, quadril, larg, b_esq, b_dir, alcance):
     braco(q, x - larg - 2, yt + 1, b_esq, comp, r, r + '_sombra', manga(cfg))
 
 
+def cor_braco(cfg):
+    # mangas de outra cor (cores 'manga' e 'manga_sombra') ou da própria roupa
+    if 'manga' in cfg['cores']:
+        return 'manga'
+    return 'camisa' if cfg['roupa'] == 'colete' else 'vestido'
+
+
 def corpo_frente(q, cfg, x, yt, quadril, larg, b_esq, b_dir, alcance, saia_voa):
     roupa = cfg['roupa']
     comp = quadril - yt - 1
+    cor_manga = cor_braco(cfg)
+    aba = cfg.get('aba', 0)          # túnica que desce por cima das coxas
     if roupa in CASUAIS:
         casual_frente(q, cfg, x, yt, quadril, larg, b_esq, b_dir, alcance)
     elif roupa == 'colete':
-        braco(q, x - larg - 2, yt + 1, b_esq, comp, 'camisa', 'camisa_sombra')
-        q.r(x - larg, yt, x + larg, quadril, 'colete')
-        q.r(x - larg, yt, x - larg + 1, quadril, 'colete_sombra')
+        braco(q, x - larg - 2, yt + 1, b_esq, comp, cor_manga, cor_manga + '_sombra')
+        q.r(x - larg, yt, x + larg, quadril + aba, 'colete')
+        q.r(x - larg, yt, x - larg + 1, quadril + aba, 'colete_sombra')
         q.r(x, yt, x, quadril - 1, 'camisa')                       # camisa na abertura
         q.r(x - 1, yt, x + 1, yt, 'camisa_luz')                    # gola
-        q.r(x - larg, quadril, x + larg, quadril, 'calca')
+        if aba:
+            q.r(x, quadril, x, quadril + aba, 'colete_sombra')     # abertura da túnica
+        else:
+            q.r(x - larg, quadril, x + larg, quadril, 'calca')
         for yy in (yt + 3, yt + 6):
             q.p(x + 1, yy, 'camisa_sombra')                        # botões simples
         if alcance:
-            braco_estendido(q, x + larg + 1, yt + 2, alcance, 'camisa')
+            braco_estendido(q, x + larg + 1, yt + 2, alcance, cor_manga)
         else:
-            braco(q, x + larg + 1, yt + 1, b_dir, comp, 'camisa')
+            braco(q, x + larg + 1, yt + 1, b_dir, comp, cor_manga)
     else:
         hem = PE - (3 if roupa == 'vestido_longo' else 5)
-        braco(q, x - larg - 2, yt + 1, b_esq, comp, 'vestido', 'vestido_sombra')
+        braco(q, x - larg - 2, yt + 1, b_esq, comp, cor_manga, cor_manga + '_sombra')
         q.r(x - larg, yt, x + larg, quadril, 'vestido')
-        # saia em A até a barra
+        # saia em A até a barra (abre 1 pixel a cada saia_passo linhas)
         for i, yy in enumerate(range(quadril, hem + 1)):
-            a = larg + 1 + i // 3
+            a = larg + 1 + i // cfg.get('saia_passo', 3)
             q.r(x - a - saia_voa, yy, x + a, yy, 'vestido')
             q.p(x - a - saia_voa, yy, 'vestido_sombra')
         q.r(x - larg, yt, x - larg, quadril, 'vestido_sombra')
         q.r(x + 1, yt + 1, x + 2, yt + 3, 'vestido_luz')
         q.r(x - 1, yt, x + 1, yt, 'pele')                          # decote
         if alcance:
-            braco_estendido(q, x + larg + 1, yt + 2, alcance, 'vestido')
+            braco_estendido(q, x + larg + 1, yt + 2, alcance, cor_manga)
         else:
-            braco(q, x + larg + 1, yt + 1, b_dir, comp, 'vestido')
+            braco(q, x + larg + 1, yt + 1, b_dir, comp, cor_manga)
 
 
 def corpo_costas(q, cfg, x, yt, quadril, larg, b_esq, b_dir, alcance, saia_voa):
     roupa = cfg['roupa']
     comp = quadril - yt - 1
+    cor_manga = cor_braco(cfg)
+    aba = cfg.get('aba', 0)
     if roupa in CASUAIS:
         casual_costas(q, cfg, x, yt, quadril, larg, b_esq, b_dir, alcance)
         return
     if alcance:
-        braco_estendido(q, x + larg + 1, yt + 2, alcance, 'camisa' if roupa == 'colete' else 'vestido')
+        braco_estendido(q, x + larg + 1, yt + 2, alcance, cor_manga)
     else:
-        braco(q, x + larg + 1, yt + 1, b_dir, comp, 'camisa' if roupa == 'colete' else 'vestido')
+        braco(q, x + larg + 1, yt + 1, b_dir, comp, cor_manga)
     if roupa == 'colete':
-        q.r(x - larg, yt, x + larg, quadril, 'colete')
-        q.r(x - larg, yt, x - larg + 1, quadril, 'colete_sombra')
+        q.r(x - larg, yt, x + larg, quadril + aba, 'colete')
+        q.r(x - larg, yt, x - larg + 1, quadril + aba, 'colete_sombra')
         q.r(x - 1, yt + 2, x + 1, yt + 2, 'colete_sombra')        # costura das costas
-        q.r(x - larg, quadril, x + larg, quadril, 'calca')
-        braco(q, x - larg - 2, yt + 1, b_esq, comp, 'camisa', 'camisa_sombra')
+        if not aba:
+            q.r(x - larg, quadril, x + larg, quadril, 'calca')
+        braco(q, x - larg - 2, yt + 1, b_esq, comp, cor_manga, cor_manga + '_sombra')
     else:
         hem = PE - (3 if roupa == 'vestido_longo' else 5)
         q.r(x - larg, yt, x + larg, quadril, 'vestido')
         for i, yy in enumerate(range(quadril, hem + 1)):
-            a = larg + 1 + i // 3
+            a = larg + 1 + i // cfg.get('saia_passo', 3)
             q.r(x - a - saia_voa, yy, x + a, yy, 'vestido')
             q.p(x - a - saia_voa, yy, 'vestido_sombra')
         q.r(x - larg, yt, x - larg, quadril, 'vestido_sombra')
         q.r(x, yt + 1, x, quadril - 1, 'vestido_sombra')          # laço/costura
-        braco(q, x - larg - 2, yt + 1, b_esq, comp, 'vestido', 'vestido_sombra')
+        braco(q, x - larg - 2, yt + 1, b_esq, comp, cor_manga, cor_manga + '_sombra')
 
 
 def braco_costas(q, cfg, x, yt, quadril, larg, b_esq, b_dir, alcance):
-    cor = 'camisa' if cfg['roupa'] == 'colete' else 'vestido'
+    cor = cor_braco(cfg)
     comp = quadril - yt - 1
     if alcance:
         braco_estendido(q, x + larg + 1, yt + 2, alcance, cor)
     else:
         braco(q, x + larg + 1, yt + 1, b_dir, comp, cor)
     braco(q, x - larg - 2, yt + 1, b_esq, comp, cor, cor + '_sombra')
+
+
+def capa(q, cfg, dir, x, yt, quadril, larg):
+    # manto curto preso nos ombros: atrás do corpo de frente, por cima de costas
+    if 'capa' not in cfg['cores']:
+        return
+    fim = quadril + cfg.get('capa_desce', 4)
+    if dir == 'frente':
+        q.r(x - larg - 3, yt + 1, x + larg + 3, fim, 'capa')
+        q.r(x - larg - 3, yt + 1, x - larg - 3, fim, 'capa_sombra')
+    else:
+        q.r(x - larg - 2, yt, x + larg + 2, fim, 'capa')
+        q.r(x - larg - 2, yt, x - larg - 2, fim, 'capa_sombra')
+        for xx in (x - 2, x + 2):
+            q.r(xx, yt + 3, xx, fim, 'capa_sombra')                # dobras
+        q.r(x - larg - 2, fim, x + larg + 2, fim, 'ouro')          # barra do manto
+
+
+def ombros_da_capa(q, cfg, x, yt, larg):
+    # de frente, o manto aparece sobre os ombros, preso por um broche dourado
+    if 'capa' not in cfg['cores']:
+        return
+    q.r(x - larg - 2, yt, x + larg + 2, yt + 1, 'capa')
+    q.r(x - larg - 2, yt + 1, x + larg + 2, yt + 1, 'capa_sombra')
+    q.r(x - larg - 2, yt + 2, x - larg - 2, yt + 3, 'capa_sombra')
+    q.p(x, yt + 1, 'ouro_luz')
+
+
+def enfeites(q, cfg, dir, x, yt, quadril, larg, saia_voa):
+    e = cfg.get('enfeites', ())
+    if 'cinto' in e:      # cinto de couro com fivela dourada
+        q.r(x - larg, quadril, x + larg, quadril, 'cinto')
+        if dir == 'frente':
+            q.p(x, quadril, 'ouro_luz')
+    if 'faixa' in e:      # faixa dourada na cintura, com a ponta caindo
+        q.r(x - larg, quadril - 1, x + larg, quadril - 1, 'ouro')
+        q.r(x + larg - 1, quadril, x + larg - 1, quadril + 3, 'ouro_sombra')
+    if 'gola' in e:       # gola bordada de ouro
+        q.r(x - 2, yt, x + 2, yt, 'ouro')
+        if dir == 'frente':
+            q.p(x, yt + 1, 'ouro_luz')
+    if 'barra' in e and cfg['roupa'].startswith('vestido'):   # barra bordada
+        hem = PE - (3 if cfg['roupa'] == 'vestido_longo' else 5)
+        a = larg + 1 + (hem - quadril) // cfg.get('saia_passo', 3)
+        q.r(x - a - saia_voa, hem - 1, x + a, hem - 1, 'ouro')
 
 
 def personagem(cfg, dir, f_esq=0, f_dir=0, lift_esq=0, lift_dir=0, dy=0, inclina=0,
@@ -491,9 +624,12 @@ def personagem(cfg, dir, f_esq=0, f_dir=0, lift_esq=0, lift_dir=0, dy=0, inclina
     estilo = cfg['cabelo']
     ate = quadril + 3               # o cabelo longo passa da cintura
     if dir == 'frente':
+        capa(q, cfg, dir, x, yt, quadril, larg)
         cabelo_atras_frente(q, estilo, x, yc, ate, voa)
         pernas(q, CX, quadril, f_esq, f_dir, lift_esq, lift_dir)
         corpo_frente(q, cfg, x, yt, quadril, larg, braco_esq, braco_dir, alcance, voa // 2)
+        enfeites(q, cfg, dir, x, yt, quadril, larg, voa // 2)
+        ombros_da_capa(q, cfg, x, yt, larg)
         cabeca_frente(q, dir, x, yc, olho, bochecha)
         cabelo_frente(q, estilo, x, yc)
         if 'oculos' in cfg:
@@ -501,6 +637,8 @@ def personagem(cfg, dir, f_esq=0, f_dir=0, lift_esq=0, lift_dir=0, dy=0, inclina
     else:
         pernas(q, CX, quadril, f_esq, f_dir, lift_esq, lift_dir)
         corpo_costas(q, cfg, x, yt, quadril, larg, braco_esq, braco_dir, alcance, voa // 2)
+        enfeites(q, cfg, dir, x, yt, quadril, larg, voa // 2)
+        capa(q, cfg, dir, x, yt, quadril, larg)
         cabeca_costas(q, estilo, x, yc, ate, voa)
         if estilo == 'longo':   # braços por cima do cabelo comprido
             braco_costas(q, cfg, x, yt, quadril, larg, braco_esq, braco_dir, alcance)

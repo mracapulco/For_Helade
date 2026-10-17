@@ -25,13 +25,13 @@ func _tocar_proximo() -> void:
 	await wait_seconds(0.4)
 
 
-func test_comeca_na_cama_com_so_o_primeiro_brilho_ativo() -> void:
+func test_comeca_na_cama_com_so_a_primeira_passagem_ativa() -> void:
 	assert_eq(cena.ponto_atual, _ponto("Cama"))
 	assert_true(_ponto("Cama").alvos()[0].ativo)
 	assert_false(_ponto("PortaQuarto").alvos()[0].ativo)
 
 
-func test_tocar_nos_brilhos_percorre_os_pontos_em_ordem() -> void:
+func test_tocar_nas_passagens_percorre_os_pontos_em_ordem() -> void:
 	watch_signals(cena)
 	await _tocar_proximo()
 	await _tocar_proximo()
@@ -41,7 +41,7 @@ func test_tocar_nos_brilhos_percorre_os_pontos_em_ordem() -> void:
 	assert_almost_eq(cena.camera.global_position, _ponto("PortaAposentos").global_position, Vector3.ONE * 0.01)
 
 
-func test_toque_em_brilho_de_outro_ponto_e_ignorado() -> void:
+func test_toque_em_passagem_de_outro_ponto_e_ignorado() -> void:
 	var alvo: AlvoToque = _ponto("Corredor").alvos()[0]
 	alvo.tocado.emit(alvo)
 	await wait_seconds(0.3)
@@ -64,7 +64,7 @@ func test_travado_nao_avanca_andando() -> void:
 	assert_eq(cena.ponto_atual, _ponto("Cama"))
 
 
-func test_mira_no_brilho_encontra_o_alvo() -> void:
+func test_mira_na_passagem_encontra_o_alvo() -> void:
 	var alvo: AlvoToque = _ponto("Cama").alvos()[0]
 	cena.camera.look_at(alvo.global_position)
 	await wait_physics_frames(2)
@@ -74,7 +74,7 @@ func test_mira_no_brilho_encontra_o_alvo() -> void:
 	assert_null(cena._alvo_na_mira())
 
 
-func test_shift_corre_mais_rapido_que_andar() -> void:
+func test_shift_corre_desde_o_quarto() -> void:
 	var inicio := cena.corpo.global_position
 	Input.action_press("mover_frente")
 	await wait_physics_frames(20)
@@ -85,7 +85,18 @@ func test_shift_corre_mais_rapido_que_andar() -> void:
 	var correndo := cena.corpo.global_position.distance_to(inicio)
 	Input.action_release("correr")
 	Input.action_release("mover_frente")
+	assert_gt(andando, 0.1)
 	assert_gt(correndo, andando * 1.5)
+
+
+func test_texto_dos_controles_some_e_nao_volta() -> void:
+	assert_ne(cena.dica.text, "", "começa mostrando os controles")
+	cena._sumir_dica_controles()
+	await wait_seconds(1.2)
+	assert_eq(cena.dica.text, "")
+	assert_eq(cena.dica.modulate.a, 1.0)
+	await _tocar_proximo()
+	assert_eq(cena.dica.text, "", "não volta no ponto seguinte")
 
 
 func test_espaco_pula_e_volta_ao_chao() -> void:
@@ -138,7 +149,7 @@ func _ponto_de(no: Node, nome: String) -> PontoDeVista:
 	return no.get_node("Pontos/" + nome)
 
 
-func test_e_com_a_mira_no_brilho_vai_ate_ele() -> void:
+func test_enter_com_a_mira_na_passagem_vai_ate_ela() -> void:
 	var alvo: AlvoToque = _ponto("Cama").alvos()[0]
 	cena.camera.look_at(alvo.global_position)
 	await wait_physics_frames(2)
@@ -150,9 +161,16 @@ func test_e_com_a_mira_no_brilho_vai_ate_ele() -> void:
 	assert_eq(cena.ponto_atual, _ponto("PortaQuarto"))
 
 
+## Ponta da cama de Nicholas (o lado dos pés, em x).
+func _pe_da_cama() -> float:
+	var cama: CSGBox3D = cena.get_node("Cenario/QuartoNicholas/Cama")
+	return cama.global_position.x + cama.size.x / 2.0
+
+
 func _de_frente_para_a_cama() -> void:
-	# No chão, ao lado da cama (x -3,8..-2,6), olhando para ela.
-	cena.corpo.global_position = Vector3(-2.1, 0.0, 2.3)
+	# No chão, meio metro depois dos pés da cama, olhando para ela.
+	var cama: CSGBox3D = cena.get_node("Cenario/QuartoNicholas/Cama")
+	cena.corpo.global_position = Vector3(_pe_da_cama() + 0.5, 0.0, cama.global_position.z)
 	cena.corpo.rotation.y = PI / 2.0
 	Input.action_release("pular")
 	await wait_physics_frames(5)
@@ -163,7 +181,7 @@ func test_cama_e_solida() -> void:
 	Input.action_press("mover_frente")
 	await wait_physics_frames(60)
 	Input.action_release("mover_frente")
-	assert_gt(cena.corpo.global_position.x, -2.65, "não entra na cama")
+	assert_gt(cena.corpo.global_position.x, _pe_da_cama() - 0.05, "não entra na cama")
 	assert_lt(cena.corpo.global_position.y, 0.05)
 
 
@@ -177,10 +195,84 @@ func test_pula_em_cima_da_cama() -> void:
 	await wait_physics_frames(50)
 	Input.action_release("mover_frente")
 	await wait_physics_frames(20)
-	assert_lt(cena.corpo.global_position.x, -2.65, "subiu na cama")
+	assert_lt(cena.corpo.global_position.x, _pe_da_cama() - 0.05, "subiu na cama")
 	assert_almost_eq(cena.corpo.global_position.y, 0.36, 0.03, "em cima do colchão")
 
 
 func test_acorda_em_pe_sobre_a_cama() -> void:
 	await wait_physics_frames(10)
 	assert_almost_eq(cena.corpo.global_position.y, 0.36, 0.03)
+
+
+func test_passagens_nao_tem_nada_desenhado() -> void:
+	for ponto: PontoDeVista in _todos_os_pontos():
+		for alvo in ponto.alvos():
+			assert_eq(alvo.find_children("*", "MeshInstance3D").size(), 0, "círculo em " + alvo.name)
+
+
+func test_varanda_comeca_ao_passar_pela_porta() -> void:
+	cena.continuar_em(_ponto("QuartoVazio"))
+	var varanda := _ponto("Varanda")
+	assert_gt(varanda.raio_chegada, 1.0)
+	# Logo depois do arco, ainda longe do ponto da varanda.
+	cena.corpo.global_position = Vector3(varanda.global_position.x, 0.0, varanda.global_position.z - varanda.raio_chegada + 0.1)
+	await wait_physics_frames(3)
+	assert_eq(cena.ponto_atual, varanda)
+
+
+func test_aposentos_comecam_ao_passar_pela_porta_mesmo_sem_parar_antes() -> void:
+	# Do meio do corredor direto para dentro dos aposentos, sem passar perto
+	# do ponto em frente à porta.
+	cena.continuar_em(_ponto("Corredor"))
+	var entrada := _ponto("Entrada")
+	cena.corpo.global_position = Vector3(entrada.global_position.x, 0.0, entrada.global_position.z - entrada.raio_chegada + 0.1)
+	await wait_physics_frames(3)
+	assert_eq(cena.ponto_atual, entrada)
+
+
+func test_portas_abertas_dos_aposentos_tem_colisao() -> void:
+	var folhas := cena.get_node("Cenario/Aposentos").find_children("FolhaAberta*", "Node3D", false, false)
+	assert_eq(folhas.size(), 2)
+	for folha: Node3D in folhas:
+		var corpo := folha.get_node("Folha") as CSGBox3D
+		assert_not_null(corpo, "a folha da porta precisa ser sólida")
+		assert_true(corpo.use_collision)
+
+
+func test_ctrl_agacha_enquanto_segurado_e_levanta_ao_soltar() -> void:
+	var em_pe := cena.camera.position.y
+	Input.action_press("agachar")
+	await wait_physics_frames(30)
+	assert_almost_eq(cena.agachamento, 1.0, 0.01)
+	assert_almost_eq(cena.camera.position.y, em_pe - cena.descida_agachado, 0.01, "os olhos descem")
+	var corpo: CorpoNicholas = cena.get_node("Nicholas/CorpoNicholas")
+	await wait_frames(20)
+	assert_lt(corpo.quadril.position.y, 0.4, "o quadril desce com as pernas dobradas")
+	Input.action_press("pular")
+	await wait_physics_frames(3)
+	Input.action_release("pular")
+	assert_almost_eq(cena.corpo.velocity.y, 0.0, 0.01, "agachado não pula")
+	Input.action_release("agachar")
+	await wait_physics_frames(30)
+	assert_almost_eq(cena.agachamento, 0.0, 0.01)
+	assert_almost_eq(cena.camera.position.y, em_pe, 0.01, "levanta ao soltar")
+
+
+func test_agachado_nao_levanta_debaixo_de_algo_baixo() -> void:
+	Input.action_press("agachar")
+	await wait_physics_frames(30)
+	var teto := StaticBody3D.new()
+	var forma := CollisionShape3D.new()
+	var caixa := BoxShape3D.new()
+	caixa.size = Vector3(2.0, 0.1, 2.0)
+	forma.shape = caixa
+	teto.add_child(forma)
+	add_child_autofree(teto)
+	teto.global_position = cena.corpo.global_position + Vector3(0.0, 1.0, 0.0)
+	await wait_physics_frames(2)
+	Input.action_release("agachar")
+	await wait_physics_frames(30)
+	assert_gt(cena.agachamento, 0.9, "fica agachado enquanto há algo em cima")
+	teto.queue_free()
+	await wait_physics_frames(30)
+	assert_almost_eq(cena.agachamento, 0.0, 0.01)

@@ -22,9 +22,11 @@ func mostrar(frases: Array[String]) -> void:
 	var minha := _geracao
 	for frase in frases:
 		text = frase
+		# Com voz gravada, a frase fica até a voz terminar.
+		var voz := Voz.tocar_texto(frase)
 		var tween := create_tween()
 		tween.tween_property(self, "modulate:a", 1.0, tempo_fade)
-		tween.tween_interval(tempo_minimo + frase.length() * tempo_por_letra)
+		tween.tween_interval(maxf(tempo_minimo + frase.length() * tempo_por_letra, voz - tempo_fade))
 		tween.tween_property(self, "modulate:a", 0.0, tempo_fade)
 		await tween.finished
 		if minha != _geracao:

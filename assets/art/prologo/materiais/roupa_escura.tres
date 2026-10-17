@@ -1,0 +1,19 @@
+[gd_resource type="StandardMaterial3D" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/art/prologo/texturas/linho_cor.jpg" id="1_cor"]
+[ext_resource type="Texture2D" path="res://assets/art/prologo/texturas/linho_normal.png" id="2_normal"]
+[ext_resource type="Texture2D" path="res://assets/art/prologo/texturas/linho_aspereza.jpg" id="3_aspereza"]
+
+[resource]
+resource_name = "roupa_escura"
+texture_filter = 5
+albedo_color = Color(0.28, 0.26, 0.32, 1)
+albedo_texture = ExtResource("1_cor")
+roughness = 1.0
+roughness_texture = ExtResource("3_aspereza")
+roughness_texture_channel = 4
+normal_enabled = true
+normal_texture = ExtResource("2_normal")
+uv1_scale = Vector3(2.0, 2.0, 2.0)
+uv1_triplanar = true
+uv1_world_triplanar = true

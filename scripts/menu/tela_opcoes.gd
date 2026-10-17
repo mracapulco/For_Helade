@@ -12,6 +12,7 @@ signal fechou
 @export var volume_geral: HSlider
 @export var volume_musica: HSlider
 @export var volume_efeitos: HSlider
+@export var volume_voz: HSlider
 @export var botao_voltar: Button
 ## Linhas que só fazem sentido no PC (tela cheia, VSync, teclas).
 @export var so_no_pc: Array[Control] = []
@@ -27,6 +28,7 @@ func _ready() -> void:
 	volume_geral.value_changed.connect(func(v: float) -> void: Configuracoes.definir("volume_geral", v))
 	volume_musica.value_changed.connect(func(v: float) -> void: Configuracoes.definir("volume_musica", v))
 	volume_efeitos.value_changed.connect(func(v: float) -> void: Configuracoes.definir("volume_efeitos", v))
+	volume_voz.value_changed.connect(func(v: float) -> void: Configuracoes.definir("volume_voz", v))
 	botao_voltar.pressed.connect(fechar)
 	var no_pc := not OS.has_feature("mobile")
 	for linha in so_no_pc:
@@ -59,3 +61,4 @@ func _preencher() -> void:
 	volume_geral.set_value_no_signal(Configuracoes.volume_geral)
 	volume_musica.set_value_no_signal(Configuracoes.volume_musica)
 	volume_efeitos.set_value_no_signal(Configuracoes.volume_efeitos)
+	volume_voz.set_value_no_signal(Configuracoes.volume_voz)

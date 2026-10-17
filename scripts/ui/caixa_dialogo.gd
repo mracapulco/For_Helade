@@ -57,6 +57,7 @@ var dialogue_line: DialogueLine:
 			dialogue_line = value
 			apply_dialogue_line()
 		else:
+			Voz.parar()
 			if owner == null:
 				queue_free()
 			else:
@@ -169,6 +170,8 @@ func apply_dialogue_line() -> void:
 	_fala_antes_das_escolhas = false
 
 	dialogue_label.show()
+	# Voz gravada da fala, se houver (assets/audio/vozes/<ID>.mp3).
+	Voz.tocar(dialogue_line.static_id)
 	if not dialogue_line.text.is_empty():
 		dialogue_label.type_out()
 		await dialogue_label.finished_typing

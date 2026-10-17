@@ -1,10 +1,10 @@
 class_name ControlePrimeiraPessoa
 extends Node3D
 ## Primeira pessoa de Nicholas.
-## No PC: WASD (ou setas) para andar, Shift para correr, espaço para pular e
-## mouse para olhar; E (ou clicar) com a mira no
-## brilho dourado também leva até ele. Esc solta o mouse.
-## No toque: tocar no brilho dourado leva a câmera até o próximo ponto.
+## No PC: WASD (ou setas) para andar, Shift para correr, espaço para pular,
+## Ctrl para agachar e mouse para olhar; Enter (ou clicar) com a mira na
+## próxima passagem (uma porta, por exemplo) também leva até ela. Esc solta o mouse.
+## No toque: tocar na próxima passagem leva a câmera até o próximo ponto.
 ## Chegar perto do próximo ponto, andando ou pelo toque, avança o percurso.
 
 signal chegou(ponto: PontoDeVista)
@@ -27,10 +27,26 @@ signal chegou(ponto: PontoDeVista)
 @export var cena_inicial := "abertura"
 ## Passo de criança, em metros por segundo.
 @export var velocidade := 1.6
-## Velocidade segurando Shift.
+## Velocidade segurando Shift, quando correr está liberado.
 @export var velocidade_correndo := 3.2
+## Shift corre desde o quarto: a correria dos empregados dá a urgência
+## (pedido do Rafael, 16/10/2026). Falso, só anda.
+@export var pode_correr := true
+## Segundos que o texto dos controles fica na tela antes de sumir de vez.
+@export var duracao_dica_controles := 20.0
 ## Impulso do pulo (m/s): uma criança pula uns 45 cm, o bastante para subir na cama.
 @export var impulso_pulo := 3.0
+## Ctrl segurado: quanto os olhos descem e a rapidez de andar agachado.
+@export var descida_agachado := 0.3
+@export var velocidade_agachado := 0.7
+## Raio de Nicholas para esbarrar nas pessoas (metros, no chão).
+@export var raio_esbarrao := 0.2
+## Quão rápido sai de dentro de alguém: m/s por metro de sobreposição.
+@export var firmeza_esbarrao := 12.0
+## O empurrão mais forte, em m/s (só um passo para o lado, não um arrasto).
+@export var empurrao_maximo := 2.2
+## Segundos para abaixar ou levantar por inteiro.
+@export var tempo_agachar := 0.18
 @export var sensibilidade_mouse := 0.0025
 ## Tempo para deslizar até um ponto quando o jogador toca no brilho.
 @export var duracao_movimento := 1.4
@@ -46,11 +62,27 @@ var travado := false
 var cena_tocando := ""
 
 var _cenas_vistas: Array[String] = []
+## O texto dos controles já saiu da tela e não volta mais.
+var _dica_controles_encerrada := false
+var _dica_controles_comecou := false
 
 var _gravidade: float = ProjectSettings.get_setting("physics/3d/default_gravity")
+## 0 em pé, 1 agachado de todo (o CorpoNicholas dobra as pernas por ele).
+var agachamento := 0.0
+var _altura_olhos := 1.05
+var _colisao: CollisionShape3D
+var _capsula: CapsuleShape3D
+var _altura_capsula := 1.15
 
 
 func _ready() -> void:
+	_altura_olhos = camera.position.y
+	_colisao = corpo.get_node_or_null("Colisao") as CollisionShape3D
+	if _colisao and _colisao.shape is CapsuleShape3D:
+		# Cópia própria: a cápsula encolhe ao agachar.
+		_capsula = _colisao.shape.duplicate()
+		_colisao.shape = _capsula
+		_altura_capsula = _capsula.height
 	# Necessário para que o toque/clique chegue às Area3D.
 	get_viewport().physics_object_picking = true
 	for alvo in _todos_os_alvos(self):
@@ -110,11 +142,16 @@ func _physics_process(delta: float) -> void:
 	if not travado:
 		direcao = Input.get_vector("mover_esquerda", "mover_direita", "mover_frente", "mover_tras")
 	var passo := corpo.global_basis * Vector3(direcao.x, 0.0, direcao.y)
-	var rapidez := velocidade_correndo if not travado and Input.is_action_pressed("correr") else velocidade
+	_agachar(delta)
+	var agachado := agachamento > 0.5
+	var correndo := pode_correr and not travado and not agachado and Input.is_action_pressed("correr")
+	var rapidez := velocidade_correndo if correndo else lerpf(velocidade, velocidade_agachado, agachamento)
 	corpo.velocity.x = passo.x * rapidez
 	corpo.velocity.z = passo.z * rapidez
+	_esbarrar_nas_pessoas(delta)
 	if corpo.is_on_floor():
-		corpo.velocity.y = impulso_pulo if not travado and Input.is_action_just_pressed("pular") else 0.0
+		var pula := not travado and not agachado and Input.is_action_just_pressed("pular")
+		corpo.velocity.y = impulso_pulo if pula else 0.0
 	else:
 		corpo.velocity.y -= _gravidade * delta
 	corpo.move_and_slide()
@@ -151,16 +188,58 @@ func _verificar_chegada() -> void:
 	if ponto_atual == null or travado:
 		return
 	for alvo in ponto_atual.alvos():
-		var destino := alvo.destino
-		var diferenca := destino.global_position - corpo.global_position
-		if Vector2(diferenca.x, diferenca.z).length() <= raio_chegada:
+		if _perto_de(alvo.destino):
 			_ativar_alvos(ponto_atual, false)
-			_chegar_em(destino)
+			_chegar_em(alvo.destino)
 			return
+	# Quem anda depressa pode passar longe de um ponto do meio (a porta dos
+	# aposentos, por exemplo) e já chegar ao seguinte: vale também.
+	var ponto := ponto_atual
+	for _passo in 6:
+		if ponto.alvos().is_empty():
+			return
+		var proximo := ponto.alvos()[0].destino
+		if proximo == null or proximo == ponto_atual:
+			return
+		if ponto != ponto_atual and _perto_de(proximo):
+			_ativar_alvos(ponto_atual, false)
+			_chegar_em(proximo)
+			return
+		ponto = proximo
+
+
+func _perto_de(destino: PontoDeVista) -> bool:
+	if destino == null:
+		return false
+	var diferenca := destino.global_position - corpo.global_position
+	var raio := destino.raio_chegada if destino.raio_chegada > 0.0 else raio_chegada
+	return Vector2(diferenca.x, diferenca.z).length() <= raio
 
 
 ## Mostra as frases de um trecho do roteiro, que aparecem e somem sozinhas.
 ## Nicholas continua andando. Cada trecho só aparece uma vez.
+## Abaixa enquanto Ctrl está apertado e levanta ao soltar (se houver espaço
+## acima da cabeça). Os olhos descem e a cápsula encolhe junto.
+func _agachar(delta: float) -> void:
+	var quer := not travado and Input.is_action_pressed("agachar")
+	if not quer and agachamento > 0.0 and _teto_baixo():
+		quer = true
+	agachamento = move_toward(agachamento, 1.0 if quer else 0.0, delta / maxf(tempo_agachar, 0.01))
+	var suave := smoothstep(0.0, 1.0, agachamento)
+	camera.position.y = _altura_olhos - descida_agachado * suave
+	if _capsula:
+		_capsula.height = _altura_capsula - descida_agachado * suave
+		_colisao.position.y = _capsula.height / 2.0
+
+
+## Algo logo acima da cabeça agachada impede de ficar em pé.
+func _teto_baixo() -> bool:
+	if _capsula == null or not corpo.is_inside_tree():
+		return false
+	var falta := _altura_capsula - _capsula.height
+	return falta > 0.01 and corpo.test_move(corpo.global_transform, Vector3.UP * falta)
+
+
 func tocar_cena(titulo: String) -> void:
 	if roteiro == null or texto_solto == null or titulo.is_empty() or titulo in _cenas_vistas:
 		return
@@ -219,10 +298,32 @@ func _chegar_em(ponto: PontoDeVista) -> void:
 func _atualizar_dica(ponto: PontoDeVista) -> void:
 	if dica:
 		# Sem brilho para seguir, quem conduz é a SequenciaPrologo.
-		if ponto.alvos().is_empty():
+		if ponto.alvos().is_empty() or _dica_controles_encerrada:
 			dica.text = ""
 		else:
 			dica.text = tr("PROLOGO_DICA_TOQUE") if OS.has_feature("mobile") else tr("PROLOGO_DICA_TECLADO")
+			if not _dica_controles_comecou:
+				_dica_controles_comecou = true
+				_encerrar_dica_controles()
+
+
+## Depois de um tempo na tela, o texto dos controles some devagar e não volta.
+## Conectado (e não com await) para não acordar depois de a cena ser liberada.
+func _encerrar_dica_controles() -> void:
+	get_tree().create_timer(duracao_dica_controles).timeout.connect(_sumir_dica_controles)
+
+
+func _sumir_dica_controles() -> void:
+	_dica_controles_encerrada = true
+	var texto := dica.text
+	if texto != tr("PROLOGO_DICA_TOQUE") and texto != tr("PROLOGO_DICA_TECLADO"):
+		return # outra dica (a de segurar Althea) está na tela: fica.
+	var sumir := create_tween()
+	sumir.tween_property(dica, "modulate:a", 0.0, 1.0)
+	sumir.tween_callback(func() -> void:
+		if dica.text == texto:
+			dica.text = ""
+		dica.modulate.a = 1.0)
 
 
 ## Sensibilidade escolhida nas Opções (1 quando a cena roda sem o menu).
@@ -251,7 +352,7 @@ func _colocar_em(ponto: PontoDeVista) -> void:
 
 ## O PontoDeVista marca onde ficam os olhos; o corpo fica abaixo dele.
 func _posicao_do_corpo(ponto: PontoDeVista) -> Vector3:
-	return ponto.global_position - Vector3(0.0, camera.position.y, 0.0)
+	return ponto.global_position - Vector3(0.0, _altura_olhos, 0.0)
 
 
 func _giro(ponto: PontoDeVista) -> float:
@@ -278,3 +379,38 @@ func _todos_os_alvos(no: Node) -> Array[AlvoToque]:
 			lista.append(filho)
 		lista.append_array(_todos_os_alvos(filho))
 	return lista
+
+
+## Nicholas não atravessa as pessoas do castelo (pedido do Rafael, 17/10/2026).
+## Andando contra alguém parado, ele para nela; se alguém correndo esbarra
+## nele, ele é empurrado um pouco para o lado e escapa, sem ser arrastado
+## junto. O empurrão entra na velocidade, então as paredes continuam valendo.
+func _esbarrar_nas_pessoas(delta: float) -> void:
+	if delta <= 0.0 or travado:
+		return
+	var aqui := Vector2(corpo.global_position.x, corpo.global_position.z)
+	for pessoa: PessoaPrologo in get_tree().get_nodes_in_group(PessoaPrologo.GRUPO):
+		if not pessoa.is_visible_in_tree():
+			continue
+		var la := Vector2(pessoa.global_position.x, pessoa.global_position.z)
+		var distancia := aqui.distance_to(la)
+		var minimo := pessoa.raio + raio_esbarrao
+		if distancia >= minimo:
+			continue
+		var fora := (aqui - la).normalized() if distancia > 0.001 else Vector2.RIGHT
+		var vai := Vector2(pessoa.velocidade.x, pessoa.velocidade.z)
+		if vai.length() > 0.3:
+			# Ela está passando: o empurrão é de lado, para fora do caminho dela.
+			var lado := vai.normalized().orthogonal()
+			if lado.dot(fora) < 0.0:
+				lado = -lado
+			fora = (lado * 0.85 + fora * 0.15).normalized()
+		var plano := Vector2(corpo.velocity.x, corpo.velocity.z)
+		# Não entra mais nela.
+		var contra := plano.dot(-fora)
+		if contra > 0.0:
+			plano += fora * contra
+		# Sai de dentro aos poucos, sem tranco.
+		plano += fora * minf(empurrao_maximo, (minimo - distancia) * firmeza_esbarrao)
+		corpo.velocity.x = plano.x
+		corpo.velocity.z = plano.y

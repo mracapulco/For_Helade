@@ -1,0 +1,7 @@
+[gd_resource type="StandardMaterial3D" format=3]
+
+[resource]
+resource_name = "carvao"
+albedo_color = Color(0.05, 0.04, 0.04, 1)
+metallic = 0.0
+roughness = 0.95

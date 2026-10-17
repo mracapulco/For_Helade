@@ -1,7 +1,7 @@
 class_name MenuInicial
 extends Control
 ## Primeira tela do jogo: Continuar, Carregar jogo, Novo jogo, Opções e Sair.
-## Tudo funciona com toque, clique, setas, E e Enter.
+## Tudo funciona com toque, clique, setas e Enter.
 ## Continuar abre o jogo salvo por último; Carregar jogo mostra os 10 espaços.
 
 ## Missões com cena própria: quem salvou numa delas volta direto para ela.

@@ -9,7 +9,7 @@
 ~ personagem_teste
 
 Personagem de teste: [#retrato=neutro] [Provisório] Olá! Esta é uma fala de teste da exploração. [ID:EXPLORACAO_TESTE_002]
-Personagem de teste: [#retrato=alegre] Toque na caixa, clique ou aperte E para continuar. [ID:EXPLORACAO_TESTE_003]
+Personagem de teste: [#retrato=alegre] Toque na caixa, clique ou aperte Enter para continuar. [ID:EXPLORACAO_TESTE_003]
 => END
 
 ~ guarda_teste

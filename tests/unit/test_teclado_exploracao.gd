@@ -136,8 +136,12 @@ func test_e_e_a_tecla_de_interagir_e_enter_nao() -> void:
 	assert_false(InputMap.event_is_action(_tecla(KEY_ENTER), &"interagir"), "Enter não interage mais")
 
 
-func test_e_tambem_confirma_menus_e_dialogos() -> void:
-	assert_true(InputMap.event_is_action(_tecla(KEY_E), &"ui_accept"))
+func test_enter_passa_o_texto_e_e_nao() -> void:
+	var enter := InputEventKey.new()
+	enter.keycode = KEY_ENTER
+	enter.pressed = true
+	assert_true(InputMap.event_is_action(enter, &"ui_accept"), "Enter passa o texto")
+	assert_false(InputMap.event_is_action(_tecla(KEY_E), &"ui_accept"), "E não passa o texto")
 
 
 func test_e_nao_esta_em_outra_acao_do_jogo() -> void:

@@ -158,24 +158,25 @@ func test_clique_esquerdo_armado_golpeia_sem_andar() -> void:
 	assert_false(personagem.andando)
 
 
-func test_clique_sem_arma_continua_andando() -> void:
+func test_clique_sem_arma_no_chao_nao_anda() -> void:
 	var toque := InputEventScreenTouch.new()
 	toque.device = InputEvent.DEVICE_ID_EMULATION
 	toque.pressed = true
 	toque.position = Vector2(100, 100)
 	personagem._unhandled_input(toque)
-	assert_true(personagem.andando)
+	assert_false(personagem.andando, "clicar no chão não anda mais")
 	assert_false(personagem.golpeando)
 
 
-func test_toque_de_verdade_armado_continua_andando() -> void:
+func test_toque_de_verdade_armado_nao_golpeia() -> void:
 	_armar()
 	var toque := InputEventScreenTouch.new()
 	toque.device = 0
 	toque.pressed = true
 	toque.position = Vector2(100, 100)
 	personagem._unhandled_input(toque)
-	assert_true(personagem.andando, "no celular, tocar no chão anda; o golpe é no botão")
+	assert_false(personagem.golpeando, "no celular, o golpe é no botão")
+	assert_false(personagem.andando, "tocar no chão não anda mais")
 
 
 func test_botao_golpe_so_aparece_armado() -> void:

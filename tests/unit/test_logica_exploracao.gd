@@ -76,10 +76,10 @@ func test_e_escolhe_o_mais_perto_quando_dois_estao_ao_alcance() -> void:
 
 # --- Alvo do toque ---
 
-func test_toque_no_chao_anda_sem_alvo() -> void:
+func test_toque_no_chao_nao_anda() -> void:
 	var destino := personagem.global_position + Vector2(64, 32)
 	personagem.tocar(destino)
-	assert_true(personagem.andando)
+	assert_false(personagem.andando)
 	assert_null(personagem.alvo_interacao)
 
 
@@ -91,22 +91,12 @@ func test_toque_na_area_do_interagivel_fora_do_desenho_ainda_conta() -> void:
 	assert_eq(personagem.interagivel_em(ponto), objeto)
 
 
-func test_tocar_no_chao_depois_cancela_a_interacao_pendente() -> void:
+func test_toque_em_interagivel_longe_nao_anda() -> void:
 	watch_signals(objeto)
 	personagem.tocar(objeto.global_position)
-	assert_eq(personagem.alvo_interacao, objeto)
-	personagem.tocar(personagem.global_position + Vector2(-64, 32))
+	assert_false(personagem.andando)
 	assert_null(personagem.alvo_interacao)
-	await wait_physics_frames(120)
 	assert_signal_not_emitted(objeto, "interagido")
-
-
-func test_teclado_cancela_a_interacao_pendente() -> void:
-	personagem.tocar(objeto.global_position)
-	Input.action_press(&"mover_tras")
-	await wait_physics_frames(2)
-	Input.action_release(&"mover_tras")
-	assert_null(personagem.alvo_interacao)
 
 
 # --- Caixa de diálogo ---

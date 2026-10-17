@@ -10,6 +10,8 @@ Jogo baseado no livro *Pelos Olhos Dele*, de Shara M. Schwartz. Contexto e decis
 
 Mapa de Hélade: abra `scenes/mapa/mapa_helade.tscn` e aperte F6.
 
+Capítulo 01 (manhã do aniversário de Althea): abra `scenes/capitulo_01/capitulo_01.tscn` e aperte F6. No jogo, é o que o Continuar abre depois do prólogo.
+
 Para testar o diálogo: abra `scenes/testes/teste_dialogo.tscn` no Godot e aperte F6 (rodar a cena atual).
 
 ## Pastas

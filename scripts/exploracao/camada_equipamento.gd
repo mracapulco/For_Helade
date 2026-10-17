@@ -1,5 +1,7 @@
 class_name CamadaEquipamento
 extends AnimatedSprite2D
+
+const AparenciaNicholas := preload("res://scripts/systems/aparencia_nicholas.gd")
 ## Desenha por cima do personagem a armadura ou o elmo que ele tem
 ## equipado (Item.visual_no_corpo). Copia do desenho do personagem a
 ## animação, o quadro, o espelho e o deslocamento, então acompanha
@@ -10,6 +12,9 @@ extends AnimatedSprite2D
 @export var personagem := "nicholas"
 ## Encaixe do Inventario mostrado: ARMADURA ou ELMO.
 @export var encaixe: Item.Encaixe = Item.Encaixe.ARMADURA
+## O desenho é Nicholas na idade atual (AnimacaoPersonagem.nicholas_pela_idade):
+## desce a proteção, feita no corpo do adulto, até a cabeça ou o tronco dele.
+@export var nicholas_pela_idade := false
 
 var _desenho: AnimatedSprite2D
 
@@ -57,4 +62,6 @@ func _acompanhar() -> void:
 	frame = _desenho.frame
 	flip_h = _desenho.flip_h
 	offset = _desenho.offset
+	if nicholas_pela_idade:
+		offset.y += AparenciaNicholas.descida(Inventario.faixa_etaria, encaixe)
 	centered = _desenho.centered

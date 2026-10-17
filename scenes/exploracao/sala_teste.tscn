@@ -116,18 +116,22 @@ sprite_frames = ExtResource("8_nicholas")
 animation = &"parado_frente"
 offset = Vector2(0, -22)
 script = ExtResource("11_anim")
+nicholas_pela_idade = true
 
 [node name="CamadaArmadura" type="AnimatedSprite2D" parent="Personagem/Corpo/Visual"]
 script = ExtResource("27_camada")
+nicholas_pela_idade = true
 
 [node name="CamadaElmo" type="AnimatedSprite2D" parent="Personagem/Corpo/Visual"]
 script = ExtResource("27_camada")
 encaixe = 5
+nicholas_pela_idade = true
 
 [node name="ItemNaMao" type="Sprite2D" parent="Personagem/Corpo/Visual" node_paths=PackedStringArray("rastro", "flecha")]
 centered = false
 script = ExtResource("23_item_mao")
 maos = ExtResource("24_maos")
+maos_pela_idade = true
 rastro = NodePath("../Rastro")
 flecha = NodePath("../Flecha")
 
@@ -140,6 +144,7 @@ centered = false
 centered = false
 script = ExtResource("23_item_mao")
 maos = ExtResource("24_maos")
+maos_pela_idade = true
 encaixe = 4
 mao_de_tras = true
 

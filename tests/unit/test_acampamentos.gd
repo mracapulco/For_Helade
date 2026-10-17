@@ -387,14 +387,14 @@ func test_nicholas_no_acampamento_tem_a_idade_da_historia() -> void:
 	assert_eq(visual.sprite_frames, AparenciaNicholas.quadros(Inventario.FaixaEtaria.ADULTO))
 
 
-func test_desenho_sem_golpe_usa_o_de_interagir() -> void:
+func test_menino_golpeando_usa_o_proprio_golpe() -> void:
 	Inventario.limpar()
 	await _abrir("oa_acampamento")
 	var personagem := acampamento.get_node("Personagem") as PersonagemExploracao
 	var visual := acampamento.get_node("Personagem/Corpo/Visual") as AnimatedSprite2D
 	personagem.golpeando = true
 	visual._process(0.0)
-	assert_true(String(visual.animation).begins_with("interagindo"))
+	assert_true(String(visual.animation).begins_with("golpe"), "o menino agora tem golpe desenhado")
 	personagem.golpeando = false
 
 

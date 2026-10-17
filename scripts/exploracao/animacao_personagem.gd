@@ -44,7 +44,7 @@ func _process(_delta: float) -> void:
 	speed_scale = personagem.ritmo()
 	var nome := StringName("%s_%s" % [acao, direcao])
 	if not sprite_frames.has_animation(nome):
-		# Desenhos sem golpe (Nicholas criança e adolescente) usam o de interagir.
+		# Desenhos sem golpe (os outros personagens) usam o de interagir.
 		nome = StringName("interagindo_%s" % direcao)
 	if animation != nome:
 		play(nome)

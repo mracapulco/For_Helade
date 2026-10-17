@@ -273,3 +273,14 @@ func test_voz_acha_o_som_pelo_texto() -> void:
 	FileAccess.open(caminho, FileAccess.WRITE).store_string(JSON.stringify({"CAP1_093_som": {"fala": "CAP1_093", "texto": "Bateu o pé no chão."}}))
 	Voz.carregar_indice(caminho)
 	assert_eq(Voz.id_do_texto("Bateu o pé no chão."), "CAP1_093")
+
+
+func test_althea_do_prologo_fala_estavel_e_sem_voz_tremida() -> void:
+	# Rafael (17/10/2026): "Althea?" saiu com voz de mulher e sotaque estranho.
+	var falas := GeradorVozes.falas_do_roteiro(load(PROLOGO), GeradorVozes.ler_vozes(), GeradorVozes.ler_direcao(), GeradorVozes.ler_pronuncia(), {}, GeradorVozes.ler_estabilidades())
+	var nome: Dictionary = falas.filter(func(f: Dictionary) -> bool: return f.id == "PROLOGO_014")[0]
+	assert_eq(nome.voz, "nicholas_crianca", "continua a voz do Nicholas criança")
+	assert_eq(nome.estabilidade, 0.5, "estável: uma palavra só sai instável no v3")
+	assert_false("trembling" in nome.direcao, "sem voz tremida")
+	var outra: Dictionary = GeradorVozes.falas_do_roteiro(load(MANHA), GeradorVozes.ler_vozes(), GeradorVozes.ler_direcao(), {}, {}, GeradorVozes.ler_estabilidades()).filter(func(f: Dictionary) -> bool: return f.id == "CAP1_044")[0]
+	assert_eq(outra.estabilidade, 0.0, "as outras falas seguem a estabilidade da voz")

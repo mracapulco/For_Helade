@@ -81,6 +81,17 @@ static func ler_direcao(caminho := DIRECAO) -> Dictionary:
 	return direcao
 
 
+## ID da fala -> estabilidade só dessa fala (vence a da voz). Falas de uma
+## palavra só, no v3, saem instáveis com a estabilidade baixa.
+static func ler_estabilidades(caminho := DIRECAO) -> Dictionary:
+	var estabilidades := {}
+	var cfg := ConfigFile.new()
+	if cfg.load(caminho) == OK and cfg.has_section("estabilidade"):
+		for id in cfg.get_section_keys("estabilidade"):
+			estabilidades[id] = float(cfg.get_value("estabilidade", id, 0.5))
+	return estabilidades
+
+
 ## Palavra escrita -> como deve soar (só no áudio; a tela não muda).
 static func ler_pronuncia(caminho := PRONUNCIA) -> Dictionary:
 	var pronuncia := {}
@@ -121,7 +132,7 @@ static func roteiros(pasta := PASTA_ROTEIROS) -> PackedStringArray:
 ## {id, arquivo, texto, direcao, voz, voz_id, modelo, estabilidade}.
 ## Num coro, a mesma fala aparece uma vez por pessoa, cada uma com seu arquivo.
 ## Opções de escolha não entram (são rótulos do jogo, não falas).
-static func falas_do_roteiro(recurso: DialogueResource, vozes: Array[Dictionary], direcao := {}, pronuncia := {}, sons := {}) -> Array[Dictionary]:
+static func falas_do_roteiro(recurso: DialogueResource, vozes: Array[Dictionary], direcao := {}, pronuncia := {}, sons := {}, estabilidades := {}) -> Array[Dictionary]:
 	var falas: Array[Dictionary] = []
 	for chave in recurso.lines:
 		var linha: Dictionary = recurso.lines[chave]
@@ -149,7 +160,7 @@ static func falas_do_roteiro(recurso: DialogueResource, vozes: Array[Dictionary]
 				"voz": voz.nome,
 				"voz_id": ids[i],
 				"modelo": voz.modelo,
-				"estabilidade": voz.get("estabilidade", 0.5),
+				"estabilidade": estabilidades.get(id, voz.get("estabilidade", 0.5)),
 				"sotaque": voz.get("sotaque", ""),
 			})
 	falas.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return a.arquivo < b.arquivo)
@@ -267,12 +278,12 @@ static func ler_chave(caminho := CHAVE) -> String:
 
 
 ## Gera o que falta. Devolve {geradas, prontas, erros}.
-func rodar(chave: String, vozes: Array[Dictionary] = ler_vozes(), arquivos := roteiros(), direcao := ler_direcao(), pronuncia := ler_pronuncia(), sons := ler_sons()) -> Dictionary:
+func rodar(chave: String, vozes: Array[Dictionary] = ler_vozes(), arquivos := roteiros(), direcao := ler_direcao(), pronuncia := ler_pronuncia(), sons := ler_sons(), estabilidades := ler_estabilidades()) -> Dictionary:
 	var falas: Array[Dictionary] = []
 	for arquivo in arquivos:
 		var recurso: DialogueResource = load(arquivo)
 		if recurso:
-			falas.append_array(falas_do_roteiro(recurso, vozes, direcao, pronuncia, sons))
+			falas.append_array(falas_do_roteiro(recurso, vozes, direcao, pronuncia, sons, estabilidades))
 	DirAccess.make_dir_recursive_absolute(pasta_saida)
 	var indice := ler_indice()
 	var fazer := pendentes(falas, indice)

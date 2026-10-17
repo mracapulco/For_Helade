@@ -34,7 +34,7 @@ func test_comeca_fechada_com_o_botao_a_mostra() -> void:
 
 
 func test_sala_de_teste_poe_itens_provisorios() -> void:
-	assert_true(Inventario.tem("espada_teste"))
+	assert_true(Inventario.tem("espada_media"))
 	assert_eq(Inventario.quantidade("pocao_teste"), 3)
 	assert_true(Inventario.tem("carta_teste"))
 	assert_eq(Inventario.dinheiro(), 20)
@@ -84,7 +84,7 @@ func test_dinheiro_aparece_no_topo() -> void:
 func test_cada_aba_mostra_so_o_seu_tipo() -> void:
 	bolsa.abrir()
 	bolsa.mostrar_aba(Item.Tipo.ARMA)
-	assert_eq(bolsa.itens_da_aba(), ["espada_teste"] as Array[String])
+	assert_eq(bolsa.itens_da_aba(), ["espada_media"] as Array[String])
 	assert_eq(bolsa.lista.get_child_count(), 1)
 	bolsa.mostrar_aba(Item.Tipo.CONSUMIVEL)
 	assert_eq(bolsa.itens_da_aba(), ["pocao_teste"] as Array[String])
@@ -114,9 +114,9 @@ func test_usar_gasta_uma_pocao() -> void:
 
 func test_equipar_e_desequipar_a_espada() -> void:
 	bolsa.abrir()
-	bolsa.escolher_item("espada_teste")
+	bolsa.escolher_item("espada_media")
 	bolsa.botao_equipar.pressed.emit()
-	assert_eq(Inventario.equipado("nicholas", Item.Encaixe.ARMA), "espada_teste")
+	assert_eq(Inventario.equipado("nicholas", Item.Encaixe.ARMA), "espada_media")
 	assert_eq(bolsa.botao_equipar.text, "Desequipar")
 	bolsa.botao_equipar.pressed.emit()
 	assert_eq(Inventario.equipado("nicholas", Item.Encaixe.ARMA), "")
@@ -132,9 +132,9 @@ func test_item_da_historia_nao_tem_largar() -> void:
 
 func test_largar_o_ultimo_limpa_o_detalhe() -> void:
 	bolsa.abrir()
-	bolsa.escolher_item("espada_teste")
+	bolsa.escolher_item("espada_media")
 	bolsa.botao_largar.pressed.emit()
-	assert_false(Inventario.tem("espada_teste"))
+	assert_false(Inventario.tem("espada_media"))
 	assert_eq(bolsa.item_escolhido, "")
 	assert_false(bolsa.botao_largar.visible)
 

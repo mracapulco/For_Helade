@@ -259,6 +259,41 @@ def cabelo_frente(q, estilo, x, y):
             q.p(x + dx, y + dy, 'cab_luz')
         for (dx, dy) in [(-3, 0), (-2, 1), (2, 0), (3, 1)]:
             q.p(x + dx, y + dy, 'cab_luz')
+    elif estilo == 'topete':
+        # curto dos lados, volume penteado para cima e para trás; testa à mostra
+        q.r(x - 5, y, x + 5, y + 2, 'cab')
+        q.r(x - 4, y - 1, x + 5, y - 1, 'cab')
+        q.r(x - 2, y - 2, x + 4, y - 2, 'cab')
+        q.r(x - 5, y + 3, x - 5, y + 5, 'cab_sombra')   # costeletas
+        q.r(x + 5, y + 3, x + 5, y + 4, 'cab_sombra')
+        q.r(x - 4, y + 3, x - 3, y + 3, 'cab')
+        q.r(x + 3, y + 3, x + 4, y + 3, 'cab')
+        q.p(x - 5, y + 2, 'cab_sombra'); q.p(x - 4, y + 2, 'cab_sombra')
+        for (dx, dy) in [(-1, -2), (0, -1), (1, -2), (2, -1), (3, 0), (-2, 0), (-3, 1)]:
+            q.p(x + dx, y + dy, 'cab_luz')
+    elif estilo == 'chanel':
+        # liso na altura dos ombros, risca de lado e franja varrida para a direita
+        q.r(x - 5, y, x + 5, y + 3, 'cab')
+        q.r(x - 4, y - 1, x + 4, y - 1, 'cab')
+        q.r(x - 6, y + 2, x - 5, y + 11, 'cab')
+        q.r(x + 5, y + 2, x + 6, y + 11, 'cab')
+        q.r(x - 5, y + 6, x - 5, y + 11, 'cab_sombra')
+        q.r(x + 5, y + 6, x + 5, y + 11, 'cab_sombra')
+        q.r(x - 6, y + 11, x - 5, y + 11, 'cab_sombra')
+        q.r(x + 5, y + 11, x + 6, y + 11, 'cab_sombra')
+        q.r(x - 4, y + 3, x - 2, y + 3, 'cab'); q.p(x - 4, y + 4, 'cab')   # mecha da risca
+        q.p(x - 2, y, 'cab_sombra'); q.p(x - 2, y + 1, 'cab_sombra')   # risca
+        for (dx, dy) in [(-4, 1), (-3, 2), (0, 0), (1, 1), (2, 1), (3, 2), (-6, 5), (6, 6)]:
+            q.p(x + dx, y + dy, 'cab_luz')
+
+
+def oculos_frente(q, x, y):
+    # armação redonda: aro de cima e laterais em volta de cada olho, e a ponte
+    for ox in (-2, 2):
+        q.r(x + ox - 1, y + 5, x + ox + 1, y + 5, 'oculos')
+        q.r(x + ox - 1, y + 6, x + ox - 1, y + 7, 'oculos')
+        q.r(x + ox + 1, y + 6, x + ox + 1, y + 7, 'oculos')
+    q.p(x, y + 6, 'oculos')
 
 
 def cabelo_atras_frente(q, estilo, x, y, ate, voa):
@@ -308,19 +343,129 @@ def cabeca_costas(q, estilo, x, y, ate, voa):
             q.p(x + dx, y + dy, 'cab_luz')
         q.r(x - 1, y + 7, x + 1, y + 8, 'cab_sombra')   # onde as tranças se prendem
         q.p(x, y + 7, 'cab_luz')
+    elif estilo == 'topete':
+        q.r(x - 4, y - 1, x + 5, y - 1, 'cab')
+        q.r(x - 2, y - 2, x + 4, y - 2, 'cab')
+        q.r(x - 4, y + 7, x + 4, y + 8, 'cab_sombra')   # nuca raspada
+        for (dx, dy) in [(-2, 4), (1, 5), (3, 3)]:
+            q.p(x + dx, y + dy, 'cab_sombra')
+        for (dx, dy) in [(-1, -2), (1, -1), (3, -2), (-3, 1), (0, 1), (2, 2)]:
+            q.p(x + dx, y + dy, 'cab_luz')
+    elif estilo == 'chanel':
+        q.r(x - 6, y + 2, x + 6, y + 9, 'cab')
+        q.r(x - 5, y + 10, x + 5, y + 10, 'cab')
+        q.r(x - 5, y + 11, x + 5, y + 11, 'cab_sombra')        # pontas retas
+        q.r(x - 6, y + 6, x - 6, y + 9, 'cab_sombra')
+        q.p(x + 2, y, 'cab_sombra'); q.p(x + 2, y + 1, 'cab_sombra')   # risca
+        for (dx, dy) in [(-3, 1), (0, 2), (4, 1), (-1, 5), (3, 6), (-4, 8)]:
+            q.p(x + dx, y + dy, 'cab_luz')
 
 
-def braco(q, x, y, swing, comprimento, cor, cor_sombra=None):
+def braco(q, x, y, swing, comprimento, cor, cor_sombra=None, manga=None):
+    # manga: linhas de tecido antes da pele (camiseta); None = manga comprida
     yy = y + swing
     q.r(x, yy, x + 1, yy + comprimento, cor)
     if cor_sombra:
         q.r(x, yy, x, yy + comprimento, cor_sombra)
+    if manga is not None:
+        q.r(x, yy + manga, x + 1, yy + comprimento, 'pele')
+        q.r(x, yy + manga, x, yy + comprimento, 'pele_sombra' if cor_sombra else 'pele')
     q.r(x, yy + comprimento + 1, x + 1, yy + comprimento + 1, 'pele')
 
 
-def braco_estendido(q, x, y, alcance, cor):
+def braco_estendido(q, x, y, alcance, cor, manga=None):
     q.r(x, y, x + alcance, y + 1, cor)
+    if manga is not None and alcance > 1:
+        q.r(x + 2, y, x + alcance, y + 1, 'pele')
     q.r(x + alcance + 1, y, x + alcance + 2, y + 1, 'pele')
+
+
+# Roupas do nosso mundo (convidados): 'camiseta' (manga curta), 'moletom'
+# (manga comprida, capuz caído, cordões e bolso) ou 'escoteiro' (camisa de
+# manga curta com bolsos, lenço no pescoço com anel e cinto). Cores:
+# <roupa>_luz, <roupa>, <roupa>_sombra; 'cordao' no moletom; 'lenco',
+# 'lenco_sombra', 'anel' e 'cinto' no escoteiro. Com cfg['mochila'], alças
+# na frente e a mochila nas costas (cores 'alca', 'mochila*').
+CASUAIS = ('camiseta', 'moletom', 'escoteiro')
+
+
+def manga(cfg):
+    return 3 if cfg['roupa'] in ('camiseta', 'escoteiro') else None
+
+
+def casual_frente(q, cfg, x, yt, quadril, larg, b_esq, b_dir, alcance):
+    r = cfg['roupa']
+    comp = quadril - yt - 1
+    braco(q, x - larg - 2, yt + 1, b_esq, comp, r, r + '_sombra', manga(cfg))
+    q.r(x - larg, yt, x + larg, quadril, r)
+    q.r(x - larg, yt, x - larg, quadril, r + '_sombra')
+    q.r(x + 1, yt + 2, x + 2, yt + 4, r + '_luz')
+    if r == 'escoteiro':
+        q.r(x - larg, quadril, x + larg, quadril, 'calca')
+        q.r(x - larg, quadril - 1, x + larg, quadril - 1, 'cinto')
+        q.p(x, quadril - 1, 'anel')                                    # fivela
+        for bx in (x - 3, x + 2):                                      # bolsos
+            q.r(bx, yt + 3, bx + 1, yt + 4, r + '_sombra')
+        # lenço em V em volta do pescoço, preso pelo anel
+        q.r(x - 2, yt, x + 2, yt, 'lenco')
+        q.p(x - 1, yt + 1, 'lenco'); q.p(x + 1, yt + 1, 'lenco_sombra')
+        q.p(x, yt + 1, 'anel')
+        q.r(x, yt + 2, x, yt + 4, 'lenco'); q.p(x - 1, yt + 2, 'lenco_sombra')
+    elif r == 'camiseta':
+        q.r(x - larg, quadril, x + larg, quadril, 'calca')
+        q.r(x - 1, yt, x + 1, yt, 'pele'); q.p(x, yt + 1, 'pele')      # gola redonda
+        for dx, dy in ((-2, 0), (2, 0), (-1, 1), (1, 1)):
+            q.p(x + dx, yt + dy, r + '_sombra')
+    else:
+        q.r(x - larg, quadril, x + larg, quadril, r + '_sombra')       # barra
+        q.r(x - 3, yt, x + 3, yt, r + '_sombra')                       # capuz em volta do pescoço
+        q.p(x, yt, 'pele')
+        q.r(x - 1, yt + 1, x - 1, yt + 3, 'cordao'); q.r(x + 1, yt + 1, x + 1, yt + 2, 'cordao')
+        q.r(x - larg + 1, quadril - 4, x + larg - 1, quadril - 4, r + '_sombra')   # bolso
+        q.r(x - larg + 1, quadril - 3, x - larg + 1, quadril - 1, r + '_sombra')
+        q.r(x + larg - 1, quadril - 3, x + larg - 1, quadril - 1, r + '_sombra')
+    if cfg.get('mochila'):
+        q.r(x - larg + 1, yt, x - larg + 1, quadril - 2, 'alca')
+        q.r(x + larg - 1, yt, x + larg - 1, quadril - 2, 'alca')
+        q.r(x - larg + 1, quadril - 2, x + larg - 1, quadril - 2, 'alca_sombra')   # alça da cintura
+        q.p(x - larg, yt - 1, 'mochila'); q.p(x + larg, yt - 1, 'mochila')       # mochila aparece nos ombros
+    if alcance:
+        braco_estendido(q, x + larg + 1, yt + 2, alcance, r, manga(cfg))
+    else:
+        braco(q, x + larg + 1, yt + 1, b_dir, comp, r, None, manga(cfg))
+
+
+def casual_costas(q, cfg, x, yt, quadril, larg, b_esq, b_dir, alcance):
+    r = cfg['roupa']
+    comp = quadril - yt - 1
+    if alcance:
+        braco_estendido(q, x + larg + 1, yt + 2, alcance, r, manga(cfg))
+    else:
+        braco(q, x + larg + 1, yt + 1, b_dir, comp, r, None, manga(cfg))
+    q.r(x - larg, yt, x + larg, quadril, r)
+    q.r(x - larg, yt, x - larg, quadril, r + '_sombra')
+    if r in ('camiseta', 'escoteiro'):
+        q.r(x - larg, quadril, x + larg, quadril, 'calca')
+        if r == 'escoteiro':
+            q.r(x - larg, quadril - 1, x + larg, quadril - 1, 'cinto')
+    else:
+        q.r(x - larg, quadril, x + larg, quadril, r + '_sombra')
+        q.r(x - 3, yt, x + 3, yt + 3, r + '_sombra')                    # capuz caído
+        q.r(x - 2, yt, x + 2, yt, r + '_luz')
+    if cfg.get('mochila'):
+        q.r(x - larg + 1, yt, x + larg - 1, quadril - 2, 'mochila')
+        q.r(x - larg + 1, yt, x - larg + 1, quadril - 2, 'mochila_sombra')
+        q.r(x - larg + 2, yt, x + larg - 2, yt, 'mochila_luz')
+        q.r(x - larg + 2, yt + 6, x + larg - 2, yt + 6, 'mochila_sombra')   # bolso da frente
+        q.r(x - larg + 2, yt + 7, x + larg - 2, quadril - 3, 'mochila_luz')
+        q.r(x - larg + 2, quadril - 3, x + larg - 2, quadril - 3, 'mochila_sombra')
+        q.p(x + 1, yt + 2, 'alca'); q.p(x + 1, yt + 7, 'alca')            # puxadores
+    if r == 'escoteiro':   # a ponta do lenço cai nas costas
+        q.r(x - 3, yt, x + 3, yt, 'lenco')
+        q.r(x - 2, yt + 1, x + 2, yt + 1, 'lenco')
+        q.r(x - 1, yt + 2, x + 1, yt + 2, 'lenco_sombra')
+        q.p(x, yt + 3, 'lenco_sombra')
+    braco(q, x - larg - 2, yt + 1, b_esq, comp, r, r + '_sombra', manga(cfg))
 
 
 def cor_braco(cfg):
@@ -335,7 +480,9 @@ def corpo_frente(q, cfg, x, yt, quadril, larg, b_esq, b_dir, alcance, saia_voa):
     comp = quadril - yt - 1
     cor_manga = cor_braco(cfg)
     aba = cfg.get('aba', 0)          # túnica que desce por cima das coxas
-    if roupa == 'colete':
+    if roupa in CASUAIS:
+        casual_frente(q, cfg, x, yt, quadril, larg, b_esq, b_dir, alcance)
+    elif roupa == 'colete':
         braco(q, x - larg - 2, yt + 1, b_esq, comp, cor_manga, cor_manga + '_sombra')
         q.r(x - larg, yt, x + larg, quadril + aba, 'colete')
         q.r(x - larg, yt, x - larg + 1, quadril + aba, 'colete_sombra')
@@ -374,6 +521,9 @@ def corpo_costas(q, cfg, x, yt, quadril, larg, b_esq, b_dir, alcance, saia_voa):
     comp = quadril - yt - 1
     cor_manga = cor_braco(cfg)
     aba = cfg.get('aba', 0)
+    if roupa in CASUAIS:
+        casual_costas(q, cfg, x, yt, quadril, larg, b_esq, b_dir, alcance)
+        return
     if alcance:
         braco_estendido(q, x + larg + 1, yt + 2, alcance, cor_manga)
     else:
@@ -463,6 +613,8 @@ def personagem(cfg, dir, f_esq=0, f_dir=0, lift_esq=0, lift_dir=0, dy=0, inclina
         cores['olho_proprio'] = cfg['olho']; olho = 'olho_proprio'
     if 'bochecha' in cfg:
         cores['bochecha'] = cfg['bochecha']; bochecha = 'bochecha'
+    if 'oculos' in cfg:
+        cores['oculos'] = cfg['oculos']
     q = Q(cores)
     x = CX + inclina
     yc = cfg['topo'] + dy           # topo da cabeça
@@ -480,6 +632,8 @@ def personagem(cfg, dir, f_esq=0, f_dir=0, lift_esq=0, lift_dir=0, dy=0, inclina
         ombros_da_capa(q, cfg, x, yt, larg)
         cabeca_frente(q, dir, x, yc, olho, bochecha)
         cabelo_frente(q, estilo, x, yc)
+        if 'oculos' in cfg:
+            oculos_frente(q, x, yc)
     else:
         pernas(q, CX, quadril, f_esq, f_dir, lift_esq, lift_dir)
         corpo_costas(q, cfg, x, yt, quadril, larg, braco_esq, braco_dir, alcance, voa // 2)
@@ -517,8 +671,9 @@ def folha(cfg):
     return im, linhas
 
 
-def sprite_frames(id, linhas):
-    caminho = 'res://assets/art/personagens/%s/%s_exploracao.png' % (id.split('_')[0], id)
+def sprite_frames(id, linhas, caminho=None):
+    if caminho is None:
+        caminho = 'res://assets/art/personagens/%s/%s_exploracao.png' % (id.split('_')[0], id)
     partes = ['[gd_resource type="SpriteFrames" format=3]\n',
               '[ext_resource type="Texture2D" path="%s" id="1_folha"]\n' % caminho]
     animacoes = []

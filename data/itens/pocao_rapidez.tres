@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="Item" format=3]
+
+[ext_resource type="Script" path="res://scripts/systems/item.gd" id="1_item"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholders/itens/icone_pocao_rapidez.png" id="2_icone"]
+
+[resource]
+script = ExtResource("1_item")
+id = "pocao_rapidez"
+chave_nome = "ITEM_POCAO_RAPIDEZ_NOME"
+chave_descricao = "ITEM_POCAO_RAPIDEZ_DESC"
+icone = ExtResource("2_icone")
+tipo = 2
+preco = 15
+velocidade_temporaria = 30
+duracao_efeito = 20.0

@@ -1,0 +1,9 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/teste_loja.gd" id="1_teste"]
+[ext_resource type="PackedScene" path="res://scenes/ui/tela_loja.tscn" id="2_loja"]
+
+[node name="TesteLoja" type="Node"]
+script = ExtResource("1_teste")
+
+[node name="TelaLoja" parent="." instance=ExtResource("2_loja")]

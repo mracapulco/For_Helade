@@ -30,8 +30,10 @@ func _process(_delta: float) -> void:
 	# Vira para onde o personagem olha (a última direção em que andou), que
 	# é também para onde o golpe sai.
 	olhar_para(personagem.direcao_olhar)
-	var acao := escolher_acao(movimento.length(), personagem.velocidade, interagindo,
+	var acao := escolher_acao(movimento.length(), personagem.velocidade_andando(), interagindo,
 		personagem.golpeando)
+	# O equipamento acelera ou atrasa o passo e o golpe.
+	speed_scale = personagem.ritmo()
 	var nome := StringName("%s_%s" % [acao, direcao])
 	if animation != nome:
 		play(nome)

@@ -72,6 +72,7 @@ func _ready() -> void:
 	botao_mapa.add_to_group(BotoesToque.GRUPO_BLOQUEIA_TOQUE)
 	if bioma:
 		titulo.text = bioma.chave_nome
+		Lojas.loja_do_lugar = bioma.loja
 		if bioma.mercador:
 			visual_mercador.texture = bioma.mercador
 			visual_mercador.hframes = QUADROS_MERCADOR
@@ -87,6 +88,10 @@ func _ready() -> void:
 	_animar_fogo()
 
 
+func _exit_tree() -> void:
+	Lojas.loja_do_lugar = ""
+
+
 ## Descansar na barraca: o jogador escolhe em qual espaço salvar.
 func descansar() -> void:
 	tela_espacos.abrir(TelaEspacos.Modo.SALVAR)
@@ -94,7 +99,9 @@ func descansar() -> void:
 
 ## Salva sem mudar a etapa da história. O lugar salvo é este acampamento:
 ## o Continuar põe Nicholas aqui no mapa (o id do bioma é o mesmo do mapa).
+## Dormir na barraca também renova o estoque dos mercadores.
 func salvar_no_espaco(espaco: int) -> void:
+	Lojas.renovar()
 	if bioma and not bioma.id.is_empty():
 		Mundo.local_no_mapa = bioma.id
 	if not Progresso.salvar(Progresso.etapa, espaco):

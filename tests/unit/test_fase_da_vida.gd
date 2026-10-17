@@ -57,7 +57,7 @@ func test_atributos_somam_o_corpo_da_idade() -> void:
 
 
 func test_crianca_so_equipa_o_que_e_leve() -> void:
-	for id in ["punhal", "maca", "caixa_frutas", "panela", "elmo_olympia"]:
+	for id in ["punhal", "maca", "caixa_frutas", "panela", "elmo_olympia", "arco_curto"]:
 		Inventario.adicionar(id)
 		assert_false(Inventario.pesado_para_a_idade(id), id)
 	for id in ["espada_media", "escudo_olympia", "armadura_leve_olympia",

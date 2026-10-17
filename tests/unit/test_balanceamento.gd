@@ -1,7 +1,7 @@
 extends GutTest
 ## Balanceamento dos itens (orçamento de pontos) e as contas do combate.
 
-const ARMAS := ["espada_grande", "machado_guerra", "arco", "espada_media",
+const ARMAS := ["espada_grande", "machado_guerra", "arco", "arco_curto", "espada_media",
 	"machado_pequeno", "punhal", "maca"]
 const REINOS := ["olympia", "agape", "khronosses", "bandidos"]
 const PECAS_DE_REINO := ["escudo", "armadura_leve", "armadura_pesada", "elmo"]
@@ -52,7 +52,7 @@ func test_todos_os_itens_pedidos_existem() -> void:
 
 
 func test_duas_maos_e_uma_mao() -> void:
-	for id in ["espada_grande", "machado_guerra", "arco"]:
+	for id in ["espada_grande", "machado_guerra", "arco", "arco_curto"]:
 		assert_true(Inventario.item(id).duas_maos(), id)
 	for id in ["espada_media", "machado_pequeno", "punhal", "maca"]:
 		assert_false(Inventario.item(id).duas_maos(), id)

@@ -42,6 +42,42 @@ func test_comeca_no_nivel_1_sem_bonus() -> void:
 	assert_eq(Experiencia.bonus_ataque("nicholas"), 0)
 
 
+func test_lutas_param_tres_niveis_acima_da_historia() -> void:
+	watch_signals(Experiencia)
+	Experiencia.ganhar("nicholas", 1 << 20)
+	assert_eq(Experiencia.nivel("nicholas"), 1 + X.NIVEIS_ACIMA_DA_HISTORIA)
+	assert_eq(Experiencia.experiencia("nicholas"), X.experiencia_para(2 + X.NIVEIS_ACIMA_DA_HISTORIA) - 1,
+		"a barra para logo antes do próximo nível")
+	assert_signal_emit_count(Experiencia, "limite_das_lutas", 1)
+	Experiencia.ganhar("nicholas", 10)
+	assert_signal_emit_count(Experiencia, "limite_das_lutas", 1, "no limite, não avisa de novo")
+	Experiencia.garantir_nivel("nicholas", 3)
+	assert_eq(Experiencia.nivel_limite("nicholas"), 3 + X.NIVEIS_ACIMA_DA_HISTORIA)
+	Experiencia.ganhar("nicholas", 1)
+	assert_eq(Experiencia.nivel("nicholas"), 5, "o marco abre espaço para lutar mais")
+
+
+func test_marcos_do_livro_em_ordem() -> void:
+	var marcos := ConfigFile.new()
+	assert_eq(marcos.load(X.ARQUIVO_MARCOS), OK)
+	var anterior := 1
+	for id in marcos.get_sections():
+		var nivel := int(marcos.get_value(id, "nivel", 0))
+		assert_gt(nivel, anterior, id)
+		anterior = nivel
+
+
+func test_concluir_marco_da_nivel_e_muda_a_idade() -> void:
+	Experiencia.concluir_marco("v1_p2_c02")
+	assert_eq(Experiencia.nivel("nicholas"), 3)
+	assert_eq(Inventario.faixa_etaria, Inventario.FaixaEtaria.CRIANCA)
+	Experiencia.concluir_marco("v2_prologo")
+	assert_eq(Experiencia.nivel("nicholas"), 10)
+	assert_eq(Inventario.faixa_etaria, Inventario.FaixaEtaria.ADULTO, "17 anos conta como adulto")
+	Experiencia.concluir_marco("nao_existe")
+	assert_eq(Experiencia.nivel("nicholas"), 10)
+
+
 func test_lutar_da_experiencia_e_sobe_de_nivel() -> void:
 	watch_signals(Experiencia)
 	Experiencia.ganhar("nicholas", X.PASSO_EXPERIENCIA - 1)
@@ -99,8 +135,10 @@ func test_hud_mostra_o_nivel() -> void:
 
 
 func test_nivel_volta_no_jogo_salvo() -> void:
-	Experiencia.ganhar("nicholas", 75)
+	Experiencia.garantir_nivel("nicholas", 3)
+	Experiencia.ganhar("nicholas", 15)
 	var dados := Experiencia.para_dados()
 	Experiencia.limpar()
 	Experiencia.de_dados(dados)
-	assert_eq(Experiencia.experiencia("nicholas"), 75)
+	assert_eq(Experiencia.experiencia("nicholas"), X.experiencia_para(3) + 15)
+	assert_eq(Experiencia.nivel_da_historia("nicholas"), 3)

@@ -50,6 +50,8 @@ ITEM_MACHADO_GUERRA_NOME,Machado de guerra grande
 ITEM_MACHADO_GUERRA_DESC,"Duas mãos. O golpe mais forte de todos, porém lento e sem escudo."
 ITEM_ARCO_NOME,Arco e flecha
 ITEM_ARCO_DESC,"Duas mãos. Acerta de longe e é leve, mas o tiro é fraco."
+ITEM_ARCO_CURTO_NOME,Arco curto
+ITEM_ARCO_CURTO_DESC,"Duas mãos. Arco pequeno, do tamanho de uma criança. Alcança menos que o arco grande."
 ITEM_ESPADA_MEDIA_NOME,Espada média
 ITEM_ESPADA_MEDIA_DESC,"Uma mão. Equilibrada: bate bem, defende um pouco e é ágil."
 ITEM_MACHADO_PEQUENO_NOME,Machado pequeno
@@ -129,6 +131,7 @@ AVISO_MOEDAS,+ %d moedas
 AVISO_BOLSA_CHEIA,Bolsa cheia
 AVISO_PESADO_DEMAIS,Pesado demais por enquanto
 AVISO_SUBIU_NIVEL,Subiu para o nível %d!
+AVISO_LIMITE_NIVEL,Avance na história para subir mais
 MAPA_OLYMPIA_NOME,Olympia
 MAPA_OLYMPIA_REGIAO,"Sul, costa gélida"
 MAPA_ATENAS_NOME,Atenas

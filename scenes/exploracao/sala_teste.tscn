@@ -269,6 +269,7 @@ itens = Dictionary[String, int]({
 "espada_grande": 1,
 "machado_guerra": 1,
 "arco": 1,
+"arco_curto": 1,
 "espada_media": 1,
 "machado_pequeno": 1,
 "punhal": 1,

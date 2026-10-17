@@ -214,3 +214,73 @@ func test_sem_audio_a_fala_segue_em_silencio() -> void:
 func test_volume_da_voz_nas_opcoes() -> void:
 	assert_true(AudioServer.get_bus_index(&"Voz") >= 0)
 	assert_eq(Configuracoes.BARRAMENTOS.get("volume_voz"), "Voz")
+
+
+# --- Capítulo 01: sons, narração adulta e os guardas (Rafael, 17/10/2026) ---
+
+const MANHA := "res://data/dialogos/capitulo_01/manha.dialogue"
+
+
+func _da_manha() -> Array[Dictionary]:
+	return GeradorVozes.falas_do_roteiro(load(MANHA), GeradorVozes.ler_vozes(), GeradorVozes.ler_direcao(), {}, GeradorVozes.ler_sons())
+
+
+func _arquivo(falas: Array[Dictionary], arquivo: String) -> Dictionary:
+	var achadas := falas.filter(func(f: Dictionary) -> bool: return f.arquivo == arquivo)
+	return achadas[0] if not achadas.is_empty() else {}
+
+
+func test_pe_no_chao_e_cochichos_sao_efeitos() -> void:
+	var falas := _da_manha()
+	for id in ["CAP1_093", "CAP1_034"]:
+		var som := _arquivo(falas, id + "_som")
+		assert_eq(som.get("tipo"), "efeito", id)
+		assert_false(str(som.falado).is_empty())
+		assert_true(_arquivo(falas, id).is_empty(), "a frase em si não ganha voz")
+
+
+func test_althea_resmunga_com_a_voz_dela() -> void:
+	var som := _arquivo(_da_manha(), "CAP1_094_som")
+	assert_eq(som.voz, "althea_crianca")
+	assert_string_contains(GeradorVozes.texto_para_voz(som), "[grumbles]")
+	assert_eq(som.texto, "Ela resmungou e apertou a pelúcia.", "o índice guarda o texto da tela")
+
+
+func test_nicholas_adulto_narra_no_capitulo_01() -> void:
+	var falas := _da_manha()
+	for id in ["CAP1_061", "CAP1_083", "CAP1_084"]:
+		assert_eq(_arquivo(falas, id).get("voz"), "nicholas", id)
+	for id in ["CAP1_104", "CAP1_105"]:
+		assert_eq(_arquivo(falas, id).get("voz"), "nicholas_crianca", id)
+
+
+func test_guardas_anunciam_o_duque_em_duas_vozes() -> void:
+	var falas := _da_manha()
+	assert_eq(_arquivo(falas, "CAP1_064_1").voz_id, "Ey5AWb48tVX1IOcikcht")
+	assert_eq(_arquivo(falas, "CAP1_064_2").voz_id, "EbiSUflQjzm4g7S895SC")
+
+
+func test_efeito_muda_de_assinatura_com_a_duracao() -> void:
+	var curto := {"texto": "x", "falado": "steps", "voz_id": "efeito", "modelo": "sound-generation", "duracao": 2.0}
+	var longo := curto.duplicate()
+	longo.duracao = 4.0
+	assert_ne(GeradorVozes.assinatura(curto), GeradorVozes.assinatura(longo))
+
+
+func test_voz_acha_o_som_pelo_texto() -> void:
+	DirAccess.make_dir_recursive_absolute(PASTA_TESTE)
+	var caminho := PASTA_TESTE.path_join("indice.json")
+	FileAccess.open(caminho, FileAccess.WRITE).store_string(JSON.stringify({"CAP1_093_som": {"fala": "CAP1_093", "texto": "Bateu o pé no chão."}}))
+	Voz.carregar_indice(caminho)
+	assert_eq(Voz.id_do_texto("Bateu o pé no chão."), "CAP1_093")
+
+
+func test_althea_do_prologo_fala_estavel_e_sem_voz_tremida() -> void:
+	# Rafael (17/10/2026): "Althea?" saiu com voz de mulher e sotaque estranho.
+	var falas := GeradorVozes.falas_do_roteiro(load(PROLOGO), GeradorVozes.ler_vozes(), GeradorVozes.ler_direcao(), GeradorVozes.ler_pronuncia(), {}, GeradorVozes.ler_estabilidades())
+	var nome: Dictionary = falas.filter(func(f: Dictionary) -> bool: return f.id == "PROLOGO_014")[0]
+	assert_eq(nome.voz, "nicholas_crianca", "continua a voz do Nicholas criança")
+	assert_eq(nome.estabilidade, 0.5, "estável: uma palavra só sai instável no v3")
+	assert_false("trembling" in nome.direcao, "sem voz tremida")
+	var outra: Dictionary = GeradorVozes.falas_do_roteiro(load(MANHA), GeradorVozes.ler_vozes(), GeradorVozes.ler_direcao(), {}, {}, GeradorVozes.ler_estabilidades()).filter(func(f: Dictionary) -> bool: return f.id == "CAP1_044")[0]
+	assert_eq(outra.estabilidade, 0.0, "as outras falas seguem a estabilidade da voz")

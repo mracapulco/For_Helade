@@ -14,6 +14,10 @@ const CONFIG := "res://data/vozes/vozes.cfg"
 const DIRECAO := "res://data/vozes/direcao.cfg"
 ## Como dizer nomes que o modelo erra (palavra escrita = como falar).
 const PRONUNCIA := "res://data/vozes/pronuncia.cfg"
+## Sons que acompanham uma fala (passos, cochichos, um resmungo).
+const SONS := "res://data/vozes/sons.cfg"
+## Fim do nome do arquivo de som de uma fala: <ID>_som.mp3.
+const SUFIXO_SOM := "_som"
 const PASTA_ROTEIROS := "res://data/dialogos"
 const PASTA_SAIDA := "res://assets/audio/vozes"
 const NOME_INDICE := "indice.json"
@@ -53,6 +57,20 @@ static func ler_vozes(caminho := CONFIG) -> Array[Dictionary]:
 	return vozes
 
 
+## ID da fala -> {efeito, duracao} ou {voz, falado}.
+static func ler_sons(caminho := SONS) -> Dictionary:
+	var sons := {}
+	var cfg := ConfigFile.new()
+	if cfg.load(caminho) != OK:
+		return sons
+	for id in cfg.get_sections():
+		var som := {}
+		for chave in cfg.get_section_keys(id):
+			som[chave] = cfg.get_value(id, chave)
+		sons[id] = som
+	return sons
+
+
 ## ID da fala -> etiquetas de emoção.
 static func ler_direcao(caminho := DIRECAO) -> Dictionary:
 	var direcao := {}
@@ -61,6 +79,17 @@ static func ler_direcao(caminho := DIRECAO) -> Dictionary:
 		for id in cfg.get_section_keys("direcao"):
 			direcao[id] = str(cfg.get_value("direcao", id, "")).strip_edges()
 	return direcao
+
+
+## ID da fala -> estabilidade só dessa fala (vence a da voz). Falas de uma
+## palavra só, no v3, saem instáveis com a estabilidade baixa.
+static func ler_estabilidades(caminho := DIRECAO) -> Dictionary:
+	var estabilidades := {}
+	var cfg := ConfigFile.new()
+	if cfg.load(caminho) == OK and cfg.has_section("estabilidade"):
+		for id in cfg.get_section_keys("estabilidade"):
+			estabilidades[id] = float(cfg.get_value("estabilidade", id, 0.5))
+	return estabilidades
 
 
 ## Palavra escrita -> como deve soar (só no áudio; a tela não muda).
@@ -103,18 +132,22 @@ static func roteiros(pasta := PASTA_ROTEIROS) -> PackedStringArray:
 ## {id, arquivo, texto, direcao, voz, voz_id, modelo, estabilidade}.
 ## Num coro, a mesma fala aparece uma vez por pessoa, cada uma com seu arquivo.
 ## Opções de escolha não entram (são rótulos do jogo, não falas).
-static func falas_do_roteiro(recurso: DialogueResource, vozes: Array[Dictionary], direcao := {}, pronuncia := {}) -> Array[Dictionary]:
+static func falas_do_roteiro(recurso: DialogueResource, vozes: Array[Dictionary], direcao := {}, pronuncia := {}, sons := {}, estabilidades := {}) -> Array[Dictionary]:
 	var falas: Array[Dictionary] = []
 	for chave in recurso.lines:
 		var linha: Dictionary = recurso.lines[chave]
 		var id: String = linha.get("static_id", "")
 		if linha.get("type") != "dialogue" or id.is_empty():
 			continue
+		var texto := limpar(linha.get("text", ""))
+		if sons.has(id):
+			var som := som_da_fala(id, texto, sons[id], vozes)
+			if not som.is_empty():
+				falas.append(som)
 		var personagem: String = linha.get("character", "")
 		var voz := voz_da_fala(personagem, id, vozes, recurso.resource_path)
 		if voz.is_empty():
 			continue
-		var texto := limpar(linha.get("text", ""))
 		var coro: bool = voz.voz_id is Array
 		var ids: Array = voz.voz_id if coro else [voz.voz_id]
 		for i in ids.size():
@@ -127,11 +160,26 @@ static func falas_do_roteiro(recurso: DialogueResource, vozes: Array[Dictionary]
 				"voz": voz.nome,
 				"voz_id": ids[i],
 				"modelo": voz.modelo,
-				"estabilidade": voz.get("estabilidade", 0.5),
+				"estabilidade": estabilidades.get(id, voz.get("estabilidade", 0.5)),
 				"sotaque": voz.get("sotaque", ""),
 			})
 	falas.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return a.arquivo < b.arquivo)
 	return falas
+
+
+## O som que acompanha a fala [param id] ([param texto] é o da tela, para o
+## índice): um efeito ou uma voz dizendo outra coisa. Vazio se a voz não existe.
+static func som_da_fala(id: String, texto: String, som: Dictionary, vozes: Array[Dictionary]) -> Dictionary:
+	var arquivo := id + SUFIXO_SOM
+	if som.has("efeito"):
+		return {"id": id, "arquivo": arquivo, "tipo": "efeito", "texto": texto, "falado": str(som.efeito),
+			"duracao": float(som.get("duracao", 0.0)), "voz": "efeito", "voz_id": "efeito", "modelo": "sound-generation"}
+	for voz in vozes:
+		if voz.nome == som.get("voz", "") and voz.voz_id is String:
+			return {"id": id, "arquivo": arquivo, "texto": texto, "falado": str(som.get("falado", texto)),
+				"direcao": "", "voz": voz.nome, "voz_id": voz.voz_id, "modelo": voz.modelo,
+				"estabilidade": voz.get("estabilidade", 0.5), "sotaque": voz.get("sotaque", "")}
+	return {}
 
 
 ## A voz de quem diz a fala, nesta ordem:
@@ -183,7 +231,7 @@ static func texto_para_voz(fala: Dictionary) -> String:
 
 ## Muda quando o texto, a emoção, a voz ou o modelo mudam: aí o áudio é refeito.
 static func assinatura(fala: Dictionary) -> String:
-	return ("%s|%s|%s|%s" % [texto_para_voz(fala), fala.voz_id, fala.modelo, fala.get("estabilidade", 0.5)]).md5_text()
+	return ("%s|%s|%s|%s|%s" % [texto_para_voz(fala), fala.voz_id, fala.modelo, fala.get("estabilidade", 0.5), fala.get("duracao", "")]).md5_text()
 
 
 ## As falas sem áudio ou com áudio de um texto antigo.
@@ -230,12 +278,12 @@ static func ler_chave(caminho := CHAVE) -> String:
 
 
 ## Gera o que falta. Devolve {geradas, prontas, erros}.
-func rodar(chave: String, vozes: Array[Dictionary] = ler_vozes(), arquivos := roteiros(), direcao := ler_direcao(), pronuncia := ler_pronuncia()) -> Dictionary:
+func rodar(chave: String, vozes: Array[Dictionary] = ler_vozes(), arquivos := roteiros(), direcao := ler_direcao(), pronuncia := ler_pronuncia(), sons := ler_sons(), estabilidades := ler_estabilidades()) -> Dictionary:
 	var falas: Array[Dictionary] = []
 	for arquivo in arquivos:
 		var recurso: DialogueResource = load(arquivo)
 		if recurso:
-			falas.append_array(falas_do_roteiro(recurso, vozes, direcao, pronuncia))
+			falas.append_array(falas_do_roteiro(recurso, vozes, direcao, pronuncia, sons, estabilidades))
 	DirAccess.make_dir_recursive_absolute(pasta_saida)
 	var indice := ler_indice()
 	var fazer := pendentes(falas, indice)
@@ -292,6 +340,13 @@ func pedir_audio(fala: Dictionary, chave: String) -> Dictionary:
 		"voice_settings": {"stability": fala.get("estabilidade", 0.5)},
 	})
 	var caminho := "/v1/text-to-speech/%s?output_format=%s" % [fala.voz_id, FORMATO]
+	if fala.get("tipo", "") == "efeito":
+		# Efeito sonoro (passos, cochichos): outro serviço do ElevenLabs.
+		var pedido := {"text": fala.falado}
+		if fala.get("duracao", 0.0) > 0.0:
+			pedido["duration_seconds"] = clampf(fala.duracao, 0.5, 22.0)
+		corpo = JSON.stringify(pedido)
+		caminho = "/v1/sound-generation?output_format=%s" % FORMATO
 	var cabecalhos := ["xi-api-key: " + chave, "Content-Type: application/json", "Accept: audio/mpeg"]
 	cliente.request(HTTPClient.METHOD_POST, caminho, cabecalhos, corpo)
 	# O v3 pode demorar para começar a responder: espera até 2 minutos.

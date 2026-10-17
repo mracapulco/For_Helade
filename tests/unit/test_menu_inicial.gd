@@ -40,7 +40,7 @@ func test_sem_jogo_salvo_nao_mostra_continuar() -> void:
 	await _abrir_menu()
 	assert_false(menu.botao_continuar.visible)
 	assert_false(menu.botao_carregar.visible)
-	assert_true(menu.botao_novo_jogo.has_focus(), "Enter já começa um jogo novo")
+	assert_true(menu.botao_novo_jogo.has_focus(), "Enter ou E já começam um jogo novo")
 
 
 func test_novo_jogo_vai_para_o_prologo_e_zera_valores() -> void:

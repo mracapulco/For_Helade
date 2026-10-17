@@ -122,3 +122,24 @@ func test_bordas_impedem_sair_da_sala() -> void:
 	var contorno := NavegacaoSala.contorno_do_chao(chao)
 	await _andar(["mover_tras", "correr"], 240)
 	assert_true(Geometry2D.is_point_in_polygon(chao.to_local(personagem.global_position), contorno))
+
+
+func _tecla(codigo: Key) -> InputEventKey:
+	var tecla := InputEventKey.new()
+	tecla.physical_keycode = codigo
+	tecla.pressed = true
+	return tecla
+
+
+func test_e_e_a_tecla_de_interagir_e_enter_nao() -> void:
+	assert_true(InputMap.event_is_action(_tecla(KEY_E), &"interagir"), "E interage")
+	assert_false(InputMap.event_is_action(_tecla(KEY_ENTER), &"interagir"), "Enter não interage mais")
+
+
+func test_e_tambem_confirma_menus_e_dialogos() -> void:
+	assert_true(InputMap.event_is_action(_tecla(KEY_E), &"ui_accept"))
+
+
+func test_e_nao_esta_em_outra_acao_do_jogo() -> void:
+	for acao in ["mover_frente", "mover_tras", "mover_esquerda", "mover_direita", "correr", "pular", "abrir_bolsa", "liberar_mouse"]:
+		assert_false(InputMap.event_is_action(_tecla(KEY_E), acao), acao)

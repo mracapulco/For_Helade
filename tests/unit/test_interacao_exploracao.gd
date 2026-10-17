@@ -130,7 +130,7 @@ func test_personagem_volta_a_andar_quando_a_conversa_acaba() -> void:
 	assert_false(personagem.em_dialogo)
 
 
-func _apertar_enter() -> void:
+func _apertar_e() -> void:
 	var tecla := InputEventAction.new()
 	tecla.action = "interagir"
 	tecla.pressed = true
@@ -138,15 +138,15 @@ func _apertar_enter() -> void:
 	await wait_process_frames(2)
 
 
-func test_enter_interage_com_o_que_esta_perto() -> void:
+func test_e_interage_com_o_que_esta_perto() -> void:
 	personagem.global_position = _perto_do_objeto()
 	watch_signals(objeto)
-	await _apertar_enter()
+	await _apertar_e()
 	assert_signal_emitted(objeto, "interagido")
 
 
-func test_enter_longe_de_tudo_nao_faz_nada() -> void:
+func test_e_longe_de_tudo_nao_faz_nada() -> void:
 	watch_signals(objeto)
-	await _apertar_enter()
+	await _apertar_e()
 	assert_signal_not_emitted(objeto, "interagido")
 	assert_null(personagem.interagivel_ao_alcance())

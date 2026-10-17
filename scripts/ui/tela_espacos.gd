@@ -3,7 +3,7 @@ extends CanvasLayer
 ## Lista dos 10 espaços de jogo salvo, para salvar (barraca do acampamento)
 ## ou carregar (menu inicial). Cada espaço mostra a parte da história, o
 ## lugar e quando foi salvo. Salvar por cima de um espaço ocupado pergunta
-## antes. Funciona com toque, clique, setas e Enter; Esc ou Voltar fecham.
+## antes. Funciona com toque, clique, setas, E e Enter; Esc ou Voltar fecham.
 
 ## O jogador escolheu um espaço (já confirmado, se era para salvar por cima).
 signal escolhido(espaco: int)

@@ -6,6 +6,8 @@ extends Node
 ## Fala de coro (várias pessoas juntas, como os sussurros do fim do prólogo):
 ## <ID>_1.mp3, <ID>_2.mp3... tocam todas ao mesmo tempo, cada uma um pouco
 ## atrasada, para soar como gente de verdade e não em uníssono.
+## Som da fala (data/vozes/sons.cfg): <ID>_som.mp3 toca junto com a voz, ou
+## sozinho quando a fala não tem voz (passos, cochichos, um resmungo).
 
 const BARRAMENTO := &"Voz"
 const PASTA := "res://assets/audio/vozes"
@@ -16,6 +18,7 @@ const ATRASO_CORO := 0.12
 
 var _tocador: AudioStreamPlayer
 var _coro: Array[AudioStreamPlayer] = []
+var _som: AudioStreamPlayer
 ## Texto da fala -> ID, para as frases que chegam só com o texto.
 var _por_texto: Dictionary[String, String] = {}
 
@@ -25,6 +28,10 @@ func _ready() -> void:
 	_tocador.name = "Voz"
 	_tocador.bus = BARRAMENTO
 	add_child(_tocador)
+	_som = AudioStreamPlayer.new()
+	_som.name = "Som"
+	_som.bus = BARRAMENTO
+	add_child(_som)
 	for i in MAXIMO_CORO:
 		var tocador := AudioStreamPlayer.new()
 		tocador.name = "Coro%d" % (i + 1)
@@ -51,7 +58,7 @@ func caminho_de(id: String) -> String:
 
 
 func tem(id: String) -> bool:
-	return not id.is_empty() and (ResourceLoader.exists(caminho_de(id)) or not vozes_do_coro(id).is_empty())
+	return not id.is_empty() and (ResourceLoader.exists(caminho_de(id)) or not vozes_do_coro(id).is_empty() or ResourceLoader.exists(caminho_de(id + "_som")))
 
 
 ## Os arquivos de uma fala de coro, em ordem (vazio se não for coro).
@@ -70,6 +77,15 @@ func tocar(id: String) -> float:
 	parar()
 	if id.is_empty():
 		return 0.0
+	var som := 0.0
+	if ResourceLoader.exists(caminho_de(id + "_som")):
+		_som.stream = load(caminho_de(id + "_som"))
+		_som.play()
+		som = _som.stream.get_length()
+	return maxf(som, _tocar_voz(id))
+
+
+func _tocar_voz(id: String) -> float:
 	if ResourceLoader.exists(caminho_de(id)):
 		_tocador.stream = load(caminho_de(id))
 		_tocador.play()
@@ -102,13 +118,15 @@ func id_do_texto(texto: String) -> String:
 func parar() -> void:
 	if _tocador:
 		_tocador.stop()
+	if _som:
+		_som.stop()
 	for tocador in _coro:
 		tocador.stop()
 		tocador.stream = null
 
 
 func tocando() -> bool:
-	return _tocador != null and (_tocador.playing or _coro.any(func(t: AudioStreamPlayer) -> bool: return t.playing))
+	return _tocador != null and (_tocador.playing or _som.playing or _coro.any(func(t: AudioStreamPlayer) -> bool: return t.playing))
 
 
 static func _normalizar(texto: String) -> String:

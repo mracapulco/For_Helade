@@ -34,7 +34,7 @@ Tac. [ID:CAP1_015]
 ~ frases_despertar
 
 ## Nicholas acorda no próprio quarto, antes do amanhecer.
-Nicholas despertou em um salto. [ID:CAP1_016]
+Nicholas acordou em um salto. [ID:CAP1_016]
 Era o aniversário de Thea. [ID:CAP1_019]
 => END
 
@@ -87,14 +87,11 @@ Nicholas: [#retrato=neutro] Deixemos isso para lá. Hoje é o aniversário da Th
 
 ~ frases_quarto_althea
 
-## Entram no quarto de Althea na ponta dos pés.
-Para Althea, era apenas Nick. [ID:CAP1_043]
-=> END
-
 ~ frases_resmungou
 
 ## Nicholas toca o ombro de Althea pela primeira vez.
 Ela resmungou e apertou a pelúcia. [ID:CAP1_094]
+
 => END
 
 ~ frases_puxou
@@ -107,7 +104,7 @@ Nicholas puxou o monstro marinho de seus braços. [ID:CAP1_095]
 
 ## Nicholas acorda a irmã; o embrulho tem a espada de madeira.
 Nicholas: [#retrato=neutro] Ei... [ID:CAP1_044]
-Feliz aniversário! [ID:CAP1_045]
+Nicholas: [#retrato=neutro] Feliz aniversário! [ID:CAP1_045]
 Althea: [#retrato=neutro] Nick! [ID:CAP1_046]
 Nicholas: [#retrato=neutro] Eu também senti sua falta nesses oito passos entre os nossos quartos. [ID:CAP1_047]
 => END
@@ -115,8 +112,8 @@ Nicholas: [#retrato=neutro] Eu também senti sua falta nesses oito passos entre 
 ~ espada
 
 ## Althea, já fora da cama, vê o embrulho; Nicholas o entrega.
-Althea: [#retrato=neutro] Aquilo é meu? [ID:CAP1_048]
-Nicholas: [#retrato=neutro] Não. Pedi que embrulhassem um presente para mim e o deixassem no seu quarto. [ID:CAP1_049]
+Althea: [#retrato=neutro] Aquilo ali é meu? [ID:CAP1_048]
+Nicholas: [#retrato=neutro] Não. Pedi que embrulhassem um presente para mim e deixassem no seu quarto. [ID:CAP1_049]
 Dentro dele havia uma espada de madeira, esculpida para o tamanho de suas mãos. [ID:CAP1_051]
 Pany: [#retrato=neutro] Lady Althea! [ID:CAP1_053]
 - [Fingir rendição] [ID:CAP1_OPC_ESPADA_RENDICAO]
@@ -137,14 +134,16 @@ Nicholas a observou com orgulho. [ID:CAP1_059]
 
 ~ frases_mesa
 
-## Todos à mesa de chá, sem títulos entre eles.
-Por algum tempo, não houve títulos entre eles. [ID:CAP1_061]
+## Todos à mesa de chá, sem títulos entre eles. Nicholas adulto narra
+## (pedido do Rafael, 17/10/2026; do livro: "não houve títulos entre eles").
+Naquela época, entre nós não havia títulos. [ID:CAP1_061]
 => END
 
 ~ frases_duque
 
-## A bolha se rompe: os guardas anunciam o duque.
-O Duque de Olympia. [ID:CAP1_064]
+## A bolha se rompe: os guardas anunciam o duque, em duas vozes (Rafael,
+## 17/10/2026; fórmula do anúncio do Palácio, mais adiante no livro).
+Anunciando o Duque de Olympia! [ID:CAP1_064]
 => END
 
 ~ duque
@@ -156,7 +155,7 @@ Nicholas: [#retrato=neutro] Casar-se com a melhor amiga da mamãe não foi uma d
 Apollon: [#retrato=neutro] Meu casamento com Danica foi uma condição imposta pelo Imperador. [ID:CAP1_068]
 Nicholas: [#retrato=neutro] Posso estar feliz por voltarmos sem aceitar o preço que pagou por isso. [ID:CAP1_069]
 Apollon: [#retrato=neutro] Pense o que quiser. Apenas mantenha a postura diante dos empregados e aprenda a se comportar de acordo com sua posição. [ID:CAP1_101]
-Althea: [#retrato=neutro] P-parem de brigar... [ID:CAP1_070]
+Althea: [#retrato=neutro] Pa-parem de brigar... [ID:CAP1_070]
 - [Olhar para Althea] [ID:CAP1_OPC_DUQUE_ALTHEA]
 	$> Relacoes.ajustar("althea", 1)
 	A irmã apertava o punho da espada contra o peito, os olhos brilhando com lágrimas. [ID:CAP1_102]
@@ -165,17 +164,17 @@ Althea: [#retrato=neutro] P-parem de brigar... [ID:CAP1_070]
 	A desconfiança de Nicholas permaneceu. [ID:CAP1_103]
 Apollon: [#retrato=neutro] Não vim para discutir. Vim parabenizar minha filha e incumbir os dois de uma tarefa. [ID:CAP1_071]
 Nicholas: [#retrato=neutro] Que tarefa? [ID:CAP1_072]
-Apollon: [#retrato=neutro] Como uma nova condição para o nosso retorno, levaremos a Princesa Ophelia conosco para Olympia. Vocês deverão ir ao Palácio Imperial e trazê-la até o fim do dia. [ID:CAP1_073]
-Nicholas: [#retrato=neutro] Por que nós? Sendo o duque, não deveria fazer as honras? [ID:CAP1_074]
+Apollon: [#retrato=neutro] Como uma nova condição para o nosso retorno, levaremos a Princesa Ophelia conosco para Olympia. Vocês deverão ir ao Palácio Imperial e trazer ela até o fim do dia. [ID:CAP1_073]
+Nicholas: [#retrato=neutro] Por que nós? Sendo o duque, o senhor não deveria fazer as honras? [ID:CAP1_074]
 Apollon: [#retrato=neutro] O Imperador exigiu por você. [ID:CAP1_075]
-Apollon: [#retrato=neutro] Feliz aniversário, Althea. [ID:CAP1_076]
+Apollon: [#retrato=neutro] Ah, feliz aniversário Althea. Vou indo, tenho assuntos a resolver... [ID:CAP1_076]
 => END
 
 ~ planos
 
 ## O duque saiu; Nicholas volta à mesa.
 Althea: [#retrato=neutro] Está tudo bem, Nick? [ID:CAP1_077]
-Nicholas: [#retrato=neutro] Teremos que mudar os planos de hoje, Thea. Que tal almoçarmos com a princesa naquele restaurante de que você gosta? [ID:CAP1_078]
+Nicholas: [#retrato=neutro] Teremos que mudar os planos de hoje, Thea. Que tal almoçarmos com a princesa naquele restaurante que você gosta? [ID:CAP1_078]
 Althea: [#retrato=neutro] É uma ótima ideia! Depois podemos passar na livraria. E naquela loja de doces. E talvez naquela praça com os músicos. Ah, e eu posso levar minha espada? [ID:CAP1_079]
 Nicholas: [#retrato=neutro] Não. [ID:CAP1_080]
 Althea: [#retrato=neutro] Mas... [ID:CAP1_081]
@@ -184,14 +183,14 @@ Nicholas: [#retrato=neutro] Definitivamente não. [ID:CAP1_082]
 
 ~ frases_por_que
 
-## O que fica na cabeça de Nicholas.
-Por que o Imperador havia exigido justamente a presença dele? [ID:CAP1_083]
+## O que fica na cabeça de Nicholas. Nicholas adulto narra (Rafael, 17/10/2026).
+Por que o Imperador havia exigido justamente a minha presença? [ID:CAP1_083]
 => END
 
 ~ frases_carruagem
 
-## Na carruagem rumo ao Palácio Imperial.
-Havia dois meses que a Imperatriz Callie falecera. [ID:CAP1_084]
+## Na carruagem rumo ao Palácio Imperial. Nicholas adulto narra (Rafael, 17/10/2026).
+Naquela época, já fazia dois meses que a Imperatriz Callie havia falecido. [ID:CAP1_084]
 => END
 
 ~ janela
@@ -200,11 +199,11 @@ Havia dois meses que a Imperatriz Callie falecera. [ID:CAP1_084]
 ## anota uma entrada no códice). Volta ao menu até ele se voltar para Althea.
 - [Olhar pela janela da esquerda] [ID:CAP1_OPC_JANELA_ESQ]
 	$> Codice.anotar("atenas")
-	Atenas, a capital do Império. [ID:CAP1_104]
+	Nicholas: [#retrato=neutro] Atenas, a capital do Império... Hoje é nosso último dia aqui. [ID:CAP1_104]
 	=> janela
 - [Olhar pela janela da direita] [ID:CAP1_OPC_JANELA_DIR]
 	$> Codice.anotar("palacio_imperial")
-	Rumo ao Palácio Imperial. [ID:CAP1_105]
+	Nicholas: [#retrato=neutro] Logo devemos chegar ao Palácio Imperial... [ID:CAP1_105]
 	=> janela
 - [Voltar-se para Althea] [ID:CAP1_OPC_JANELA_ALTHEA]
 	=> END

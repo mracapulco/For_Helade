@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="Loja" format=3]
+
+[ext_resource type="Script" path="res://scripts/systems/loja.gd" id="1_loja"]
+
+[resource]
+script = ExtResource("1_loja")
+id = "acampamento_an"
+chave_nome = "LOJA_MERCADOR_KHRONOSSES_NOME"
+origem = 3
+itens = Dictionary[String, int]({
+"pocao_cura": 4,
+"racao_trilha": 4,
+"punhal": 1,
+"espada_media": 1,
+"armadura_leve_khronosses": 1,
+"elmo_khronosses": 1,
+"escudo_khronosses": 1
+})

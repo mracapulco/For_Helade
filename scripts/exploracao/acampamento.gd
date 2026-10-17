@@ -72,6 +72,7 @@ func _ready() -> void:
 	botao_mapa.add_to_group(BotoesToque.GRUPO_BLOQUEIA_TOQUE)
 	if bioma:
 		titulo.text = bioma.chave_nome
+		Lojas.loja_do_lugar = bioma.loja
 		if bioma.mercador:
 			visual_mercador.texture = bioma.mercador
 			visual_mercador.hframes = QUADROS_MERCADOR
@@ -85,6 +86,10 @@ func _ready() -> void:
 	DialogueManager.dialogue_started.connect(_ao_comecar_dialogo)
 	DialogueManager.dialogue_ended.connect(_ao_terminar_dialogo)
 	_animar_fogo()
+
+
+func _exit_tree() -> void:
+	Lojas.loja_do_lugar = ""
 
 
 ## Descansar na barraca: o jogador escolhe em qual espaço salvar.

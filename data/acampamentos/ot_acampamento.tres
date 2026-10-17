@@ -33,3 +33,4 @@ companheiro = ExtResource("11")
 marcador_companheiro = "rafael"
 mercador = ExtResource("m")
 falesias = Array[Texture2D]([ExtResource("f1"), ExtResource("f2")])
+loja = "acampamento_ot"

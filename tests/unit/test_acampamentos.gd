@@ -109,7 +109,7 @@ func test_saida_e_placa_ou_barco(id: String = use_parameters(IDS)) -> void:
 	assert_eq(visual.texture, esperado, id)
 
 
-func test_mercador_avisa_que_a_loja_vem_depois() -> void:
+func test_mercador_oferece_as_mercadorias() -> void:
 	await _abrir("oa_acampamento")
 	TranslationServer.set_locale("pt_BR")
 	var mercador := acampamento.mercador
@@ -117,6 +117,48 @@ func test_mercador_avisa_que_a_loja_vem_depois() -> void:
 	assert_eq(fala.character, "Mercador")
 	assert_not_null(Elenco.buscar("Mercador"))
 	assert_string_starts_with(fala.text, "[Provisório]")
+	fala = await mercador.dialogo.get_next_dialogue_line(fala.next_id)
+	var opcoes := fala.responses.map(func(r: DialogueResponse) -> String: return r.text)
+	assert_has(opcoes, "Ver mercadorias")
+
+
+func test_cada_acampamento_tem_loja(id: String = use_parameters(IDS)) -> void:
+	await _abrir(id)
+	var loja := Lojas.loja(acampamento.bioma.loja)
+	assert_not_null(loja, id)
+	assert_eq(Lojas.loja_do_lugar, acampamento.bioma.loja, "o acampamento avisa qual é a loja")
+	for item_id in Lojas.mercadorias(loja.id):
+		var item := Inventario.item(item_id)
+		assert_not_null(item, "%s em %s" % [item_id, loja.id])
+		if item:
+			assert_ne(item.origem, Item.Origem.BANDIDOS, "itens dos bandidos não se vendem")
+			assert_true(item.origem == Item.Origem.NENHUMA or item.origem == loja.origem,
+				"%s é de outro reino (%s)" % [item_id, loja.id])
+
+
+func test_sair_do_acampamento_tira_a_loja_do_lugar() -> void:
+	await _abrir("og_acampamento")
+	acampamento.queue_free()
+	await wait_process_frames(2)
+	assert_eq(Lojas.loja_do_lugar, "")
+
+
+func test_ver_mercadorias_abre_a_tela_e_espera_fechar() -> void:
+	await _abrir("og_acampamento")
+	var terminou := [false]
+	var ver := func() -> void:
+		await Lojas.ver_mercadorias()
+		terminou[0] = true
+	ver.call()
+	assert_not_null(Lojas.tela)
+	assert_true(Lojas.tela.aberta())
+	assert_eq(Lojas.tela.id_loja, "acampamento_og")
+	assert_false(terminou[0])
+	Lojas.tela.fechar()
+	await wait_process_frames(1)
+	assert_true(terminou[0], "a conversa continua depois de fechar")
+	assert_null(Lojas.tela)
+	assert_false(get_tree().paused)
 
 
 func test_barraca_abre_os_espacos_e_pausa() -> void:

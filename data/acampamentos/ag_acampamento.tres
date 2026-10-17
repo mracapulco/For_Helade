@@ -28,3 +28,4 @@ semente = 4
 companheiro = ExtResource("9")
 marcador_companheiro = "burro"
 mercador = ExtResource("m")
+loja = "chymeia"

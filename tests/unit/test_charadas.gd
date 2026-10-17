@@ -72,7 +72,8 @@ func test_chymeia_erra_as_duas() -> void:
 	await _conversar("shara", ["A fumaça", "A espuma"])
 	assert_false(Inventario.tem("elixir_chymeia"))
 	assert_false(Inventario.tem("pocao_cura"))
-	assert_eq((await _conversar("shara", [])).size(), 1)
+	var depois := await _conversar("shara", ["Hoje não"])
+	assert_eq(depois.size(), 3, "depois da charada: cumprimento, oferta da loja e despedida")
 
 
 func test_segunda_charada_da_mais_de_um() -> void:

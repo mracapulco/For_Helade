@@ -26,3 +26,4 @@ semente = 9
 companheiro = ExtResource("7")
 marcador_companheiro = "caranguejo"
 mercador = ExtResource("m")
+loja = "acampamento_ilhota"

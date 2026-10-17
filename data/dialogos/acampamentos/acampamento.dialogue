@@ -3,14 +3,21 @@
 ## genéricos, com texto provisório até existir a loja e o roteiro real.
 ## Rafael e Shara são convidados (easter egg, pessoas reais), no jogo Próskopos
 ## (viajante escoteiro na mata costeira) e Chymeía (mercadora de livros e poções
-## no rio de Ágape). Cada um tem uma charada: acertar dá o prêmio maior; errar
-## dá uma segunda charada com prêmio menor; errar de novo não dá nada. Vale uma
-## vez por jogo (Inventario.ja_coletado).
+## no rio de Ágape). Chymeía também é a mercadora do acampamento dela (loja
+## "chymeia"); os outros mercadores vendem pela loja do bioma
+## (BiomaAcampamento.loja). Cada um tem uma charada: acertar dá o prêmio maior;
+## errar dá uma segunda charada com prêmio menor; errar de novo não dá nada.
+## Vale uma vez por jogo (Inventario.ja_coletado).
 
 ~ mercador
 
 Mercador: [#retrato=neutro] [Provisório] Boa noite, viajante! Descanse junto ao fogo. [ID:ACAMP_MERCADOR_001]
-Mercador: [Provisório] Minhas mercadorias ainda estão encaixotadas. A loja abre em breve. [ID:ACAMP_MERCADOR_002]
+Mercador: [Provisório] Precisa de alguma coisa para a estrada? [ID:ACAMP_MERCADOR_003]
+- Ver mercadorias [ID:ACAMP_OPC_VER_MERCADORIAS]
+	$> Lojas.ver_mercadorias()
+	Mercador: [Provisório] Volte sempre. Depois de uma noite na barraca, chega mercadoria nova. [ID:ACAMP_MERCADOR_004]
+- Só estou de passagem [ID:ACAMP_OPC_DE_PASSAGEM]
+	Mercador: [Provisório] Boa viagem, então. [ID:ACAMP_MERCADOR_005]
 => END
 
 ~ viajante
@@ -59,10 +66,10 @@ Próskopos: Quanto mais se tira de mim, maior eu fico. O que sou? [ID:ACAMP_RAFA
 
 if Inventario.ja_coletado("charada_chymeia")
 	Chymeía: [#retrato=neutro] Livros e poções! Não é magia, é química: estudo e paciência. [ID:ACAMP_SHARA_010]
-	=> END
+	=> shara_loja
 if not (Inventario.cabe("elixir_chymeia") and Inventario.cabe("pocao_cura", 2))
 	Chymeía: [#retrato=neutro] Livros e poções! Tenho uma charada com prêmio, mas sua bolsa está cheia. Abra espaço e volte. [ID:ACAMP_SHARA_019]
-	=> END
+	=> shara_loja
 Chymeía: [#retrato=neutro] Livros e poções! Tudo preparado com cuidado. [ID:ACAMP_SHARA_001]
 Chymeía: E este livro foi escrito com muito carinho. Dizem que vale cada página. [ID:ACAMP_SHARA_003]
 Chymeía: Responda à minha charada e ganhe um presente da banca. Pense bem antes de responder! [ID:ACAMP_SHARA_011]
@@ -76,6 +83,16 @@ Chymeía: Fujo da água quando o fogo a abraça, subo sem asas e volto em gotas.
 	$> Inventario.adicionar("elixir_chymeia")
 	Chymeía: Exato! Leve o meu elixir. Só faço um de cada vez: três poções numa só. [ID:ACAMP_SHARA_013]
 	Chymeía: Cada poção leva a medida exata. Não é magia, é química. [ID:ACAMP_SHARA_002]
+=> END
+
+~ shara_loja
+
+Chymeía: [#retrato=neutro] Quer ver as minhas poções? [ID:ACAMP_SHARA_020]
+- Ver mercadorias [ID:ACAMP_SHARA_OPC_VER_MERCADORIAS]
+	$> Lojas.ver_mercadorias("chymeia")
+	Chymeía: Volte sempre! Depois de uma noite de descanso, preparo mais. [ID:ACAMP_SHARA_021]
+- Hoje não [ID:ACAMP_SHARA_OPC_HOJE_NAO]
+	Chymeía: Tudo bem. Boa viagem! [ID:ACAMP_SHARA_022]
 => END
 
 ~ shara_segunda

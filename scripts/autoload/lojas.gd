@@ -8,11 +8,18 @@ extends Node
 signal estoque_mudou(loja: String, id: String)
 
 const PASTA_LOJAS := "res://data/lojas/"
+const CENA_TELA := "res://scenes/ui/tela_loja.tscn"
 ## Parte do preço que o mercador paga quando o jogador vende.
 const FRACAO_VENDA := 0.5
 
 ## Por que uma compra ou venda não aconteceu.
 enum Resultado { OK, NAO_VENDE, SEM_ESTOQUE, SEM_MOEDAS, BOLSA_CHEIA, NAO_TEM, DA_HISTORIA, SEM_VALOR }
+
+## Loja do mercador do lugar onde Nicholas está (o acampamento põe aqui a
+## do bioma dele); vazio = sem mercador.
+var loja_do_lugar := ""
+## Tela aberta por [method ver_mercadorias]; null quando fechada.
+var tela: TelaLoja
 
 var _catalogo: Dictionary[String, Loja] = {}
 ## loja -> { item -> quantidade comprada desde a última renovação }
@@ -118,6 +125,22 @@ func vender(id: String, qtd := 1) -> Resultado:
 	Inventario.remover(id, qtd)
 	Inventario.ganhar_dinheiro(preco_venda(id) * qtd)
 	return Resultado.OK
+
+
+## Abre a tela da loja e espera o jogador fechar. Sem id, usa a
+## [member loja_do_lugar]. No roteiro (a conversa continua depois):
+##   $> Lojas.ver_mercadorias("chymeia")
+func ver_mercadorias(id_loja := "") -> void:
+	var id := id_loja if not id_loja.is_empty() else loja_do_lugar
+	if loja(id) == null:
+		push_warning("Lojas: nenhuma loja '%s' para abrir." % id)
+		return
+	tela = (load(CENA_TELA) as PackedScene).instantiate()
+	get_tree().root.add_child(tela)
+	tela.abrir(id)
+	await tela.fechada
+	tela.queue_free()
+	tela = null
 
 
 ## Todas as lojas voltam ao estoque cheio (descansar no acampamento).

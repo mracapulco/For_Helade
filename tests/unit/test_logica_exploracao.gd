@@ -65,7 +65,7 @@ func test_alcance_e_igual_em_todas_as_direcoes() -> void:
 		assert_true(objeto.ao_alcance(centro + direcao * (objeto.alcance - 1.0)))
 
 
-func test_enter_escolhe_o_mais_perto_quando_dois_estao_ao_alcance() -> void:
+func test_e_escolhe_o_mais_perto_quando_dois_estao_ao_alcance() -> void:
 	outro.alcance = 10000.0
 	objeto.alcance = 10000.0
 	personagem.global_position = objeto.global_position + Vector2(0, 40)
@@ -140,7 +140,7 @@ func test_clique_avanca_ate_fechar_e_libera_o_personagem() -> void:
 	assert_false(personagem.em_dialogo)
 
 
-func test_enter_logo_ao_fechar_nao_reabre_a_conversa() -> void:
+func test_e_logo_ao_fechar_nao_reabre_a_conversa() -> void:
 	personagem.global_position = objeto.global_position + Vector2(0, objeto.alcance * 0.55)
 	objeto.interagir()
 	await wait_process_frames(3)

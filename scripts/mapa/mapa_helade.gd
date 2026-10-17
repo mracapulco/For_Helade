@@ -3,13 +3,19 @@ extends Node2D
 ## Tela de viagem entre os lugares de Hélade, no jeito do mapa do Super Mario
 ## World: Nicholas fica em cima de um local e anda pelos caminhos até outro.
 ## Toque/clique num local liberado para ir até ele; toque de novo (ou no botão
-## Entrar, ou Enter) para entrar. Setas/WASD pulam para o vizinho naquela direção.
+## Entrar, ou E) para entrar. Setas/WASD pulam para o vizinho naquela direção.
 ## O que ainda não foi descoberto fica sob a névoa: ao chegar num lugar, os
 ## vizinhos dele aparecem. Dia e noite vêm do autoload Mundo.
+##
+## Por enquanto o mapa não é livre: quando a parte da história tem fase
+## ([FasesHistoria]), Nicholas fica no reino dela e só pode entrar na cidade.
 
 signal chegou(id: String)
 signal entrada_pedida(id: String)
 
+## Onde cada parte da história acontece (por preload, sem depender do
+## cache de classes do editor).
+const FasesHistoria := preload("res://scripts/systems/fases_historia.gd")
 const ZOOM_PIXEL_ART := 2.0
 ## Tamanho do Nicholas no mapa (o desenho é o mesmo da exploração).
 const ESCALA_NICHOLAS := 0.7
@@ -51,6 +57,9 @@ const ACOES_DIRECAO := {
 @export var local_inicial := "olympia"
 ## Quando falso, Entrar só avisa (testes).
 @export var trocar_de_cena := true
+## Quando falso, numa parte da história com fase, Nicholas fica no reino dela
+## e não anda pelo mapa (o passeio livre vem depois).
+@export var exploracao_livre := false
 
 @export var fundo: Sprite2D
 @export var fundo_noite: Sprite2D
@@ -86,6 +95,8 @@ var _nomes: Dictionary[String, Label] = {}
 var _troca_periodo: Tween
 var _quadros_a_pe: SpriteFrames
 var _de_barco := false
+## Fase da história em andamento ({local, cena}); vazio = mapa livre.
+var fase: Dictionary = {}
 
 
 func _ready() -> void:
@@ -98,6 +109,12 @@ func _ready() -> void:
 	var inicio := Mundo.local_no_mapa
 	if grafo.local(inicio) == null or not liberados.has(inicio):
 		inicio = local_inicial
+	if not exploracao_livre:
+		fase = FasesHistoria.da_etapa(Progresso.etapa)
+		if grafo.local(fase.get("local", "")) == null:
+			fase = {}
+	if preso_na_fase():
+		inicio = fase.local
 	liberar(inicio)
 	caminhos.draw.connect(_desenhar_caminhos)
 	botao_entrar.pressed.connect(entrar)
@@ -185,12 +202,14 @@ func _unhandled_input(evento: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 		if id == local_atual and not andando:
 			entrar()
-		else:
+		elif not preso_na_fase():
 			viajar_para(id)
 		return
 	if evento.is_action_pressed(&"interagir"):
 		get_viewport().set_input_as_handled()
 		entrar()
+		return
+	if preso_na_fase():
 		return
 	for acao: StringName in ACOES_DIRECAO:
 		if evento.is_action_pressed(acao) and not andando:
@@ -222,10 +241,15 @@ func local_em(posicao: Vector2) -> String:
 	return ""
 
 
+## True quando a história prende Nicholas no reino da fase atual.
+func preso_na_fase() -> bool:
+	return not fase.is_empty()
+
+
 ## Anda pelos caminhos até [param destino]. Devolve false se não houver
-## caminho por locais liberados.
+## caminho por locais liberados (ou se o mapa ainda não é livre).
 func viajar_para(destino: String) -> bool:
-	if andando or destino == local_atual:
+	if andando or destino == local_atual or preso_na_fase():
 		return false
 	var trechos := grafo.caminho(local_atual, destino, liberados)
 	if trechos.size() < 2:
@@ -257,12 +281,23 @@ func entrar() -> void:
 	if andando or local_atual.is_empty():
 		return
 	entrada_pedida.emit(local_atual)
-	var cena := grafo.local(local_atual).cena
+	var cena := cena_ao_entrar(local_atual)
 	if cena.is_empty():
 		aviso.text = tr("MAPA_SEM_CENA")
 		return
 	if trocar_de_cena:
 		TrocaCena.ir_para(cena)
+
+
+## Cena que abre ao entrar em [param id]: a fase da história, se ela acontece
+## ali; senão, a cena do próprio local. Vazio quando ainda não existe.
+func cena_ao_entrar(id: String) -> String:
+	var cena: String = grafo.local(id).cena
+	if fase.get("local", "") == id:
+		cena = fase.cena
+	if not cena.is_empty() and not ResourceLoader.exists(cena):
+		return ""
+	return cena
 
 
 func _passar_por(id: String) -> void:

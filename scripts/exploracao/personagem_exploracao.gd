@@ -6,7 +6,7 @@ extends CharacterBody2D
 ## interage com ele. Mouse e toque passam pelo mesmo caminho (o projeto emula
 ## toque com o mouse).
 ## Teclado (PC): WASD ou setas para andar, Shift para correr, Espaço para pular,
-## Enter para interagir com o interagível mais próximo ao alcance.
+## E para interagir com o interagível mais próximo ao alcance.
 ## Golpe: com uma arma equipada, o clique esquerdo (ou o botão Golpe, no
 ## celular) golpeia para onde ele andou por último. Clicar num interagível
 ## continua interagindo; sem arma, o clique continua andando. Quem estiver
@@ -372,7 +372,7 @@ func _ao_comecar_dialogo(_recurso: DialogueResource) -> void:
 
 
 func _ao_terminar_dialogo(_recurso: DialogueResource) -> void:
-	# Espera um instante para o mesmo Enter ou toque que fechou a conversa
+	# Espera um instante para o mesmo E ou toque que fechou a conversa
 	# não abrir outra nem mandar o personagem andar.
 	await get_tree().create_timer(0.2).timeout
 	em_dialogo = false

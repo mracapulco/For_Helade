@@ -8,6 +8,7 @@ const TAMANHO := Vector2(64, 64)
 const COR_FUNDO := Color(0.0196, 0.0471, 0.0784, 0.8)     # Noite
 const COR_BORDA := Color(0.4, 0.33, 0.24)                 # Dourado apagado
 const COR_DESTAQUE := Color(0.9255, 0.7412, 0.4588)       # Dourado claro
+const COR_SELECIONADO := Color(1.0, 0.96, 0.85)          # Quase branco
 const COR_FORA_DO_LIMITE := Color(0.45, 0.2, 0.2, 0.8)
 
 ## Índice do espaço no Inventario.
@@ -16,6 +17,8 @@ var indice := 0
 var equipado := false
 ## Escolhido na grade para trocar de lugar.
 var escolhido := false
+## Espaço na mão (barra rápida): moldura clara e grossa.
+var selecionado := false
 ## Espaço além do limite da idade (bolsa que encolheu).
 var fora_do_limite := false
 
@@ -85,8 +88,12 @@ func _draw() -> void:
 	draw_rect(caixa, COR_FORA_DO_LIMITE if fora_do_limite else COR_FUNDO)
 	var destaque := equipado or escolhido
 	var largura := 4.0 if destaque else 2.0
-	draw_rect(caixa.grow(-largura / 2.0), COR_DESTAQUE if destaque else COR_BORDA, false, largura)
-
+	var borda := caixa
+	if selecionado:
+		# Na mão: moldura clara por fora; a dourada (equipado) fica por dentro.
+		draw_rect(caixa.grow(-2.0), COR_SELECIONADO, false, 4.0)
+		borda = caixa.grow(-4.0)
+	draw_rect(borda.grow(-largura / 2.0), COR_DESTAQUE if destaque else COR_BORDA, false, largura)
 
 func _rotulo(preset: Control.LayoutPreset, horizontal: HorizontalAlignment,
 		vertical: VerticalAlignment) -> Label:

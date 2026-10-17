@@ -1,5 +1,7 @@
 class_name ItemNaMao
 extends Sprite2D
+
+const AparenciaNicholas := preload("res://scripts/systems/aparencia_nicholas.gd")
 ## Mostra na mão do personagem o que ele tem equipado (Inventario) e
 ## acompanha cada quadro da animação: parado, andando, correndo, pulando
 ## (o pulo levanta o Corpo inteiro), interagindo e golpeando. Espelha junto
@@ -14,6 +16,9 @@ extends Sprite2D
 
 ## Onde fica a mão (e o giro do item) em cada quadro da folha deste personagem.
 @export var maos: MaosPersonagem
+## Usa as mãos de Nicholas na idade atual da história em vez de [member maos]
+## (junto com [member AnimacaoPersonagem.nicholas_pela_idade]).
+@export var maos_pela_idade := false
 
 ## Encaixe do Inventario mostrado aqui: ARMA ou ESCUDO.
 @export var encaixe: Item.Encaixe = Item.Encaixe.ARMA
@@ -53,6 +58,9 @@ func _ready() -> void:
 		flecha.centered = false
 		flecha.hide()
 	Inventario.equipamento_mudou.connect(_ao_mudar_equipamento)
+	if maos_pela_idade:
+		_usar_idade(Inventario.faixa_etaria)
+		Inventario.faixa_etaria_mudou.connect(_usar_idade)
 	if _desenho:
 		_desenho.frame_changed.connect(_acompanhar)
 		_desenho.animation_changed.connect(_acompanhar)
@@ -83,6 +91,12 @@ func tem_rastro() -> bool:
 func _ao_mudar_equipamento(quem: String, qual: Item.Encaixe, _id: String) -> void:
 	if quem == personagem and qual == encaixe:
 		_trocar_item()
+
+
+func _usar_idade(faixa: int) -> void:
+	maos = AparenciaNicholas.maos(faixa)
+	ombro_rastro = AparenciaNicholas.ombro(faixa)
+	_acompanhar()
 
 
 func _trocar_item() -> void:

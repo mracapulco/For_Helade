@@ -26,6 +26,9 @@ func _ready() -> void:
 	Inventario.dinheiro_recebido.connect(_ao_receber_dinheiro)
 	Codice.anotado.connect(_ao_anotar)
 	Inventario.bolsa_cheia.connect(_ao_encher_bolsa)
+	Inventario.pesado_demais.connect(_ao_tentar_pesado)
+	Experiencia.subiu.connect(_ao_subir_de_nivel)
+	Experiencia.limite_das_lutas.connect(_ao_chegar_no_limite)
 
 
 ## Textos dos avisos que estão na tela agora.
@@ -70,3 +73,15 @@ func _ao_anotar(id: String) -> void:
 
 func _ao_encher_bolsa() -> void:
 	mostrar(tr("AVISO_BOLSA_CHEIA"))
+
+
+func _ao_tentar_pesado(_id: String) -> void:
+	mostrar(tr("AVISO_PESADO_DEMAIS"))
+
+
+func _ao_subir_de_nivel(_personagem: String, nivel: int) -> void:
+	mostrar(tr("AVISO_SUBIU_NIVEL") % nivel)
+
+
+func _ao_chegar_no_limite(_personagem: String, _nivel: int) -> void:
+	mostrar(tr("AVISO_LIMITE_NIVEL"))

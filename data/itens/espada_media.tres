@@ -16,6 +16,7 @@ tipo = 0
 encaixe = 1
 preco = 60
 nivel = 1
+fase_minima = 1
 ataque = 7
 defesa = 2
 velocidade = 5

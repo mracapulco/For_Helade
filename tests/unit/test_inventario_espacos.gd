@@ -223,3 +223,32 @@ func test_limpar_volta_a_crianca() -> void:
 	assert_eq(inv.faixa_etaria, inv.FaixaEtaria.CRIANCA)
 	assert_eq(inv.numero_de_espacos(), 12)
 	assert_eq(_ocupados(), 0)
+
+
+func test_selecionar_arma_poe_na_mao_e_outro_item_tira() -> void:
+	inv.adicionar("espada")
+	inv.adicionar("pocao", 2)
+	inv.selecionar_espaco(0, "nicholas")
+	assert_eq(inv.equipado("nicholas", Item.Encaixe.ARMA), "espada")
+	inv.selecionar_espaco(1, "nicholas")
+	assert_eq(inv.equipado("nicholas", Item.Encaixe.ARMA), "")
+	assert_eq(inv.quantidade("pocao"), 2)
+
+
+func test_usar_selecionado_bebe_mas_nao_usa_arma() -> void:
+	inv.adicionar("espada")
+	inv.adicionar("pocao", 2)
+	inv.selecionar_espaco(0, "nicholas")
+	assert_false(inv.selecionado_tem_uso())
+	assert_false(inv.usar_selecionado("nicholas"))
+	inv.selecionar_espaco(1, "nicholas")
+	assert_true(inv.usar_selecionado("nicholas"))
+	assert_eq(inv.quantidade("pocao"), 1)
+
+
+func test_selecionar_espaco_vazio_tira_a_arma() -> void:
+	inv.adicionar("espada")
+	inv.selecionar_espaco(0, "nicholas")
+	inv.selecionar_espaco(5, "nicholas")
+	assert_eq(inv.equipado("nicholas", Item.Encaixe.ARMA), "")
+	assert_false(inv.usar_selecionado("nicholas"))

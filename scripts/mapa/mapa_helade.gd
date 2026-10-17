@@ -16,6 +16,7 @@ signal entrada_pedida(id: String)
 ## Onde cada parte da história acontece (por preload, sem depender do
 ## cache de classes do editor).
 const FasesHistoria := preload("res://scripts/systems/fases_historia.gd")
+const AparenciaNicholas := preload("res://scripts/systems/aparencia_nicholas.gd")
 const ZOOM_PIXEL_ART := 2.0
 ## Tamanho do Nicholas no mapa (o desenho é o mesmo da exploração).
 const ESCALA_NICHOLAS := 0.7
@@ -102,7 +103,10 @@ var fase: Dictionary = {}
 func _ready() -> void:
 	grafo = GrafoMapa.da_pasta()
 	liberados = Mundo.descobertos
-	_quadros_a_pe = nicholas.sprite_frames
+	# A pé, Nicholas aparece na idade em que está na história (criança no começo).
+	_quadros_a_pe = AparenciaNicholas.quadros_atuais()
+	nicholas.sprite_frames = _quadros_a_pe
+	Inventario.faixa_etaria_mudou.connect(_ao_mudar_idade)
 	for id: String in grafo.locais:
 		if grafo.local(id).liberado_no_inicio:
 			liberar(id)
@@ -372,6 +376,15 @@ func _olhar_para(rumo: Vector2, por_mar := false) -> void:
 		nicholas.play(&"barco_costas" if rumo.y < 0.0 else &"barco_frente")
 	else:
 		nicholas.play(&"andando_costas" if rumo.y < 0.0 else &"andando_frente")
+
+
+## Nicholas cresceu (ou o jogo carregou outra idade): troca o desenho a pé.
+func _ao_mudar_idade(faixa: int) -> void:
+	_quadros_a_pe = AparenciaNicholas.quadros(faixa)
+	if not _de_barco:
+		var animacao := nicholas.animation
+		nicholas.sprite_frames = _quadros_a_pe
+		nicholas.play(animacao)
 
 
 ## No mar Nicholas vai no barquinho; em terra, a pé.

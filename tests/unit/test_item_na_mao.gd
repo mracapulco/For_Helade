@@ -7,6 +7,7 @@ const FOLHA := "res://assets/art/personagens/nicholas/nicholas_exploracao.tres"
 
 func before_each() -> void:
 	Inventario.limpar()
+	Inventario.mudar_faixa_etaria(Inventario.FaixaEtaria.ADULTO)
 
 
 func after_all() -> void:

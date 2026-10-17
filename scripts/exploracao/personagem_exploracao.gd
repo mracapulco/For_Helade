@@ -8,8 +8,9 @@ extends CharacterBody2D
 ## Teclado (PC): WASD ou setas para andar, Shift para correr, Espaço para pular,
 ## E para interagir com o interagível mais próximo ao alcance.
 ## Golpe: com uma arma equipada, o clique esquerdo (ou o botão Golpe, no
-## celular) golpeia para onde ele andou por último. Clicar num interagível
-## continua interagindo; sem arma, o clique continua andando. Quem estiver
+## celular) golpeia para onde ele olha. Sem arma, com um inimigo vivo
+## por perto ([member raio_combate]), o mesmo clique dá um soco (ataque base). No PC o clique só golpeia e o Enter
+## só interage (Rafael, 15/10): o clique nunca anda nem interage. Quem estiver
 ## perto, na frente dele, reage ao golpe (ReacaoAoGolpe) e perde vida se
 ## tiver uma.
 ## O equipamento muda o personagem (Balanceamento): o ataque do golpe, o
@@ -19,6 +20,9 @@ extends CharacterBody2D
 ## na cena, com a vida cheia, sem perder nada.
 ## Tocar num Interagivel: anda até ele e interage ao chegar.
 ## Durante uma conversa o personagem fica parado e ignora toques e teclas.
+## Na grade, cada casa tem um personagem só (GradeOcupacao): ele não entra
+## na casa de um inimigo, e o golpe pega só quem está na casa da frente (a
+## flecha, o primeiro da linha).
 ## Com uma [member grade], ele anda de casa em casa do chão e sempre para no
 ## centro de uma casa, pelo teclado ou pelo toque; assim fica claro quando
 ## está alinhado com alguém.
@@ -31,6 +35,12 @@ signal golpeou
 signal acertou(alvos: Array[ReacaoAoGolpe])
 ## A vida chegou a zero; ele já voltou ao ponto de entrada.
 signal derrotado
+
+## As 8 casas vizinhas, no sistema de casas do chão.
+const PASSOS: Array[Vector2i] = [
+	Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1),
+	Vector2i(1, 1), Vector2i(-1, -1), Vector2i(1, -1), Vector2i(-1, 1),
+]
 
 ## Velocidade de andar sem equipamento. O equipamento aumenta ou diminui
 ## (veja [method velocidade_andando]).
@@ -51,6 +61,8 @@ signal derrotado
 ## Até onde o golpe pega, a partir dos pés dele, em pixels, quando a arma
 ## não tem alcance próprio.
 @export var alcance_golpe := 40.0
+## Sem arma, o clique dá soco quando há um inimigo vivo a esta distância.
+@export var raio_combate := 200.0
 ## Com [member grade], parado: apertar uma direção diferente da que ele olha
 ## só vira o corpo; segurando a tecla por este tempo (ou apertando de novo),
 ## anda. Andando, trocar de direção vira e segue sem pausa.
@@ -59,6 +71,10 @@ signal derrotado
 @export var tempo_para_parar := 0.15
 ## Vida do personagem (opcional). Sem ela, não há derrota.
 @export var vida: Vida
+## A vida máxima vem da fase da vida (Inventario.fase()) mais o nível
+## (Experiencia) e muda quando ele cresce ou sobe de nível. Desligado,
+## vale o máximo posto na [member vida].
+@export var vida_pela_idade := true
 ## Efeitos de poções (opcional): a rapidez soma na velocidade.
 @export var efeitos: EfeitosTemporarios
 
@@ -98,11 +114,14 @@ func _ready() -> void:
 	DialogueManager.dialogue_started.connect(_ao_comecar_dialogo)
 	DialogueManager.dialogue_ended.connect(_ao_terminar_dialogo)
 	Inventario.equipamento_mudou.connect(_ao_mudar_equipamento)
+	Inventario.faixa_etaria_mudou.connect(_ao_mudar_idade)
+	Experiencia.subiu.connect(_ao_subir_de_nivel)
 	if efeitos:
 		efeitos.mudou.connect(_atualizar_ritmo)
 	if vida:
 		vida.morreu.connect(_ao_ser_derrotado)
 	_ponto_de_entrada = global_position
+	_atualizar_vida_maxima()
 	_atualizar_ritmo()
 
 
@@ -112,23 +131,18 @@ func _unhandled_input(event: InputEvent) -> void:
 	var na_tela: bool = event is InputEventScreenTouch or event is InputEventScreenDrag
 	if na_tela and BotoesToque.toque_em_botao(get_tree(), event.position):
 		return
-	# No PC armado, o clique golpeia: o toque que o Godot cria a partir do
-	# mouse não anda, só interage se cair num interagível.
+	# No PC o clique só golpeia e o Enter só interage (Rafael, 15/10): o
+	# toque que o Godot cria a partir do mouse não anda nem interage.
 	var do_mouse: bool = na_tela and event.device == InputEvent.DEVICE_ID_EMULATION
-	if do_mouse and armado():
-		if event is InputEventScreenTouch and event.pressed:
-			var alvo := interagivel_em(tela_para_mundo(event.position))
-			if alvo:
-				interagir_com(alvo)
+	if do_mouse:
 		get_viewport().set_input_as_handled()
 		return
 	var toque: bool = event is InputEventScreenTouch and event.pressed
 	if toque:
 		tocar(tela_para_mundo(event.position))
 		get_viewport().set_input_as_handled()
-	elif event.is_action_pressed("golpear") and armado():
-		if not (event is InputEventMouseButton and interagivel_em(tela_para_mundo(event.position))):
-			golpear()
+	elif event.is_action_pressed("golpear") and pode_golpear():
+		golpear()
 		get_viewport().set_input_as_handled()
 	elif event.is_action_pressed("pular"):
 		pular()
@@ -220,6 +234,20 @@ func armado() -> bool:
 	return not Inventario.equipado(id_inventario, Item.Encaixe.ARMA).is_empty()
 
 
+## Está em combate: há um inimigo vivo a até [member raio_combate].
+func em_combate() -> bool:
+	for no in get_tree().get_nodes_in_group(Inimigo.GRUPO):
+		var inimigo := no as Node2D
+		if inimigo and global_position.distance_to(inimigo.global_position) <= raio_combate:
+			return true
+	return false
+
+
+## Pode golpear agora: com arma sempre; sem arma, só em combate (soco).
+func pode_golpear() -> bool:
+	return armado() or em_combate()
+
+
 ## Arma equipada agora, ou null.
 func arma() -> Item:
 	return Inventario.item(Inventario.equipado(id_inventario, Item.Encaixe.ARMA))
@@ -240,7 +268,7 @@ func duracao_do_golpe() -> float:
 	return duracao_golpe / _ritmo
 
 
-## Ataque do golpe: o do personagem mais o do equipamento.
+## Ataque do golpe: o da idade (soco) mais o do equipamento.
 func ataque() -> int:
 	return int(Inventario.atributos(id_inventario).ataque)
 
@@ -251,11 +279,12 @@ func alcance_do_golpe() -> float:
 	return dados.alcance if dados and dados.alcance > 0.0 else alcance_golpe
 
 
-## Golpe com a arma equipada, para onde ele está olhando ([member direcao_olhar]).
-## Para de andar. Devolve false se não puder golpear agora (sem arma, em
-## conversa ou no meio de outro golpe).
+## Golpe com a arma equipada (ou soco, sem arma, em combate), para onde ele
+## está olhando ([member direcao_olhar]). Para de andar. Devolve false se não
+## puder golpear agora (sem arma fora de combate, em conversa ou no meio de
+## outro golpe).
 func golpear() -> bool:
-	if em_dialogo or golpeando or not armado():
+	if em_dialogo or golpeando or not pode_golpear():
 		return false
 	if indo_para_casa():
 		# Termina o passo antes, para golpear sempre do centro de uma casa.
@@ -270,9 +299,22 @@ func golpear() -> bool:
 	return true
 
 
-## Quem o golpe pega agora: está perto e na frente dele.
+## Quem o golpe pega agora. Na grade: quem está na casa da frente ou, com
+## arma de longo alcance, o primeiro na linha para onde ele olha. Sem grade:
+## quem está perto e na frente dele.
 func alvos_do_golpe() -> Array[ReacaoAoGolpe]:
 	var alvos: Array[ReacaoAoGolpe] = []
+	if grade:
+		var passo := passo_do_olhar()
+		var casa := casa_de(global_position)
+		for i in casas_do_golpe():
+			casa += passo
+			var achados := atingiveis_na_casa(casa)
+			if not achados.is_empty():
+				return achados
+			if not casa_andavel(centro_da_casa(casa)):
+				break   # parede ou objeto: a flecha para
+		return alvos
 	for no in get_tree().get_nodes_in_group(ReacaoAoGolpe.GRUPO):
 		var alvo := no as ReacaoAoGolpe
 		if alvo == null or is_ancestor_of(alvo):
@@ -291,6 +333,51 @@ static func pega_no_golpe(origem: Vector2, olhar: Vector2, alvo: Vector2, alcanc
 	if ate_alvo.length() < 1.0:
 		return true
 	return olhar.normalized().dot(ate_alvo.normalized()) >= 0.7
+
+
+## Quantas casas o golpe alcança na grade: 1 de perto; o arco, mais.
+func casas_do_golpe() -> int:
+	return maxi(1, roundi(alcance_do_golpe() / Balanceamento.ALCANCE_PADRAO))
+
+
+## Quem pode ser atingido nesta casa (fora ele mesmo).
+func atingiveis_na_casa(casa: Vector2i) -> Array[ReacaoAoGolpe]:
+	var achados: Array[ReacaoAoGolpe] = []
+	for no in get_tree().get_nodes_in_group(ReacaoAoGolpe.GRUPO):
+		var alvo := no as ReacaoAoGolpe
+		if alvo == null or is_ancestor_of(alvo):
+			continue
+		var dono := alvo.get_parent() as Node2D
+		var onde := dono.global_position if dono else alvo.global_position
+		if casa_de(onde) == casa:
+			achados.append(alvo)
+	return achados
+
+
+## O passo da grade (entre as 8 vizinhas) que mais combina com
+## [member direcao_olhar]: a casa "da frente".
+func passo_do_olhar() -> Vector2i:
+	var aqui := casa_de(global_position)
+	var origem := centro_da_casa(aqui)
+	var melhor := Vector2i(1, 0)
+	var maior := -INF
+	for passo in PASSOS:
+		var nota := (centro_da_casa(aqui + passo) - origem).normalized().dot(direcao_olhar)
+		if nota > maior:
+			maior = nota
+			melhor = passo
+	return melhor
+
+
+## Registra a casa onde ele está parado (depois de chegar, de ser levado
+## para o ponto de entrada etc.).
+func _sincronizar_casa() -> void:
+	var casa := casa_de(global_position)
+	var minhas := GradeOcupacao.casas_de(self)
+	if minhas.size() == 1 and minhas[0] == casa:
+		return
+	GradeOcupacao.liberar_tudo(self)
+	GradeOcupacao.ocupar(casa, self)
 
 
 ## Está no meio de um passo de uma casa para outra (teclado).
@@ -378,7 +465,13 @@ func _ao_terminar_dialogo(_recurso: DialogueResource) -> void:
 	em_dialogo = false
 
 
+func _exit_tree() -> void:
+	GradeOcupacao.liberar_tudo(self)
+
+
 func _physics_process(delta: float) -> void:
+	if grade and not indo_para_casa():
+		_sincronizar_casa()
 	if indo_para_casa():
 		_tempo_parado = 0.0
 	else:
@@ -460,7 +553,8 @@ func _andar_na_grade(teclas: Vector2, rapidez: float, delta: float) -> void:
 		var proxima := Vector2.INF
 		for tentativa in tentativas:
 			var casa := centro_da_casa(casa_de(global_position) + tentativa)
-			if not test_move(global_transform, casa - global_position) and casa_andavel(casa):
+			if (not test_move(global_transform, casa - global_position) and casa_andavel(casa)
+					and GradeOcupacao.ocupar(casa_de(casa), self)):
 				proxima = casa
 				break
 		if proxima == Vector2.INF:
@@ -474,6 +568,7 @@ func _andar_na_grade(teclas: Vector2, rapidez: float, delta: float) -> void:
 	if falta.length() <= anda:
 		global_position = _casa_destino
 		_casa_destino = Vector2.INF
+		_sincronizar_casa()
 		if _golpe_pendente:
 			_golpe_pendente = false
 			golpear()
@@ -518,6 +613,21 @@ func _atualizar_pulo(delta: float) -> void:
 func _ao_mudar_equipamento(quem: String, _encaixe: Item.Encaixe, _id: String) -> void:
 	if quem == id_inventario:
 		_atualizar_ritmo()
+
+
+func _ao_mudar_idade(_faixa: Inventario.FaixaEtaria) -> void:
+	_atualizar_vida_maxima()
+	_atualizar_ritmo()
+
+
+func _ao_subir_de_nivel(quem: String, _nivel: int) -> void:
+	if quem == id_inventario:
+		_atualizar_vida_maxima()
+
+
+func _atualizar_vida_maxima() -> void:
+	if vida and vida_pela_idade:
+		vida.mudar_maxima(Inventario.fase().vida_base + Experiencia.bonus_vida(id_inventario))
 
 
 func _atualizar_ritmo() -> void:

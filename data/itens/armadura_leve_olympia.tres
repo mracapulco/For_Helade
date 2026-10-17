@@ -15,6 +15,7 @@ encaixe = 2
 preco = 70
 origem = 1
 nivel = 1
+fase_minima = 1
 defesa = 9
 velocidade = 5
 visual_no_corpo = ExtResource("4_corpo")

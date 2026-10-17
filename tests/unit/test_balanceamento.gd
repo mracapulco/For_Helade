@@ -1,7 +1,7 @@
 extends GutTest
 ## Balanceamento dos itens (orçamento de pontos) e as contas do combate.
 
-const ARMAS := ["espada_grande", "machado_guerra", "arco", "espada_media",
+const ARMAS := ["espada_grande", "machado_guerra", "arco", "arco_curto", "espada_media",
 	"machado_pequeno", "punhal", "maca"]
 const REINOS := ["olympia", "agape", "khronosses", "bandidos"]
 const PECAS_DE_REINO := ["escudo", "armadura_leve", "armadura_pesada", "elmo"]
@@ -13,6 +13,11 @@ static func protecoes() -> Array[String]:
 		for reino in REINOS:
 			ids.append("%s_%s" % [peca, reino])
 	return ids
+
+
+func before_each() -> void:
+	# Adulto: pode equipar tudo (o que cada idade pode está em test_fase_da_vida).
+	Inventario.mudar_faixa_etaria(Inventario.FaixaEtaria.ADULTO)
 
 
 func after_each() -> void:
@@ -47,7 +52,7 @@ func test_todos_os_itens_pedidos_existem() -> void:
 
 
 func test_duas_maos_e_uma_mao() -> void:
-	for id in ["espada_grande", "machado_guerra", "arco"]:
+	for id in ["espada_grande", "machado_guerra", "arco", "arco_curto"]:
 		assert_true(Inventario.item(id).duas_maos(), id)
 	for id in ["espada_media", "machado_pequeno", "punhal", "maca"]:
 		assert_false(Inventario.item(id).duas_maos(), id)
@@ -163,14 +168,14 @@ func test_atributos_somam_o_equipamento() -> void:
 		Inventario.adicionar(id)
 		Inventario.equipar("nicholas", id)
 	var a := Inventario.atributos("nicholas")
-	assert_eq(a.ataque, Balanceamento.ATAQUE_BASE + 7)
+	assert_eq(a.ataque, Inventario.fase().ataque_base + 7)
 	assert_eq(a.defesa, 2 + 7 + 9 + 5)
 	assert_eq(a.velocidade, 5 - 5 + 5 - 5)
 
 
 func test_sem_nada_equipado_so_o_ataque_base() -> void:
 	var a := Inventario.atributos("nicholas")
-	assert_eq(a.ataque, Balanceamento.ATAQUE_BASE)
+	assert_eq(a.ataque, Inventario.fase().ataque_base)
 	assert_eq(a.defesa, 0)
 	assert_eq(a.velocidade, 0)
 

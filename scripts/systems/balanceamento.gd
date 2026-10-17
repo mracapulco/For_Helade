@@ -42,7 +42,8 @@ const ALCANCE_PADRAO := 40.0
 ## Diferença aceita entre o orçamento e os pontos gastos.
 const FOLGA := 0.5
 
-## Ataque de quem está sem arma. Somado ao da arma.
+## Ataque de quem está sem arma (inimigos). O do Nicholas vem da fase da
+## vida (FaseDaVida). Somado ao da arma.
 const ATAQUE_BASE := 3
 ## Limites da velocidade somada de todo o equipamento.
 const VELOCIDADE_MINIMA := -40
@@ -77,11 +78,13 @@ static func equilibrado(item: Item) -> bool:
 
 ## Soma os bônus de vários itens: { "ataque", "defesa", "velocidade" }.
 ## A velocidade fica entre [constant VELOCIDADE_MINIMA] e
-## [constant VELOCIDADE_MAXIMA]; o ataque já inclui [constant ATAQUE_BASE].
-static func somar(itens: Array[Item]) -> Dictionary:
-	var ataque := ATAQUE_BASE
+## [constant VELOCIDADE_MAXIMA]; o ataque já inclui o [param ataque_base]
+## (o de quem está sem arma) e a velocidade, a [param velocidade_base]
+## (a da fase da vida, por exemplo).
+static func somar(itens: Array[Item], ataque_base := ATAQUE_BASE, velocidade_base := 0) -> Dictionary:
+	var ataque := ataque_base
 	var defesa := 0
-	var velocidade := 0
+	var velocidade := velocidade_base
 	for item in itens:
 		if item == null:
 			continue

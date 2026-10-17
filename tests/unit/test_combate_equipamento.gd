@@ -152,7 +152,7 @@ func test_golpe_tira_vida_do_guarda_e_mostra_o_dano() -> void:
 func test_bau_de_armas_entrega_tudo() -> void:
 	var recompensa: Recompensa = sala.get_node("BauArmas/Recompensa")
 	recompensa.entregar()
-	var ids: Array[String] = ["espada_grande", "machado_guerra", "arco", "espada_media",
+	var ids: Array[String] = ["espada_grande", "machado_guerra", "arco", "arco_curto", "espada_media",
 		"machado_pequeno", "punhal", "maca", "panela"]
 	for peca in ["escudo", "armadura_leve", "armadura_pesada", "elmo"]:
 		for reino in ["olympia", "agape", "khronosses", "bandidos"]:

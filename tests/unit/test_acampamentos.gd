@@ -8,6 +8,7 @@ const IDS := [
 	"an_acampamento", "nt_acampamento", "at_acampamento",
 	"ilha_acampamento", "ilhota_acampamento",
 ]
+const AparenciaNicholas := preload("res://scripts/systems/aparencia_nicholas.gd")
 const INTERAGIVEIS := ["Barraca", "Mercador", "Companheiro", "Saida"]
 ## Pontos de barco: a saída é o barco, não a placa.
 const DE_BARCO := ["ilha_acampamento", "ilhota_acampamento"]
@@ -34,6 +35,7 @@ func after_each() -> void:
 	get_tree().paused = false
 	Mundo.definir_noite(false)
 	Mundo.local_no_mapa = ""
+	Inventario.limpar()
 
 
 func _abrir(id: String) -> Acampamento:
@@ -177,7 +179,10 @@ func test_barraca_salva_no_espaco_escolhido_sem_mudar_a_etapa() -> void:
 	Progresso.etapa = "etapa_de_teste"
 	watch_signals(acampamento)
 	acampamento.barraca.interagir()
-	acampamento.tela_espacos.escolher(4)
+	acampamento.tela_espacos.botoes[3].pressed.emit()
+	assert_false(Progresso.espaco_ocupado(4), "tocar no espaço só seleciona")
+	assert_eq(acampamento.tela_espacos.botao_acao.text, "ESPACOS_SALVAR")
+	acampamento.tela_espacos.botao_acao.pressed.emit()
 	assert_signal_emitted(acampamento, "salvo")
 	assert_false(acampamento.tela_espacos.aberta())
 	assert_false(get_tree().paused)
@@ -370,6 +375,27 @@ func test_anda_de_casa_em_casa_como_na_sala() -> void:
 	await wait_for_signal(personagem.chegou, 5)
 	var casa := personagem.casa_de(personagem.global_position)
 	assert_eq(personagem.global_position, personagem.centro_da_casa(casa), "o toque também para no centro")
+
+
+func test_nicholas_no_acampamento_tem_a_idade_da_historia() -> void:
+	Inventario.limpar()
+	await _abrir("oa_acampamento")
+	var visual := acampamento.get_node("Personagem/Corpo/Visual") as AnimatedSprite2D
+	assert_eq(visual.sprite_frames, AparenciaNicholas.quadros(Inventario.FaixaEtaria.CRIANCA),
+		"no começo do jogo ele é criança")
+	Inventario.mudar_faixa_etaria(Inventario.FaixaEtaria.ADULTO)
+	assert_eq(visual.sprite_frames, AparenciaNicholas.quadros(Inventario.FaixaEtaria.ADULTO))
+
+
+func test_menino_golpeando_usa_o_proprio_golpe() -> void:
+	Inventario.limpar()
+	await _abrir("oa_acampamento")
+	var personagem := acampamento.get_node("Personagem") as PersonagemExploracao
+	var visual := acampamento.get_node("Personagem/Corpo/Visual") as AnimatedSprite2D
+	personagem.golpeando = true
+	visual._process(0.0)
+	assert_true(String(visual.animation).begins_with("golpe"), "o menino agora tem golpe desenhado")
+	personagem.golpeando = false
 
 
 func test_rafael_na_mata_costeira_e_shara_no_rio_de_agape() -> void:

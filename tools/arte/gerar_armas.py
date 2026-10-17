@@ -136,22 +136,28 @@ def maca():
     return contornar_menos(q, punho(g))
 
 
-def arco():
+def arco(nome='arco', altura=31, pontas='ouro'):
     # Arco em pé, com a barriga para a frente e a corda reta atrás. A mão
     # segura no meio.
-    q = Q(9, 31); g = PEGA['arco'] = (5, 14); gx, gy = g
-    meio = 15.0
-    for y in range(0, 31):
+    meio = (altura - 1) / 2.0
+    q = Q(9, altura); g = PEGA[nome] = (5, int(meio) - 1); gx, gy = g
+    for y in range(0, altura):
         curva = round(4 * ((y - meio) / meio) ** 2)
         x = gx - curva
         q.p(x, y, 'madeira'); q.p(x + 1, y, 'madeira_luz' if abs(y - meio) > 3 else 'madeira')
-    for y in (0, 1, 29, 30):
-        q.p(gx - 4, y, 'ouro')                                                    # pontas douradas
-    q.coluna(gx - 4, 2, 28, 'prata')                                              # corda
+    for y in (0, 1, altura - 2, altura - 1):
+        q.p(gx - 4, y, pontas)                                                    # pontas
+    q.coluna(gx - 4, 2, altura - 3, 'prata')                                      # corda
     for xy in punho(g):
         q.px[xy] = (0, 0, 0, 0)
     q.r(gx, gy - 1, gx + 1, gy - 1, 'ouro_sombra'); q.r(gx, gy + 2, gx + 1, gy + 2, 'ouro_sombra')
     return contornar_menos(q, punho(g))
+
+
+def arco_curto():
+    # Arco de criança (o livro: Althea com "um arco infantil, pequeno e
+    # claro"; Nicholas treina arco aos 12): menor, pontas de madeira clara.
+    return arco('arco_curto', 21, 'madeira_luz')
 
 
 def flecha():
@@ -405,8 +411,8 @@ def icone_arma(desenhar, nome):
     return _no_centro(_arma_inteira(desenhar, nome), girar=180)
 
 
-def icone_arco():
-    icone = _no_centro(_arma_inteira(arco, 'arco'))
+def icone_arco(desenhar=arco, nome='arco'):
+    icone = _no_centro(_arma_inteira(desenhar, nome))
     seta = flecha().rotate(45, expand=True)
     icone.alpha_composite(seta, (12, 6))
     return icone
@@ -448,6 +454,7 @@ def icone_elmo():
 
 ARMAS = {
     'espada_grande': espada_grande, 'machado_guerra': machado_guerra, 'arco': arco,
+    'arco_curto': arco_curto,
     'espada_media': espada_media, 'machado_pequeno': machado_pequeno,
     'punhal': punhal, 'maca': maca,
 }
@@ -504,9 +511,10 @@ def artes():
             saida['%s/%s_na_mao.png' % (PASTA, nome)] = desenhar()
     saida['%s/flecha.png' % PASTA] = flecha()
     for nome, desenhar in ARMAS.items():
-        if nome != 'arco':
+        if nome not in ('arco', 'arco_curto'):
             saida['%s/icone_%s.png' % (PASTA, nome)] = icone_arma(desenhar, nome)
     saida['%s/icone_arco.png' % PASTA] = icone_arco()
+    saida['%s/icone_arco_curto.png' % PASTA] = icone_arco(arco_curto, 'arco_curto')
     saida['%s/icone_caixa_frutas.png' % PASTA] = _no_centro(caixa_frutas())
     saida['%s/icone_panela.png' % PASTA] = _no_centro(panela())
     base = {
@@ -546,7 +554,7 @@ def _colar_girado(destino, item, pega, mao, giro, ox, oy):
 
 GIROS = {'CORTE': [180, -90, 0], 'PANCADA': [160, -60, 20], 'ESTOCADA': [-120, -90, -60], 'TIRO': [0, 0, 0]}
 ESTILO = {'espada_grande': 'CORTE', 'espada_media': 'CORTE', 'machado_guerra': 'PANCADA',
-          'machado_pequeno': 'PANCADA', 'maca': 'PANCADA', 'punhal': 'ESTOCADA', 'arco': 'TIRO'}
+          'machado_pequeno': 'PANCADA', 'maca': 'PANCADA', 'punhal': 'ESTOCADA', 'arco': 'TIRO', 'arco_curto': 'TIRO'}
 
 
 def previa(caminho):

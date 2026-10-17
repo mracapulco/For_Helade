@@ -111,7 +111,10 @@ func _abrir_espacos() -> void:
 
 func _fechar_espacos() -> void:
 	painel_principal.visible = true
-	botao_carregar.grab_focus()
+	# Algum jogo pode ter sido apagado: sem nenhum, Continuar e Carregar somem.
+	atualizar()
+	if botao_carregar.visible:
+		botao_carregar.grab_focus()
 
 
 ## Novo jogo não apaga nada: os espaços salvos continuam lá, e o primeiro

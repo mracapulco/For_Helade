@@ -3,6 +3,7 @@ extends GutTest
 ## névoa sobre o que não foi descoberto; dia e noite.
 
 const FasesHistoria := preload("res://scripts/systems/fases_historia.gd")
+const AparenciaNicholas := preload("res://scripts/systems/aparencia_nicholas.gd")
 
 var mapa: MapaHelade
 
@@ -10,6 +11,7 @@ var mapa: MapaHelade
 func before_each() -> void:
 	TranslationServer.set_locale("pt_BR")
 	Mundo.limpar()
+	Inventario.limpar()
 	Progresso.etapa = ""
 	mapa = add_child_autofree(load("res://scenes/mapa/mapa_helade.tscn").instantiate())
 	mapa.trocar_de_cena = false
@@ -19,6 +21,7 @@ func before_each() -> void:
 func after_each() -> void:
 	Mundo.limpar()
 	Progresso.etapa = ""
+	Inventario.limpar()
 
 
 ## Abre o mapa de novo, como depois do prólogo (etapa capitulo_1).
@@ -297,3 +300,27 @@ func test_etapa_sem_fase_deixa_o_mapa_livre() -> void:
 	await _abrir_na_fase("etapa_sem_fase")
 	assert_false(mapa.preso_na_fase())
 	assert_eq(mapa.local_atual, "olympia")
+
+
+func test_no_comeco_do_jogo_nicholas_e_crianca_no_mapa() -> void:
+	await _abrir_na_fase()
+	assert_eq(mapa.nicholas.sprite_frames, AparenciaNicholas.quadros(Inventario.FaixaEtaria.CRIANCA),
+		"no Capítulo 01 ele tem 11 anos")
+	assert_ne(mapa.nicholas.sprite_frames, AparenciaNicholas.quadros(Inventario.FaixaEtaria.ADULTO))
+
+
+func test_nicholas_no_mapa_cresce_com_a_idade() -> void:
+	Inventario.mudar_faixa_etaria(Inventario.FaixaEtaria.ADOLESCENTE)
+	assert_eq(mapa.nicholas.sprite_frames, AparenciaNicholas.quadros(Inventario.FaixaEtaria.ADOLESCENTE))
+	assert_true(mapa.nicholas.is_playing())
+	Inventario.mudar_faixa_etaria(Inventario.FaixaEtaria.ADULTO)
+	assert_eq(mapa.nicholas.sprite_frames, AparenciaNicholas.quadros(Inventario.FaixaEtaria.ADULTO))
+
+
+func test_mapa_aberto_ja_adulto_mostra_o_adulto() -> void:
+	mapa.queue_free()
+	Inventario.mudar_faixa_etaria(Inventario.FaixaEtaria.ADULTO)
+	mapa = add_child_autofree(load("res://scenes/mapa/mapa_helade.tscn").instantiate())
+	mapa.trocar_de_cena = false
+	await wait_process_frames(2)
+	assert_eq(mapa.nicholas.sprite_frames, AparenciaNicholas.quadros(Inventario.FaixaEtaria.ADULTO))

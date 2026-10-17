@@ -22,6 +22,12 @@ signal espacos_mudaram
 signal capacidade_mudou(espacos: int)
 ## Algo não entrou por falta de espaço (aviso "Bolsa cheia").
 signal bolsa_cheia
+## A fase da vida mudou (bolsa, vida, ataque e o que dá para equipar).
+signal faixa_etaria_mudou(faixa: FaixaEtaria)
+## Tentou equipar algo pesado demais para a idade (aviso na tela).
+signal pesado_demais(id: String)
+## O espaço selecionado na barra rápida mudou (tecla 1 a 9 ou toque).
+signal selecao_mudou(indice: int)
 
 enum FaixaEtaria { CRIANCA, ADOLESCENTE, ADULTO }
 
@@ -35,14 +41,19 @@ const CAPACIDADE: Dictionary[FaixaEtaria, int] = {
 const ESPACOS_RAPIDOS := 9
 
 const PASTA_ITENS := "res://data/itens/"
+## Um FaseDaVida por idade: crianca.tres, adolescente.tres, adulto.tres.
+const PASTA_FASES := "res://data/fases_da_vida/"
 
 var _catalogo: Dictionary[String, Item] = {}
+var _fases: Dictionary[FaixaEtaria, FaseDaVida] = {}
 ## Cada espaço é {} (vazio) ou { "id": String, "quantidade": int }.
 ## Pode passar do limite só quando a bolsa encolheu (nada some).
 var _espacos: Array[Dictionary] = []
 ## Itens da história: id -> quantidade, fora dos espaços.
 var _historia: Dictionary[String, int] = {}
 var faixa_etaria: FaixaEtaria = FaixaEtaria.CRIANCA
+## Espaço da barra rápida que está na mão (0 a 8), como no Minecraft.
+var espaco_selecionado := 0
 var _dinheiro: int = 0
 ## personagem -> { Item.Encaixe -> id do item }
 var _equipado: Dictionary[String, Dictionary] = {}
@@ -132,11 +143,29 @@ func espaco(indice: int) -> Dictionary:
 
 ## Muda a idade. A bolsa cresce na hora; se encolher, os itens que
 ## ficarem fora do limite continuam lá, mas nada novo entra neles.
+## O que ficou pesado demais para a nova idade é desequipado (fica na bolsa).
 func mudar_faixa_etaria(faixa: FaixaEtaria) -> void:
 	faixa_etaria = faixa
 	_ajustar_tamanho()
+	_desequipar_pesados()
 	capacidade_mudou.emit(numero_de_espacos())
 	espacos_mudaram.emit()
+	faixa_etaria_mudou.emit(faixa)
+
+
+## O corpo na idade atual: vida, ataque sem arma e velocidade.
+func fase() -> FaseDaVida:
+	if not _fases.has(faixa_etaria):
+		var nome := str(FaixaEtaria.find_key(faixa_etaria)).to_lower()
+		var dados := load(PASTA_FASES + nome + ".tres") as FaseDaVida
+		_fases[faixa_etaria] = dados if dados else FaseDaVida.new()
+	return _fases[faixa_etaria]
+
+
+## O item existe, se equipa, mas a idade atual ainda não deixa.
+func pesado_para_a_idade(id: String) -> bool:
+	var dados := item(id)
+	return dados != null and dados.pode_equipar() and dados.fase_minima > faixa_etaria
 
 
 ## Cabe [param qtd] de [param id] na bolsa? Itens da história sempre cabem.
@@ -236,7 +265,51 @@ func trocar_espacos(origem: int, destino: int) -> bool:
 	return true
 
 
-## Tecla 1 a 9 (ou toque na barra rápida): arma ou proteção equipa, ou
+## Tecla 1 a 9 (ou toque na barra rápida): põe o espaço na mão. Arma vai
+## para a mão (equipa); qualquer outra coisa tira a arma da mão. Nada é
+## usado aqui: quem usa é o clique ([method usar_selecionado]).
+func selecionar_espaco(indice: int, personagem: String) -> void:
+	if indice < 0 or indice >= ESPACOS_RAPIDOS:
+		return
+	espaco_selecionado = indice
+	segurar_selecionado(personagem)
+	selecao_mudou.emit(indice)
+
+
+## Equipa a arma do espaço selecionado ou, se não houver arma nele,
+## tira a arma da mão.
+func segurar_selecionado(personagem: String) -> void:
+	var dados := item_selecionado()
+	if dados and dados.encaixe == Item.Encaixe.ARMA:
+		equipar(personagem, dados.id)
+	else:
+		desequipar(personagem, Item.Encaixe.ARMA)
+
+
+## Item do espaço selecionado, ou null se estiver vazio.
+func item_selecionado() -> Item:
+	var conteudo := espaco(espaco_selecionado)
+	return item(conteudo["id"]) if not conteudo.is_empty() else null
+
+
+## O clique faz algo com o item selecionado que não seja golpear? (poção
+## bebe; proteção equipa ou desequipa). A arma golpeia pelo personagem.
+func selecionado_tem_uso() -> bool:
+	var dados := item_selecionado()
+	if dados == null:
+		return false
+	return dados.pode_usar() or (dados.pode_equipar() and dados.encaixe != Item.Encaixe.ARMA)
+
+
+## Clique com o item selecionado: poção é bebida, proteção é vestida ou
+## tirada. Arma não faz nada aqui (o golpe é do personagem).
+func usar_selecionado(personagem: String) -> bool:
+	if not selecionado_tem_uso():
+		return false
+	return usar_espaco(espaco_selecionado, personagem)
+
+
+## Arma ou proteção equipa, ou
 ## desequipa se já estiver equipada; consumível é usado. [param indice]
 ## começa em 0.
 func usar_espaco(indice: int, personagem: String) -> bool:
@@ -265,6 +338,20 @@ func largar(id: String, qtd: int = 1) -> bool:
 	if dados == null or dados.e_da_historia():
 		return false
 	return remover(id, qtd)
+
+
+## Ação do jogador na grade: joga fora uma unidade daquele espaço.
+func largar_espaco(indice: int) -> bool:
+	var conteudo := espaco(indice)
+	if conteudo.is_empty():
+		return false
+	var dados := item(conteudo["id"])
+	_tirar_do_espaco(indice, 1)
+	_ajustar_tamanho()
+	_desequipar_excedente(dados.id)
+	espacos_mudaram.emit()
+	mudou.emit(dados.id, quantidade(dados.id))
+	return true
 
 
 ## Ação do jogador: usa um consumível em um personagem e gasta uma
@@ -310,6 +397,9 @@ func equipar(personagem: String, id: String) -> bool:
 	var dados := item(id)
 	if dados == null or not dados.pode_equipar():
 		return false
+	if pesado_para_a_idade(id):
+		pesado_demais.emit(id)
+		return false
 	if equipado(personagem, dados.encaixe) == id:
 		return true
 	if _vezes_equipado(id) >= quantidade(id):
@@ -338,10 +428,13 @@ func itens_equipados(personagem: String) -> Array[Item]:
 	return itens
 
 
-## Ataque, defesa e velocidade do personagem com o que tem equipado
-## (Balanceamento.somar): { "ataque", "defesa", "velocidade" }.
+## Ataque, defesa e velocidade do personagem: o corpo da idade ([method fase])
+## e o nível (Experiencia), mais o que tem equipado (Balanceamento.somar):
+## { "ataque", "defesa", "velocidade" }.
 func atributos(personagem: String) -> Dictionary:
-	return Balanceamento.somar(itens_equipados(personagem))
+	var corpo := fase()
+	var ataque := corpo.ataque_base + Experiencia.bonus_ataque(personagem)
+	return Balanceamento.somar(itens_equipados(personagem), ataque, corpo.velocidade)
 
 
 func desequipar(personagem: String, encaixe: Item.Encaixe) -> void:
@@ -364,6 +457,7 @@ func limpar() -> void:
 	_espacos.clear()
 	_historia.clear()
 	faixa_etaria = FaixaEtaria.CRIANCA
+	espaco_selecionado = 0
 	_espacos.resize(capacidade())
 	_equipado.clear()
 	_coletados.clear()
@@ -448,6 +542,13 @@ func _vezes_equipado(id: String) -> int:
 			if _equipado[personagem][encaixe] == id:
 				vezes += 1
 	return vezes
+
+
+func _desequipar_pesados() -> void:
+	for personagem: String in _equipado.keys():
+		for encaixe: int in _equipado[personagem].keys():
+			if pesado_para_a_idade(_equipado[personagem][encaixe]):
+				desequipar(personagem, encaixe)
 
 
 func _desequipar_excedente(id: String) -> void:

@@ -30,7 +30,7 @@ PERSONAGENS = {
     # olhos quase brancos dos Olympia, camisa branca e colete azul escuro
     # simples, "parecidas com as usadas pelos filhos dos comerciantes".
     'nicholas_11': dict(
-        topo=17, tronco=9, largura=4, cabelo='rebelde', roupa='colete',
+        topo=17, tronco=9, largura=4, cabelo='rebelde', roupa='colete', golpe=True,
         cores=dict(
             cab_luz='#F6EED2', cab='#E3D5AE', cab_sombra='#B9A882', cab_fundo='#8C7C5C',
             camisa_luz='#F2EFE8', camisa='#D9D4CA', camisa_sombra='#A9A398',
@@ -56,7 +56,7 @@ PERSONAGENS = {
     # provisórias. Túnica azul de Olympia até o meio das coxas, mangas
     # cinza-claras, cinto de couro com fivela dourada, calça escura e botas.
     'nicholas_adolescente': dict(
-        topo=10, tronco=11, largura=4, cabelo='rebelde', roupa='colete', aba=3,
+        topo=10, tronco=11, largura=4, cabelo='rebelde', roupa='colete', aba=3, golpe=True,
         enfeites=('cinto',),
         cores=dict(
             cab_luz='#F6EED2', cab='#E3D5AE', cab_sombra='#B9A882', cab_fundo='#8C7C5C',
@@ -380,6 +380,15 @@ def braco_estendido(q, x, y, alcance, cor, manga=None):
     q.r(x + alcance + 1, y, x + alcance + 2, y + 1, 'pele')
 
 
+def braco_erguido(q, x, yt, larg, cor):
+    # Braço da frente erguido ao lado da cabeça, preparando o golpe (como o
+    # do adulto em gerar_nicholas.py). Desenhado por último, por cima do cabelo.
+    q.r(x + larg + 1, yt - 1, x + larg + 2, yt + 1, cor)
+    q.r(x + larg + 2, yt - 4, x + larg + 3, yt - 2, cor)
+    q.p(x + larg + 1, yt + 1, cor + '_sombra'); q.p(x + larg + 2, yt - 2, cor + '_sombra')
+    q.r(x + larg + 2, yt - 6, x + larg + 3, yt - 5, 'pele')
+
+
 # Roupas do nosso mundo (convidados): 'camiseta' (manga curta), 'moletom'
 # (manga comprida, capuz caído, cordões e bolso) ou 'escoteiro' (camisa de
 # manga curta com bolsos, lenço no pescoço com anel e cinto). Cores:
@@ -475,7 +484,7 @@ def cor_braco(cfg):
     return 'camisa' if cfg['roupa'] == 'colete' else 'vestido'
 
 
-def corpo_frente(q, cfg, x, yt, quadril, larg, b_esq, b_dir, alcance, saia_voa):
+def corpo_frente(q, cfg, x, yt, quadril, larg, b_esq, b_dir, alcance, saia_voa, ergue=False):
     roupa = cfg['roupa']
     comp = quadril - yt - 1
     cor_manga = cor_braco(cfg)
@@ -496,7 +505,7 @@ def corpo_frente(q, cfg, x, yt, quadril, larg, b_esq, b_dir, alcance, saia_voa):
             q.p(x + 1, yy, 'camisa_sombra')                        # botões simples
         if alcance:
             braco_estendido(q, x + larg + 1, yt + 2, alcance, cor_manga)
-        else:
+        elif not ergue:
             braco(q, x + larg + 1, yt + 1, b_dir, comp, cor_manga)
     else:
         hem = PE - (3 if roupa == 'vestido_longo' else 5)
@@ -516,7 +525,7 @@ def corpo_frente(q, cfg, x, yt, quadril, larg, b_esq, b_dir, alcance, saia_voa):
             braco(q, x + larg + 1, yt + 1, b_dir, comp, cor_manga)
 
 
-def corpo_costas(q, cfg, x, yt, quadril, larg, b_esq, b_dir, alcance, saia_voa):
+def corpo_costas(q, cfg, x, yt, quadril, larg, b_esq, b_dir, alcance, saia_voa, ergue=False):
     roupa = cfg['roupa']
     comp = quadril - yt - 1
     cor_manga = cor_braco(cfg)
@@ -526,7 +535,7 @@ def corpo_costas(q, cfg, x, yt, quadril, larg, b_esq, b_dir, alcance, saia_voa):
         return
     if alcance:
         braco_estendido(q, x + larg + 1, yt + 2, alcance, cor_manga)
-    else:
+    elif not ergue:
         braco(q, x + larg + 1, yt + 1, b_dir, comp, cor_manga)
     if roupa == 'colete':
         q.r(x - larg, yt, x + larg, quadril + aba, 'colete')
@@ -603,7 +612,7 @@ def enfeites(q, cfg, dir, x, yt, quadril, larg, saia_voa):
 
 
 def personagem(cfg, dir, f_esq=0, f_dir=0, lift_esq=0, lift_dir=0, dy=0, inclina=0,
-               braco_esq=0, braco_dir=0, alcance=0, voa=0):
+               braco_esq=0, braco_dir=0, alcance=0, voa=0, ergue=False):
     cores = dict(BASE)
     cores.update(cfg.get('pele', {}))
     cores.update(cfg['cores'])
@@ -627,7 +636,7 @@ def personagem(cfg, dir, f_esq=0, f_dir=0, lift_esq=0, lift_dir=0, dy=0, inclina
         capa(q, cfg, dir, x, yt, quadril, larg)
         cabelo_atras_frente(q, estilo, x, yc, ate, voa)
         pernas(q, CX, quadril, f_esq, f_dir, lift_esq, lift_dir)
-        corpo_frente(q, cfg, x, yt, quadril, larg, braco_esq, braco_dir, alcance, voa // 2)
+        corpo_frente(q, cfg, x, yt, quadril, larg, braco_esq, braco_dir, alcance, voa // 2, ergue)
         enfeites(q, cfg, dir, x, yt, quadril, larg, voa // 2)
         ombros_da_capa(q, cfg, x, yt, larg)
         cabeca_frente(q, dir, x, yc, olho, bochecha)
@@ -636,12 +645,14 @@ def personagem(cfg, dir, f_esq=0, f_dir=0, lift_esq=0, lift_dir=0, dy=0, inclina
             oculos_frente(q, x, yc)
     else:
         pernas(q, CX, quadril, f_esq, f_dir, lift_esq, lift_dir)
-        corpo_costas(q, cfg, x, yt, quadril, larg, braco_esq, braco_dir, alcance, voa // 2)
+        corpo_costas(q, cfg, x, yt, quadril, larg, braco_esq, braco_dir, alcance, voa // 2, ergue)
         enfeites(q, cfg, dir, x, yt, quadril, larg, voa // 2)
         capa(q, cfg, dir, x, yt, quadril, larg)
         cabeca_costas(q, estilo, x, yc, ate, voa)
         if estilo == 'longo':   # braços por cima do cabelo comprido
             braco_costas(q, cfg, x, yt, quadril, larg, braco_esq, braco_dir, alcance)
+    if ergue:
+        braco_erguido(q, x, yt, larg, cor_braco(cfg))
     return q.contornar()
 
 
@@ -656,14 +667,27 @@ ANIM = {
                     dict(f_dir=-3, f_esq=3, dy=1, inclina=1, braco_dir=2, braco_esq=-2, voa=1),
                     dict(lift_dir=2, inclina=1, dy=-1, voa=2)],
     'interagindo': [dict(), dict(alcance=2), dict(alcance=4)],
+    # golpe de espada, só de quem tem cfg['golpe'] (o Nicholas que luta):
+    # ergue, corta para a frente, termina com a lâmina baixa, como o adulto
+    'golpe':       [dict(ergue=True), dict(alcance=5, inclina=1, dy=1), dict(braco_dir=1, inclina=1, dy=1)],
 }
 ORDEM = ['parado', 'andando', 'correndo', 'interagindo']
-VELOCIDADE = {'parado': 2.0, 'andando': 8.0, 'correndo': 12.0, 'interagindo': 10.0}
+VELOCIDADE = {'parado': 2.0, 'andando': 8.0, 'correndo': 12.0, 'interagindo': 10.0, 'golpe': 12.0}
+# Giro do item na mão em cada quadro, em graus (0 = ponta para baixo).
+ANGULOS = {'golpe': [180, -90, 0]}
 DIRS = ['frente', 'costas']
 
 
-def folha(cfg):
+def linhas_da_folha(cfg):
+    # O golpe fica no fim, para não mudar o lugar das linhas que já existiam.
     linhas = [(d, a) for d in DIRS for a in ORDEM]
+    if cfg.get('golpe'):
+        linhas += [(d, 'golpe') for d in DIRS]
+    return linhas
+
+
+def folha(cfg):
+    linhas = linhas_da_folha(cfg)
     im = Image.new('RGBA', (W * 4, HH * len(linhas)), (0, 0, 0, 0))
     for linha, (d, a) in enumerate(linhas):
         for i, k in enumerate(ANIM[a]):
@@ -686,9 +710,53 @@ def sprite_frames(id, linhas, caminho=None):
                           'region = Rect2(%d, %d, %d, %d)\n' % (n, i * W, linha * HH, W, HH))
             quadros.append('{\n"duration": 1.0,\n"texture": SubResource("Atlas_%d")\n}' % n)
         animacoes.append('{\n"frames": [%s],\n"loop": %s,\n"name": &"%s_%s",\n"speed": %.1f\n}' % (
-            ', '.join(quadros), 'false' if a == 'interagindo' else 'true', a, d, VELOCIDADE[a]))
+            ', '.join(quadros), 'false' if a in ('interagindo', 'golpe') else 'true', a, d, VELOCIDADE[a]))
     partes.append('[resource]\nanimations = [%s]\n' % ', '.join(animacoes))
     return '\n'.join(partes)
+
+
+def mao(cfg, dir, f_esq=0, f_dir=0, lift_esq=0, lift_dir=0, dy=0, inclina=0,
+        braco_esq=0, braco_dir=0, alcance=0, voa=0, ergue=False):
+    # Canto de cima à esquerda da mão 2×2 do braço da frente (o da direita
+    # na tela), com as mesmas contas de personagem().
+    x = CX + inclina
+    yt = cfg['topo'] + dy + 10
+    larg = cfg['largura']
+    if ergue:
+        return (x + larg + 2, yt - 6)
+    if alcance:
+        return (x + larg + 2 + alcance, yt + 2)
+    comp = cfg['tronco'] - 1
+    return (x + larg + 1, yt + 1 + braco_dir + comp + 1)
+
+
+def mao_tras(cfg, dir, f_esq=0, f_dir=0, lift_esq=0, lift_dir=0, dy=0, inclina=0,
+             braco_esq=0, braco_dir=0, alcance=0, voa=0, ergue=False):
+    # Mão do braço de trás (o da esquerda na tela), onde vai o escudo.
+    x = CX + inclina
+    yt = cfg['topo'] + dy + 10
+    comp = cfg['tronco'] - 1
+    return (x - cfg['largura'] - 2, yt + 1 + braco_esq + comp + 1)
+
+
+def maos_tres(cfg):
+    # Onde ficam as mãos em cada quadro (MaosPersonagem), para desenhar a
+    # arma e o escudo na mão; mesmo formato do nicholas_maos.tres do adulto.
+    linhas, tras, giros = [], [], []
+    for d, a in linhas_da_folha(cfg):
+        linhas.append('&"%s_%s": PackedVector2Array(%s)' % (
+            a, d, ', '.join('%d, %d' % mao(cfg, d, **k) for k in ANIM[a])))
+        tras.append('&"%s_%s": PackedVector2Array(%s)' % (
+            a, d, ', '.join('%d, %d' % mao_tras(cfg, d, **k) for k in ANIM[a])))
+        if a in ANGULOS:
+            giros.append('&"%s_%s": PackedFloat32Array(%s)' % (a, d, ', '.join(str(g) for g in ANGULOS[a])))
+    return ('[gd_resource type="Resource" script_class="MaosPersonagem" format=3]\n\n'
+            '[ext_resource type="Script" path="res://scripts/systems/maos_personagem.gd" id="1_maos"]\n\n'
+            '[resource]\nscript = ExtResource("1_maos")\n'
+            'tamanho_quadro = Vector2i(%d, %d)\n'
+            'pontos = {\n%s\n}\n'
+            'angulos = {\n%s\n}\n'
+            'pontos_tras = {\n%s\n}\n' % (W, HH, ',\n'.join(linhas), ',\n'.join(giros), ',\n'.join(tras)))
 
 
 if __name__ == '__main__':
@@ -700,4 +768,7 @@ if __name__ == '__main__':
         im.save(os.path.join(pasta, '%s_exploracao.png' % id))
         with open(os.path.join(pasta, '%s_exploracao.tres' % id), 'w') as f:
             f.write(sprite_frames(id, linhas))
+        if cfg.get('golpe'):
+            with open(os.path.join(pasta, '%s_maos.tres' % id), 'w') as f:
+                f.write(maos_tres(cfg))
         print(id, im.size)

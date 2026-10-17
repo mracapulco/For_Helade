@@ -3,11 +3,14 @@ extends CanvasLayer
 ## Lista dos 10 espaços de jogo salvo, para salvar (barraca do acampamento)
 ## ou carregar (menu inicial). Cada espaço mostra a parte da história, o
 ## lugar e quando foi salvo. Salvar por cima de um espaço ocupado pergunta
-## antes. Funciona com toque, clique, setas e Enter; Esc ou Voltar fecham.
+## antes. O botão Excluir apaga um jogo salvo (também pergunta antes).
+## Funciona com toque, clique, setas e Enter; Esc ou Voltar fecham.
 
 ## O jogador escolheu um espaço (já confirmado, se era para salvar por cima).
 signal escolhido(espaco: int)
 signal fechou
+## Um jogo salvo foi apagado.
+signal apagou(espaco: int)
 
 enum Modo { SALVAR, CARREGAR }
 
@@ -20,14 +23,18 @@ const PASTA_MAPA := "res://data/mapa/"
 var modo := Modo.SALVAR
 ## Pausa o jogo enquanto aberta (no acampamento; no menu não precisa).
 var pausar := true
-## Espaço esperando o "Sim" para ser substituído; 0 quando nenhum.
+## Espaço esperando o "Sim" para ser substituído (ou apagado); 0 quando nenhum.
 var espaco_a_confirmar := 0
+## Escolhendo qual jogo salvo apagar (depois de tocar em Excluir).
+var excluindo := false
 
 var tela: Control
 var titulo: Label
 var botoes: Array[Button] = []
 var botao_voltar: Button
+var botao_excluir: Button
 var confirmacao: Control
+var pergunta: Label
 var botao_sim: Button
 var botao_nao: Button
 
@@ -45,6 +52,8 @@ func _unhandled_input(evento: InputEvent) -> void:
 	get_viewport().set_input_as_handled()
 	if confirmacao.visible:
 		cancelar_confirmacao()
+	elif excluindo:
+		alternar_exclusao()
 	else:
 		fechar()
 
@@ -55,7 +64,7 @@ func aberta() -> bool:
 
 func abrir(novo_modo: Modo) -> void:
 	modo = novo_modo
-	titulo.text = "ESPACOS_TITULO_SALVAR" if modo == Modo.SALVAR else "ESPACOS_TITULO_CARREGAR"
+	excluindo = false
 	atualizar()
 	confirmacao.hide()
 	espaco_a_confirmar = 0
@@ -66,6 +75,7 @@ func abrir(novo_modo: Modo) -> void:
 
 
 func fechar() -> void:
+	excluindo = false
 	tela.hide()
 	confirmacao.hide()
 	espaco_a_confirmar = 0
@@ -80,19 +90,39 @@ func escolher(espaco: int) -> void:
 	if not Progresso.espaco_valido(espaco):
 		return
 	var ocupado := Progresso.espaco_ocupado(espaco)
+	if excluindo:
+		if ocupado:
+			_perguntar(espaco, "ESPACOS_CONFIRMAR_EXCLUIR", "ESPACOS_CONFIRMAR_SIM_EXCLUIR")
+		return
 	if modo == Modo.CARREGAR and not ocupado:
 		return
 	if modo == Modo.SALVAR and ocupado:
-		espaco_a_confirmar = espaco
-		confirmacao.show()
-		botao_nao.grab_focus() # o seguro fica selecionado
+		_perguntar(espaco, "ESPACOS_CONFIRMAR_SUBSTITUIR", "ESPACOS_CONFIRMAR_SIM")
 		return
 	_concluir(espaco)
 
 
 func confirmar() -> void:
-	if espaco_a_confirmar > 0:
-		_concluir(espaco_a_confirmar)
+	var espaco := espaco_a_confirmar
+	if espaco == 0:
+		return
+	if not excluindo:
+		_concluir(espaco)
+		return
+	Progresso.apagar(espaco)
+	espaco_a_confirmar = 0
+	confirmacao.hide()
+	excluindo = false
+	atualizar()
+	apagou.emit(espaco)
+	_focar_inicial()
+
+
+## Liga ou desliga o modo de escolher um jogo salvo para apagar.
+func alternar_exclusao() -> void:
+	excluindo = not excluindo
+	atualizar()
+	_focar_inicial()
 
 
 func cancelar_confirmacao() -> void:
@@ -104,12 +134,18 @@ func cancelar_confirmacao() -> void:
 
 
 func atualizar() -> void:
+	if excluindo:
+		titulo.text = "ESPACOS_TITULO_EXCLUIR"
+	else:
+		titulo.text = "ESPACOS_TITULO_SALVAR" if modo == Modo.SALVAR else "ESPACOS_TITULO_CARREGAR"
 	for i in botoes.size():
 		var espaco := i + 1
 		var botao := botoes[i]
 		var dados := Progresso.resumo(espaco)
 		botao.text = texto_do_espaco(espaco, dados)
-		botao.disabled = modo == Modo.CARREGAR and dados.is_empty()
+		botao.disabled = (modo == Modo.CARREGAR or excluindo) and dados.is_empty()
+	botao_excluir.text = "ESPACOS_CANCELAR_EXCLUIR" if excluindo else "ESPACOS_EXCLUIR"
+	botao_excluir.visible = excluindo or Progresso.tem_jogo_salvo()
 
 
 ## "Espaço 3" e, embaixo, a parte da história, o lugar e a data.
@@ -167,9 +203,17 @@ func _concluir(espaco: int) -> void:
 	escolhido.emit(espaco)
 
 
+func _perguntar(espaco: int, texto: String, texto_sim: String) -> void:
+	espaco_a_confirmar = espaco
+	pergunta.text = texto
+	botao_sim.text = texto_sim
+	confirmacao.show()
+	botao_nao.grab_focus() # o seguro fica selecionado
+
+
 func _focar_inicial() -> void:
 	var alvo := Progresso.espaco_atual if Progresso.espaco_atual > 0 else 0
-	if modo == Modo.CARREGAR:
+	if modo == Modo.CARREGAR or excluindo:
 		alvo = Progresso.espaco_mais_recente()
 	elif alvo == 0:
 		alvo = maxi(Progresso.primeiro_espaco_livre(), 1)
@@ -243,9 +287,15 @@ func _montar() -> void:
 		grade.add_child(botao)
 		botoes.append(botao)
 
+	var rodape := HBoxContainer.new()
+	rodape.alignment = BoxContainer.ALIGNMENT_CENTER
+	rodape.add_theme_constant_override("separation", 24)
+	coluna.add_child(rodape)
 	botao_voltar = _botao("MENU_VOLTAR", fechar)
-	botao_voltar.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	coluna.add_child(botao_voltar)
+	rodape.add_child(botao_voltar)
+	botao_excluir = _botao("ESPACOS_EXCLUIR", alternar_exclusao)
+	botao_excluir.name = "Excluir"
+	rodape.add_child(botao_excluir)
 
 	confirmacao = ColorRect.new()
 	confirmacao.name = "Confirmacao"
@@ -262,7 +312,7 @@ func _montar() -> void:
 	var coluna_conf := VBoxContainer.new()
 	coluna_conf.add_theme_constant_override("separation", 28)
 	caixa.add_child(coluna_conf)
-	var pergunta := Label.new()
+	pergunta = Label.new()
 	pergunta.text = "ESPACOS_CONFIRMAR_SUBSTITUIR"
 	pergunta.add_theme_font_size_override("font_size", 30)
 	pergunta.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER

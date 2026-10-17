@@ -197,3 +197,40 @@ func test_entrada_animada_e_pulada_com_um_toque() -> void:
 	await wait_process_frames(2)
 	for parte in [menu.capa, menu.titulo, menu.botao_novo_jogo, menu.botao_opcoes]:
 		assert_eq(parte.modulate.a, 1.0)
+
+
+func test_excluir_um_jogo_salvo_pergunta_antes() -> void:
+	Progresso.salvar("capitulo_1", 1)
+	Progresso.salvar("capitulo_1", 2)
+	await _abrir_menu()
+	menu.botao_carregar.pressed.emit()
+	var tela := menu.tela_espacos
+	assert_true(tela.botao_excluir.visible)
+	tela.botao_excluir.pressed.emit()
+	assert_true(tela.excluindo)
+	assert_true(tela.botoes[2].disabled, "espaço vazio não se exclui")
+	tela.botoes[1].pressed.emit()
+	assert_true(tela.confirmacao.visible, "pergunta antes de apagar")
+	assert_true(Progresso.espaco_ocupado(2))
+	tela.botao_nao.pressed.emit()
+	assert_true(Progresso.espaco_ocupado(2), "Não deixa como estava")
+	tela.botoes[1].pressed.emit()
+	tela.botao_sim.pressed.emit()
+	assert_false(Progresso.espaco_ocupado(2))
+	assert_true(Progresso.espaco_ocupado(1))
+	assert_false(tela.excluindo, "depois de excluir volta a carregar")
+	assert_eq(menu.cena_pedida, "", "excluir não abre o jogo")
+
+
+func test_excluir_o_ultimo_jogo_esconde_continuar() -> void:
+	Progresso.salvar("capitulo_1", 1)
+	await _abrir_menu()
+	menu.botao_carregar.pressed.emit()
+	var tela := menu.tela_espacos
+	tela.alternar_exclusao()
+	tela.escolher(1)
+	tela.confirmar()
+	assert_false(tela.botao_excluir.visible, "sem jogos salvos não há o que excluir")
+	tela.botao_voltar.pressed.emit()
+	assert_false(menu.botao_continuar.visible)
+	assert_false(menu.botao_carregar.visible)

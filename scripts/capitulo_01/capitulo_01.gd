@@ -713,7 +713,10 @@ func montar_carruagem() -> void:
 	# Antes da conversa, Nicholas olha pelas janelas (até se voltar para Althea).
 	_offset_sentado_x = objetos["nicholas_sentado"].offset.x
 	DialogueManager.got_dialogue.connect(_ao_ver_fala_na_carruagem)
+	# As escolhas das janelas ficam sempre embaixo, para ver a carruagem.
+	CaixaDialogo.escolhas_embaixo = true
 	await _falar_travado("janela")
+	CaixaDialogo.escolhas_embaixo = false
 	DialogueManager.got_dialogue.disconnect(_ao_ver_fala_na_carruagem)
 	await _voltar_para_althea()
 	await _falar_travado("carruagem")

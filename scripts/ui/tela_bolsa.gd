@@ -1,47 +1,51 @@
 class_name TelaBolsa
 extends CanvasLayer
-## Tela da bolsa: abas por tipo, lista de itens, detalhe do item e botões
-## grandes de Usar, Equipar e Largar. Abre pelo botão "Bolsa" (toque ou
-## clique) ou pelas teclas I e Tab; fecha pelo botão Fechar, I, Tab ou Esc.
-## O jogo fica pausado enquanto ela está aberta.
+## Tela da bolsa em grade, como no Minecraft: os espaços da bolsa em cima,
+## a barra rápida (espaços 1 a 9) embaixo e os itens da história num bolso
+## à parte. Tocar num item mostra o detalhe e os botões Usar, Equipar e
+## Largar; tocar depois noutro espaço muda o item de lugar (sem arrastar).
+## Abre pelo botão "Bolsa" (toque ou clique) ou pelas teclas I e Tab; fecha
+## pelo botão Fechar, I, Tab ou Esc. O jogo fica pausado enquanto ela está aberta.
 
-const ABAS: Array[Item.Tipo] = [
-	Item.Tipo.ARMA, Item.Tipo.EQUIPAMENTO, Item.Tipo.CONSUMIVEL,
-	Item.Tipo.HISTORIA, Item.Tipo.DIVERSOS,
-]
-const CHAVES_ABA := {
-	Item.Tipo.ARMA: "BOLSA_ABA_ARMAS",
-	Item.Tipo.EQUIPAMENTO: "BOLSA_ABA_EQUIPAMENTO",
-	Item.Tipo.CONSUMIVEL: "BOLSA_ABA_CONSUMIVEIS",
-	Item.Tipo.HISTORIA: "BOLSA_ABA_HISTORIA",
-	Item.Tipo.DIVERSOS: "BOLSA_ABA_DIVERSOS",
-}
 const ALTURA_BOTAO := 72.0
 ## Quantas vezes o ícone em pixel art aparece ampliado na bolsa (como o
 ## zoom 2 da exploração).
 const ESCALA_ICONE := 2
+const COLUNAS := 9
 const COR_FUNDO := Color(0.0196, 0.0471, 0.0784, 0.75) # Noite, da paleta
 const COR_DESTAQUE := Color(0.9255, 0.7412, 0.4588) # Dourado claro
 const FONTE_TITULO := preload("res://assets/fonts/cinzel/cinzel.ttf")
+## Na ordem de Inventario.FaixaEtaria.
+const CHAVES_IDADE: Array[String] = [
+	"BOLSA_IDADE_CRIANCA", "BOLSA_IDADE_ADOLESCENTE", "BOLSA_IDADE_ADULTO",
+]
 
 ## Quem usa e equipa. Por enquanto só Nicholas; a escolha entre os
 ## personagens do grupo entra quando existir o grupo.
 @export var personagem := "nicholas"
 
-## Provisório: põe itens de teste na bolsa vazia ao abrir a cena.
+## Provisório: põe itens de teste na bolsa vazia ao abrir a cena e mostra
+## o botão que troca a idade (para testar o tamanho da bolsa).
 @export var itens_de_teste := false
 
-var aba_atual: Item.Tipo = Item.Tipo.ARMA
+## Espaço escolhido na grade; -1 quando nenhum (ou um item da história).
+var espaco_escolhido := -1
 ## Id do item mostrado no detalhe; vazio quando nenhum.
 var item_escolhido := ""
 
 var botao_bolsa: Button
 var tela: Control
 var rotulo_dinheiro: Label
+var rotulo_espacos: Label
+var botao_idade: Button
 var botao_fechar: Button
-var botoes_aba: Dictionary[Item.Tipo, Button] = {}
-var lista: GridContainer
-var rotulo_vazio: Label
+## Espaços da bolsa (do 10º em diante).
+var grade: GridContainer
+## Barra rápida (espaços 1 a 9).
+var grade_rapida: HBoxContainer
+var bolso_historia: HFlowContainer
+var titulo_historia: Label
+var espacos: Array[EspacoBolsa] = []
 var nome_item: Label
 var descricao_item: Label
 var aviso_item: Label
@@ -57,12 +61,15 @@ func _ready() -> void:
 	# Métodos (e não funções soltas) para a ligação cair sozinha quando a
 	# tela sai de cena; os sinais são de autoloads, que continuam vivos.
 	Inventario.mudou.connect(_ao_mudar_item)
+	Inventario.espacos_mudaram.connect(_atualizar)
+	Inventario.capacidade_mudou.connect(_ao_mudar_capacidade)
 	Inventario.dinheiro_mudou.connect(_ao_mudar_dinheiro)
 	Inventario.equipamento_mudou.connect(_ao_mudar_equipamento)
 	DialogueManager.dialogue_started.connect(_ao_comecar_dialogo)
 	DialogueManager.dialogue_ended.connect(_ao_terminar_dialogo)
 	if itens_de_teste:
 		_por_itens_de_teste()
+	botao_idade.visible = itens_de_teste
 	tela.hide()
 
 
@@ -88,9 +95,10 @@ func abrir() -> void:
 	tela.show()
 	botao_bolsa.hide()
 	get_tree().paused = true
-	mostrar_aba(aba_atual)
+	_montar_espacos()
+	escolher_espaco(-1)
 	_atualizar_dinheiro()
-	botoes_aba[aba_atual].grab_focus()
+	botao_fechar.grab_focus()
 
 
 func fechar() -> void:
@@ -99,25 +107,47 @@ func fechar() -> void:
 	get_tree().paused = false
 
 
-func mostrar_aba(tipo: Item.Tipo) -> void:
-	aba_atual = tipo
-	for outro: Item.Tipo in botoes_aba:
-		botoes_aba[outro].set_pressed_no_signal(outro == tipo)
-	escolher_item("")
+## Toque num espaço da grade. Sem nada escolhido, escolhe o item dali;
+## com um item escolhido, muda-o para esse espaço (ou troca os dois).
+## Tocar de novo no mesmo espaço desfaz a escolha.
+func tocar_espaco(indice: int) -> void:
+	if espaco_escolhido == -1:
+		escolher_espaco(indice)
+	elif espaco_escolhido == indice:
+		escolher_espaco(-1)
+	else:
+		Inventario.trocar_espacos(espaco_escolhido, indice)
+		escolher_espaco(-1)
+
+
+## Escolhe um espaço (-1 = nenhum) e mostra o detalhe do item dele.
+## Espaço vazio não fica escolhido.
+func escolher_espaco(indice: int) -> void:
+	var conteudo := Inventario.espaco(indice)
+	espaco_escolhido = indice if not conteudo.is_empty() else -1
+	item_escolhido = conteudo.get("id", "")
 	_atualizar()
 
 
-func escolher_item(id: String) -> void:
-	item_escolhido = id
-	_atualizar_detalhe()
+## Escolhe um item do bolso da história.
+func escolher_historia(id: String) -> void:
+	espaco_escolhido = -1
+	item_escolhido = id if Inventario.tem(id) else ""
+	_atualizar()
 
 
-## Ids na ordem em que aparecem na aba atual.
-func itens_da_aba() -> Array[String]:
-	return Inventario.ids_do_tipo(aba_atual)
+## Botão provisório: criança → adolescente → adulto → criança.
+func trocar_idade() -> void:
+	var faixas: Array = Inventario.FaixaEtaria.values()
+	Inventario.mudar_faixa_etaria(faixas[(Inventario.faixa_etaria + 1) % faixas.size()])
 
 
 func _ao_mudar_item(_id: String, _quantidade: int) -> void:
+	_atualizar()
+
+
+func _ao_mudar_capacidade(_espacos: int) -> void:
+	_montar_espacos()
 	_atualizar()
 
 
@@ -138,7 +168,10 @@ func _ao_terminar_dialogo(_recurso: DialogueResource) -> void:
 
 
 func _usar() -> void:
-	Inventario.usar(item_escolhido, personagem)
+	if espaco_escolhido >= 0:
+		Inventario.usar_espaco(espaco_escolhido, personagem)
+	else:
+		Inventario.usar(item_escolhido, personagem)
 
 
 func _equipar() -> void:
@@ -150,20 +183,54 @@ func _equipar() -> void:
 
 
 func _largar() -> void:
-	Inventario.largar(item_escolhido)
+	if espaco_escolhido >= 0:
+		Inventario.largar_espaco(espaco_escolhido)
+	else:
+		Inventario.largar(item_escolhido)
 
 
 func _atualizar() -> void:
-	for filho in lista.get_children():
-		lista.remove_child(filho)
-		filho.free()
-	var ids := itens_da_aba()
-	for id in ids:
-		lista.add_child(_botao_item(id))
-	rotulo_vazio.visible = ids.is_empty()
-	if not Inventario.tem(item_escolhido):
+	if not is_instance_valid(grade):
+		return
+	# O item pode ter acabado ou mudado de lugar.
+	if espaco_escolhido >= 0 and Inventario.espaco(espaco_escolhido).get("id", "") != item_escolhido:
+		espaco_escolhido = -1
 		item_escolhido = ""
+	if espaco_escolhido == -1 and not Inventario.tem(item_escolhido):
+		item_escolhido = ""
+	for espaco in espacos:
+		espaco.escolhido = espaco.indice == espaco_escolhido
+		espaco.atualizar(personagem)
+	rotulo_espacos.text = tr("BOLSA_ESPACOS") % [_ocupados(), Inventario.capacidade()]
+	botao_idade.text = tr("BOLSA_IDADE") % tr(CHAVES_IDADE[Inventario.faixa_etaria])
+	_atualizar_historia()
 	_atualizar_detalhe()
+
+
+func _ocupados() -> int:
+	var total := 0
+	for indice in Inventario.numero_de_espacos():
+		if not Inventario.espaco(indice).is_empty():
+			total += 1
+	return total
+
+
+func _atualizar_historia() -> void:
+	var ids := Inventario.ids_do_tipo(Item.Tipo.HISTORIA)
+	titulo_historia.visible = not ids.is_empty()
+	bolso_historia.visible = not ids.is_empty()
+	var atuais: Array[String] = []
+	for botao in bolso_historia.get_children():
+		atuais.append(str(botao.name))
+	# Só recria quando a lista muda: o botão tocado ainda está emitindo o sinal.
+	if atuais != ids:
+		for filho in bolso_historia.get_children():
+			bolso_historia.remove_child(filho)
+			filho.queue_free()
+		for id in ids:
+			bolso_historia.add_child(_botao_historia(id))
+	for botao: Button in bolso_historia.get_children():
+		botao.set_pressed_no_signal(str(botao.name) == item_escolhido and espaco_escolhido == -1)
 
 
 func _atualizar_dinheiro() -> void:
@@ -175,13 +242,49 @@ func _atualizar_detalhe() -> void:
 	var tem_item := dados != null
 	nome_item.text = tr(dados.chave_nome) if tem_item else ""
 	descricao_item.text = tr(dados.chave_descricao) if tem_item else tr("BOLSA_ESCOLHA_ITEM")
-	aviso_item.text = tr("BOLSA_ITEM_DA_HISTORIA") if tem_item and dados.e_da_historia() else ""
+	var bonus := texto_bonus(dados) if tem_item else ""
+	if not bonus.is_empty():
+		descricao_item.text += "\n" + bonus
+	if tem_item and dados.e_da_historia():
+		aviso_item.text = tr("BOLSA_ITEM_DA_HISTORIA")
+	elif espaco_escolhido >= 0:
+		aviso_item.text = tr("BOLSA_MOVER")
+	else:
+		aviso_item.text = ""
 	botao_usar.visible = tem_item and dados.pode_usar()
 	botao_equipar.visible = tem_item and dados.pode_equipar()
 	botao_largar.visible = tem_item and not dados.e_da_historia()
 	if tem_item and dados.pode_equipar():
 		var equipado := Inventario.equipado(personagem, dados.encaixe) == item_escolhido
 		botao_equipar.text = tr("BOLSA_DESEQUIPAR") if equipado else tr("BOLSA_EQUIPAR")
+		botao_equipar.disabled = not equipado and Inventario.pesado_para_a_idade(item_escolhido)
+
+
+## Bônus do item numa linha, por exemplo "Ataque +7 · Velocidade +5%".
+## Só o que muda alguma coisa.
+static func texto_bonus(dados: Item) -> String:
+	var partes: PackedStringArray = []
+	if Inventario.pesado_para_a_idade(dados.id):
+		partes.append(TranslationServer.translate("BOLSA_PESADO_DEMAIS"))
+	if dados.duas_maos():
+		partes.append(TranslationServer.translate("BOLSA_DUAS_MAOS"))
+	if dados.ataque != 0:
+		partes.append(TranslationServer.translate("BOLSA_ATAQUE") % dados.ataque)
+	if dados.defesa != 0:
+		partes.append(TranslationServer.translate("BOLSA_DEFESA") % dados.defesa)
+	if dados.velocidade != 0:
+		partes.append(TranslationServer.translate("BOLSA_VELOCIDADE") % dados.velocidade)
+	if dados.alcance > Balanceamento.ALCANCE_PADRAO:
+		partes.append(TranslationServer.translate("BOLSA_ALCANCE"))
+	if dados.cura > 0:
+		partes.append(TranslationServer.translate("BOLSA_CURA") % dados.cura)
+	if dados.tem_efeito_temporario():
+		var segundos := roundi(dados.duracao_efeito)
+		if dados.velocidade_temporaria != 0:
+			partes.append(TranslationServer.translate("BOLSA_VELOCIDADE_TEMPORARIA") % [dados.velocidade_temporaria, segundos])
+		if dados.vida_extra != 0:
+			partes.append(TranslationServer.translate("BOLSA_VIDA_EXTRA") % [dados.vida_extra, segundos])
+	return " · ".join(partes)
 
 
 ## Cópia do ícone [constant ESCALA_ICONE] vezes maior, sem borrar os pixels.
@@ -201,36 +304,47 @@ static func icone_ampliado(icone: Texture2D) -> Texture2D:
 	return ImageTexture.create_from_image(imagem)
 
 
-func _botao_item(id: String) -> Button:
+func _botao_historia(id: String) -> Button:
 	var dados := Inventario.item(id)
 	var botao := Button.new()
 	botao.name = id
-	botao.custom_minimum_size = Vector2(170, 120)
+	botao.custom_minimum_size = Vector2(150, ALTURA_BOTAO)
 	botao.toggle_mode = true
-	botao.button_pressed = id == item_escolhido
 	botao.icon = icone_ampliado(dados.icone)
-	botao.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	botao.vertical_icon_alignment = VERTICAL_ALIGNMENT_TOP
-	botao.expand_icon = false
-	botao.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	var texto := tr(dados.chave_nome)
-	if Inventario.quantidade(id) > 1:
-		texto += "\n×%d" % Inventario.quantidade(id)
-	for encaixe: Item.Encaixe in [Item.Encaixe.ARMA, Item.Encaixe.ARMADURA, Item.Encaixe.ACESSORIO]:
-		if Inventario.equipado(personagem, encaixe) == id:
-			texto += "\n" + tr("BOLSA_EQUIPADO")
-	botao.text = texto
-	botao.pressed.connect(func() -> void:
-		escolher_item(id)
-		for outro in lista.get_children():
-			(outro as Button).set_pressed_no_signal(outro == botao))
+	botao.text = tr(dados.chave_nome)
+	botao.pressed.connect(escolher_historia.bind(id))
 	return botao
+
+
+## Cria (ou recria) um EspacoBolsa para cada espaço da bolsa: o tamanho
+## muda com a idade.
+func _montar_espacos() -> void:
+	if espacos.size() == Inventario.numero_de_espacos():
+		return
+	for espaco in espacos:
+		espaco.get_parent().remove_child(espaco)
+		espaco.free()
+	espacos.clear()
+	for indice in Inventario.numero_de_espacos():
+		var espaco := EspacoBolsa.new()
+		espaco.name = "Espaco%d" % (indice + 1)
+		espaco.indice = indice
+		espaco.custom_minimum_size = Vector2(72, 72)
+		espaco.pressed.connect(tocar_espaco.bind(indice))
+		if indice < Inventario.ESPACOS_RAPIDOS:
+			espaco.mostrar_numero(indice + 1)
+			grade_rapida.add_child(espaco)
+		else:
+			grade.add_child(espaco)
+		espacos.append(espaco)
 
 
 func _por_itens_de_teste() -> void:
 	if Inventario.dinheiro() > 0 or not Inventario.ids_do_tipo(Item.Tipo.ARMA).is_empty():
 		return
-	Inventario.adicionar("espada_teste")
+	# Adulto (30 espaços) para o baú com todas as armas caber na sala de teste.
+	Inventario.mudar_faixa_etaria(Inventario.FaixaEtaria.ADULTO)
+	Inventario.adicionar("espada_media")
 	Inventario.adicionar("pocao_teste", 3)
 	Inventario.adicionar("carta_teste")
 	Inventario.ganhar_dinheiro(20)
@@ -272,13 +386,13 @@ func _montar() -> void:
 	var margem := MarginContainer.new()
 	margem.set_anchors_preset(Control.PRESET_FULL_RECT)
 	for lado in ["left", "right", "top", "bottom"]:
-		margem.add_theme_constant_override("margin_" + lado, 40)
+		margem.add_theme_constant_override("margin_" + lado, 32)
 	tela.add_child(margem)
 
 	var painel := PanelContainer.new()
 	margem.add_child(painel)
 	var coluna := VBoxContainer.new()
-	coluna.add_theme_constant_override("separation", 16)
+	coluna.add_theme_constant_override("separation", 12)
 	painel.add_child(coluna)
 
 	var topo := HBoxContainer.new()
@@ -291,21 +405,18 @@ func _montar() -> void:
 	titulo.add_theme_color_override("font_color", COR_DESTAQUE)
 	titulo.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	topo.add_child(titulo)
+	botao_idade = _botao("", trocar_idade)
+	botao_idade.name = "BotaoIdade"
+	botao_idade.custom_minimum_size.x = 220
+	topo.add_child(botao_idade)
+	rotulo_espacos = Label.new()
+	rotulo_espacos.name = "Espacos"
+	topo.add_child(rotulo_espacos)
 	rotulo_dinheiro = Label.new()
 	rotulo_dinheiro.name = "Dinheiro"
 	topo.add_child(rotulo_dinheiro)
 	botao_fechar = _botao("BOLSA_FECHAR", fechar)
 	topo.add_child(botao_fechar)
-
-	var abas := HBoxContainer.new()
-	abas.add_theme_constant_override("separation", 8)
-	coluna.add_child(abas)
-	for tipo in ABAS:
-		var botao := _botao(CHAVES_ABA[tipo], mostrar_aba.bind(tipo))
-		botao.toggle_mode = true
-		botao.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		abas.add_child(botao)
-		botoes_aba[tipo] = botao
 
 	var corpo := HBoxContainer.new()
 	corpo.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -316,21 +427,35 @@ func _montar() -> void:
 	rolagem.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	rolagem.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	corpo.add_child(rolagem)
-	var area_lista := VBoxContainer.new()
-	area_lista.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	rolagem.add_child(area_lista)
-	lista = GridContainer.new()
-	lista.name = "Lista"
-	lista.columns = 4
-	lista.add_theme_constant_override("h_separation", 12)
-	lista.add_theme_constant_override("v_separation", 12)
-	area_lista.add_child(lista)
-	rotulo_vazio = Label.new()
-	rotulo_vazio.text = "BOLSA_VAZIA"
-	area_lista.add_child(rotulo_vazio)
+	var area := VBoxContainer.new()
+	area.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	area.add_theme_constant_override("separation", 12)
+	rolagem.add_child(area)
+	grade = GridContainer.new()
+	grade.name = "Grade"
+	grade.columns = COLUNAS
+	grade.add_theme_constant_override("h_separation", 6)
+	grade.add_theme_constant_override("v_separation", 6)
+	area.add_child(grade)
+	var titulo_rapida := Label.new()
+	titulo_rapida.text = "BOLSA_BARRA_RAPIDA"
+	titulo_rapida.add_theme_color_override("font_color", COR_DESTAQUE)
+	area.add_child(titulo_rapida)
+	grade_rapida = HBoxContainer.new()
+	grade_rapida.name = "BarraRapida"
+	grade_rapida.add_theme_constant_override("separation", 6)
+	area.add_child(grade_rapida)
+	titulo_historia = Label.new()
+	titulo_historia.text = "BOLSA_ITENS_HISTORIA"
+	titulo_historia.add_theme_color_override("font_color", COR_DESTAQUE)
+	area.add_child(titulo_historia)
+	bolso_historia = HFlowContainer.new()
+	bolso_historia.name = "BolsoHistoria"
+	bolso_historia.add_theme_constant_override("h_separation", 8)
+	area.add_child(bolso_historia)
 
 	var detalhe := VBoxContainer.new()
-	detalhe.custom_minimum_size = Vector2(360, 0)
+	detalhe.custom_minimum_size = Vector2(340, 0)
 	detalhe.add_theme_constant_override("separation", 12)
 	corpo.add_child(detalhe)
 	nome_item = Label.new()

@@ -42,11 +42,11 @@ func _entrar_nos_aposentos() -> void:
 	alvo.tocado.emit(alvo)
 
 
-func _apertar_enter() -> void:
-	var enter := InputEventAction.new()
-	enter.action = "interagir"
-	enter.pressed = true
-	Input.parse_input_event(enter)
+func _apertar_e() -> void:
+	var tecla_e := InputEventAction.new()
+	tecla_e.action = "interagir"
+	tecla_e.pressed = true
+	Input.parse_input_event(tecla_e)
 	await wait_physics_frames(2)
 
 
@@ -64,13 +64,13 @@ func test_nos_aposentos_o_controle_trava_ate_dizer_o_nome() -> void:
 	assert_false(seq.botao_nome.visible)
 
 
-func test_enter_diz_o_nome_e_segura_althea() -> void:
+func test_e_diz_o_nome_e_segura_althea() -> void:
 	await _entrar_nos_aposentos()
 	await _ate_a_etapa("nome")
-	await _apertar_enter()
+	await _apertar_e()
 	await _ate_a_etapa("segurar")
 	assert_true(seq.alvo_althea.ativo)
-	await _apertar_enter()
+	await _apertar_e()
 	await _ate_a_etapa("nos_bracos")
 	assert_eq(seq.althea.get_parent(), cena.camera, "Althea nos braços de Nicholas")
 

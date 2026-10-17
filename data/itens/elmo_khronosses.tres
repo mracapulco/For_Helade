@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="Item" format=3]
+
+[ext_resource type="Script" path="res://scripts/systems/item.gd" id="1_item"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholders/combate/icone_elmo_khronosses.png" id="2_icone"]
+[ext_resource type="SpriteFrames" path="res://assets/art/placeholders/combate/elmo_khronosses_corpo.tres" id="4_corpo"]
+
+[resource]
+script = ExtResource("1_item")
+id = "elmo_khronosses"
+chave_nome = "ITEM_ELMO_KHRONOSSES_NOME"
+chave_descricao = "ITEM_ELMO_KHRONOSSES_DESC"
+icone = ExtResource("2_icone")
+tipo = 1
+encaixe = 5
+preco = 60
+origem = 3
+nivel = 1
+defesa = 5
+velocidade = -5
+visual_no_corpo = ExtResource("4_corpo")

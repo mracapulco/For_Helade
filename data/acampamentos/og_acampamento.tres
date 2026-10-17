@@ -30,3 +30,4 @@ companheiro = ExtResource("10")
 marcador_companheiro = "ovelha"
 mercador = ExtResource("m")
 neve = 0.25
+loja = "acampamento_og"

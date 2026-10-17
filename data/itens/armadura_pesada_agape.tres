@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="Item" format=3]
+
+[ext_resource type="Script" path="res://scripts/systems/item.gd" id="1_item"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholders/combate/icone_armadura_pesada_agape.png" id="2_icone"]
+[ext_resource type="SpriteFrames" path="res://assets/art/placeholders/combate/armadura_pesada_agape_corpo.tres" id="4_corpo"]
+
+[resource]
+script = ExtResource("1_item")
+id = "armadura_pesada_agape"
+chave_nome = "ITEM_ARMADURA_PESADA_AGAPE_NOME"
+chave_descricao = "ITEM_ARMADURA_PESADA_AGAPE_DESC"
+icone = ExtResource("2_icone")
+tipo = 1
+encaixe = 2
+preco = 200
+origem = 2
+nivel = 2
+fase_minima = 2
+defesa = 20
+velocidade = -25
+visual_no_corpo = ExtResource("4_corpo")

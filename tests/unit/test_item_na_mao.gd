@@ -7,6 +7,7 @@ const FOLHA := "res://assets/art/personagens/nicholas/nicholas_exploracao.tres"
 
 func before_each() -> void:
 	Inventario.limpar()
+	Inventario.mudar_faixa_etaria(Inventario.FaixaEtaria.ADULTO)
 
 
 func after_all() -> void:
@@ -24,7 +25,7 @@ func test_toda_animacao_tem_a_mao_em_cada_quadro() -> void:
 
 
 func test_espada_tem_desenho_na_mao() -> void:
-	var espada := Inventario.item("espada_teste")
+	var espada := Inventario.item("espada_media")
 	assert_not_null(espada.visual_na_mao)
 
 
@@ -43,18 +44,18 @@ func test_equipar_mostra_e_desequipar_esconde() -> void:
 	var na_mao: ItemNaMao = sala.get_node("Personagem/Corpo/Visual/ItemNaMao")
 	await wait_physics_frames(2)
 	assert_false(na_mao.visible, "sem arma, nada na mão")
-	Inventario.adicionar("espada_teste")
-	Inventario.equipar("nicholas", "espada_teste")
+	Inventario.adicionar("espada_media")
+	Inventario.equipar("nicholas", "espada_media")
 	await wait_process_frames(1)
 	assert_true(na_mao.visible)
-	assert_eq(na_mao.item_mostrado().id, "espada_teste")
+	assert_eq(na_mao.item_mostrado().id, "espada_media")
 	Inventario.desequipar("nicholas", Item.Encaixe.ARMA)
 	assert_false(na_mao.visible)
 
 
 func test_espada_acompanha_a_mao_ao_andar_e_ao_virar() -> void:
-	Inventario.adicionar("espada_teste")
-	Inventario.equipar("nicholas", "espada_teste")
+	Inventario.adicionar("espada_media")
+	Inventario.equipar("nicholas", "espada_media")
 	var sala: Node2D = add_child_autofree(load("res://scenes/exploracao/sala_teste.tscn").instantiate())
 	var personagem: PersonagemExploracao = sala.get_node("Personagem")
 	var visual: AnimacaoPersonagem = sala.get_node("Personagem/Corpo/Visual")
@@ -71,8 +72,8 @@ func test_espada_acompanha_a_mao_ao_andar_e_ao_virar() -> void:
 
 
 func test_ao_pular_a_espada_sobe_com_o_corpo() -> void:
-	Inventario.adicionar("espada_teste")
-	Inventario.equipar("nicholas", "espada_teste")
+	Inventario.adicionar("espada_media")
+	Inventario.equipar("nicholas", "espada_media")
 	var sala: Node2D = add_child_autofree(load("res://scenes/exploracao/sala_teste.tscn").instantiate())
 	var personagem: PersonagemExploracao = sala.get_node("Personagem")
 	var na_mao: ItemNaMao = sala.get_node("Personagem/Corpo/Visual/ItemNaMao")

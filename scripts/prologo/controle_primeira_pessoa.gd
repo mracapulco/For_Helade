@@ -1,9 +1,9 @@
 class_name ControlePrimeiraPessoa
 extends Node3D
 ## Primeira pessoa de Nicholas.
-## No PC: WASD (ou setas) para andar, espaço para pular e mouse para olhar
-## (Shift corre só depois de Nicholas segurar Althea); Enter (ou clicar) com a mira na próxima passagem (uma
-## porta, por exemplo) também leva até ela. Esc solta o mouse.
+## No PC: WASD (ou setas) para andar, Shift para correr, espaço para pular,
+## Ctrl para agachar e mouse para olhar; Enter (ou clicar) com a mira na
+## próxima passagem (uma porta, por exemplo) também leva até ela. Esc solta o mouse.
 ## No toque: tocar na próxima passagem leva a câmera até o próximo ponto.
 ## Chegar perto do próximo ponto, andando ou pelo toque, avança o percurso.
 
@@ -102,7 +102,7 @@ func _unhandled_input(evento: InputEvent) -> void:
 	if travado or em_movimento:
 		return
 	if evento.is_action_pressed("interagir"):
-		# Enter é a tecla padrão de interação do jogo.
+		# E é a tecla padrão de interação do jogo.
 		var mirado := _alvo_na_mira()
 		if mirado:
 			_ao_tocar(mirado)

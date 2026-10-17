@@ -9,7 +9,7 @@ O jogo é uma **segunda forma de percorrer a história**: começa e termina como
 ## Decisões já tomadas
 
 ### Gênero e estilo
-- **Estilo principal:** RPG narrativo de exploração com câmera **isométrica** (visão de cima, inspirada em Diablo), focado em diálogo, relações e intriga política, não em combate.
+- **Estilo principal:** RPG narrativo de exploração com câmera **isométrica** (visão de cima, inspirada em Diablo), focado em diálogo, relações e intriga política, **com combate em tempo real** (decisão do Rafael, 13/10/2026; plano em `planos/combate.md`).
 - **Trocas de perspectiva só em momentos-chave e curtos**, sempre motivadas pela história (o título pede: "pelos olhos dele"):
   - **Prólogo em primeira pessoa:** o jogador é Nicholas aos 5 anos, na noite do nascimento de Althea no Castelo Olympia. Curto, sem combate, foco em impacto.
   - **Memórias e lendas em plataforma 2D:** lembranças de Nicholas ou a lenda do Ano Dourado, em fases curtas.
@@ -28,14 +28,15 @@ O jogo é uma **segunda forma de percorrer a história**: começa e termina como
 - História principal **fiel ao livro**; o final não muda.
 - Escolhas do jogador só em momentos pontuais (o que Nicholas diz, quem procura). Elas afetam relações e influência, nunca o rumo principal.
 - Texto com retratos dos personagens, música e som ambiente. **Voz do Nicholas** gerada pelo ElevenLabs (decisão de 16/10/2026): `data/vozes/vozes.cfg` diz quem tem voz; o gerador `scripts/ferramentas/gerar_vozes.gd` roda no editor do Godot e salva `assets/audio/vozes/<ID>.mp3`; o autoload `Voz` toca o áudio da fala pelo ID (sem áudio, a fala segue em silêncio).
-- **Conflitos como mecânica sem combate:** debates na corte e embates políticos como "duelos" de argumentos. As lutas que existem no livro viram cenas especiais.
+- **Conflitos:** debates na corte e embates políticos continuam como "duelos" de argumentos. Combate (tempo real, como Diablo) é para estradas, mar, ruínas e as lutas do livro; não muda o rumo da história.
+- **Itens de combate:** cada arma e proteção é um `.tres` em `data/itens/` com bônus de ataque, defesa e velocidade. Todo item gasta exatamente o orçamento de pontos do `Balanceamento` (`scripts/systems/balanceamento.gd`); um teste GUT confere todos.
 - **Códice** desbloqueável: Abençoados, casas, regiões, lenda do Ano Dourado. Pode ter conteúdo inédito da autora.
 
 ### Plataforma e tecnologia
 - **Engine:** Godot 4 (build padrão, **não** a .NET).
 - **Linguagem:** GDScript.
 - **Plataforma:** PC primeiro (para testar); celular (Android) depois.
-- Controle por **clique para mover**, para funcionar igual no toque. A interface deve ser pensada para toque desde o início (botões grandes, sem depender de hover ou teclado).
+- Controle no PC por **teclado** (WASD/setas, Enter para interagir). **Clicar no chão para andar foi removido** (decisão de 14/10/2026: ficou ruim); o controle do celular será outro, decidido depois. A interface continua pensada para toque (botões grandes, sem depender de hover).
 - Testes de lógica com **GUT** ou **gdUnit4** (influência, save/load, progressão).
 - Versionamento com **git**, com commits pequenos.
 - **Roteiro e diálogo:** arquivos `.dialogue` do plugin **Dialogue Manager** em `data/dialogos/`, com pt-BR no próprio arquivo e `[ID:...]` fixo por fala para tradução (POT/PO). Retrato por etiqueta `[#retrato=expressao]`; escolhas chamam `Relacoes.ajustar(...)` e `Influencia.ajustar(...)` e sempre voltam para a linha principal. Detalhes no README.

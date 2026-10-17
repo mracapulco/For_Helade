@@ -53,7 +53,7 @@ func test_novo_jogo_vai_para_o_prologo_e_zera_valores() -> void:
 
 func test_continuar_sem_missao_vai_para_o_mapa_no_acampamento_salvo() -> void:
 	Mundo.local_no_mapa = "og_acampamento"
-	Progresso.salvar("capitulo_1")
+	Progresso.salvar("etapa_sem_missao")
 	Mundo.limpar()
 	await _abrir_menu()
 	assert_true(menu.botao_continuar.visible)
@@ -66,9 +66,9 @@ func test_continuar_sem_missao_vai_para_o_mapa_no_acampamento_salvo() -> void:
 
 func test_continuar_abre_o_espaco_salvo_por_ultimo() -> void:
 	Mundo.local_no_mapa = "oa_acampamento"
-	Progresso.salvar("capitulo_1", 7)
+	Progresso.salvar("etapa_sem_missao", 7)
 	Mundo.local_no_mapa = "ot_acampamento"
-	Progresso.salvar("capitulo_1", 2)
+	Progresso.salvar("etapa_sem_missao", 2)
 	Mundo.limpar()
 	await _abrir_menu()
 	menu.botao_continuar.pressed.emit()
@@ -78,9 +78,9 @@ func test_continuar_abre_o_espaco_salvo_por_ultimo() -> void:
 
 func test_carregar_jogo_mostra_os_dez_espacos_e_abre_o_escolhido() -> void:
 	Mundo.local_no_mapa = "oa_acampamento"
-	Progresso.salvar("capitulo_1", 3)
+	Progresso.salvar("etapa_sem_missao", 3)
 	Mundo.local_no_mapa = "ot_acampamento"
-	Progresso.salvar("capitulo_1", 5)
+	Progresso.salvar("etapa_sem_missao", 5)
 	Mundo.limpar()
 	await _abrir_menu()
 	menu.botao_carregar.pressed.emit()
@@ -92,14 +92,21 @@ func test_carregar_jogo_mostra_os_dez_espacos_e_abre_o_escolhido() -> void:
 	assert_true(tela.botoes[0].disabled, "espaço vazio não carrega")
 	assert_false(tela.botoes[2].disabled)
 	assert_true(tela.botoes[4].has_focus(), "o mais recente fica selecionado")
+	assert_eq(tela.selecionado, 5)
 	tela.botoes[2].pressed.emit()
+	assert_eq(menu.cena_pedida, "", "tocar no espaço só seleciona")
+	assert_eq(tela.selecionado, 3)
+	assert_true(tela.botoes[2].button_pressed)
+	assert_false(tela.botoes[4].button_pressed, "só um selecionado")
+	assert_true(tela.botao_acao.has_focus(), "Enter de novo carrega")
+	tela.botao_acao.pressed.emit()
 	assert_eq(Progresso.espaco_atual, 3)
 	assert_eq(Mundo.local_no_mapa, "oa_acampamento")
 	assert_eq(menu.cena_pedida, "res://scenes/mapa/mapa_helade.tscn")
 
 
 func test_carregar_jogo_volta_sem_escolher() -> void:
-	Progresso.salvar("capitulo_1", 1)
+	Progresso.salvar("etapa_sem_missao", 1)
 	await _abrir_menu()
 	menu.botao_carregar.pressed.emit()
 	menu.tela_espacos.botao_voltar.pressed.emit()
@@ -118,11 +125,11 @@ func test_continuar_abre_a_parte_salva() -> void:
 func test_salvar_e_carregar_guarda_relacoes_e_influencia() -> void:
 	Relacoes.ajustar("janet", 2)
 	Influencia.ajustar("olympia", -1)
-	Progresso.salvar("capitulo_1")
+	Progresso.salvar("etapa_sem_missao")
 	Relacoes.limpar()
 	Influencia.limpar()
 	assert_true(Progresso.carregar())
-	assert_eq(Progresso.etapa, "capitulo_1")
+	assert_eq(Progresso.etapa, "etapa_sem_missao")
 	assert_eq(Relacoes.valor("janet"), 2)
 	assert_eq(Influencia.valor("olympia"), -1)
 
@@ -169,7 +176,7 @@ func test_textos_vem_da_traducao() -> void:
 
 
 func test_novo_jogo_nao_apaga_os_espacos() -> void:
-	Progresso.salvar("capitulo_1", 1)
+	Progresso.salvar("etapa_sem_missao", 1)
 	await _abrir_menu()
 	menu.botao_novo_jogo.pressed.emit()
 	assert_eq(menu.cena_pedida, "res://scenes/prologo/prologo.tscn")
@@ -197,3 +204,46 @@ func test_entrada_animada_e_pulada_com_um_toque() -> void:
 	await wait_process_frames(2)
 	for parte in [menu.capa, menu.titulo, menu.botao_novo_jogo, menu.botao_opcoes]:
 		assert_eq(parte.modulate.a, 1.0)
+
+
+func test_excluir_um_jogo_salvo_pergunta_antes() -> void:
+	Progresso.salvar("capitulo_1", 1)
+	Progresso.salvar("capitulo_1", 2)
+	await _abrir_menu()
+	menu.botao_carregar.pressed.emit()
+	var tela := menu.tela_espacos
+	tela.botoes[1].pressed.emit()
+	assert_false(tela.botao_excluir.disabled)
+	tela.botao_excluir.pressed.emit()
+	assert_true(tela.confirmacao.visible, "pergunta antes de apagar")
+	assert_true(Progresso.espaco_ocupado(2))
+	tela.botao_nao.pressed.emit()
+	assert_true(Progresso.espaco_ocupado(2), "Não deixa como estava")
+	tela.botao_excluir.pressed.emit()
+	tela.botao_sim.pressed.emit()
+	assert_false(Progresso.espaco_ocupado(2))
+	assert_true(Progresso.espaco_ocupado(1))
+	assert_true(tela.aberta(), "excluir não fecha a lista")
+	assert_eq(menu.cena_pedida, "", "excluir não abre o jogo")
+	assert_true(tela.botoes[1].disabled, "o espaço apagado fica vazio")
+	assert_eq(tela.selecionado, 1, "passa para o jogo que sobrou")
+
+
+func test_excluir_o_ultimo_jogo_esconde_continuar() -> void:
+	Progresso.salvar("capitulo_1", 1)
+	await _abrir_menu()
+	menu.botao_carregar.pressed.emit()
+	var tela := menu.tela_espacos
+	tela.selecionar(1)
+	tela.excluir()
+	tela.confirmar()
+	tela.botao_voltar.pressed.emit()
+	assert_false(menu.botao_continuar.visible)
+	assert_false(menu.botao_carregar.visible)
+
+
+func test_continuar_no_capitulo_1_abre_a_missao() -> void:
+	Progresso.salvar("capitulo_1")
+	await _abrir_menu()
+	menu.botao_continuar.pressed.emit()
+	assert_eq(menu.cena_pedida, "res://scenes/capitulo_01/capitulo_01.tscn")

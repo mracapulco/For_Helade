@@ -220,13 +220,24 @@ def mao(dir, f_esq=0, f_dir=0, lift_esq=0, lift_dir=0, dy=0, inclina=0,
     comprimento = 6 if curvo else 8
     return (x + 5, yt + 1 + braco_dir + comprimento + 1)
 
+def mao_tras(dir, f_esq=0, f_dir=0, lift_esq=0, lift_dir=0, dy=0, inclina=0,
+             braco_esq=0, braco_dir=0, alcance=0, manto_voa=0, curvo=False, ergue=False):
+    # Mão do braço de trás (o da esquerda na tela), onde vai o escudo.
+    x = CX + inclina
+    yt = 19 + dy
+    comprimento = 7 if curvo else 8
+    return (x - 7, yt + 2 + braco_esq + comprimento + 1)
+
 def maos_tres():
     linhas = []
+    tras = []
     giros = []
     for d in DIRS:
         for a in ORDEM:
             pontos = ', '.join('%d, %d' % mao(d, **k) for k in ANIM[a])
             linhas.append('&"%s_%s": PackedVector2Array(%s)' % (a, d, pontos))
+            pontos = ', '.join('%d, %d' % mao_tras(d, **k) for k in ANIM[a])
+            tras.append('&"%s_%s": PackedVector2Array(%s)' % (a, d, pontos))
             if a in ANGULOS:
                 giros.append('&"%s_%s": PackedFloat32Array(%s)' % (a, d, ', '.join(str(g) for g in ANGULOS[a])))
     return ('[gd_resource type="Resource" script_class="MaosPersonagem" format=3]\n\n'
@@ -234,7 +245,8 @@ def maos_tres():
             '[resource]\nscript = ExtResource("1_maos")\n'
             'tamanho_quadro = Vector2i(%d, %d)\n'
             'pontos = {\n%s\n}\n'
-            'angulos = {\n%s\n}\n' % (W, HH, ',\n'.join(linhas), ',\n'.join(giros)))
+            'angulos = {\n%s\n}\n'
+            'pontos_tras = {\n%s\n}\n' % (W, HH, ',\n'.join(linhas), ',\n'.join(giros), ',\n'.join(tras)))
 
 if __name__ == '__main__':
     folha().save(sys.argv[1])

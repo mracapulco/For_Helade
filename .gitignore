@@ -16,3 +16,4 @@ Thumbs.db
 
 # Chaves de API (ElevenLabs etc.): nunca versionar
 .chaves/
+__pycache__/

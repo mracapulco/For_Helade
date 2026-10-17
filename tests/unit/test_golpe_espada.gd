@@ -21,8 +21,8 @@ func after_all() -> void:
 
 
 func _armar() -> void:
-	Inventario.adicionar("espada_teste")
-	Inventario.equipar("nicholas", "espada_teste")
+	Inventario.adicionar("espada_media")
+	Inventario.equipar("nicholas", "espada_media")
 
 
 func test_folha_tem_o_golpe_nas_duas_direcoes() -> void:
@@ -158,24 +158,44 @@ func test_clique_esquerdo_armado_golpeia_sem_andar() -> void:
 	assert_false(personagem.andando)
 
 
-func test_clique_sem_arma_continua_andando() -> void:
+func test_clique_sem_arma_nao_faz_nada() -> void:
 	var toque := InputEventScreenTouch.new()
 	toque.device = InputEvent.DEVICE_ID_EMULATION
 	toque.pressed = true
 	toque.position = Vector2(100, 100)
 	personagem._unhandled_input(toque)
-	assert_true(personagem.andando)
+	assert_false(personagem.andando)
 	assert_false(personagem.golpeando)
 
 
-func test_toque_de_verdade_armado_continua_andando() -> void:
+func test_clique_num_interagivel_golpeia_e_nao_interage() -> void:
+	_armar()
+	var objeto: Interagivel = sala.get_node("ObjetoTeste/Interagivel")
+	personagem.global_position = objeto.global_position + Vector2(0, objeto.alcance * 0.5)
+	watch_signals(objeto)
+	var toque := InputEventScreenTouch.new()
+	toque.device = InputEvent.DEVICE_ID_EMULATION
+	toque.pressed = true
+	toque.position = personagem.get_canvas_transform() * objeto.global_position
+	var clique := InputEventMouseButton.new()
+	clique.button_index = MOUSE_BUTTON_LEFT
+	clique.pressed = true
+	clique.position = toque.position
+	personagem._unhandled_input(toque)
+	personagem._unhandled_input(clique)
+	assert_true(personagem.golpeando, "O clique golpeia.")
+	assert_signal_not_emitted(objeto, "interagido", "O clique não interage; isso é no Enter.")
+
+
+func test_toque_de_verdade_armado_nao_golpeia() -> void:
 	_armar()
 	var toque := InputEventScreenTouch.new()
 	toque.device = 0
 	toque.pressed = true
 	toque.position = Vector2(100, 100)
 	personagem._unhandled_input(toque)
-	assert_true(personagem.andando, "no celular, tocar no chão anda; o golpe é no botão")
+	assert_false(personagem.golpeando, "no celular, o golpe é no botão")
+	assert_false(personagem.andando, "tocar no chão não anda mais")
 
 
 func test_botao_golpe_so_aparece_armado() -> void:

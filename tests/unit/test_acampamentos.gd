@@ -8,6 +8,7 @@ const IDS := [
 	"an_acampamento", "nt_acampamento", "at_acampamento",
 	"ilha_acampamento", "ilhota_acampamento",
 ]
+const AparenciaNicholas := preload("res://scripts/systems/aparencia_nicholas.gd")
 const INTERAGIVEIS := ["Barraca", "Mercador", "Companheiro", "Saida"]
 ## Pontos de barco: a saída é o barco, não a placa.
 const DE_BARCO := ["ilha_acampamento", "ilhota_acampamento"]
@@ -34,6 +35,7 @@ func after_each() -> void:
 	get_tree().paused = false
 	Mundo.definir_noite(false)
 	Mundo.local_no_mapa = ""
+	Inventario.limpar()
 
 
 func _abrir(id: String) -> Acampamento:
@@ -91,7 +93,11 @@ func test_companheiro_tem_fala_provisoria(id: String = use_parameters(IDS)) -> v
 	var companheiro := acampamento.companheiro
 	assert_has(companheiro.dialogo.get_cues(), companheiro.marcador, id)
 	var fala: DialogueLine = await companheiro.dialogo.get_next_dialogue_line(companheiro.marcador)
-	assert_string_contains(fala.text, "[Provisório]")
+	# Convidados (Rafael) têm falas próprias, não provisórias.
+	if companheiro.marcador == "rafael":
+		assert_eq(fala.character, "Próskopos")
+	else:
+		assert_string_contains(fala.text, "[Provisório]")
 	if not fala.character.is_empty():
 		assert_not_null(Elenco.buscar(fala.character), "%s precisa estar no Elenco" % fala.character)
 
@@ -105,7 +111,7 @@ func test_saida_e_placa_ou_barco(id: String = use_parameters(IDS)) -> void:
 	assert_eq(visual.texture, esperado, id)
 
 
-func test_mercador_avisa_que_a_loja_vem_depois() -> void:
+func test_mercador_oferece_as_mercadorias() -> void:
 	await _abrir("oa_acampamento")
 	TranslationServer.set_locale("pt_BR")
 	var mercador := acampamento.mercador
@@ -113,6 +119,48 @@ func test_mercador_avisa_que_a_loja_vem_depois() -> void:
 	assert_eq(fala.character, "Mercador")
 	assert_not_null(Elenco.buscar("Mercador"))
 	assert_string_starts_with(fala.text, "[Provisório]")
+	fala = await mercador.dialogo.get_next_dialogue_line(fala.next_id)
+	var opcoes := fala.responses.map(func(r: DialogueResponse) -> String: return r.text)
+	assert_has(opcoes, "Ver mercadorias")
+
+
+func test_cada_acampamento_tem_loja(id: String = use_parameters(IDS)) -> void:
+	await _abrir(id)
+	var loja := Lojas.loja(acampamento.bioma.loja)
+	assert_not_null(loja, id)
+	assert_eq(Lojas.loja_do_lugar, acampamento.bioma.loja, "o acampamento avisa qual é a loja")
+	for item_id in Lojas.mercadorias(loja.id):
+		var item := Inventario.item(item_id)
+		assert_not_null(item, "%s em %s" % [item_id, loja.id])
+		if item:
+			assert_ne(item.origem, Item.Origem.BANDIDOS, "itens dos bandidos não se vendem")
+			assert_true(item.origem == Item.Origem.NENHUMA or item.origem == loja.origem,
+				"%s é de outro reino (%s)" % [item_id, loja.id])
+
+
+func test_sair_do_acampamento_tira_a_loja_do_lugar() -> void:
+	await _abrir("og_acampamento")
+	acampamento.queue_free()
+	await wait_process_frames(2)
+	assert_eq(Lojas.loja_do_lugar, "")
+
+
+func test_ver_mercadorias_abre_a_tela_e_espera_fechar() -> void:
+	await _abrir("og_acampamento")
+	var terminou := [false]
+	var ver := func() -> void:
+		await Lojas.ver_mercadorias()
+		terminou[0] = true
+	ver.call()
+	assert_not_null(Lojas.tela)
+	assert_true(Lojas.tela.aberta())
+	assert_eq(Lojas.tela.id_loja, "acampamento_og")
+	assert_false(terminou[0])
+	Lojas.tela.fechar()
+	await wait_process_frames(1)
+	assert_true(terminou[0], "a conversa continua depois de fechar")
+	assert_null(Lojas.tela)
+	assert_false(get_tree().paused)
 
 
 func test_barraca_abre_os_espacos_e_pausa() -> void:
@@ -131,7 +179,10 @@ func test_barraca_salva_no_espaco_escolhido_sem_mudar_a_etapa() -> void:
 	Progresso.etapa = "etapa_de_teste"
 	watch_signals(acampamento)
 	acampamento.barraca.interagir()
-	acampamento.tela_espacos.escolher(4)
+	acampamento.tela_espacos.botoes[3].pressed.emit()
+	assert_false(Progresso.espaco_ocupado(4), "tocar no espaço só seleciona")
+	assert_eq(acampamento.tela_espacos.botao_acao.text, "ESPACOS_SALVAR")
+	acampamento.tela_espacos.botao_acao.pressed.emit()
 	assert_signal_emitted(acampamento, "salvo")
 	assert_false(acampamento.tela_espacos.aberta())
 	assert_false(get_tree().paused)
@@ -324,3 +375,48 @@ func test_anda_de_casa_em_casa_como_na_sala() -> void:
 	await wait_for_signal(personagem.chegou, 5)
 	var casa := personagem.casa_de(personagem.global_position)
 	assert_eq(personagem.global_position, personagem.centro_da_casa(casa), "o toque também para no centro")
+
+
+func test_nicholas_no_acampamento_tem_a_idade_da_historia() -> void:
+	Inventario.limpar()
+	await _abrir("oa_acampamento")
+	var visual := acampamento.get_node("Personagem/Corpo/Visual") as AnimatedSprite2D
+	assert_eq(visual.sprite_frames, AparenciaNicholas.quadros(Inventario.FaixaEtaria.CRIANCA),
+		"no começo do jogo ele é criança")
+	Inventario.mudar_faixa_etaria(Inventario.FaixaEtaria.ADULTO)
+	assert_eq(visual.sprite_frames, AparenciaNicholas.quadros(Inventario.FaixaEtaria.ADULTO))
+
+
+func test_menino_golpeando_usa_o_proprio_golpe() -> void:
+	Inventario.limpar()
+	await _abrir("oa_acampamento")
+	var personagem := acampamento.get_node("Personagem") as PersonagemExploracao
+	var visual := acampamento.get_node("Personagem/Corpo/Visual") as AnimatedSprite2D
+	personagem.golpeando = true
+	visual._process(0.0)
+	assert_true(String(visual.animation).begins_with("golpe"), "o menino agora tem golpe desenhado")
+	personagem.golpeando = false
+
+
+func test_rafael_na_mata_costeira_e_shara_no_rio_de_agape() -> void:
+	await _abrir("ot_acampamento")
+	var companheiro := acampamento.get_node("Companheiro/Interagivel") as Interagivel
+	assert_eq(companheiro.marcador, "rafael")
+	var linha: DialogueLine = await companheiro.dialogo.get_next_dialogue_line("rafael")
+	assert_eq(linha.character, "Próskopos")
+	assert_eq((acampamento.get_node("Mercador/Interagivel") as Interagivel).marcador, "mercador")
+	# A barraca com toldo é só dele, ao lado, e o cenário não a cobre.
+	var barraca := acampamento.get_node("BarracaRafael") as Node2D
+	assert_lt(barraca.global_position.distance_to(acampamento.get_node("Companheiro").global_position), 96.0)
+	assert_has((acampamento.get_node("Cenario") as CenarioAcampamento).reservados, barraca)
+	acampamento.free()
+	await _abrir("ag_acampamento")
+	var mercador := acampamento.get_node("Mercador/Interagivel") as Interagivel
+	assert_eq(mercador.marcador, "shara")
+	linha = await mercador.dialogo.get_next_dialogue_line("shara")
+	assert_eq(linha.character, "Chymeía")
+	assert_false(acampamento.has_node("BarracaRafael"))
+	# Os outros acampamentos continuam com o mercador genérico.
+	acampamento.free()
+	await _abrir("oa_acampamento")
+	assert_eq((acampamento.get_node("Mercador/Interagivel") as Interagivel).marcador, "mercador")

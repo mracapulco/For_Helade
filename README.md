@@ -10,6 +10,8 @@ Jogo baseado no livro *Pelos Olhos Dele*, de Shara M. Schwartz. Contexto e decis
 
 Mapa de Hélade: abra `scenes/mapa/mapa_helade.tscn` e aperte F6.
 
+Capítulo 01 (manhã do aniversário de Althea): abra `scenes/capitulo_01/capitulo_01.tscn` e aperte F6. No jogo, é o que o Continuar abre depois do prólogo.
+
 Para testar o diálogo: abra `scenes/testes/teste_dialogo.tscn` no Godot e aperte F6 (rodar a cena atual).
 
 ## Pastas
@@ -23,8 +25,9 @@ Para testar o diálogo: abra `scenes/testes/teste_dialogo.tscn` no Godot e apert
 | `tools/arte/gerar_mapa.py` | Gera a arte do mapa de dia e de noite (`assets/art/mapa/mapa_helade.png` e `mapa_helade_noite.png`) a partir dos pontos de `data/mapa/`. Rodar de novo ao mudar um ponto ou uma estrada |
 | `data/itens/` | Um `.tres` por item (`Item`); o nome do arquivo é o id. Entra sozinho no `Inventario` |
 | `scripts/autoload/` | `Relacoes`, `Influencia`, `Elenco`, `Inventario` e `Mundo` (dia/noite e lugares descobertos no mapa) |
-| `scripts/systems/` | `Medidor` (base de relações e influência), `Personagem` e `Item` |
-| `scenes/ui/` + `scripts/ui/` | Caixa de diálogo com retrato e escolhas; tela da bolsa (`tela_bolsa.tscn`, abre com I/Tab ou o botão Bolsa) |
+| `scripts/systems/` | `Medidor` (base de relações e influência), `Personagem`, `Item`, `Balanceamento` (orçamento de bônus dos itens e contas do dano), `Vida` e `EfeitosTemporarios` (poções de rapidez e vigor) |
+| `scenes/ui/` + `scripts/ui/` | Caixa de diálogo com retrato e escolhas; tela da bolsa (`tela_bolsa.tscn`, abre com I/Tab ou o botão Bolsa); `HudVida` (barra de vida do jogador) |
+| `scripts/exploracao/inimigo.gd` | `Inimigo` provisório: persegue, avisa e golpeia; usa itens de `data/itens/` como equipamento e `BarraVidaMundo` acima da cabeça |
 | `scenes/testes/` + `scripts/testes/` | Telas provisórias de teste |
 | `i18n/strings.csv` | Textos de interface por chave |
 | `tests/` | Testes GUT (`unit/`, `integration/`) |

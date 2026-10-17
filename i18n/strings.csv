@@ -5,7 +5,7 @@ EXPLORACAO_BOTAO_PULAR,Pular
 EXPLORACAO_BOTAO_GOLPE,Golpe
 PROLOGO_DICA_TOQUE,Toque na porta para ir até ela
 PROLOGO_DICA_SEGURAR_TOQUE,Toque no brilho para segurar Althea
-PROLOGO_DICA_SEGURAR_TECLADO,Clique no brilho ou aperte Enter para segurar Althea
+PROLOGO_DICA_SEGURAR_TECLADO,Clique no brilho ou aperte E para segurar Althea
 RETRATO_PROVISORIO,PROVISÓRIO
 RETRATO_FORA_DO_ELENCO,FORA DO ELENCO
 TESTE_DIALOGO_TITULO,Teste do sistema de diálogo (provisório)
@@ -13,7 +13,7 @@ TESTE_DIALOGO_VALORES,"Relação com Janet: %d
 Influência com Olympia: %d"
 TESTE_DIALOGO_INICIAR,Iniciar diálogo de teste
 TESTE_DIALOGO_ZERAR,Zerar valores
-PROLOGO_DICA_TECLADO,"WASD para andar, espaço para pular, Ctrl para agachar, mouse para olhar, Enter com a mira na porta para ir até ela. Clique para prender o mouse, Esc para soltar."
+PROLOGO_DICA_TECLADO,"WASD para andar, Shift para correr, espaço para pular, Ctrl para agachar, mouse para olhar, Enter com a mira na porta para ir até ela. Clique para prender o mouse, Esc para soltar."
 MENU_CONTINUAR,Continuar
 MENU_CARREGAR,Carregar jogo
 MENU_NOVO_JOGO,Novo jogo
@@ -26,7 +26,7 @@ OPCOES_IDIOMA,Idioma do jogo
 IDIOMA_pt_BR,Português (Brasil)
 OPCOES_SECAO_CONTROLES,Controles
 OPCOES_SENSIBILIDADE,Sensibilidade do mouse
-OPCOES_TECLAS,"W A S D ou setas: andar · Shift: correr · Espaço: pular · Enter: interagir · Esc: soltar o mouse"
+OPCOES_TECLAS,"W A S D ou setas: andar · Shift: correr · Espaço: pular · E: interagir · Esc: soltar o mouse"
 OPCOES_SECAO_GRAFICOS,Gráficos
 OPCOES_TELA_CHEIA,Tela cheia
 OPCOES_VSYNC,Sincronização vertical (VSync)
@@ -35,30 +35,106 @@ OPCOES_VOLUME_GERAL,Volume geral
 OPCOES_VOLUME_MUSICA,Música
 OPCOES_VOLUME_EFEITOS,Efeitos sonoros
 OPCOES_VOLUME_VOZ,Vozes
-ITEM_ESPADA_TESTE_NOME,Espada de teste
-ITEM_ESPADA_TESTE_DESC,Provisória. Só para testar o inventário.
 ITEM_POCAO_TESTE_NOME,Poção de teste
 ITEM_POCAO_TESTE_DESC,Provisória. Recupera um pouco de vida.
+ITEM_POCAO_CURA_NOME,Poção de cura
+ITEM_POCAO_CURA_DESC,Provisória. Fecha as feridas e devolve parte da vida.
+ITEM_POCAO_RAPIDEZ_NOME,Poção de rapidez
+ITEM_POCAO_RAPIDEZ_DESC,"Provisória. Por um tempo, anda e golpeia mais rápido."
+ITEM_POCAO_VIGOR_NOME,Poção de vigor
+ITEM_POCAO_VIGOR_DESC,"Provisória. Por um tempo, aguenta mais golpes."
 ITEM_CARTA_TESTE_NOME,Carta de teste
 ITEM_CARTA_TESTE_DESC,Provisória. Item da história: não pode ser largado.
+ITEM_ESPADA_GRANDE_NOME,Espada grande
+ITEM_ESPADA_GRANDE_DESC,"Duas mãos. Golpe forte e um pouco de defesa, mas mais lenta e sem escudo."
+ITEM_MACHADO_GUERRA_NOME,Machado de guerra grande
+ITEM_MACHADO_GUERRA_DESC,"Duas mãos. O golpe mais forte de todos, porém lento e sem escudo."
+ITEM_ARCO_NOME,Arco e flecha
+ITEM_ARCO_DESC,"Duas mãos. Acerta de longe e é leve, mas o tiro é fraco."
+ITEM_ARCO_CURTO_NOME,Arco curto
+ITEM_ARCO_CURTO_DESC,"Duas mãos. Arco pequeno, do tamanho de uma criança. Alcança menos que o arco grande."
+ITEM_ESPADA_MEDIA_NOME,Espada média
+ITEM_ESPADA_MEDIA_DESC,"Uma mão. Equilibrada: bate bem, defende um pouco e é ágil."
+ITEM_MACHADO_PEQUENO_NOME,Machado pequeno
+ITEM_MACHADO_PEQUENO_DESC,"Uma mão. Bate forte para o tamanho, sem defesa."
+ITEM_PUNHAL_NOME,Punhal
+ITEM_PUNHAL_DESC,"Uma mão. Fraco, mas muito rápido."
+ITEM_MACA_NOME,Maça
+ITEM_MACA_DESC,"Uma mão. Pesada: bate forte e protege um pouco, mas é mais lenta."
+ITEM_ESCUDO_OLYMPIA_NOME,Escudo de Olympia
+ITEM_ESCUDO_OLYMPIA_DESC,"Na mão livre. Boa defesa, deixa um pouco mais lento. Cores de Olympia."
+ITEM_ESCUDO_AGAPE_NOME,Escudo de Ágape
+ITEM_ESCUDO_AGAPE_DESC,"Na mão livre. Boa defesa, deixa um pouco mais lento. Cores de Ágape."
+ITEM_ESCUDO_KHRONOSSES_NOME,Escudo de Khronosses
+ITEM_ESCUDO_KHRONOSSES_DESC,"Na mão livre. Boa defesa, deixa um pouco mais lento. Cores de Khronosses."
+ITEM_ESCUDO_BANDIDOS_NOME,Escudo de bandido
+ITEM_ESCUDO_BANDIDOS_DESC,"Na mão livre. Boa defesa, deixa um pouco mais lento. Peça de bandido."
+ITEM_ARMADURA_LEVE_OLYMPIA_NOME,Armadura leve de Olympia
+ITEM_ARMADURA_LEVE_OLYMPIA_DESC,"Couro. Protege e não atrapalha os movimentos. Cores de Olympia."
+ITEM_ARMADURA_LEVE_AGAPE_NOME,Armadura leve de Ágape
+ITEM_ARMADURA_LEVE_AGAPE_DESC,"Couro. Protege e não atrapalha os movimentos. Cores de Ágape."
+ITEM_ARMADURA_LEVE_KHRONOSSES_NOME,Armadura leve de Khronosses
+ITEM_ARMADURA_LEVE_KHRONOSSES_DESC,"Couro. Protege e não atrapalha os movimentos. Cores de Khronosses."
+ITEM_ARMADURA_LEVE_BANDIDOS_NOME,Armadura leve de bandido
+ITEM_ARMADURA_LEVE_BANDIDOS_DESC,"Couro. Protege e não atrapalha os movimentos. Peça de bandido."
+ITEM_ARMADURA_PESADA_OLYMPIA_NOME,Armadura pesada de Olympia
+ITEM_ARMADURA_PESADA_OLYMPIA_DESC,"Metal. Muita proteção, mas deixa bem mais lento. Cores de Olympia."
+ITEM_ARMADURA_PESADA_AGAPE_NOME,Armadura pesada de Ágape
+ITEM_ARMADURA_PESADA_AGAPE_DESC,"Metal. Muita proteção, mas deixa bem mais lento. Cores de Ágape."
+ITEM_ARMADURA_PESADA_KHRONOSSES_NOME,Armadura pesada de Khronosses
+ITEM_ARMADURA_PESADA_KHRONOSSES_DESC,"Metal. Muita proteção, mas deixa bem mais lento. Cores de Khronosses."
+ITEM_ARMADURA_PESADA_BANDIDOS_NOME,Armadura pesada de bandido
+ITEM_ARMADURA_PESADA_BANDIDOS_DESC,"Metal. Muita proteção, mas deixa bem mais lento. Peça de bandido."
+ITEM_ELMO_OLYMPIA_NOME,Elmo de Olympia
+ITEM_ELMO_OLYMPIA_DESC,"Protege a cabeça. Deixa um pouco mais lento. Cores de Olympia."
+ITEM_ELMO_AGAPE_NOME,Elmo de Ágape
+ITEM_ELMO_AGAPE_DESC,"Protege a cabeça. Deixa um pouco mais lento. Cores de Ágape."
+ITEM_ELMO_KHRONOSSES_NOME,Elmo de Khronosses
+ITEM_ELMO_KHRONOSSES_DESC,"Protege a cabeça. Deixa um pouco mais lento. Cores de Khronosses."
+ITEM_ELMO_BANDIDOS_NOME,Elmo de bandido
+ITEM_ELMO_BANDIDOS_DESC,"Protege a cabeça. Deixa um pouco mais lento. Peça de bandido."
+ITEM_CAIXA_FRUTAS_NOME,Caixa de frutas
+ITEM_CAIXA_FRUTAS_DESC,"Na mão livre. Improviso: a caixa vazia (as frutas ficaram onde ela estava). Protege pouco, mas é melhor que nada."
+ITEM_PANELA_NOME,Panela
+ITEM_PANELA_DESC,"Na mão livre. Improviso: protege pouco e ainda dá para bater com ela."
 BOLSA_BOTAO,Bolsa
 BOLSA_TITULO,Bolsa
 BOLSA_FECHAR,Fechar
 BOLSA_MOEDAS,Moedas: %d
-BOLSA_ABA_ARMAS,Armas
-BOLSA_ABA_EQUIPAMENTO,Equipamento
-BOLSA_ABA_CONSUMIVEIS,Consumíveis
-BOLSA_ABA_HISTORIA,História
-BOLSA_ABA_DIVERSOS,Diversos
+BOLSA_ESPACOS,Espaços: %d/%d
+BOLSA_BARRA_RAPIDA,Barra rápida (teclas 1 a 9)
+BOLSA_ITENS_HISTORIA,Itens da história
+BOLSA_MOVER,Toque em outro espaço para mudar o item de lugar.
+BOLSA_IDADE,Idade: %s
+BOLSA_IDADE_CRIANCA,Criança
+BOLSA_IDADE_ADOLESCENTE,Adolescente
+BOLSA_IDADE_ADULTO,Adulto
 BOLSA_VAZIA,Nada aqui ainda.
 BOLSA_ESCOLHA_ITEM,Toque num item para ver os detalhes.
 BOLSA_ITEM_DA_HISTORIA,Item da história: não pode ser largado.
+BOLSA_ATAQUE,Ataque %+d
+BOLSA_DEFESA,Defesa %+d
+BOLSA_VELOCIDADE,Velocidade %+d%%
+BOLSA_ALCANCE,Longo alcance
+BOLSA_DUAS_MAOS,Duas mãos
+BOLSA_PESADO_DEMAIS,Pesado demais por enquanto
+BOLSA_CURA,Vida +%d
+BOLSA_VELOCIDADE_TEMPORARIA,Velocidade %+d%% por %ds
+BOLSA_VIDA_EXTRA,Vida máxima %+d por %ds
+HUD_VIDA,Vida %d/%d
+HUD_NIVEL,Nível %d
 BOLSA_USAR,Usar
 BOLSA_EQUIPAR,Equipar
 BOLSA_DESEQUIPAR,Desequipar
 BOLSA_LARGAR,Largar
 BOLSA_EQUIPADO,(equipado)
 AVISO_MOEDAS,+ %d moedas
+AVISO_OLHAR,Olhar de Nicholas: %s
+AVISO_CODICE,Códice: %s
+AVISO_BOLSA_CHEIA,Bolsa cheia
+AVISO_PESADO_DEMAIS,Pesado demais por enquanto
+AVISO_SUBIU_NIVEL,Subiu para o nível %d!
+AVISO_LIMITE_NIVEL,Avance na história para subir mais
 MAPA_OLYMPIA_NOME,Olympia
 MAPA_OLYMPIA_REGIAO,"Sul, costa gélida"
 MAPA_ATENAS_NOME,Atenas
@@ -109,8 +185,28 @@ ESPACOS_VAZIO,Vazio
 ESPACOS_CONFIRMAR_SUBSTITUIR,Este espaço já tem um jogo salvo. Salvar por cima?
 ESPACOS_CONFIRMAR_SIM,"Sim, salvar"
 ESPACOS_CONFIRMAR_NAO,Não
+ESPACOS_EXCLUIR,Excluir
+ESPACOS_CARREGAR,Carregar
+ESPACOS_SALVAR,Salvar aqui
+ESPACOS_CONFIRMAR_EXCLUIR,Excluir este jogo salvo? Não dá para desfazer.
+ESPACOS_CONFIRMAR_SIM_EXCLUIR,"Sim, excluir"
 ETAPA_PROLOGO,Prólogo
 ETAPA_CAPITULO_1,Capítulo 1
+CAP1_PROVISORIO_CONTINUA,"[Provisório] A manhã continua no próximo passo, com a chegada do duque."
+CODICE_ROUPAS_SIMPLES_TITULO,Roupas simples
+CODICE_ROUPAS_SIMPLES_TEXTO,"Simples demais, segundo o pai. Nicholas preferia assim."
+CODICE_FAIXA_DOURADA_TITULO,A faixa dourada
+CODICE_FAIXA_DOURADA_TEXTO,"Uma faixa dourada começou a surgir no horizonte, avançando pelas janelas."
+CODICE_MONSTRO_MARINHO_TITULO,O monstro marinho
+CODICE_MONSTRO_MARINHO_TEXTO,Althea dormia abraçada à pelúcia de um monstro marinho.
+CODICE_PRESENTES_TITULO,Os presentes
+CODICE_PRESENTES_TEXTO,"Pequenos animais de madeira pintados à mão, bordados de diversas cores e um vestido azul simples, mas rico em detalhes."
+CODICE_IMPERATRIZ_CALLIE_TITULO,Imperatriz Callie
+CODICE_IMPERATRIZ_CALLIE_TEXTO,Faleceu dois meses antes do aniversário de Althea.
+CODICE_ATENAS_TITULO,Atenas
+CODICE_ATENAS_TEXTO,"Capital do Império de Hélade, fundada para educar os Abençoados."
+CODICE_PALACIO_IMPERIAL_TITULO,Palácio Imperial
+CODICE_PALACIO_IMPERIAL_TEXTO,"Morada do Imperador Varsélios, em Atenas."
 PAUSA_TITULO,Pausa
 PAUSA_BOTAO,Pausa
 PAUSA_VOLTAR_AO_JOGO,Voltar ao jogo
@@ -120,3 +216,34 @@ PAUSA_CONFIRMAR_MENU,"Voltar ao menu inicial? O que não foi salvo será perdido
 PAUSA_CONFIRMAR_SAIR,"Sair do jogo? O que não foi salvo será perdido."
 PAUSA_CONFIRMAR_SIM,Sim
 PAUSA_CONFIRMAR_NAO,Não
+ITEM_BORDAO_PROSKOPOS_NOME,Bastão de Próskopos
+ITEM_BORDAO_PROSKOPOS_DESC,"Raro. Prêmio da charada de Próskopos. Duas mãos: golpeia duas casas à frente, é leve e ajuda a aparar golpes."
+ITEM_ELIXIR_CHYMEIA_NOME,Elixir de Chymeía
+ITEM_ELIXIR_CHYMEIA_DESC,"Raro. Prêmio da charada de Chymeía. Cura toda a vida e, por um minuto, dá vigor e rapidez."
+ITEM_RACAO_TRILHA_NOME,Ração de trilha
+ITEM_RACAO_TRILHA_DESC,Pão e frutas secas para a estrada. Recupera um pouco de vida.
+LOJA_CHYMEIA_NOME,Mercadorias de Chymeía
+LOJA_A_VENDA,À venda
+LOJA_SUA_BOLSA,Sua bolsa (vender)
+LOJA_NADA_A_VENDA,Nada à venda agora. Volte depois de descansar.
+LOJA_NADA_PARA_VENDER,Nada na bolsa que o mercador compre.
+LOJA_ESCOLHA_ITEM,Toque num item para ver o preço.
+LOJA_ITEM_PRECO,"%d moedas\nrestam %d"
+LOJA_ITEM_VENDA,"paga %d\nvocê tem %d"
+LOJA_PRECO,"Preço: %d moedas cada. Total: %d"
+LOJA_PAGA,"O mercador paga %d moedas cada. Total: %d"
+LOJA_COMPRAR,Comprar
+LOJA_VENDER,Vender
+LOJA_COMPROU,Comprado!
+LOJA_VENDEU,Vendido!
+LOJA_SEM_MOEDAS,Moedas insuficientes
+LOJA_BOLSA_CHEIA,Bolsa cheia
+LOJA_SEM_ESTOQUE,Acabou o estoque
+LOJA_COMPARA,Comparado ao equipado: %s
+LOJA_COMPARA_NADA,Você não tem nada equipado aí: %s
+LOJA_COMPARA_IGUAL,É o que você está usando.
+LOJA_COMPARA_SEM_DIFERENCA,mesmos bônus
+LOJA_VAI_DESEQUIPAR,Está equipado: será tirado ao vender.
+LOJA_MERCADOR_KHRONOSSES_NOME,Mercador do acampamento (Khronosses)
+LOJA_MERCADOR_AGAPE_NOME,Mercador do acampamento (Ágape)
+LOJA_MERCADOR_OLYMPIA_NOME,Mercador do acampamento (Olympia)

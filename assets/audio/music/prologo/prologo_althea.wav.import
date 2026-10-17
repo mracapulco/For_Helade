@@ -2,13 +2,10 @@
 
 importer="wav"
 type="AudioStreamWAV"
-uid="uid://5mynkwqgq61y"
-path="res://.godot/imported/prologo_althea.wav-3d5a0604db079e02d6e6dc6520c2c60e.sample"
 
 [deps]
 
 source_file="res://assets/audio/music/prologo/prologo_althea.wav"
-dest_files=["res://.godot/imported/prologo_althea.wav-3d5a0604db079e02d6e6dc6520c2c60e.sample"]
 
 [params]
 

@@ -398,6 +398,7 @@ func test_no_sonho_a_porta_nao_e_o_ponto_de_acao() -> void:
 
 
 func test_chegar_perto_da_garota_faz_ela_se_virar() -> void:
+	await wait_physics_frames(5)   # ela já chegou na porta
 	var garota: Node2D = capitulo.objetos["garota"]
 	var casa: Vector2i = capitulo.sala.chao.local_to_map(garota.position)
 	capitulo.jogador.position = capitulo.sala.centro(casa + Vector2i(1, 0))

@@ -30,12 +30,10 @@ func test_prologo_so_a_narracao_do_nicholas() -> void:
 	var falas := GeradorVozes.falas_do_roteiro(load(PROLOGO), GeradorVozes.ler_vozes())
 	var ids := _ids(falas)
 	assert_has(ids, "PROLOGO_003", "Narração em primeira pessoa")
-	assert_has(ids, "PROLOGO_014", "Althea?, dito por ele")
-	var althea: Dictionary = falas.filter(func(f: Dictionary) -> bool: return f.id == "PROLOGO_014")[0]
-	assert_eq(althea.voz, "nicholas_crianca", "Dito pelo Nicholas de 5 anos")
+	assert_does_not_have(ids, "PROLOGO_014", "Althea? ficou sem voz (Rafael, 18/10/2026)")
 	assert_does_not_have(ids, "PROLOGO_001", "Título de lugar")
 	assert_eq(falas.filter(func(f: Dictionary) -> bool: return f.id == "PROLOGO_018")[0].voz, "parteira", "Fala da moça que entrega Althea")
-	assert_eq(ids.size(), 22 + 2 + 3 + 4, "narração, nome, parteira e o coro dos sussurros")
+	assert_eq(ids.size(), 22 + 1 + 3 + 4, "narração, parteira e o coro dos sussurros")
 	assert_eq(falas[0].modelo, "eleven_v3")
 	assert_eq(falas[0].texto, "Esta é a memória mais vívida que tenho da minha infância.")
 
@@ -83,24 +81,20 @@ func test_idade_pelo_roteiro_e_excecoes_por_fala() -> void:
 	var vozes: Array[Dictionary] = [
 		{"nome": "adulto", "voz_id": "a", "modelo": "m", "falantes": ["Nicholas"], "narracao": ["PROLOGO_003"]},
 		{"nome": "crianca", "voz_id": "c", "modelo": "m", "falantes": ["Nicholas"], "narracao": ["CAP1_045"],
-			"roteiros": ["capitulo_01"], "falas": ["PROLOGO_014"]},
+			"roteiros": ["capitulo_01"], "falas": ["PROLOGO_099"]},
 	]
 	var cap1 := "res://data/dialogos/capitulo_01/manha.dialogue"
 	assert_eq(GeradorVozes.voz_da_fala("Nicholas", "CAP1_044", vozes, cap1).nome, "crianca", "No capítulo 1 ele é criança")
 	assert_eq(GeradorVozes.voz_da_fala("Nicholas", "CAP5_001", vozes, "res://data/dialogos/capitulo_05/x.dialogue").nome, "adulto", "Fora dos roteiros da criança, vale a voz geral")
 	assert_eq(GeradorVozes.voz_da_fala("", "CAP1_045", vozes, cap1).nome, "crianca")
 	assert_eq(GeradorVozes.voz_da_fala("", "PROLOGO_003", vozes, PROLOGO).nome, "adulto")
-	assert_eq(GeradorVozes.voz_da_fala("", "PROLOGO_014", vozes, PROLOGO).nome, "crianca", "falas vence tudo")
+	assert_eq(GeradorVozes.voz_da_fala("", "PROLOGO_099", vozes, PROLOGO).nome, "crianca", "falas vence tudo")
 
 
 func test_pronuncia_so_muda_o_audio() -> void:
 	var pronuncia := GeradorVozes.ler_pronuncia()
 	assert_eq(GeradorVozes.pronunciar("Althea? Feliz aniversário, Thea!", pronuncia), "Alfía? Feliz aniversário, Fía!")
 	assert_eq(GeradorVozes.pronunciar("Theano", pronuncia), "Theano", "Só palavra inteira")
-	var falas := GeradorVozes.falas_do_roteiro(load(PROLOGO), GeradorVozes.ler_vozes(), {}, pronuncia)
-	var nome: Dictionary = falas.filter(func(f: Dictionary) -> bool: return f.id == "PROLOGO_014")[0]
-	assert_eq(nome.texto, "Althea?", "O índice guarda o texto da tela")
-	assert_true(GeradorVozes.texto_para_voz(nome).ends_with("Alfía?"))
 
 
 func test_apollon_tem_voz() -> void:
@@ -275,12 +269,10 @@ func test_voz_acha_o_som_pelo_texto() -> void:
 	assert_eq(Voz.id_do_texto("Bateu o pé no chão."), "CAP1_093")
 
 
-func test_althea_do_prologo_fala_estavel_e_sem_voz_tremida() -> void:
-	# Rafael (17/10/2026): "Althea?" saiu com voz de mulher e sotaque estranho.
-	var falas := GeradorVozes.falas_do_roteiro(load(PROLOGO), GeradorVozes.ler_vozes(), GeradorVozes.ler_direcao(), GeradorVozes.ler_pronuncia(), {}, GeradorVozes.ler_estabilidades())
-	var nome: Dictionary = falas.filter(func(f: Dictionary) -> bool: return f.id == "PROLOGO_014")[0]
-	assert_eq(nome.voz, "nicholas_crianca", "continua a voz do Nicholas criança")
-	assert_eq(nome.estabilidade, 0.5, "estável: uma palavra só sai instável no v3")
-	assert_false("trembling" in nome.direcao, "sem voz tremida")
-	var outra: Dictionary = GeradorVozes.falas_do_roteiro(load(MANHA), GeradorVozes.ler_vozes(), GeradorVozes.ler_direcao(), {}, {}, GeradorVozes.ler_estabilidades()).filter(func(f: Dictionary) -> bool: return f.id == "CAP1_044")[0]
-	assert_eq(outra.estabilidade, 0.0, "as outras falas seguem a estabilidade da voz")
+func test_estabilidade_por_fala_vence_a_da_voz() -> void:
+	var vozes := GeradorVozes.ler_vozes()
+	var base := GeradorVozes.falas_do_roteiro(load(MANHA), vozes)
+	var id: String = base[0].id
+	var com := GeradorVozes.falas_do_roteiro(load(MANHA), vozes, {}, {}, {}, {id: 0.9})
+	assert_eq(com[0].estabilidade, 0.9)
+	assert_eq(com[1].estabilidade, base[1].estabilidade, "as outras seguem a voz")

@@ -50,7 +50,7 @@ func _interagir(nome: String) -> void:
 
 ## Do sonho até o corredor, já vestido.
 func _ate_o_corredor() -> void:
-	_interagir("porta_sonho")
+	capitulo.chegar_na_garota()
 	await _esperar_etapa("quarto")
 	await _vestir()
 	_interagir("porta_quarto")
@@ -102,7 +102,7 @@ func test_comeca_no_sonho_com_a_garota_e_nicholas_de_11_anos() -> void:
 
 
 func test_a_manha_inteira_na_ordem() -> void:
-	_interagir("porta_sonho")
+	capitulo.chegar_na_garota()
 	await _esperar_etapa("quarto")
 	assert_false(capitulo.jogador.em_dialogo, "no quarto ele anda de novo")
 	_interagir("porta_quarto")
@@ -231,7 +231,7 @@ func test_janela_da_carruagem_anota_atenas_e_o_palacio() -> void:
 
 
 func test_espelho_nao_veste_antes_do_armario() -> void:
-	_interagir("porta_sonho")
+	capitulo.chegar_na_garota()
 	await _esperar_etapa("quarto")
 	_interagir("espelho")
 	await wait_physics_frames(5)
@@ -305,7 +305,7 @@ func test_o_embrulho_entregue_abre_a_espada() -> void:
 
 func test_mansao_tem_a_identidade_do_castelo_do_prologo() -> void:
 	assert_true(capitulo.sala.parede_lisa, "o corredor do sonho não é da Casa Olympia")
-	_interagir("porta_sonho")
+	capitulo.chegar_na_garota()
 	await _esperar_etapa("quarto")
 	assert_false(capitulo.sala.parede_lisa)
 	assert_not_null(capitulo.sala.get_node_or_null("QuadroOlympiaDir"))
@@ -323,7 +323,7 @@ func test_mansao_tem_a_identidade_do_castelo_do_prologo() -> void:
 func test_acorda_de_pijama_e_se_veste_no_espelho() -> void:
 	var visual: AnimatedSprite2D = capitulo.jogador.get_node("Corpo/Visual")
 	assert_string_contains(visual.sprite_frames.resource_path, "pijama")
-	_interagir("porta_sonho")
+	capitulo.chegar_na_garota()
 	await _esperar_etapa("quarto")
 	await _vestir()
 	assert_string_contains(visual.sprite_frames.resource_path, "nicholas_11_exploracao")
@@ -383,3 +383,38 @@ func test_virar_para_a_ponta_conta_como_olhar() -> void:
 	await wait_seconds(Capitulo01.TEMPO_OLHANDO + 0.3)
 	assert_true(capitulo.extremidades_vistas.has("extremidade_esq"))
 	assert_false(capitulo.extremidades_vistas.has("extremidade_dir"))
+
+
+func test_no_sonho_a_garota_e_solida() -> void:
+	var garota: Node2D = capitulo.objetos["garota"]
+	assert_true(garota.has_node("Corpo"), "a garota tem corpo")
+	var jogador: PersonagemExploracao = capitulo.jogador
+	var ate_ela := garota.global_position - jogador.global_position
+	assert_true(jogador.test_move(jogador.global_transform, ate_ela), "não dá para atravessá-la")
+
+
+func test_no_sonho_a_porta_nao_e_o_ponto_de_acao() -> void:
+	assert_false(capitulo.objetos["porta_sonho"].has_node("Interagivel"))
+
+
+func test_chegar_perto_da_garota_faz_ela_se_virar() -> void:
+	await wait_physics_frames(5)   # ela já chegou na porta
+	var garota: Node2D = capitulo.objetos["garota"]
+	var casa: Vector2i = capitulo.sala.chao.local_to_map(garota.position)
+	capitulo.jogador.position = capitulo.sala.centro(casa + Vector2i(1, 0))
+	await _esperar_etapa("quarto")
+	assert_false(capitulo.has_node("ArDoSonho"), "o ar do sonho some ao acordar")
+
+
+func test_o_ar_do_sonho_mostra_que_nao_e_real() -> void:
+	assert_true(capitulo.has_node("ArDoSonho"))
+	assert_true(capitulo.get_node("ArDoSonho").has_node("Poeira"))
+
+
+func test_no_sonho_nicholas_anda_devagar_ao_som_do_relogio() -> void:
+	assert_eq(capitulo.jogador.velocidade, Capitulo01.VELOCIDADE_NO_SONHO)
+	assert_eq(capitulo.jogador.multiplicador_corrida, 1.0, "no sonho ele não corre")
+	assert_true(capitulo.get_node("ArDoSonho").has_node("TicTac"))
+	capitulo.chegar_na_garota()
+	await _esperar_etapa("quarto")
+	assert_gt(capitulo.jogador.velocidade, Capitulo01.VELOCIDADE_NO_SONHO, "acordado, volta ao passo normal")

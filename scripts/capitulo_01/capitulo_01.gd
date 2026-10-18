@@ -3,8 +3,9 @@ extends Node2D
 ## Capítulo 01, "A garota do corredor" (Parte I do livro), passo 1: o
 ## pesadelo e a manhã do aniversário de Althea na Mansão Olympia, em Atenas.
 ## Sequência (cada [member etapa] só avança na ordem):
-## 1. sonho: corredor quente, Nicholas segue a garota até a porta (Enter ou
-##    toque na porta) e ela se abre para o frio.
+## 1. sonho: corredor quente (o ar tremendo, poeira dourada no ar), Nicholas
+##    segue a garota; quando chega até ela, ela se vira e a porta se abre
+##    para o frio.
 ## 2. quarto: Nicholas acorda de pijama; pega a roupa no armário (camisa
 ##    branca e colete azul escuro), se veste no espelho e só então a porta
 ##    leva ao corredor.
@@ -34,6 +35,15 @@ const QUADROS_APOLLON := preload("res://assets/art/personagens/apollon/apollon_e
 const QUADROS_ALTHEA := preload("res://assets/art/personagens/althea/althea_6_exploracao.tres")
 const CRIADA := preload("res://assets/art/placeholders/exploracao/criada_provisoria.png")
 const ARTE := "res://assets/art/capitulo_01/"
+## O ar do sonho treme de leve, como calor (só no sonho).
+const TREMOR_DO_SONHO := preload("res://scripts/capitulo_01/tremor_do_sonho.gdshader")
+## O relógio lento do sonho ("Tic. Tac."), em loop enquanto o sonho dura.
+const TIC_TAC := preload("res://assets/audio/sfx/capitulo_01/tic_tac.wav")
+## No sonho Nicholas anda devagar (e não corre): só alcança a garota perto da
+## porta, depois de as frases passarem (Rafael, 17/10/2026).
+const VELOCIDADE_NO_SONHO := 26.0
+## Quanto a garota leva para ir até a porta (um pouco mais rápida que ele).
+const TEMPO_DA_GAROTA := 5.0
 ## Móveis em caixa isométrica (armário, baú): o centro da casa fica a esta
 ## altura da base da imagem (tools/arte/gerar_capitulo_01.py, PE_CAIXA).
 const PE_CAIXA := 17.0
@@ -99,6 +109,12 @@ var _olhar_na_porta := Vector2.ZERO
 var _tempo_olhando := {}
 ## Quantas vezes Nicholas já tocou Althea na cama.
 var toques_na_cama := 0
+## A garota do sonho andando até a porta.
+var _andar_garota: Tween
+## O ar do sonho (poeira dourada e o tremor do calor), só no sonho.
+var _ar_do_sonho: CanvasLayer
+## Velocidade e corrida de Nicholas antes do sonho, para devolver ao acordar.
+var _passo_fora_do_sonho := Vector2.ZERO
 
 ## Objetos da sala atual que a sequência usa.
 var objetos := {}
@@ -128,28 +144,117 @@ func montar_sonho() -> void:
 	# Um corredor "não familiar": sem a pedra nem os enfeites da Casa Olympia.
 	sala.parede_lisa = true
 	sala.abrir_vao(Vector2i(0, 1))
-	_objeto("porta_sonho", "porta.png", Vector2i(0, 1), true).get_node("Interagivel") \
-		.interagido.connect(abrir_porta_do_sonho)
+	# A porta não é o ponto de ação: a cena avança quando Nicholas chega até
+	# a garota e ela se vira para ele (Rafael, 17/10/2026).
+	_objeto("porta_sonho", "porta.png", Vector2i(0, 1))
 	var garota := sala.adicionar_objeto("Garota", load(ARTE + "garota_visao.png"), Vector2i(7, 1), false)
+	# Sólida: Nicholas não passa por dentro dela. Fica fora da navegação
+	# (ela anda), então o corpo é só para a colisão.
+	var corpo := StaticBody2D.new()
+	corpo.name = "Corpo"
+	var colisao := CollisionShape2D.new()
+	var forma := CircleShape2D.new()
+	forma.radius = SalaMontada.RAIO_CORPO
+	colisao.shape = forma
+	corpo.add_child(colisao)
+	garota.add_child(corpo)
 	objetos["garota"] = garota
 	_entrar(Vector2i(10, 2))
 	_mudar("sonho")
+	_ligar_ar_do_sonho(true)
+	_passo_fora_do_sonho = Vector2(jogador.velocidade, jogador.multiplicador_corrida)
+	jogador.velocidade = VELOCIDADE_NO_SONHO
+	jogador.multiplicador_corrida = 1.0
+	# Ela segue pelo corredor um pouco mais rápido que ele e para diante da
+	# porta: ele só a alcança ali, quando as frases já passaram.
+	_andar_garota = _andar(garota, sala.centro(Vector2i(2, 1)), TEMPO_DA_GAROTA)
 	await _clarear()
 	_frases("frases_sonho")
-	# Ela segue pelo corredor e para diante da porta.
-	_andar(garota, sala.centro(Vector2i(2, 1)), 9.0)
 
 
-func abrir_porta_do_sonho() -> void:
+## Nicholas chegou até a garota: ela se vira para ele ("À sua frente, ela
+## parou. E nada disse."), a porta atrás dela se abre para o frio e o sonho
+## termina.
+func chegar_na_garota() -> void:
 	if etapa != "sonho":
 		return
 	_mudar("porta_do_sonho")
 	_travar(true)
+	if _andar_garota:
+		_andar_garota.kill()
+	var garota: Node2D = objetos["garota"]
+	(garota.get_node("Visual") as Sprite2D).texture = load(ARTE + "garota_visao_frente.png")
+	jogador.direcao_olhar = (garota.position - jogador.position).normalized()
+	await _esperar(0.6)
 	(objetos["porta_sonho"].get_node("Visual") as Sprite2D).texture = load(ARTE + "porta_aberta.png")
 	_tingir(TOM_FRIO, 0.4)
 	await _frases("frases_porta_do_sonho")
 	await _escurecer()
+	_ligar_ar_do_sonho(false)
+	jogador.velocidade = _passo_fora_do_sonho.x
+	jogador.multiplicador_corrida = _passo_fora_do_sonho.y
 	await montar_quarto()
+
+
+## Garota e Nicholas em casas vizinhas (inclusive na diagonal).
+func perto_da_garota() -> bool:
+	if not objetos.has("garota"):
+		return false
+	var dela := sala.chao.local_to_map(objetos["garota"].position)
+	var diferenca := _casa_de(jogador) - dela
+	return maxi(absi(diferenca.x), absi(diferenca.y)) <= 1
+
+
+## No sonho, poeira dourada flutua devagar, o ar treme como calor e um
+## relógio lento marca "Tic. Tac.": o corredor não é real (Rafael, 17/10/2026).
+func _ligar_ar_do_sonho(ligar: bool) -> void:
+	if _ar_do_sonho:
+		_ar_do_sonho.queue_free()
+		_ar_do_sonho = null
+	if not ligar:
+		return
+	_ar_do_sonho = CanvasLayer.new()
+	_ar_do_sonho.name = "ArDoSonho"
+	var tremor := ColorRect.new()
+	tremor.name = "Tremor"
+	tremor.set_anchors_preset(Control.PRESET_FULL_RECT)
+	tremor.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var material := ShaderMaterial.new()
+	material.shader = TREMOR_DO_SONHO
+	tremor.material = material
+	_ar_do_sonho.add_child(tremor)
+	var tela := get_viewport().get_visible_rect().size
+	var poeira := CPUParticles2D.new()
+	poeira.name = "Poeira"
+	poeira.position = tela / 2.0
+	poeira.amount = 90
+	poeira.lifetime = 7.0
+	poeira.preprocess = 7.0
+	poeira.emission_shape = CPUParticles2D.EMISSION_SHAPE_RECTANGLE
+	poeira.emission_rect_extents = tela / 2.0
+	poeira.direction = Vector2(0, -1)
+	poeira.spread = 60.0
+	poeira.gravity = Vector2(0, -4)
+	poeira.initial_velocity_min = 3.0
+	poeira.initial_velocity_max = 10.0
+	poeira.scale_amount_min = 2.0
+	poeira.scale_amount_max = 4.0
+	var brilho := Gradient.new()
+	brilho.set_color(0, Color(1.0, 0.85, 0.5, 0.0))
+	brilho.set_color(1, Color(1.0, 0.85, 0.5, 0.0))
+	brilho.add_point(0.5, Color(1.0, 0.85, 0.5, 0.75))
+	poeira.color_ramp = brilho
+	_ar_do_sonho.add_child(poeira)
+	var relogio := AudioStreamPlayer.new()
+	relogio.name = "TicTac"
+	relogio.stream = TIC_TAC
+	relogio.bus = &"Efeitos"
+	relogio.volume_db = -6.0
+	relogio.autoplay = true
+	_ar_do_sonho.add_child(relogio)
+	add_child(_ar_do_sonho)
+	# Abaixo da cortina, das frases e dos botões.
+	move_child(_ar_do_sonho, 1)
 
 
 # --- 2. o quarto de Nicholas --------------------------------------------
@@ -256,6 +361,9 @@ func montar_corredor() -> void:
 ## Esperando na porta, virar para uma das pontas do corredor (ou andar até
 ## ela) por um instante conta como olhar para aquela extremidade.
 func _physics_process(delta: float) -> void:
+	if etapa == "sonho" and perto_da_garota():
+		chegar_na_garota()
+		return
 	if etapa != "esperando" or jogador.direcao_olhar.is_equal_approx(_olhar_na_porta):
 		return
 	_olhar_na_porta = Vector2.INF

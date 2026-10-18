@@ -586,6 +586,25 @@ def garota_visao():
     return q.contornar()
 
 
+def garota_visao_frente():
+    # a mesma garota quando se vira para Nicholas (Rafael, 17/10/2026): ainda
+    # quase uma sombra, sem rosto definido (o livro não a descreve), só o
+    # contorno do rosto entre os cabelos longos que caem pelos ombros
+    q = Q(32, 48)
+    x = 16
+    for y in range(24, 45):                                  # saia
+        meia = 4 + (y - 24) // 4
+        q.linha(y, x - meia, x + meia - 1, 'silhueta')
+    q.r(x - 4, 19, x + 3, 25, 'silhueta')                    # tronco
+    q.r(x - 6, 20, x - 5, 30, 'silhueta'); q.r(x + 4, 20, x + 5, 30, 'silhueta')   # braços
+    q.r(x - 5, 11, x - 4, 27, 'silhueta_luz'); q.r(x + 3, 11, x + 4, 27, 'silhueta_luz')  # cabelo nos ombros
+    q.elipse(x, 13, 4, 5, 'silhueta_luz')                    # cabelo em volta do rosto
+    q.elipse(x, 14, 2, 3, 'silhueta')                        # rosto na sombra
+    for y in range(16, 27, 3):
+        q.p(x - 5 + (y % 2), y, 'silhueta'); q.p(x + 4, y + 1, 'silhueta')
+    return q.contornar()
+
+
 # --- carruagem por fora, em corte (Rafael, 15/10/2026: a sala de paredes
 # grossas não parecia um veículo; depois: inspirar nas carruagens antigas,
 # gregas, romanas e medievais, e pôr os animais de tração). Caixa baixa de
@@ -991,6 +1010,7 @@ ARTES = {
     'embrulho.png': embrulho,
     'pany_provisoria.png': pany,
     'garota_visao.png': garota_visao,
+    'garota_visao_frente.png': garota_visao_frente,
     'parede/tocha_esq.png': lambda: na_face(tocha(), 'esq', 12, 4),
     'parede/arandela_esq.png': lambda: na_face(arandela(), 'esq', 13, 8),
     'parede/arandela_dir.png': lambda: na_face(arandela(), 'dir', 13, 8),

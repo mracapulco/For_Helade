@@ -56,8 +56,19 @@ func test_palacio_do_patio_a_partida() -> void:
 	assert_true(Codice.tem("olhos_de_ophelia"))
 	cena.embarcar()
 	await _esperar_etapa("ultimo_olhar")
+	var carruagem: Node2D = cena.objetos["carruagem"]
+	for nome: String in ["althea", "ophelia"]:
+		assert_false(cena.objetos[nome].visible, "%s saiu do lado da carruagem" % nome)
+		var sentada: Sprite2D = cena.objetos[nome + "_sentado"]
+		assert_true(sentada.visible and is_equal_approx(sentada.modulate.a, 1.0), "%s sentada e visível" % nome)
+		assert_eq(sentada.get_parent(), carruagem, "%s está dentro da carruagem" % nome)
+	assert_lt(cena.objetos["althea_sentado"].position.x, cena.objetos["ophelia_sentado"].position.x,
+		"lado a lado: Althea à esquerda, Ophelia à direita")
+	assert_eq(carruagem.get_child(-1).name, "Frente", "a borda da frente cobre o quadril delas")
 	cena.olhar_anexo()
 	await _esperar_etapa("visao_carruagem")
+	assert_true(cena.objetos["nicholas_sentado"].visible, "Nicholas também sobe e senta")
+	assert_eq(carruagem.get_child(-1).name, "Frente")
 	assert_true(Codice.tem("anexo_vazio"))
 	await _esperar_pedido()
 	assert_eq(cena.cena_pedida, SequenciaCenas01.CENAS["visao_carruagem"])

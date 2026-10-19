@@ -43,6 +43,9 @@ const LINHA_POSTOS := 8
 const PERTO_DA_FONTE := 2
 ## Althea e Ophelia esperam ao lado da carruagem.
 const CASAS_EMBARQUE: Array[Vector2i] = [Vector2i(6, 12), Vector2i(8, 12)]
+## Onde cada um senta no banco da carruagem, ao longo dela (em casas, de trás
+## para a frente): Althea, Ophelia e, por último, Nicholas.
+const BANCO := {"althea": -0.9, "ophelia": 0.0, "nicholas": 0.9}
 ## Virado para o anexo por este tempo, conta como o último olhar.
 const TEMPO_OLHANDO := 0.5
 
@@ -229,8 +232,11 @@ func embarcar() -> void:
 	_ativar(objetos["carruagem"], false)
 	_travar(true)
 	await _falar_travado("ajuda_a_subir")
-	await _sumir(objetos["ophelia"])
+	# As duas somem do lado da carruagem e aparecem sentadas lado a lado.
+	_sumir(objetos["ophelia"])
 	await _sumir(objetos["althea"])
+	_aparecer(_sentar("althea", QUADROS_ALTHEA))
+	await _aparecer(_sentar("ophelia", QUADROS_OPHELIA))
 	_tempo_olhando = 0.0
 	_mudar("ultimo_olhar")
 	_travar(false)
@@ -251,6 +257,39 @@ func olhar_anexo() -> void:
 	await _andar(jogador, sala.centro(CASA_CARRUAGEM - Vector2i(0, 1)), 0.8).finished
 	jogador.get_node("Corpo").visible = false
 	jogador.get_node("Sombra").visible = false
+	var quadros: SpriteFrames = jogador.get_node("Corpo/Visual").sprite_frames
+	await _aparecer(_sentar("nicholas", quadros))
 	await _falar_travado("escolta")
 	await _frases("frases_partida")
 	await terminar()
+
+
+## Senta [param nome] no banco da carruagem parada (fica em
+## [member objetos] como "<nome>_sentado"). A imagem parada é o fundo; quem
+## senta fica por cima dela, e a frente (borda baixa, rodas, cavalos) é
+## redesenhada por cima de todos, cobrindo o quadril.
+func _sentar(nome: String, quadros: SpriteFrames) -> Sprite2D:
+	var carruagem: Node2D = objetos["carruagem"]
+	var visual: Sprite2D = carruagem.get_node("Visual")
+	var frente: Sprite2D = carruagem.get_node_or_null("Frente")
+	if frente == null:
+		frente = Sprite2D.new()
+		frente.name = "Frente"
+		frente.texture = load(ARTE + "rua/carruagem_parada_frente.png")
+		frente.offset = visual.offset
+		carruagem.add_child(frente)
+	# O centro da carruagem no chão, dentro do nó (a imagem é centrada).
+	var origem := visual.offset - visual.texture.get_size() / 2.0 + Capitulo01.CARRO_ORIGEM
+	var sprite := Sprite2D.new()
+	sprite.name = (nome + "_sentado").to_pascal_case()
+	sprite.texture = Capitulo01.imagem_sentada(quadros)
+	sprite.centered = false
+	sprite.position = origem + Capitulo01.ponto_carruagem(BANCO[nome], -0.38 + Capitulo01.COXA,
+		Capitulo01.CARRO_CHAO)
+	# Os pés no meio da largura do quadro em pé (como Capitulo01._sentado_em).
+	var meio := (sprite.texture.get_width() - 2 * roundi(16.0 * Capitulo01.COXA)) / 2.0
+	sprite.offset = Vector2(-meio, -sprite.texture.get_height())
+	carruagem.add_child(sprite)
+	carruagem.move_child(frente, -1)
+	objetos[nome + "_sentado"] = sprite
+	return sprite

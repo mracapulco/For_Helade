@@ -1575,6 +1575,13 @@ def carruagem_parada():
     return fundo
 
 
+def carruagem_parada_frente():
+    """Só a frente da carruagem parada (borda baixa com o brasão, rodas da
+    frente, cavalos e cocheiro), mesma origem: o Palácio a desenha por cima de
+    quem está sentado no banco, para a borda cobrir o quadril."""
+    return carruagem_frente(brasao=True).crop((0, 0, CARRO_W, CARRO_H))
+
+
 ARTES = {
     'piso_mansao.png': piso,
     'parede_mansao.png': parede,
@@ -1637,6 +1644,7 @@ ARTES = {
     'rua/lampiao.png': lampiao,
     'rua/vaso_flor.png': vaso_flor,
     'rua/carruagem_parada.png': carruagem_parada,
+    'rua/carruagem_parada_frente.png': carruagem_parada_frente,
     'loja/prateleira_baixa_esq.png': lambda: prateleira_baixa('esq'),
     'loja/prateleira_baixa_dir.png': lambda: prateleira_baixa('dir'),
     'loja/balcao_loja.png': balcao_loja,

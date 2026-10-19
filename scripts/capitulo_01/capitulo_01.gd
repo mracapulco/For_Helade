@@ -101,6 +101,8 @@ var viu_espelho := false
 var vestido := false
 ## Extremidades do corredor para onde Nicholas já olhou, esperando o cortejo.
 var extremidades_vistas: Array[String] = []
+## Onde fica o Corpo de Nicholas (x) antes do passo para o lado da espada.
+var _corpo_x := 0.0
 ## Onde fica o desenho de Nicholas sentado (para ele se inclinar e voltar).
 var _offset_sentado_x := 0.0
 ## Brilho das janelas das pontas do corredor, até ele olhar por elas.
@@ -513,7 +515,11 @@ func entregar_embrulho() -> void:
 		return
 	_mudar("espada")
 	_ativar(objetos["embrulho"], false)
+	_corpo_x = jogador.get_node("Corpo").position.x
+	DialogueManager.got_dialogue.connect(_ao_ver_fala_da_espada)
 	await _falar("espada")
+	DialogueManager.got_dialogue.disconnect(_ao_ver_fala_da_espada)
+	_fim_da_espada()
 	objetos["embrulho"].visible = false
 	_mudar("presentes")
 	Codice.anotar("presentes")
@@ -525,6 +531,53 @@ func entregar_embrulho() -> void:
 	_virar(althea, sala.centro(Vector2i(4, 4)))
 	_ativar(althea, true)
 	_mudar("a_mesa")
+
+
+## Com a espada de madeira: Althea golpeia o ar na direção de Nicholas
+## ("Lady Althea!"); ele finge rendição (as mãos para cima) ou desvia com um
+## passo curto para o lado enquanto ela golpeia de novo.
+func _ao_ver_fala_da_espada(linha: DialogueLine) -> void:
+	match linha.static_id:
+		"CAP1_053":
+			_golpe_de_althea()
+		"CAP1_099":
+			_pose_de_nicholas(&"rendicao")
+		"CAP1_100":
+			_golpe_de_althea()
+			# o passo é para o lado contrário ao dela
+			var lado := 1.0 if jogador.position.x >= objetos["althea"].position.x else -1.0
+			_mover_suave(jogador.get_node("Corpo"), "position:x", _corpo_x + lado * 6.0)
+
+
+func _golpe_de_althea() -> void:
+	var althea: Node2D = objetos.get("althea")
+	if althea == null:
+		return
+	var visual: AnimatedSprite2D = althea.get_node("Visual")
+	visual.play(&"golpe_frente")
+	_virar(althea, jogador.position)
+	visual.frame = 0
+	visual.play()
+
+
+## Nicholas numa pose fora das que o desenho escolhe sozinho (a animação do
+## jogador fica parada até [method _fim_da_espada]).
+func _pose_de_nicholas(acao: StringName) -> void:
+	var visual: AnimatedSprite2D = jogador.get_node("Corpo/Visual")
+	visual.set_process(false)
+	visual.play("%s_%s" % [acao, visual.animation.get_slice("_", 1)])
+
+
+## Fim da conversa: todos voltam ao parado (e Nicholas ao lugar).
+func _fim_da_espada() -> void:
+	var visual: AnimatedSprite2D = jogador.get_node("Corpo/Visual")
+	visual.set_process(true)
+	visual.play("parado_%s" % visual.animation.get_slice("_", 1))
+	_mover_suave(jogador.get_node("Corpo"), "position:x", _corpo_x)
+	var althea: Node2D = objetos.get("althea")
+	if althea:
+		var dela: AnimatedSprite2D = althea.get_node("Visual")
+		dela.play("parado_%s" % dela.animation.get_slice("_", 1))
 
 
 ## Althea se senta na cama, pula para o chão e vai até o embrulho.

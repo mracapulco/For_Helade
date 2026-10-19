@@ -30,7 +30,9 @@ PERSONAGENS = {
     # olhos quase brancos dos Olympia, camisa branca e colete azul escuro
     # simples, "parecidas com as usadas pelos filhos dos comerciantes".
     'nicholas_11': dict(
-        topo=17, tronco=9, largura=4, cabelo='rebelde', roupa='colete', golpe=True,
+        # rendicao: as duas mãos para cima ("Nicholas ergueu as mãos, fingindo
+        # rendição", no quarto da Althea).
+        topo=17, tronco=9, largura=4, cabelo='rebelde', roupa='colete', golpe=True, rendicao=True,
         cores=dict(
             cab_luz='#F6EED2', cab='#E3D5AE', cab_sombra='#B9A882', cab_fundo='#8C7C5C',
             camisa_luz='#F2EFE8', camisa='#D9D4CA', camisa_sombra='#A9A398',
@@ -84,9 +86,12 @@ PERSONAGENS = {
     # bochechas rosadas; olhos azuis saturados, como os da mãe (não os
     # desbotados dos Olympia). Vestido azul simples: inferência a partir do
     # vestido que ela ganha de presente; o livro não diz o que ela veste.
+    # Golpe com a espada de madeira do aniversário, "esculpida para o tamanho
+    # de suas mãos": a espada vem desenhada na mão nos quadros do golpe (ela
+    # não usa o Inventario, como a arma do Nicholas).
     'althea_6': dict(
         topo=20, tronco=6, largura=3, cabelo='ombros', roupa='vestido_curto',
-        olho='#3F7CC4', bochecha='#D98C84',
+        olho='#3F7CC4', bochecha='#D98C84', golpe=True, espada_madeira=True,
         cores=dict(
             cab_luz='#F6EED2', cab='#E3D5AE', cab_sombra='#B9A882', cab_fundo='#8C7C5C',
             vestido_luz='#A9C4E0', vestido='#7FA2C8', vestido_sombra='#55779E',
@@ -527,13 +532,35 @@ def braco_estendido(q, x, y, alcance, cor, manga=None):
     q.r(x + alcance + 1, y, x + alcance + 2, y + 1, 'pele')
 
 
-def braco_erguido(q, x, yt, larg, cor):
+def braco_erguido(q, x, yt, larg, cor, lado=1):
     # Braço da frente erguido ao lado da cabeça, preparando o golpe (como o
     # do adulto em gerar_nicholas.py). Desenhado por último, por cima do cabelo.
-    q.r(x + larg + 1, yt - 1, x + larg + 2, yt + 1, cor)
-    q.r(x + larg + 2, yt - 4, x + larg + 3, yt - 2, cor)
-    q.p(x + larg + 1, yt + 1, cor + '_sombra'); q.p(x + larg + 2, yt - 2, cor + '_sombra')
-    q.r(x + larg + 2, yt - 6, x + larg + 3, yt - 5, 'pele')
+    # lado=-1: o mesmo braço espelhado, do outro lado (rendição).
+    def r(dx0, y0, dx1, y1, c):
+        q.r(x + lado * dx0, y0, x + lado * dx1, y1, c)
+    r(larg + 1, yt - 1, larg + 2, yt + 1, cor)
+    r(larg + 2, yt - 4, larg + 3, yt - 2, cor)
+    r(larg + 1, yt + 1, larg + 1, yt + 1, cor + '_sombra'); r(larg + 2, yt - 2, larg + 2, yt - 2, cor + '_sombra')
+    r(larg + 2, yt - 6, larg + 3, yt - 5, 'pele')
+
+
+def espada_madeira(q, mx, my, angulo):
+    # Espada de madeira pequena na mão 2×2 cujo canto é (mx, my), apontando
+    # para onde o ângulo diz (0 = para baixo, 180 = para cima, -90 = para a
+    # frente), como o giro do item na mão (MaosPersonagem.angulos).
+    passo = {0: (0, 1), 180: (0, -1), -90: (1, 0)}[angulo]
+    dx, dy = passo
+    px, py = (abs(dy), abs(dx))            # de lado (a lâmina tem 2 pixels)
+    cx, cy = mx + (1 if dx > 0 else 0), my + (1 if dy > 0 else 0)
+    if dy < 0:
+        cy = my
+    # guarda logo depois do punho e lâmina curta com a ponta mais clara
+    gx, gy = cx + dx, cy + dy
+    for k in (-1, 0, 1):
+        q.p(gx + px * k, gy + py * k, 'madeira_sombra')
+    for i in range(2, 6):
+        q.p(cx + dx * i, cy + dy * i, 'madeira_luz' if i == 5 else 'madeira')
+        q.p(cx + dx * i + px, cy + dy * i + py, 'madeira_sombra')
 
 
 # Roupas do nosso mundo (convidados): 'camiseta' (manga curta), 'moletom'
@@ -631,7 +658,7 @@ def cor_braco(cfg):
     return 'camisa' if cfg['roupa'] == 'colete' else 'vestido'
 
 
-def corpo_frente(q, cfg, x, yt, quadril, larg, b_esq, b_dir, alcance, saia_voa, ergue=False):
+def corpo_frente(q, cfg, x, yt, quadril, larg, b_esq, b_dir, alcance, saia_voa, ergue=False, rende=False):
     roupa = cfg['roupa']
     comp = quadril - yt - 1
     cor_manga = cor_braco(cfg)
@@ -639,7 +666,8 @@ def corpo_frente(q, cfg, x, yt, quadril, larg, b_esq, b_dir, alcance, saia_voa, 
     if roupa in CASUAIS:
         casual_frente(q, cfg, x, yt, quadril, larg, b_esq, b_dir, alcance)
     elif roupa == 'colete':
-        braco(q, x - larg - 2, yt + 1, b_esq, comp, cor_manga, cor_manga + '_sombra')
+        if not rende:
+            braco(q, x - larg - 2, yt + 1, b_esq, comp, cor_manga, cor_manga + '_sombra')
         q.r(x - larg, yt, x + larg, quadril + aba, 'colete')
         q.r(x - larg, yt, x - larg + 1, quadril + aba, 'colete_sombra')
         q.r(x, yt, x, quadril - 1, 'camisa')                       # camisa na abertura
@@ -668,11 +696,11 @@ def corpo_frente(q, cfg, x, yt, quadril, larg, b_esq, b_dir, alcance, saia_voa, 
         q.r(x - 1, yt, x + 1, yt, 'pele')                          # decote
         if alcance:
             braco_estendido(q, x + larg + 1, yt + 2, alcance, cor_manga)
-        else:
+        elif not ergue:
             braco(q, x + larg + 1, yt + 1, b_dir, comp, cor_manga)
 
 
-def corpo_costas(q, cfg, x, yt, quadril, larg, b_esq, b_dir, alcance, saia_voa, ergue=False):
+def corpo_costas(q, cfg, x, yt, quadril, larg, b_esq, b_dir, alcance, saia_voa, ergue=False, rende=False):
     roupa = cfg['roupa']
     comp = quadril - yt - 1
     cor_manga = cor_braco(cfg)
@@ -690,7 +718,8 @@ def corpo_costas(q, cfg, x, yt, quadril, larg, b_esq, b_dir, alcance, saia_voa, 
         q.r(x - 1, yt + 2, x + 1, yt + 2, 'colete_sombra')        # costura das costas
         if not aba:
             q.r(x - larg, quadril, x + larg, quadril, 'calca')
-        braco(q, x - larg - 2, yt + 1, b_esq, comp, cor_manga, cor_manga + '_sombra')
+        if not rende:
+            braco(q, x - larg - 2, yt + 1, b_esq, comp, cor_manga, cor_manga + '_sombra')
     else:
         hem = PE - (3 if roupa == 'vestido_longo' else 5)
         q.r(x - larg, yt, x + larg, quadril, 'vestido')
@@ -789,8 +818,13 @@ def enfeites(q, cfg, dir, x, yt, quadril, larg, saia_voa):
 
 
 def personagem(cfg, dir, f_esq=0, f_dir=0, lift_esq=0, lift_dir=0, dy=0, inclina=0,
-               braco_esq=0, braco_dir=0, alcance=0, voa=0, ergue=False):
+               braco_esq=0, braco_dir=0, alcance=0, voa=0, ergue=False, rende=False, espada=None):
+    # rende: as duas mãos para cima (rendição); espada: ângulo da espada de
+    # madeira na mão da frente (só nos quadros do golpe de quem tem uma).
     cores = dict(BASE)
+    cores.update(MADEIRA)
+    if rende:
+        ergue = True
     cores.update(cfg.get('pele', {}))
     cores.update(cfg['cores'])
     olho = 'olho'
@@ -813,7 +847,7 @@ def personagem(cfg, dir, f_esq=0, f_dir=0, lift_esq=0, lift_dir=0, dy=0, inclina
         capa(q, cfg, dir, x, yt, quadril, larg)
         cabelo_atras_frente(q, estilo, x, yc, ate, voa)
         pernas(q, CX, quadril, f_esq, f_dir, lift_esq, lift_dir)
-        corpo_frente(q, cfg, x, yt, quadril, larg, braco_esq, braco_dir, alcance, voa // 2, ergue)
+        corpo_frente(q, cfg, x, yt, quadril, larg, braco_esq, braco_dir, alcance, voa // 2, ergue, rende)
         enfeites(q, cfg, dir, x, yt, quadril, larg, voa // 2)
         ombros_da_capa(q, cfg, x, yt, larg)
         cabeca_frente(q, dir, x, yc, olho, bochecha)
@@ -824,7 +858,7 @@ def personagem(cfg, dir, f_esq=0, f_dir=0, lift_esq=0, lift_dir=0, dy=0, inclina
             oculos_frente(q, x, yc)
     else:
         pernas(q, CX, quadril, f_esq, f_dir, lift_esq, lift_dir)
-        corpo_costas(q, cfg, x, yt, quadril, larg, braco_esq, braco_dir, alcance, voa // 2, ergue)
+        corpo_costas(q, cfg, x, yt, quadril, larg, braco_esq, braco_dir, alcance, voa // 2, ergue, rende)
         enfeites(q, cfg, dir, x, yt, quadril, larg, voa // 2)
         capa(q, cfg, dir, x, yt, quadril, larg)
         cabeca_costas(q, estilo, x, yc, ate, voa)
@@ -834,6 +868,12 @@ def personagem(cfg, dir, f_esq=0, f_dir=0, lift_esq=0, lift_dir=0, dy=0, inclina
             braco_costas(q, cfg, x, yt, quadril, larg, braco_esq, braco_dir, alcance)
     if ergue:
         braco_erguido(q, x, yt, larg, cor_braco(cfg))
+    if rende:
+        braco_erguido(q, x, yt, larg, cor_braco(cfg), -1)
+    if espada is not None:
+        mx, my = mao(cfg, dir, f_esq, f_dir, lift_esq, lift_dir, dy, inclina, braco_esq, braco_dir,
+                     alcance, voa, ergue)
+        espada_madeira(q, mx, my, espada)
     return q.contornar()
 
 
@@ -851,12 +891,28 @@ ANIM = {
     # golpe de espada, só de quem tem cfg['golpe'] (o Nicholas que luta):
     # ergue, corta para a frente, termina com a lâmina baixa, como o adulto
     'golpe':       [dict(ergue=True), dict(alcance=5, inclina=1, dy=1), dict(braco_dir=1, inclina=1, dy=1)],
+    # rendição fingida, só de quem tem cfg['rendicao']: as duas mãos para cima
+    'rendicao':    [dict(rende=True), dict(rende=True, dy=1)],
 }
+# Espada de madeira (Althea): madeira clara, a mesma das tábuas.
+MADEIRA = dict(madeira_luz='#D8B47E', madeira='#A97C4A', madeira_sombra='#6E4C2C')
 ORDEM = ['parado', 'andando', 'correndo', 'interagindo']
-VELOCIDADE = {'parado': 2.0, 'andando': 8.0, 'correndo': 12.0, 'interagindo': 10.0, 'golpe': 12.0}
+VELOCIDADE = {'parado': 2.0, 'andando': 8.0, 'correndo': 12.0, 'interagindo': 10.0, 'golpe': 12.0,
+              'rendicao': 2.0}
 # Giro do item na mão em cada quadro, em graus (0 = ponta para baixo).
 ANGULOS = {'golpe': [180, -90, 0]}
 DIRS = ['frente', 'costas']
+
+
+def quadros(cfg, a):
+    # Os quadros da animação para este personagem. O golpe da Althea leva a
+    # espada de madeira na mão e corta mais perto do corpo (o braço dela é
+    # curto e a lâmina sairia do quadro).
+    lista = ANIM[a]
+    if a == 'golpe' and cfg.get('espada_madeira'):
+        lista = [dict(k, espada=ANGULOS[a][i], alcance=min(k.get('alcance', 0), 2))
+                 for i, k in enumerate(lista)]
+    return lista
 
 
 def linhas_da_folha(cfg):
@@ -864,6 +920,8 @@ def linhas_da_folha(cfg):
     linhas = [(d, a) for d in DIRS for a in ORDEM]
     if cfg.get('golpe'):
         linhas += [(d, 'golpe') for d in DIRS]
+    if cfg.get('rendicao'):
+        linhas += [(d, 'rendicao') for d in DIRS]
     return linhas
 
 
@@ -871,7 +929,7 @@ def folha(cfg):
     linhas = linhas_da_folha(cfg)
     im = Image.new('RGBA', (W * 4, HH * len(linhas)), (0, 0, 0, 0))
     for linha, (d, a) in enumerate(linhas):
-        for i, k in enumerate(ANIM[a]):
+        for i, k in enumerate(quadros(cfg, a)):
             im.paste(personagem(cfg, d, **k), (i * W, linha * HH))
     return im, linhas
 
@@ -897,13 +955,13 @@ def sprite_frames(id, linhas, caminho=None):
 
 
 def mao(cfg, dir, f_esq=0, f_dir=0, lift_esq=0, lift_dir=0, dy=0, inclina=0,
-        braco_esq=0, braco_dir=0, alcance=0, voa=0, ergue=False):
+        braco_esq=0, braco_dir=0, alcance=0, voa=0, ergue=False, rende=False, espada=None):
     # Canto de cima à esquerda da mão 2×2 do braço da frente (o da direita
     # na tela), com as mesmas contas de personagem().
     x = CX + inclina
     yt = cfg['topo'] + dy + 10
     larg = cfg['largura']
-    if ergue:
+    if ergue or rende:
         return (x + larg + 2, yt - 6)
     if alcance:
         return (x + larg + 2 + alcance, yt + 2)
@@ -912,10 +970,12 @@ def mao(cfg, dir, f_esq=0, f_dir=0, lift_esq=0, lift_dir=0, dy=0, inclina=0,
 
 
 def mao_tras(cfg, dir, f_esq=0, f_dir=0, lift_esq=0, lift_dir=0, dy=0, inclina=0,
-             braco_esq=0, braco_dir=0, alcance=0, voa=0, ergue=False):
+             braco_esq=0, braco_dir=0, alcance=0, voa=0, ergue=False, rende=False, espada=None):
     # Mão do braço de trás (o da esquerda na tela), onde vai o escudo.
     x = CX + inclina
     yt = cfg['topo'] + dy + 10
+    if rende:
+        return (x - cfg['largura'] - 3, yt - 6)
     comp = cfg['tronco'] - 1
     return (x - cfg['largura'] - 2, yt + 1 + braco_esq + comp + 1)
 
@@ -926,9 +986,9 @@ def maos_tres(cfg):
     linhas, tras, giros = [], [], []
     for d, a in linhas_da_folha(cfg):
         linhas.append('&"%s_%s": PackedVector2Array(%s)' % (
-            a, d, ', '.join('%d, %d' % mao(cfg, d, **k) for k in ANIM[a])))
+            a, d, ', '.join('%d, %d' % mao(cfg, d, **k) for k in quadros(cfg, a))))
         tras.append('&"%s_%s": PackedVector2Array(%s)' % (
-            a, d, ', '.join('%d, %d' % mao_tras(cfg, d, **k) for k in ANIM[a])))
+            a, d, ', '.join('%d, %d' % mao_tras(cfg, d, **k) for k in quadros(cfg, a))))
         if a in ANGULOS:
             giros.append('&"%s_%s": PackedFloat32Array(%s)' % (a, d, ', '.join(str(g) for g in ANGULOS[a])))
     return ('[gd_resource type="Resource" script_class="MaosPersonagem" format=3]\n\n'

@@ -1,0 +1,35 @@
+[gd_resource type="Resource" script_class="MaosPersonagem" format=3]
+
+[ext_resource type="Script" path="res://scripts/systems/maos_personagem.gd" id="1_maos"]
+
+[resource]
+script = ExtResource("1_maos")
+tamanho_quadro = Vector2i(32, 48)
+pontos = {
+&"parado_frente": PackedVector2Array(20, 37, 20, 38),
+&"andando_frente": PackedVector2Array(20, 37, 20, 37, 20, 39, 20, 37),
+&"correndo_frente": PackedVector2Array(21, 36, 21, 36, 21, 40, 21, 36),
+&"interagindo_frente": PackedVector2Array(20, 37, 23, 32, 25, 32),
+&"parado_costas": PackedVector2Array(20, 37, 20, 38),
+&"andando_costas": PackedVector2Array(20, 37, 20, 37, 20, 39, 20, 37),
+&"correndo_costas": PackedVector2Array(21, 36, 21, 36, 21, 40, 21, 36),
+&"interagindo_costas": PackedVector2Array(20, 37, 23, 32, 25, 32),
+&"golpe_frente": PackedVector2Array(21, 24, 24, 33, 21, 39),
+&"golpe_costas": PackedVector2Array(21, 24, 24, 33, 21, 39)
+}
+angulos = {
+&"golpe_frente": PackedFloat32Array(180, -90, 0),
+&"golpe_costas": PackedFloat32Array(180, -90, 0)
+}
+pontos_tras = {
+&"parado_frente": PackedVector2Array(11, 37, 11, 38),
+&"andando_frente": PackedVector2Array(11, 39, 11, 37, 11, 37, 11, 37),
+&"correndo_frente": PackedVector2Array(12, 40, 12, 36, 12, 36, 12, 36),
+&"interagindo_frente": PackedVector2Array(11, 37, 11, 37, 11, 37),
+&"parado_costas": PackedVector2Array(11, 37, 11, 38),
+&"andando_costas": PackedVector2Array(11, 39, 11, 37, 11, 37, 11, 37),
+&"correndo_costas": PackedVector2Array(12, 40, 12, 36, 12, 36, 12, 36),
+&"interagindo_costas": PackedVector2Array(11, 37, 11, 37, 11, 37),
+&"golpe_frente": PackedVector2Array(11, 37, 12, 38, 12, 38),
+&"golpe_costas": PackedVector2Array(11, 37, 12, 38, 12, 38)
+}

@@ -130,6 +130,22 @@ region = Rect2(32, 432, 32, 48)
 atlas = ExtResource("1_folha")
 region = Rect2(64, 432, 32, 48)
 
+[sub_resource type="AtlasTexture" id="Atlas_33"]
+atlas = ExtResource("1_folha")
+region = Rect2(0, 480, 32, 48)
+
+[sub_resource type="AtlasTexture" id="Atlas_34"]
+atlas = ExtResource("1_folha")
+region = Rect2(32, 480, 32, 48)
+
+[sub_resource type="AtlasTexture" id="Atlas_35"]
+atlas = ExtResource("1_folha")
+region = Rect2(0, 528, 32, 48)
+
+[sub_resource type="AtlasTexture" id="Atlas_36"]
+atlas = ExtResource("1_folha")
+region = Rect2(32, 528, 32, 48)
+
 [resource]
 animations = [{
 "frames": [{
@@ -277,4 +293,26 @@ animations = [{
 "loop": false,
 "name": &"golpe_costas",
 "speed": 12.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("Atlas_33")
+}, {
+"duration": 1.0,
+"texture": SubResource("Atlas_34")
+}],
+"loop": true,
+"name": &"rendicao_frente",
+"speed": 2.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("Atlas_35")
+}, {
+"duration": 1.0,
+"texture": SubResource("Atlas_36")
+}],
+"loop": true,
+"name": &"rendicao_costas",
+"speed": 2.0
 }]

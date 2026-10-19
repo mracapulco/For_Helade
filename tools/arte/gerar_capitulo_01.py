@@ -48,6 +48,9 @@ C.update(
     tronco=H('#5A4232'), tronco_luz=H('#77583F'),
     marmore=H('#E2DED4'), marmore_luz=H('#F6F3EC'), marmore_sombra=H('#B8B2A6'),
     flor=H('#C9A4D8'), flor2=H('#E8D27A'),
+    # Rodada 1 das cenas 7 a 10 (Palácio, Rua das Butiques, loja, restaurante).
+    # Inferência provisória: o livro não dá as cores de reboco, toldo ou louça.
+    reboco=H('#CDBB94'), reboco_luz=H('#E2D3AE'), reboco_sombra=H('#A8977A'),
 )
 PASTA = 'assets/art/capitulo_01'
 
@@ -129,11 +132,49 @@ def _passadeira(q, ox, borda):
         q.p(x, y, cor)
 
 
+def _marmore(q, ox, variante):
+    # lajes grandes de mármore claro, duas por lado da casa, com veios finos
+    # (inferência: o livro só fala em "colunas, jardins, flores" no pátio)
+    for x, y, a, b in _losango(ox):
+        la = int((a + 0.5) * 2); lb = int((b + 0.5) * 2)
+        cor = 'marmore' if (la + lb + variante) % 2 == 0 else 'marmore_luz'
+        if abs(((a + 0.5) * 2) % 1) < 0.05 or abs(((b + 0.5) * 2) % 1) < 0.05:
+            cor = 'marmore_sombra'
+        elif (x * 5 + y * 11 + variante * 3) % 29 == 0:
+            cor = 'marmore_sombra'
+        q.p(x, y, cor)
+
+
+def _calcada(q, ox, variante):
+    # paralelepípedo: fileiras de pedras pequenas desencontradas
+    for x, y, a, b in _losango(ox):
+        fb = (b + 0.5) * 5
+        linha = int(fb)
+        fa = (a + 0.5) * 5 + (0.5 if (linha + variante) % 2 else 0)
+        pedra = int(fa)
+        cor = ('pedra_piso', 'pedra_piso_luz', 'pedra_piso', 'pedra_piso_sombra')[(pedra * 3 + linha * 5 + variante) % 4]
+        if fb % 1 < 0.13 or fa % 1 < 0.13:
+            cor = 'argamassa'
+        q.p(x, y, cor)
+
+
+def _ladrilho(q, ox, variante):
+    # xadrez de ladrilhos creme e marrom-claro (inferência)
+    for x, y, a, b in _losango(ox):
+        la = int((a + 0.5) * 4); lb = int((b + 0.5) * 4)
+        cor = 'creme' if (la + lb + variante) % 2 == 0 else 'assoalho_luz'
+        if abs(((a + 0.5) * 4) % 1) < 0.04 or abs(((b + 0.5) * 4) % 1) < 0.04:
+            cor = 'assoalho_sombra'
+        q.p(x, y, cor)
+
+
 def piso():
     # 0-1 assoalho dos quartos, 2-3 pedra, 4-6 passadeira (borda em cima,
     # borda embaixo, meio): como o castelo do prólogo; 7-8 grama (as margens
     # da rua por onde passa a carruagem)
-    q = Q(64 * 9, 32)
+    # 9-10 mármore claro do pátio do Palácio; 11-12 paralelepípedo da Rua das
+    # Butiques; 13-14 ladrilho creme do restaurante (cenas 7 a 10)
+    q = Q(64 * 15, 32)
     _assoalho(q, 0, False)
     _assoalho(q, 64, True)
     _pedra(q, 128, 0)
@@ -143,6 +184,12 @@ def piso():
     _passadeira(q, 384, None)
     _grama(q, 448, 0)
     _grama(q, 512, 1)
+    _marmore(q, 576, 0)
+    _marmore(q, 640, 1)
+    _calcada(q, 704, 0)
+    _calcada(q, 768, 1)
+    _ladrilho(q, 832, 0)
+    _ladrilho(q, 896, 1)
     return q.im
 
 
@@ -208,14 +255,93 @@ def _parede_madeira(q, ox):
             q.p(ox + x, y, cor)
 
 
+def _bloco(q, ox, topo, topo_borda, face):
+    """Bloco de parede de 64×64: topo em losango e face(esquerda, u, v, x) para
+    cada pixel da face (v = altura abaixo do topo, 0 a 32)."""
+    for y in range(32):
+        meia = 32 - abs(y - 15.5) * 2
+        for x in range(int(32 - meia), int(32 + meia)):
+            borda = abs(y - 15.5) * 2 + 2 >= 32 - abs(x - 31.5)
+            q.p(ox + x, y, topo_borda if borda else topo)
+    for x in range(64):
+        esquerda = x < 32
+        u = x if esquerda else 63 - x
+        for y in range(16, 64):
+            v = y - _topo(x)
+            if 0 <= v <= 32:
+                q.p(ox + x, y, face(esquerda, u, int(v), x))
+
+
+def _parede_marmore(q, ox):
+    # mármore claro em blocos grandes, com cornija e soco (Palácio Imperial;
+    # inferência: o livro só diz "alto demais, amplo demais, ornamentado demais")
+    def face(esq, u, v, x):
+        fileira = v // 8
+        cor = 'marmore' if esq else 'marmore_sombra'
+        if v < 3:
+            cor = 'marmore_luz' if esq else 'marmore'
+        elif v % 8 == 3 or (u + fileira * 7) % 13 == 0:
+            cor = 'prata_sombra'
+        elif v > 29:
+            cor = 'prata_sombra' if esq else 'pedra_parede_sombra'
+        elif (x * 7 + v * 5) % 31 == 0:
+            cor = 'marmore_luz' if esq else 'prata'
+        return cor
+    _bloco(q, ox, 'marmore_luz', 'marmore_sombra', face)
+
+
+def _parede_fachada(q, ox):
+    # fachada de reboco claro com beiral de madeira e soco de pedra
+    # (inferência: o livro não descreve as fachadas da Rua das Butiques)
+    def face(esq, u, v, x):
+        cor = 'reboco' if esq else 'reboco_sombra'
+        if v < 3:
+            cor = 'madeira' if esq else 'madeira_sombra'
+        elif v == 3:
+            cor = 'madeira_sombra'
+        elif v > 26:
+            cor = 'pedra_parede' if esq else 'pedra_parede_sombra'
+            if v == 27:
+                cor = 'argamassa'
+        elif (x * 7 + v * 13) % 17 == 0:
+            cor = 'reboco_luz' if esq else 'reboco'
+        return cor
+    _bloco(q, ox, 'pedra_parede_sombra', 'argamassa', face)
+
+
+def _parede_reboco(q, ox):
+    # reboco quente por dentro, com lambri de madeira embaixo e filete dourado
+    def face(esq, u, v, x):
+        cor = 'reboco' if esq else 'reboco_sombra'
+        if v < 2:
+            cor = 'reboco_luz' if esq else 'reboco'
+        elif v == 16:
+            cor = 'ouro_sombra'
+        elif v > 16:
+            cor = 'madeira' if esq else 'madeira_sombra'
+            if u % 8 == 0:
+                cor = 'madeira_sombra'
+            elif v == 17:
+                cor = 'madeira_luz' if esq else 'madeira'
+        elif (x * 11 + v * 7) % 19 == 0:
+            cor = 'reboco_luz' if esq else 'reboco'
+        return cor
+    _bloco(q, ox, 'reboco_luz', 'reboco', face)
+
+
 def parede():
     # bloco de 64×64: topo em losango de 64×32 e a face embaixo
     # 0 = pedra da Casa Olympia; 1 = a parede lisa do sonho (corredor
     # estranho); 2 = madeira e veludo, por dentro da carruagem
-    q = Q(192, 64)
+    # 3 = mármore do Palácio Imperial; 4 = fachada de reboco da Rua das
+    # Butiques; 5 = reboco por dentro, com lambri (loja e restaurante)
+    q = Q(384, 64)
     _parede_pedra(q, 0)
     _parede_antiga(q, 64)
     _parede_madeira(q, 128)
+    _parede_marmore(q, 192)
+    _parede_fachada(q, 256)
+    _parede_reboco(q, 320)
     return q.im
 
 
@@ -875,7 +1001,7 @@ def _cocheiro(im, quadro):
     _camada(im, bracos)
 
 
-def carruagem_frente():
+def carruagem_frente(brasao=False):
     """Três quadros lado a lado: a borda baixa da frente, as rodas girando, o
     varal, os dois cavalos a trote e o cocheiro."""
     from PIL import Image, ImageDraw
@@ -899,6 +1025,13 @@ def carruagem_frente():
         _friso_grego(d, B, -A, A, 21)
         for a in (-0.3, 0.3):
             d.line([_carro_t(a, B, 8), _carro_t(a, B, 18)], fill=C['carro_sombra'])
+        if brasao:
+            # brasão de Olympia na lateral (azul e dourado; o desenho é marcador)
+            a0 = -5 / CASA
+            d.polygon(_perfil(a0, B + 0.01, [(0, 19), (10, 19), (10, 12), (5, 6), (0, 12)]), fill=C['ouro'])
+            d.polygon(_perfil(a0, B + 0.01, [(1, 18), (9, 18), (9, 12), (5, 8), (1, 12)]), fill=C['colcha'])
+            d.polygon(_perfil(a0, B + 0.01, [(1, 18), (5, 18), (5, 8), (1, 12)]), fill=C['colcha_luz'])
+            d.point(_perfil(a0, B + 0.01, [(5, 14)])[0], fill=C['ouro_luz'])
         # cantos com pilares finos até a cobertura (só as quinas)
         for a in (-A, A):
             _carro_quad(d, [(a, B, 6), (a, B, CARRO_TOPO), (a - 0.06 if a > 0 else a + 0.06, B, CARRO_TOPO),
@@ -992,6 +1125,440 @@ def canteiro():
     return q.contornar()
 
 
+# --- Rodada 1 das cenas 7 a 10 (Palácio Imperial, Rua das Butiques, loja de
+# pelúcias, restaurante) -----------------------------------------------------
+# DO LIVRO (Cap. 1): no Palácio, "colunas, jardins, flores em profusão" e uma
+# "fonte central" cuja água Althea vê como "diamantes líquidos"; poucos
+# guardas; o anexo, vazio; o vestido da princesa é "rubro, a cor do Império".
+# Na Rua das Butiques o movimento só para quando reconhecem o "brasão de
+# Olympia". Na loja: "pelúcias, feitas sob encomenda a partir de desenhos
+# estranhos e criaturas do Mar de Equidna", "prateleiras baixas" e "algo entre
+# cobra e enguia". No restaurante: "mesa redonda pequena", "jarras de água e
+# suco", "pequenas travessas de salada" e o "armário onde o restaurante
+# guardava parte da louça".
+# INFERÊNCIA PROVISÓRIA (tudo o mais): cores de reboco, toldos, vitrines,
+# lampiões, vasos, ladrilho, formas e cores das pelúcias, o desenho do brasão
+# (o livro não o descreve; só se sabe que Olympia usa azul e dourado) e a
+# arquitetura do Palácio.
+C.update(flor_sombra=H('#9A7AAE'))
+
+
+def _bicho(q, x, y, cor, luz):
+    """Pelúcia pequena sentada, 5×4, com a base em (x, y)."""
+    q.r(x - 2, y - 3, x + 2, y, cor)
+    q.p(x - 1, y - 3, luz); q.p(x - 1, y - 2, 'noite'); q.p(x + 1, y - 2, 'noite')
+
+
+BICHOS = (('monstro', 'monstro_luz'), ('bolo', 'bolo_luz'), ('flor', 'perola'), ('vela', 'ouro_luz'),
+          ('rapidez', 'rapidez_luz'), ('cura', 'cura_luz'), ('flor2', 'perola'))
+
+
+def _escudo(q, x0, y0, largura=16, altura=20):
+    meia0 = largura // 2
+    def m(y):
+        return meia0 if y < altura * 0.55 else max(1, meia0 - int((y - altura * 0.55) * 1.0))
+    cx = x0 + meia0
+    for y in range(altura):
+        q.linha(y0 + y, cx - m(y), cx + m(y) - 1, 'ouro')
+    for y in range(1, altura - 1):
+        mi = m(y) - 1
+        if mi > 0:
+            q.linha(y0 + y, cx - mi, cx + mi - 1, 'colcha')
+            q.linha(y0 + y, cx - mi, cx - 1, 'colcha_luz')
+
+
+def brasao():
+    # Brasão de Olympia, azul e dourado. O desenho central (losango dourado e
+    # onda branca) é um marcador: o livro não descreve o brasão.
+    q = Q(16, 20)
+    _escudo(q, 0, 0)
+    for i in range(4):
+        q.linha(4 + i, 7 - i, 8 + i, 'ouro_luz')
+        q.linha(8 + i, 4 + i, 11 - i, 'ouro')
+    q.linha(14, 4, 11, 'perola'); q.p(5, 13, 'perola'); q.p(8, 13, 'perola'); q.p(10, 13, 'perola')
+    return q.im
+
+
+def estandarte_imperial():
+    # estandarte rubro ("a cor do Império"), com o disco dourado como marcador
+    q = Q(10, 28)
+    q.r(0, 0, 9, 1, 'ouro'); q.p(0, 0, 'ouro_luz')
+    q.r(1, 2, 8, 22, 'embrulho'); q.coluna(1, 2, 22, 'embrulho_luz'); q.coluna(2, 2, 22, 'embrulho_luz')
+    for y in range(23, 28):
+        meia = 4 - (y - 23)
+        q.linha(y, 5 - meia, 4 + meia, 'embrulho')
+    q.elipse(5, 10, 2, 2, 'ouro'); q.p(4, 9, 'ouro_luz')
+    q.linha(2, 1, 8, 'ouro_sombra'); q.linha(21, 1, 8, 'ouro_sombra')
+    return q.im
+
+
+def portal_palacio():
+    # portão do Palácio: arco de mármore e folhas rubras com ferragem dourada
+    q = Q(28, 30)
+    q.r(0, 0, 27, 29, 'marmore_sombra')
+    q.r(0, 0, 27, 2, 'marmore_luz')
+    q.r(5, 5, 22, 29, 'prata_sombra')
+    q.r(6, 6, 21, 29, 'embrulho')
+    q.r(6, 6, 7, 29, 'embrulho_luz')
+    q.coluna(13, 6, 29, 'noite'); q.coluna(14, 6, 29, 'noite')
+    for y in (10, 18):
+        q.linha(y, 6, 21, 'ouro_sombra')
+    q.r(11, 16, 12, 17, 'ouro'); q.r(15, 16, 16, 17, 'ouro')
+    q.r(3, 5, 4, 29, 'marmore_luz'); q.r(23, 5, 24, 29, 'marmore_luz')
+    return q.im
+
+
+def portal_anexo():
+    # anexo fechado e vazio: porta de madeira, janelas escuras com cortinas
+    # puxadas, nenhuma luz
+    q = Q(28, 30)
+    q.r(0, 0, 27, 29, 'marmore_sombra')
+    q.r(0, 0, 27, 2, 'marmore_luz')
+    q.r(9, 6, 18, 29, 'madeira_sombra'); q.r(10, 7, 17, 29, 'madeira')
+    q.coluna(13, 7, 29, 'madeira_sombra'); q.coluna(14, 7, 29, 'madeira_sombra')
+    q.r(11, 9, 12, 16, 'madeira_luz'); q.r(15, 9, 16, 16, 'madeira_luz')
+    q.p(12, 20, 'ferro_luz'); q.p(15, 20, 'ferro_luz')
+    for x0 in (2, 21):
+        q.r(x0, 8, x0 + 4, 21, 'noite')
+        q.r(x0 + 1, 9, x0 + 3, 20, 'veludo'); q.coluna(x0 + 2, 9, 20, 'veludo_luz')
+        q.linha(7, x0 - 1, x0 + 5, 'marmore_luz'); q.linha(22, x0 - 1, x0 + 5, 'marmore_luz')
+    return q.im
+
+
+def vitrine():
+    # vitrine de butique com pelúcias na janela
+    q = Q(26, 18)
+    q.r(0, 0, 25, 17, 'madeira_sombra')
+    q.r(2, 2, 23, 13, 'vidro')
+    for i in range(5):
+        q.p(4 + i * 2, 3 + i, 'vidro_luz'); q.p(5 + i * 2, 3 + i, 'vidro_luz')
+    q.coluna(12, 2, 13, 'madeira_sombra'); q.coluna(13, 2, 13, 'madeira_sombra')
+    for k, x in enumerate((6, 10, 16, 20)):
+        _bicho(q, x, 13, *BICHOS[(k * 2) % len(BICHOS)])
+    q.r(0, 14, 25, 17, 'madeira'); q.linha(14, 0, 25, 'madeira_luz')
+    return q.im
+
+
+def toldo():
+    # toldo listrado de azul e creme (inferência)
+    q = Q(28, 9)
+    for x in range(28):
+        cor = 'lona' if (x // 4) % 2 == 0 else 'creme'
+        q.r(x, 0, x, 5, cor)
+        if x % 4 in (1, 2):
+            q.r(x, 6, x, 7, cor)
+    q.linha(0, 0, 27, 'lona_luz')
+    return q.im
+
+
+def placa_butique():
+    # placa pendurada com uma pelúcia desenhada (sem letras)
+    q = Q(14, 16)
+    q.linha(0, 0, 13, 'ferro'); q.coluna(3, 0, 3, 'ferro'); q.coluna(10, 0, 3, 'ferro')
+    q.r(1, 3, 12, 14, 'madeira'); q.r(1, 3, 12, 3, 'madeira_luz')
+    q.r(1, 14, 12, 14, 'ouro_sombra'); q.coluna(1, 3, 14, 'ouro_sombra'); q.coluna(12, 3, 14, 'ouro_sombra')
+    q.r(4, 6, 9, 12, 'monstro'); q.p(4, 6, 'monstro_luz'); q.p(5, 8, 'branco'); q.p(8, 8, 'branco')
+    q.p(5, 9, 'noite'); q.p(8, 9, 'noite'); q.linha(11, 5, 8, 'branco')
+    return q.im
+
+
+def fonte():
+    # Fonte central do pátio: duas bacias de mármore e a água que Althea vê
+    # como "diamantes líquidos" (pontos brancos e dourados no jato). Cabe numa
+    # casa (64×32); pe = 14.
+    q = Q(64, 64)
+    q.sombra_no_chao(32, 52, 29, 10)
+    q.elipse(32, 52, 28, 11, 'marmore_sombra')
+    q.elipse(32, 49, 28, 11, 'marmore_luz')
+    q.elipse(32, 49, 25, 9, 'marmore')
+    q.elipse(32, 50, 23, 8, 'olho')
+    q.elipse(30, 49, 12, 4, 'olho_luz')
+    for x, y in ((14, 50), (22, 54), (45, 52), (50, 49), (26, 47)):
+        q.p(x, y, 'branco')
+    q.r(28, 30, 35, 49, 'marmore'); q.coluna(28, 30, 49, 'marmore_luz'); q.coluna(35, 30, 49, 'marmore_sombra')
+    q.elipse(32, 32, 13, 5, 'marmore_sombra')
+    q.elipse(32, 30, 13, 5, 'marmore_luz')
+    q.elipse(32, 31, 10, 3, 'olho_luz')
+    q.r(30, 16, 33, 30, 'marmore'); q.coluna(30, 16, 30, 'marmore_luz')
+    q.elipse(32, 17, 6, 2, 'marmore_luz')
+    q.elipse(32, 17, 4, 1, 'olho_luz')
+    # jato e gotas caindo em arco
+    for dx in (-1, 0, 1):
+        q.coluna(32 + dx, 8, 16, 'olho_luz')
+    q.p(32, 6, 'branco'); q.p(31, 7, 'branco'); q.p(33, 7, 'branco')
+    for k, dx in enumerate((3, 6, 9, 12, 15, 18)):
+        y = int(8 + (dx / 3.0) ** 2 * 0.55 + 2)
+        q.p(32 - dx, y, 'branco' if k % 2 else 'olho_luz')
+        q.p(32 + dx, y, 'olho_luz' if k % 2 else 'branco')
+    for x, y in ((24, 20), (40, 21), (21, 36), (43, 37), (27, 14), (37, 14)):
+        q.p(x, y, 'ouro_luz')                              # os diamantes
+    return q.contornar()
+
+
+def canteiro_flores():
+    # canteiro florido ("flores em profusão"), com borda de pedra; uma casa
+    import random
+    rng = random.Random(7)
+    q = Q(56, 28)
+    q.sombra_no_chao(28, 21, 26, 5)
+    q.elipse(28, 16, 26, 10, 'pedra_parede_sombra')
+    q.elipse(28, 14, 26, 10, 'pedra_parede')
+    q.elipse(28, 14, 23, 8, 'folha_escura')
+    q.elipse(28, 13, 22, 7, 'folha')
+    q.elipse(20, 11, 10, 4, 'folha_luz')
+    cores = ('flor', 'flor2', 'cura', 'branco', 'olho', 'vela', 'flor_sombra')
+    for _ in range(46):
+        x = rng.randint(8, 48); y = rng.randint(6, 19)
+        if ((x - 28) / 22.0) ** 2 + ((y - 13) / 7.0) ** 2 <= 1:
+            c = rng.choice(cores)
+            q.p(x, y, c); q.p(x + 1, y, c); q.p(x, y - 1, 'folha_luz')
+    return q.contornar()
+
+
+def lampiao():
+    # lampião de rua de ferro (inferência)
+    q = Q(14, 50)
+    q.sombra_no_chao(7, 47, 5, 2)
+    q.r(6, 14, 7, 46, 'ferro'); q.coluna(6, 14, 46, 'ferro_luz')
+    q.r(3, 44, 10, 47, 'ferro'); q.r(4, 42, 9, 43, 'ferro_luz')
+    q.r(2, 3, 11, 12, 'ouro_sombra'); q.r(3, 4, 10, 11, 'vela')
+    q.r(5, 5, 8, 9, 'ouro_luz')
+    q.linha(2, 2, 11, 'ferro'); q.r(4, 0, 9, 1, 'ferro'); q.p(6, 0, 'ferro_luz')
+    q.linha(13, 2, 11, 'ferro')
+    return q.contornar()
+
+
+def vaso_flor():
+    q = Q(16, 24)
+    q.sombra_no_chao(8, 21, 6, 2)
+    q.r(4, 13, 11, 21, 'vela_escura'); q.coluna(4, 13, 21, 'ferrugem'); q.r(3, 12, 12, 13, 'vela')
+    q.linha(21, 4, 11, 'ferrugem')
+    q.elipse(8, 8, 6, 5, 'folha'); q.elipse(6, 6, 3, 2, 'folha_luz')
+    for x, y, c in ((4, 6, 'flor'), (8, 3, 'flor2'), (11, 7, 'cura'), (7, 8, 'branco'), (10, 4, 'flor')):
+        q.p(x, y, c); q.p(x + 1, y, c)
+    return q.contornar()
+
+
+# --- loja de pelúcias ----------------------------------------------------
+def prateleira_baixa(lado):
+    """Prateleira baixa (22 px: dá para uma criança se agachar entre elas) com
+    pelúcias nos dois andares e em cima. lado 'esq': encostada na parede da
+    linha y = 0; 'dir': na da coluna x = 0. pe = PE_CAIXA."""
+    h = 22
+    if lado == 'esq':
+        a0, a1, b0, b1 = -0.45, 0.45, -0.5, -0.2
+        q, _, _ = caixa_iso(a0, a1, b0, b1, h, 'madeira_sombra', 'madeira', 'madeira_luz')
+        pt = lambda s_, t_: _tela(a0 + s_ * (a1 - a0), b1, t_ * h, h + 17)
+    else:
+        a0, a1, b0, b1 = -0.5, -0.2, -0.45, 0.45
+        q, _, _ = caixa_iso(a0, a1, b0, b1, h, 'madeira', 'madeira_sombra', 'madeira_luz')
+        pt = lambda s_, t_: _tela(a1, b0 + s_ * (b1 - b0), t_ * h, h + 17)
+    for t_ in (0.05, 0.5):                               # tábuas dos andares
+        for i in range(61):
+            x, y = pt(i / 60, t_)
+            q.p(int(round(x)), int(round(y)), 'madeira_luz')
+            q.p(int(round(x)), int(round(y)) + 1, 'madeira')
+    for k, s_ in enumerate((0.14, 0.38, 0.62, 0.86)):
+        for t_, desloc in ((0.05, 0), (0.5, 0), (1.0, 3)):
+            x, y = pt(s_, t_)
+            cor, luz = BICHOS[(k * 2 + int(t_ * 4)) % len(BICHOS)]
+            _bicho(q, int(round(x)), int(round(y)) - 1 - desloc, cor, luz)
+    return q.contornar()
+
+
+def balcao_loja():
+    # balcão da loja (inferência: o livro só diz que os donos vêm ao encontro)
+    q, frente, _ = caixa_iso(-0.5, 0.5, -0.5, -0.1, 24, 'madeira', 'madeira_sombra', 'madeira_luz')
+    for s0, s1 in ((0.07, 0.46), (0.54, 0.93)):
+        t0, t1 = 0.14, 0.78
+        _riscar(frente, s0, s1, t0, t0, 'madeira_luz'); _riscar(frente, s0, s1, t1, t1, 'madeira_luz')
+        _riscar(frente, s0, s0, t0, t1, 'madeira_luz'); _riscar(frente, s1, s1, t0, t1, 'madeira_luz')
+    _riscar(frente, 0.0, 1.0, 0.95, 0.95, 'ouro_sombra')
+    return q.contornar()
+
+
+def pelucia_enguia():
+    # A criatura "entre cobra e enguia" (livro): corpo longo e ondulado, de
+    # pano claro, olhos de botão e uma crista; cores e forma são inferência
+    q = Q(46, 30)
+    q.sombra_no_chao(23, 25, 20, 3)
+    passos = 70
+    pontos = []
+    for i in range(passos):
+        u = i / (passos - 1)
+        x = 4 + u * 38
+        y = 15 + 5 * math.sin(u * math.pi * 2.3 + 0.4)
+        r = 4.2 - 2.2 * u if u > 0.15 else 4.4
+        pontos.append((x, y, r))
+    for x, y, r in pontos:
+        q.elipse(int(x), int(y) + 1, int(r), int(r), 'rapidez')
+    for x, y, r in pontos:
+        q.elipse(int(x), int(y), int(r), int(r), 'rapidez_luz')
+    for i, (x, y, r) in enumerate(pontos):
+        if i % 6 == 3 and r > 2:
+            q.p(int(x), int(y - r) - 1, 'ouro_luz')                       # crista
+        if i % 5 == 2 and 6 < i < 62:
+            q.p(int(x), int(y + r) - 1, 'prata')                         # ventre
+        if i % 7 == 4 and 8 < i < 60:
+            q.p(int(x), int(y), 'perola')                                # pontos de costura
+    hx, hy, _ = pontos[2]
+    q.elipse(int(hx) + 1, int(hy) - 1, 1, 1, 'branco'); q.p(int(hx) + 1, int(hy) - 1, 'noite')
+    q.elipse(int(hx) + 4, int(hy) - 1, 1, 1, 'branco'); q.p(int(hx) + 4, int(hy) - 1, 'noite')
+    return q.contornar()
+
+
+def pelucia_dragao_marinho():
+    q = Q(30, 28)
+    q.sombra_no_chao(15, 24, 12, 3)
+    for k in range(5):                                                   # cauda enrolada
+        q.elipse(22 + k, 20 - k, 3 - k // 3, 3 - k // 3, 'bolo_sombra')
+    q.elipse(14, 17, 9, 7, 'bolo'); q.elipse(12, 15, 5, 3, 'bolo_luz')
+    q.elipse(8, 9, 5, 4, 'bolo'); q.elipse(6, 11, 3, 2, 'bolo_luz')      # cabeça e focinho
+    for x in (11, 14, 17, 20):                                           # nadadeiras dorsais
+        q.p(x, 9 + (x - 11) // 2, 'ouro'); q.p(x, 10 + (x - 11) // 2, 'ouro_luz')
+    q.p(6, 4, 'ouro_luz'); q.p(9, 4, 'ouro_luz'); q.p(6, 5, 'ouro'); q.p(9, 5, 'ouro')
+    q.p(5, 8, 'noite'); q.p(9, 8, 'noite'); q.p(5, 7, 'branco'); q.p(9, 7, 'branco')
+    q.linha(12, 4, 7, 'noite')
+    return q.contornar()
+
+
+def pelucia_polvo():
+    q = Q(26, 26)
+    q.sombra_no_chao(13, 23, 10, 2)
+    for k, x in enumerate((5, 8, 11, 14, 17, 20)):
+        for y in range(14, 22):
+            q.p(x + (1 if (y // 2 + k) % 2 else 0), y, 'flor_sombra')
+            q.p(x + (1 if (y // 2 + k) % 2 else 0) - 1, y, 'flor')
+    q.elipse(13, 10, 9, 8, 'flor'); q.elipse(10, 7, 4, 3, 'perola')
+    q.elipse(13, 12, 8, 4, 'flor')
+    q.r(8, 10, 9, 12, 'branco'); q.r(16, 10, 17, 12, 'branco'); q.p(9, 11, 'noite'); q.p(17, 11, 'noite')
+    return q.contornar()
+
+
+def pelucia_monstro():
+    # monstrinho de olho grande e dentes, parente do que Althea abraça (livro:
+    # "pelúcia de um monstro marinho")
+    q = Q(26, 26)
+    q.sombra_no_chao(13, 23, 10, 2)
+    q.elipse(13, 15, 9, 8, 'monstro'); q.elipse(10, 12, 4, 3, 'monstro_luz')
+    q.p(7, 5, 'ouro_luz'); q.p(7, 6, 'ouro'); q.p(18, 5, 'ouro_luz'); q.p(18, 6, 'ouro')
+    q.r(4, 21, 8, 22, 'monstro'); q.r(17, 21, 21, 22, 'monstro')
+    q.elipse(13, 11, 4, 3, 'branco'); q.p(13, 11, 'noite'); q.p(14, 11, 'noite')
+    for x in range(8, 18, 2):
+        q.p(x, 18, 'branco'); q.p(x + 1, 17, 'branco')
+    return q.contornar()
+
+
+def expositor_enguia():
+    """Pedestal baixo com a pelúcia longa enrolada em cima: o objeto que o
+    jogador examina para escolher o presente. pe = 5."""
+    q = Q(52, 40)
+    q.sombra_no_chao(26, 35, 22, 3)
+    q.r(7, 26, 44, 34, 'madeira'); q.r(7, 26, 12, 34, 'madeira_sombra'); q.linha(34, 7, 44, 'madeira_sombra')
+    q.elipse(26, 26, 19, 5, 'veludo_luz'); q.elipse(26, 26, 16, 4, 'veludo')
+    q.linha(30, 7, 44, 'ouro_sombra')
+    q.contornar()
+    q.im.alpha_composite(pelucia_enguia(), (3, 0))
+    return q.im
+
+
+def cesta_pelucias():
+    q = Q(32, 26)
+    q.sombra_no_chao(16, 22, 13, 2)
+    for k, (x, y) in enumerate(((10, 8), (16, 6), (22, 9))):
+        cor, luz = BICHOS[(k * 3 + 1) % len(BICHOS)]
+        q.elipse(x, y, 4, 4, cor); q.p(x - 1, y - 2, luz)
+        q.p(x - 1, y, 'noite'); q.p(x + 2, y, 'noite')
+    q.elipse(16, 17, 12, 5, 'madeira_sombra')
+    q.r(4, 12, 27, 19, 'madeira'); q.coluna(4, 12, 19, 'madeira_sombra')
+    for y in (14, 17):
+        q.linha(y, 5, 27, 'madeira_luz')
+    q.elipse(16, 12, 12, 3, 'madeira_luz'); q.elipse(16, 12, 10, 2, 'madeira_sombra')
+    return q.contornar()
+
+
+# --- restaurante -----------------------------------------------------------
+def mesa_redonda():
+    """Mesa redonda pequena (livro) posta para três: toalha, três pratos,
+    jarra de água, jarra de suco e duas travessinhas de salada. pe = 3."""
+    q = Q(60, 44)
+    q.sombra_no_chao(30, 40, 22, 3)
+    q.r(28, 22, 31, 38, 'madeira'); q.coluna(28, 22, 38, 'madeira_sombra')
+    q.r(21, 38, 38, 40, 'madeira_sombra'); q.linha(38, 21, 38, 'madeira')
+    q.elipse(30, 22, 26, 11, 'prata_sombra')                 # a toalha cai pela borda
+    q.elipse(30, 18, 26, 11, 'branco')
+    q.elipse(30, 18, 22, 8, 'perola')
+    for x in range(8, 53, 3):
+        q.p(x, 28 if abs(x - 30) < 14 else 27, 'prata')
+    for x, y in ((18, 19), (42, 19), (30, 25)):              # três lugares
+        q.elipse(x, y, 5, 2, 'prata'); q.elipse(x, y, 4, 1, 'branco')
+        q.p(x - 7, y, 'ferro_luz'); q.p(x + 7, y, 'ferro_luz')
+    q.r(27, 8, 30, 16, 'olho'); q.r(27, 8, 27, 16, 'olho_luz'); q.p(30, 9, 'olho_luz'); q.linha(7, 27, 30, 'olho_luz')
+    q.r(33, 10, 36, 16, 'vela'); q.r(33, 10, 33, 16, 'ouro_luz'); q.linha(9, 33, 36, 'ouro_luz')
+    for x, y in ((24, 15), (38, 14)):                        # salada
+        q.elipse(x, y, 3, 1, 'branco'); q.elipse(x, y - 1, 2, 1, 'folha_luz'); q.p(x, y - 1, 'cura')
+    return q.contornar()
+
+
+def cadeira(de_costas):
+    """Cadeira de madeira com assento estofado. de_costas: vista pelo encosto
+    (a cadeira do lado de cá da mesa); senão, de frente. pe = 3."""
+    q = Q(16, 30)
+    q.sombra_no_chao(8, 27, 6, 2)
+    if de_costas:
+        q.r(2, 3, 13, 17, 'madeira'); q.coluna(2, 3, 17, 'madeira_luz'); q.coluna(13, 3, 17, 'madeira_sombra')
+        q.r(2, 3, 13, 4, 'madeira_luz')
+        for x in (5, 8, 11):
+            q.coluna(x, 6, 16, 'madeira_sombra')
+        q.r(1, 18, 14, 20, 'veludo'); q.linha(18, 1, 14, 'veludo_luz')
+        q.r(2, 21, 3, 27, 'madeira_sombra'); q.r(12, 21, 13, 27, 'madeira_sombra')
+    else:
+        q.r(3, 2, 12, 12, 'madeira_sombra'); q.coluna(3, 2, 12, 'madeira')
+        for x in (6, 9):
+            q.coluna(x, 3, 11, 'madeira')
+        q.r(1, 14, 14, 19, 'veludo_luz'); q.r(1, 14, 14, 15, 'veludo'); q.linha(19, 1, 14, 'veludo')
+        q.r(2, 20, 3, 27, 'madeira'); q.r(12, 20, 13, 27, 'madeira')
+        q.r(5, 20, 5, 24, 'madeira_sombra'); q.r(10, 20, 10, 24, 'madeira_sombra')
+    return q.contornar()
+
+
+def armario_louca():
+    """Armário de louça: portas de vidro em cima, com pratos empilhados e
+    xícaras, e portas de madeira embaixo. Encostado na parede y = 0. pe = 17."""
+    q, frente, _ = caixa_iso(-0.42, 0.42, -0.5, -0.12, 50, 'madeira', 'madeira_sombra', 'madeira_luz')
+    _riscar(frente, 0.5, 0.5, 0.04, 0.95, 'madeira_sombra')
+    for s0, s1 in ((0.08, 0.44), (0.56, 0.92)):
+        for i in range(36):                                 # vidro
+            t_ = 0.5 + i * 0.0125
+            _riscar(frente, s0, s1, t_, t_, 'vidro', 50)
+        for t_ in (0.6, 0.72, 0.84):                         # prateleiras de louça
+            _riscar(frente, s0, s1, t_, t_, 'madeira_luz', 50)
+            for s_ in (s0 + 0.07, s0 + 0.16, s0 + 0.25):
+                _riscar(frente, s_, s_ + 0.05, t_ + 0.02, t_ + 0.02, 'branco', 8)
+                _riscar(frente, s_, s_ + 0.05, t_ + 0.04, t_ + 0.04, 'prata', 8)
+        for t_ in (0.5, 0.93):
+            _riscar(frente, s0, s1, t_, t_, 'madeira_luz')
+        for s_ in (s0, s1):
+            _riscar(frente, s_, s_, 0.5, 0.93, 'madeira_luz')
+        _riscar(frente, s0, s1, 0.08, 0.08, 'madeira_luz'); _riscar(frente, s0, s1, 0.42, 0.42, 'madeira_luz')
+        _riscar(frente, s0, s0, 0.08, 0.42, 'madeira_luz'); _riscar(frente, s1, s1, 0.08, 0.42, 'madeira_luz')
+    _riscar(frente, 0.0, 1.0, 0.97, 0.97, 'ouro_sombra')
+    for s_ in (0.46, 0.54):
+        frente(s_, 0.3, 'ouro')
+    return q.contornar()
+
+
+def carruagem_parada():
+    """A carruagem de Olympia parada na rua, com o brasão na lateral (livro:
+    a carruagem é azul-marinho e dourada, com o brasão de Olympia; só quando
+    o brasão é reconhecido a rua se abre). Uma imagem só (fundo + frente, 1º
+    quadro), com a mesma origem de carruagem_fundo.png (CARRO_O)."""
+    fundo = carruagem_fundo()
+    quadro = carruagem_frente(brasao=True).crop((0, 0, CARRO_W, CARRO_H))
+    fundo.alpha_composite(quadro)
+    return fundo
+
+
 ARTES = {
     'piso_mansao.png': piso,
     'parede_mansao.png': parede,
@@ -1033,7 +1600,161 @@ ARTES = {
     'parede/janela_alta_dir.png': lambda: na_face(janela_alta(), 'dir', 24, 6),
     'parede/porta_esq.png': lambda: na_face(porta_na_parede(), 'esq', 9, 6),
     'parede/espada_placa_esq.png': lambda: na_face(espada_placa(), 'esq', 3, 10),
+    # Rodada 1, cenas 7 a 10 (veja o bloco acima das funções)
+    'parede/brasao_olympia_esq.png': lambda: na_face(brasao(), 'esq', 8, 5),
+    'parede/brasao_olympia_dir.png': lambda: na_face(brasao(), 'dir', 8, 5),
+    'parede/estandarte_imperial_esq.png': lambda: na_face(estandarte_imperial(), 'esq', 11, 2),
+    'parede/estandarte_imperial_dir.png': lambda: na_face(estandarte_imperial(), 'dir', 11, 2),
+    'parede/portal_palacio_esq.png': lambda: na_face(portal_palacio(), 'esq', 2, 3),
+    'parede/portal_palacio_dir.png': lambda: na_face(portal_palacio(), 'dir', 2, 3),
+    'parede/portal_anexo_esq.png': lambda: na_face(portal_anexo(), 'esq', 2, 3),
+    'parede/portal_anexo_dir.png': lambda: na_face(portal_anexo(), 'dir', 2, 3),
+    'parede/vitrine_esq.png': lambda: na_face(vitrine(), 'esq', 3, 13),
+    'parede/vitrine_dir.png': lambda: na_face(vitrine(), 'dir', 3, 13),
+    'parede/toldo_esq.png': lambda: na_face(toldo(), 'esq', 2, 4),
+    'parede/toldo_dir.png': lambda: na_face(toldo(), 'dir', 2, 4),
+    'parede/placa_butique_esq.png': lambda: na_face(placa_butique(), 'esq', 9, 4),
+    'parede/placa_butique_dir.png': lambda: na_face(placa_butique(), 'dir', 9, 4),
+    'palacio/fonte.png': fonte,
+    'palacio/canteiro_flores.png': canteiro_flores,
+    'rua/lampiao.png': lampiao,
+    'rua/vaso_flor.png': vaso_flor,
+    'rua/carruagem_parada.png': carruagem_parada,
+    'loja/prateleira_baixa_esq.png': lambda: prateleira_baixa('esq'),
+    'loja/prateleira_baixa_dir.png': lambda: prateleira_baixa('dir'),
+    'loja/balcao_loja.png': balcao_loja,
+    'loja/pelucia_enguia.png': pelucia_enguia,
+    'loja/pelucia_dragao_marinho.png': pelucia_dragao_marinho,
+    'loja/pelucia_polvo.png': pelucia_polvo,
+    'loja/pelucia_monstro.png': pelucia_monstro,
+    'loja/expositor_enguia.png': expositor_enguia,
+    'loja/cesta_pelucias.png': cesta_pelucias,
+    'restaurante/mesa_redonda.png': mesa_redonda,
+    'restaurante/cadeira_frente.png': lambda: cadeira(False),
+    'restaurante/cadeira_costas.png': lambda: cadeira(True),
+    'restaurante/armario_louca.png': armario_louca,
 }
+
+# --- montagem das salas da rodada 1 (as mesmas posições servem de receita para
+# o SalaMontada e para a prévia: python3 tools/arte/gerar_capitulo_01.py
+# --previa planos/capitulo_01_previa/cenarios_rodada1.png) -------------------
+# Para cada sala: largura, profundidade, piso e estilo da parede (os mesmos
+# nomes de SalaMontada.piso e SalaMontada.parede_estilo), as coisas penduradas
+# (arquivo em parede/, casa) e os objetos (arquivo, casa, pe). Posições são
+# sugestão de layout (inferência); o livro não desenha as salas.
+PE = {'fonte': 14, 'expositor_enguia': 5, 'carruagem_parada': CARRO_H - CARRO_O[1]}
+CENAS = {
+    'palacio': dict(
+        titulo='Cena 7: pátio do Palácio Imperial', largura=11, profundidade=10, piso='patio', parede='marmore',
+        pendurar=[('janela_alta_esq', (2, 0)), ('estandarte_imperial_esq', (4, 0)), ('portal_palacio_esq', (5, 0)),
+                  ('estandarte_imperial_esq', (6, 0)), ('janela_alta_esq', (8, 0)), ('portal_anexo_dir', (0, 5))],
+        objetos=[('palacio/fonte', (5, 5)),
+                 ('margem/coluna', (1, 1)), ('margem/coluna', (3, 1)), ('margem/coluna', (7, 1)), ('margem/coluna', (9, 1)),
+                 ('palacio/canteiro_flores', (2, 3)), ('palacio/canteiro_flores', (2, 6)),
+                 ('palacio/canteiro_flores', (8, 3)), ('palacio/canteiro_flores', (8, 6)),
+                 ('margem/cipreste', (1, 8)), ('margem/cipreste', (9, 8))]),
+    'butiques': dict(
+        titulo='Cena 9: Rua das Butiques', largura=14, profundidade=8, piso='rua', parede='fachada',
+        pendurar=[(a + '_esq', (x, 0)) for x in (2, 3, 7, 8, 11, 12) for a in ('vitrine', 'toldo')]
+                 + [('placa_butique_esq', (4, 0)), ('porta_esq', (5, 0)), ('porta_esq', (10, 0))]
+                 + [(a + '_dir', (0, y)) for y in (3, 5) for a in ('vitrine', 'toldo')],
+        objetos=[('rua/lampiao', (3, 3)), ('rua/lampiao', (9, 3)), ('rua/lampiao', (12, 3)),
+                 ('rua/vaso_flor', (4, 1)), ('rua/vaso_flor', (6, 1)), ('rua/vaso_flor', (9, 1)), ('rua/vaso_flor', (11, 1)),
+                 ('rua/carruagem_parada', (8, 5))]),
+    'loja': dict(
+        titulo='Cena 9: loja de pelúcias', largura=8, profundidade=7, piso='assoalho', parede='reboco',
+        pendurar=[('arandela_esq', (2, 0)), ('porta_esq', (4, 0)), ('arandela_esq', (6, 0)), ('arandela_dir', (0, 4))],
+        objetos=[('loja/prateleira_baixa_esq', (2, 1)), ('loja/prateleira_baixa_esq', (3, 1)), ('loja/balcao_loja', (6, 1)),
+                 ('loja/prateleira_baixa_dir', (1, 3)), ('loja/prateleira_baixa_dir', (1, 5)),
+                 ('loja/expositor_enguia', (4, 3)), ('loja/cesta_pelucias', (6, 4)),
+                 ('loja/pelucia_dragao_marinho', (3, 5)), ('loja/pelucia_polvo', (5, 5)), ('loja/pelucia_monstro', (6, 3))]),
+    'restaurante': dict(
+        titulo='Cena 10: restaurante', largura=8, profundidade=7, piso='ladrilho', parede='reboco',
+        pendurar=[('quadro_atenas_esq', (2, 0)), ('arandela_esq', (3, 0)), ('janela_carruagem_esq', (4, 0)),
+                  ('janela_carruagem_esq', (5, 0)), ('arandela_esq', (6, 0)), ('arandela_dir', (0, 3))],
+        objetos=[('restaurante/armario_louca', (6, 1)), ('restaurante/mesa_redonda', (4, 4)),
+                 ('restaurante/cadeira_frente', (3, 4)), ('restaurante/cadeira_frente', (4, 3)),
+                 ('restaurante/cadeira_costas', (5, 4))]),
+}
+PE_CAIXAS = ('loja/prateleira_baixa_esq', 'loja/prateleira_baixa_dir', 'loja/balcao_loja', 'restaurante/armario_louca')
+
+
+def _quadro_piso(piso_, x, y, largura, profundidade):
+    """Espelha SalaMontada._quadro_do_piso para os pisos novos (prévia)."""
+    if piso_ == 'patio':
+        if abs(x - largura // 2) <= 1 or y <= 1 or y >= profundidade - 2:
+            return 9 + (x + y) % 2
+        return 7 + (x * 3 + y) % 2
+    if piso_ == 'rua':
+        return 2 + (x + y) % 2 if y <= 1 else 11 + (x + y) % 2
+    if piso_ == 'ladrilho':
+        return 13 + (x + y) % 2
+    return (x + y) % 2                                   # assoalho
+
+
+def _cena_previa(nome, escala=2):
+    from PIL import Image, ImageDraw
+    cena = CENAS[nome]
+    l, pr = cena['largura'], cena['profundidade']
+    abrir = lambda a: Image.open(os.path.join(PASTA, a + '.png')).convert('RGBA')
+    pisos, paredes = abrir('piso_mansao'), abrir('parede_mansao')
+    indice = {'marmore': 3, 'fachada': 4, 'reboco': 5}[cena['parede']]
+    margem = 240
+    tela = Image.new('RGBA', (32 * (l + pr) + 2 * margem, 16 * (l + pr) + 2 * margem), (6, 10, 18, 255))
+    ox, oy = margem + 32 * pr, margem
+    centro = lambda c: (ox + 32 * (c[0] - c[1]), oy + 16 * (c[0] + c[1]))
+    for x in range(l):
+        for y in range(pr):
+            cx, cy = centro((x, y))
+            i = _quadro_piso(cena['piso'], x, y, l, pr)
+            tela.alpha_composite(pisos.crop((64 * i, 0, 64 * i + 64, 32)), (cx - 32, cy - 16))
+    itens = []
+    for x in range(l):
+        for y in range(pr):
+            if x == 0 or y == 0:
+                itens.append((centro((x, y))[1], 0, 'parede', (x, y), None))
+    for arq, casa in cena['pendurar']:
+        itens.append((centro(casa)[1], 1, 'pendurar', casa, abrir('parede/' + arq)))
+    for arq, casa in cena['objetos']:
+        pe = PE.get(arq.split('/')[-1], 17 if arq in PE_CAIXAS else 3)
+        itens.append((centro(casa)[1], 2, 'objeto', casa, (abrir(arq), pe)))
+    for cy, _, tipo, casa, extra in sorted(itens, key=lambda t: t[:2]):
+        cx, cy = centro(casa)
+        if tipo == 'parede':
+            tela.alpha_composite(paredes.crop((64 * indice, 0, 64 * indice + 64, 64)), (cx - 32, cy - 48))
+        elif tipo == 'pendurar':
+            tela.alpha_composite(extra, (cx - 32, cy + 1 - 49))
+        else:
+            im, pe = extra
+            tela.alpha_composite(im, (int(cx - im.width / 2), cy - im.height + pe))
+    # recorta ao redor do que há de desenhado fora do fundo
+    fundo = Image.new('RGBA', tela.size, (6, 10, 18, 255))
+    from PIL import ImageChops
+    caixa = ImageChops.difference(tela.convert('RGB'), fundo.convert('RGB')).getbbox()
+    tela = tela.crop((caixa[0] - 8, caixa[1] - 8, caixa[2] + 8, caixa[3] + 8))
+    return tela.resize((tela.width * escala, tela.height * escala), Image.NEAREST), cena['titulo']
+
+
+def previa(caminho):
+    from PIL import Image, ImageDraw, ImageFont
+    cenas = [_cena_previa(n) for n in CENAS]
+    try:
+        fonte_ = ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSerif.ttf', 22)
+    except OSError:
+        fonte_ = ImageFont.load_default(size=22)
+    colunas = 2
+    larg = max(c[0].width for c in cenas) + 40
+    alt = max(c[0].height for c in cenas) + 70
+    folha = Image.new('RGBA', (larg * colunas, alt * 2), (3, 6, 12, 255))
+    d = ImageDraw.Draw(folha)
+    for i, (im, titulo) in enumerate(cenas):
+        x0, y0 = (i % colunas) * larg, (i // colunas) * alt
+        d.text((x0 + 20, y0 + 20), titulo + '  (provisório)', fill=C['ouro_luz'], font=fonte_)
+        folha.alpha_composite(im, (x0 + 20, y0 + 55))
+    os.makedirs(os.path.dirname(os.path.abspath(caminho)), exist_ok=True)
+    folha.convert('RGB').save(caminho)
+    print(caminho, folha.size)
+
 
 if __name__ == '__main__':
     for nome, desenhar in ARTES.items():
@@ -1041,3 +1762,5 @@ if __name__ == '__main__':
         os.makedirs(os.path.dirname(caminho), exist_ok=True)
         desenhar().save(caminho)
         print(caminho)
+    if len(sys.argv) == 3 and sys.argv[1] == '--previa':
+        previa(sys.argv[2])

@@ -43,6 +43,8 @@ enum Estado { PARADO, PERSEGUINDO, PREPARANDO, DESCANSANDO, VOLTANDO, MORTO }
 
 ## Até quantas casas ele procura um caminho.
 const LIMITE_BUSCA := 800
+## Sem caminho (cercado, tudo ocupado), espera isto antes de procurar de novo.
+const ESPERA_SEM_CAMINHO := 0.25
 
 var estado := Estado.PARADO
 var alvo: PersonagemExploracao
@@ -55,6 +57,11 @@ var _posicao_visual := Vector2.ZERO
 var _posto := Vector2i.ZERO
 ## Centro da casa para onde está andando, ou INF parado num centro.
 var _destino := Vector2.INF
+## Casa -> andável, guardado enquanto a navegação da sala não muda.
+var _andaveis := {}
+var _iteracao_andaveis := -1
+## Quanto falta para procurar caminho de novo depois de não achar.
+var _espera_caminho := 0.0
 
 
 func _ready() -> void:
@@ -108,10 +115,16 @@ func centro_da_casa(casa: Vector2i) -> Vector2:
 ## Chão andável (na navegação da sala) no centro da casa.
 func casa_andavel(casa: Vector2i) -> bool:
 	var mapa := get_world_2d().navigation_map
-	if NavigationServer2D.map_get_iteration_id(mapa) == 0:
+	var iteracao := NavigationServer2D.map_get_iteration_id(mapa)
+	if iteracao == 0:
 		return false
-	var centro := centro_da_casa(casa)
-	return NavigationServer2D.map_get_closest_point(mapa, centro).distance_to(centro) < 2.0
+	if iteracao != _iteracao_andaveis:
+		_andaveis.clear()
+		_iteracao_andaveis = iteracao
+	if not _andaveis.has(casa):
+		var centro := centro_da_casa(casa)
+		_andaveis[casa] = NavigationServer2D.map_get_closest_point(mapa, centro).distance_to(centro) < 2.0
+	return _andaveis[casa]
 
 
 ## Está numa casa vizinha à do jogador (nas 8 direções).
@@ -181,9 +194,19 @@ func _casas_em_volta_do_alvo() -> Array[Vector2i]:
 ## Dá o primeiro passo do caminho mais curto até uma das [param objetivos].
 ## Sem caminho (tudo ocupado), espera.
 func _comecar_passo(objetivos: Array[Vector2i]) -> void:
-	var passo := proximo_passo(casa_de(global_position), objetivos)
+	if _espera_caminho > 0.0:
+		_espera_caminho -= get_physics_process_delta_time()
+		velocity = Vector2.ZERO
+		return
+	var livres: Array[Vector2i] = []
+	for casa in objetivos:
+		if casa_andavel(casa) and GradeOcupacao.livre_para(casa, self):
+			livres.append(casa)
+	var passo := proximo_passo(casa_de(global_position), livres) if not livres.is_empty() else Vector2i.ZERO
 	if passo == Vector2i.ZERO:
 		velocity = Vector2.ZERO
+		if casa_de(global_position) not in objetivos:
+			_espera_caminho = ESPERA_SEM_CAMINHO
 		return
 	var proxima := casa_de(global_position) + passo
 	if not GradeOcupacao.ocupar(proxima, self):
@@ -217,6 +240,9 @@ func proximo_passo(inicio: Vector2i, objetivos: Array[Vector2i]) -> Vector2i:
 		for passo in PersonagemExploracao.PASSOS:
 			var vizinha: Vector2i = casa + passo
 			if de_onde.has(vizinha) or not _pode_entrar(casa, passo):
+				continue
+			# Não procura além de onde ele desistiria de perseguir.
+			if centro_da_casa(vizinha).distance_to(global_position) > raio_desistir:
 				continue
 			de_onde[vizinha] = casa
 			if vizinha in objetivos:

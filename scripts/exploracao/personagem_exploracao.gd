@@ -128,6 +128,8 @@ var _ponto_de_entrada := Vector2.ZERO
 
 ## Mais que isto entre dois quadros de física é um salto, não um passo.
 const DISTANCIA_SALTO := 24.0
+## Golpear andando: o passo termina em no máximo este tempo e o golpe sai.
+const TEMPO_ATE_GOLPE := 0.08
 
 
 func _ready() -> void:
@@ -316,8 +318,11 @@ func golpear() -> bool:
 	if em_dialogo or golpeando or not pode_golpear():
 		return false
 	if indo_para_casa():
-		# Termina o passo antes, para golpear sempre do centro de uma casa.
+		# Termina o passo antes, para golpear sempre do centro de uma casa,
+		# mas depressa: chega em no máximo [constant TEMPO_ATE_GOLPE].
 		_golpe_pendente = true
+		var falta := global_position.distance_to(_casa_destino)
+		_pressa = maxf(_pressa, falta / (velocidade_andando() * TEMPO_ATE_GOLPE))
 		return true
 	golpeando = true
 	_tempo_golpe = 0.0

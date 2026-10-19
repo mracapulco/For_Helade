@@ -2,6 +2,9 @@
 # tic_tac.wav: o relógio lento do sonho de Nicholas ("Tic. Tac."), em loop.
 # Um tic agudo e um tac mais grave, 1,3 s entre eles, com eco longo para soar
 # distante e irreal (Rafael, 17/10/2026: "um tic tac, mais lento").
+# cascos_crescendo.wav: cascos que se aproximam e crescem (visão da carruagem).
+# vento_leve.wav: ar frio e quase parado da varanda da visão, em loop.
+# queda.wav: o tranco do retorno da visão ("Foi queda. Brusca.").
 # Sintetizado, mono, 16 bits, 22050 Hz. Semente fixa: rodar de novo gera o
 # mesmo arquivo. Provisório até vir o som de verdade.
 # Uso: python3 tools/audio/gerar_sons_capitulo_01.py   (rodar na raiz do projeto)
@@ -56,6 +59,70 @@ def tic_tac():
     return som
 
 
+def cascos_crescendo():
+    """Pares de passos (clop-clop) que aceleram e crescem do longe ao muito alto."""
+    sorte = np.random.default_rng(1702)
+    dur = 7.0
+    total = int(dur * SR)
+    som = np.zeros(total)
+    t_golpe = 0.0
+    intervalo = 0.52
+    i = 0
+    while t_golpe < dur - 0.3:
+        progresso = t_golpe / dur
+        ganho = 0.04 + 1.0 * progresso ** 2.2
+        # corpo grave do casco no chão duro e um estalo de ferradura
+        t = np.arange(int(0.16 * SR)) / SR
+        grave = np.sin(2 * np.pi * (95 + 25 * (i % 2)) * t) * np.exp(-t * 28)
+        estalo = sorte.standard_normal(len(t)) * np.exp(-t * 170)
+        # filtro simples (média móvel) tira o chiado quando está longe
+        k = max(1, int(7 - 6 * progresso))
+        estalo = np.convolve(estalo, np.ones(k) / k, mode='same')
+        golpe = (0.9 * grave + 0.7 * estalo) * ganho
+        n = int(t_golpe * SR)
+        fim = min(total, n + len(golpe))
+        som[n:fim] += golpe[:fim - n]
+        # o segundo casco do par vem logo depois (clop-clop ... clop-clop)
+        t_golpe += 0.17 if i % 2 == 0 else intervalo
+        intervalo = max(0.3, intervalo * 0.985)
+        i += 1
+    # eco de pedra, mais forte quanto mais perto
+    som = eco(som, [0.11, 0.27], [0.3, 0.15], total)
+    som[-int(0.25 * SR):] *= np.linspace(1, 0, int(0.25 * SR))
+    som /= np.max(np.abs(som)) / 0.85
+    return som
+
+
+def vento_leve():
+    """Ruído filtrado, bem baixo, com ondulação lenta; emenda sem estalo (filtra no espectro)."""
+    sorte = np.random.default_rng(1703)
+    dur = 8.0
+    n = int(dur * SR)
+    ruido = sorte.standard_normal(n)
+    espectro = np.fft.rfft(ruido)
+    freq = np.fft.rfftfreq(n, 1 / SR)
+    espectro *= 1.0 / (1.0 + (freq / 380.0) ** 2) * (freq > 40)
+    som = np.fft.irfft(espectro, n)
+    t = np.arange(n) / SR
+    som *= 0.6 + 0.4 * np.sin(2 * np.pi * t / dur * 2 + 0.7)   # inteiro de ciclos: emenda
+    som /= np.max(np.abs(som)) / 0.35
+    return som
+
+
+def queda():
+    """Tranco surdo e um sopro de ar: o corpo volta de uma vez."""
+    sorte = np.random.default_rng(1704)
+    n = int(1.4 * SR)
+    t = np.arange(n) / SR
+    baque = np.sin(2 * np.pi * (70 - 25 * t) * t) * np.exp(-t * 9)
+    sopro = sorte.standard_normal(n) * np.exp(-t * 14)
+    sopro = np.convolve(sopro, np.ones(12) / 12, mode='same')
+    som = baque + 0.35 * sopro
+    som[:int(0.004 * SR)] *= np.linspace(0, 1, int(0.004 * SR))
+    som /= np.max(np.abs(som)) / 0.85
+    return som
+
+
 def salvar(nome, som):
     os.makedirs(PASTA, exist_ok=True)
     dados = (np.clip(som, -1, 1) * 32767).astype('<i2')
@@ -68,4 +135,7 @@ def salvar(nome, som):
 
 if __name__ == '__main__':
     salvar('tic_tac.wav', tic_tac())
+    salvar('cascos_crescendo.wav', cascos_crescendo())
+    salvar('vento_leve.wav', vento_leve())
+    salvar('queda.wav', queda())
     print('ok:', PASTA)

@@ -14,6 +14,7 @@ const CENAS := {
 	# salvo com uma destas etapas, ou `--etapa=<nome>` (ver abrir_etapa), abre
 	# a cena sozinha para testar.
 	"palacio": "res://scenes/capitulo_01/cena_palacio.tscn",
+	"visao_carruagem": "res://scenes/capitulo_01/cena_visao.tscn",
 	"butiques": "res://scenes/capitulo_01/cena_butiques.tscn",
 	"restaurante": "res://scenes/capitulo_01/cena_restaurante.tscn",
 }

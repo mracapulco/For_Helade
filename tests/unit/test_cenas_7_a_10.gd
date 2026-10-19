@@ -30,8 +30,8 @@ func test_ordem_das_etapas() -> void:
 
 
 func test_cada_cena_chama_a_proxima_pulando_etapas_sem_cena() -> void:
-	# A visão da carruagem ainda não tem cena: o Palácio vai direto às Butiques.
-	assert_eq(SequenciaCenas01.cena_depois("palacio"), SequenciaCenas01.CENAS["butiques"])
+	assert_eq(SequenciaCenas01.cena_depois("palacio"), SequenciaCenas01.CENAS["visao_carruagem"])
+	assert_eq(SequenciaCenas01.cena_depois("visao_carruagem"), SequenciaCenas01.CENAS["butiques"])
 	assert_eq(SequenciaCenas01.cena_depois("butiques"), SequenciaCenas01.CENAS["restaurante"])
 
 
@@ -44,7 +44,7 @@ func test_as_cenas_existem_e_a_manha_chama_o_palacio() -> void:
 	for etapa: String in SequenciaCenas01.CENAS:
 		assert_true(ResourceLoader.exists(SequenciaCenas01.CENAS[etapa]), etapa)
 		assert_true(SequenciaCenas01.ETAPAS.has(etapa), etapa)
-	assert_eq(SequenciaCenas01.cena_da_etapa("visao_carruagem"), "")
+	assert_eq(SequenciaCenas01.cena_da_etapa("passeio"), "")
 	var manha := Capitulo01.new()
 	assert_eq(manha.cena_depois, SequenciaCenas01.CENAS["palacio"])
 	manha.free()

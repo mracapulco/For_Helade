@@ -132,8 +132,10 @@ func recuo_dos_guardas() -> void:
 	await _frases("frases_anexo")
 	while guardas.any(func(g: Node2D) -> bool: return g.visible):
 		await get_tree().process_frame
-	_travar(false)
-	_ativar(objetos["carruagem"], true)
+	# (Se o jogador já embarcou, nada a liberar.)
+	if etapa == "embarque":
+		_travar(false)
+		_ativar(objetos["carruagem"], true)
 
 
 func _recuar(guarda: Node2D) -> void:

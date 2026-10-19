@@ -4,7 +4,7 @@
 ## abrem a caixa de diálogo. Sem escolhas nesta cena (o livro não deixa
 ## brecha: Nicholas só observa).
 ## Cada marcador é um ponto para a cena jogável chamar (pátio, fonte,
-## guardas, anexo, carruagem).
+## postos de guarda, anexo, carruagem).
 
 ~ frases_palacio_chegada
 
@@ -15,14 +15,14 @@ Tudo era excessivo. Alto demais, amplo demais, ornamentado demais. [ID:CAP1_108]
 
 ~ fonte
 
-## Perto da fonte central.
+## Logo ao descer: Althea vê a fonte e corre até ela (Nicholas a segue).
 A fonte central jorrava água que, aos olhos de Althea, eram diamantes líquidos. [ID:CAP1_109]
 Althea: [#retrato=neutro] Nick… olha isso… [ID:CAP1_110]
 => END
 
 ~ frases_poucos_guardas
 
-## Ao olhar para os guardas do pátio.
+## No caminho para a fonte, passando pelos postos de guarda quase vazios.
 Poucos guardas. Poucos demais para alguém como uma princesa. [ID:CAP1_111]
 $> Codice.anotar("poucos_guardas")
 => END

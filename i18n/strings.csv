@@ -264,9 +264,7 @@ OBJ_CAP1_OLHAR_PONTAS,Olhe para as duas pontas do corredor
 OBJ_CAP1_ACORDAR,Acorde Althea
 OBJ_CAP1_EMBRULHO,Entregue o embrulho a Althea
 OBJ_CAP1_MESA_CHA,Sente-se com Althea à mesa de chá
-OBJ_CAP1_PATIO,Olhe a fonte e os guardas do pátio
-OBJ_CAP1_PATIO_FONTE,Olhe a fonte
-OBJ_CAP1_PATIO_GUARDAS,Olhe os guardas
+OBJ_CAP1_PATIO,Siga Althea até a fonte
 OBJ_CAP1_EMBARQUE,Ajude as duas a subir na carruagem
 OBJ_CAP1_ANEXO,Lance um último olhar ao anexo
 OBJ_CAP1_GUARDAS_RUA,Fale com um dos guardas

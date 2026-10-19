@@ -84,7 +84,7 @@ func test_palacio() -> void:
 	assert_eq(cena.objetivo.chave, "OBJ_CAP1_PATIO")
 	cena.olhar_guardas()
 	await wait_physics_frames(2)
-	assert_eq(cena.objetivo.chave, "OBJ_CAP1_PATIO_FONTE")
+	assert_eq(cena.objetivo.chave, "OBJ_CAP1_PATIO", "segue Althea até a fonte")
 	cena.ver_fonte()
 	await _no(cena, "embarque")
 	assert_eq(cena.objetivo.chave, "OBJ_CAP1_EMBARQUE")

@@ -49,7 +49,6 @@ func test_todas_as_chaves_do_capitulo_tem_texto() -> void:
 	for cena: CenaCapitulo01 in [CenaPalacio.new(), CenaButiques.new(), CenaRestaurante.new()]:
 		chaves.append_array(cena.objetivos.values())
 		cena.free()
-	chaves.append_array(["OBJ_CAP1_PATIO_FONTE", "OBJ_CAP1_PATIO_GUARDAS"])
 	for chave: String in chaves:
 		assert_ne(tr(chave), chave, chave)
 

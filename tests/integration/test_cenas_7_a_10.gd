@@ -44,12 +44,12 @@ func _esperar_pedido() -> void:
 
 func test_palacio_do_patio_a_partida() -> void:
 	await _abrir("res://scenes/capitulo_01/cena_palacio.tscn", "patio")
-	assert_eq(cena.sala.largura, 11)
-	assert_eq(cena.sala.profundidade, 10)
+	assert_eq(cena.sala.largura, 15)
+	assert_eq(cena.sala.profundidade, 14)
 	assert_eq(cena.sala.piso, "patio")
 	cena.olhar_guardas()
 	await wait_physics_frames(2)
-	assert_eq(cena.etapa, "patio", "só os guardas não bastam: falta a fonte")
+	assert_eq(cena.etapa, "patio", "só os guardas não bastam: falta chegar à fonte")
 	cena.ver_fonte()
 	await _esperar_etapa("embarque")
 	assert_true(Codice.tem("poucos_guardas"))
@@ -61,6 +61,26 @@ func test_palacio_do_patio_a_partida() -> void:
 	assert_true(Codice.tem("anexo_vazio"))
 	await _esperar_pedido()
 	assert_eq(cena.cena_pedida, SequenciaCenas01.CENAS["visao_carruagem"])
+
+
+func test_palacio_carruagem_atras_e_althea_na_fonte() -> void:
+	await _abrir("res://scenes/capitulo_01/cena_palacio.tscn", "patio")
+	var casa_jogador: Vector2i = cena._casa_de(cena.jogador)
+	var casa_carruagem: Vector2i = cena._casa_de(cena.objetos["carruagem"])
+	assert_gt(casa_carruagem.y, casa_jogador.y, "a carruagem fica atrás de Nicholas, no portão")
+	await wait_seconds(0.2)
+	assert_eq(cena._casa_de(cena.objetos["althea"]), CenaPalacio.CASA_ALTHEA_FONTE, "Althea corre até a fonte")
+
+
+func test_palacio_andar_pelo_caminho_ve_os_guardas_e_chega_a_fonte() -> void:
+	await _abrir("res://scenes/capitulo_01/cena_palacio.tscn", "patio")
+	cena.jogador.position = cena.sala.centro(Vector2i(7, CenaPalacio.LINHA_POSTOS))
+	await wait_physics_frames(3)
+	assert_true(cena.guardas_vistos, "passar entre os postos mostra os poucos guardas")
+	assert_eq(cena.etapa, "patio")
+	cena.jogador.position = cena.sala.centro(Vector2i(7, 7))
+	await _esperar_etapa("embarque")
+	assert_true(Codice.tem("poucos_guardas"))
 
 
 func test_palacio_fora_de_ordem_nao_avanca() -> void:

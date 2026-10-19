@@ -1315,6 +1315,22 @@ def canteiro_flores():
     return q.contornar()
 
 
+def posto_guarda():
+    # Posto de guarda do pátio (inferência): um degrau de mármore com a lança
+    # e a flâmula rubra do Império. O livro diz "poucos guardas"; os postos
+    # vazios no caminho mostram isso. Uma casa; pe = 3.
+    q = Q(30, 52)
+    q.sombra_no_chao(15, 48, 13, 4)
+    q.elipse(15, 47, 13, 5, 'marmore_sombra')
+    q.elipse(15, 45, 13, 5, 'marmore_luz')
+    q.elipse(15, 45, 11, 4, 'marmore')
+    q.r(14, 4, 15, 44, 'ferro'); q.coluna(14, 4, 44, 'ferro_luz')
+    q.r(13, 1, 16, 4, 'prata'); q.p(14, 0, 'prata'); q.p(15, 0, 'prata_sombra')
+    q.r(16, 6, 25, 9, 'embrulho'); q.r(16, 10, 22, 12, 'embrulho')
+    q.r(16, 6, 25, 6, 'embrulho_luz'); q.p(23, 12, 'ouro_luz')
+    return q.contornar()
+
+
 def lampiao():
     # lampião de rua de ferro (inferência)
     q = Q(14, 50)
@@ -1617,6 +1633,7 @@ ARTES = {
     'parede/placa_butique_dir.png': lambda: na_face(placa_butique(), 'dir', 9, 4),
     'palacio/fonte.png': fonte,
     'palacio/canteiro_flores.png': canteiro_flores,
+    'palacio/posto_guarda.png': posto_guarda,
     'rua/lampiao.png': lampiao,
     'rua/vaso_flor.png': vaso_flor,
     'rua/carruagem_parada.png': carruagem_parada,
@@ -1645,14 +1662,19 @@ ARTES = {
 PE = {'fonte': 14, 'expositor_enguia': 5, 'carruagem_parada': CARRO_H - CARRO_O[1]}
 CENAS = {
     'palacio': dict(
-        titulo='Cena 7: pátio do Palácio Imperial', largura=11, profundidade=10, piso='patio', parede='marmore',
-        pendurar=[('janela_alta_esq', (2, 0)), ('estandarte_imperial_esq', (4, 0)), ('portal_palacio_esq', (5, 0)),
-                  ('estandarte_imperial_esq', (6, 0)), ('janela_alta_esq', (8, 0)), ('portal_anexo_dir', (0, 5))],
-        objetos=[('palacio/fonte', (5, 5)),
-                 ('margem/coluna', (1, 1)), ('margem/coluna', (3, 1)), ('margem/coluna', (7, 1)), ('margem/coluna', (9, 1)),
-                 ('palacio/canteiro_flores', (2, 3)), ('palacio/canteiro_flores', (2, 6)),
-                 ('palacio/canteiro_flores', (8, 3)), ('palacio/canteiro_flores', (8, 6)),
-                 ('margem/cipreste', (1, 8)), ('margem/cipreste', (9, 8))]),
+        titulo='Cena 7: pátio do Palácio Imperial', largura=15, profundidade=14, piso='patio', parede='marmore',
+        pendurar=[('janela_alta_esq', (2, 0)), ('janela_alta_esq', (4, 0)), ('estandarte_imperial_esq', (6, 0)),
+                  ('portal_palacio_esq', (7, 0)), ('estandarte_imperial_esq', (8, 0)), ('janela_alta_esq', (10, 0)),
+                  ('janela_alta_esq', (12, 0)), ('portal_anexo_dir', (0, 11))],
+        objetos=[('palacio/fonte', (7, 5)),
+                 ('margem/coluna', (1, 1)), ('margem/coluna', (3, 1)), ('margem/coluna', (5, 1)),
+                 ('margem/coluna', (9, 1)), ('margem/coluna', (11, 1)), ('margem/coluna', (13, 1)),
+                 ('palacio/canteiro_flores', (3, 4)), ('palacio/canteiro_flores', (3, 8)),
+                 ('palacio/canteiro_flores', (11, 4)), ('palacio/canteiro_flores', (11, 8)),
+                 ('palacio/posto_guarda', (5, 9)), ('palacio/posto_guarda', (9, 9)),
+                 ('palacio/posto_guarda', (5, 7)), ('palacio/posto_guarda', (9, 7)),
+                 ('margem/cipreste', (1, 12)), ('margem/cipreste', (13, 12)),
+                 ('rua/carruagem_parada', (7, 13))]),
     'butiques': dict(
         titulo='Cena 9: Rua das Butiques', largura=14, profundidade=8, piso='rua', parede='fachada',
         pendurar=[(a + '_esq', (x, 0)) for x in (2, 3, 7, 8, 11, 12) for a in ('vitrine', 'toldo')]

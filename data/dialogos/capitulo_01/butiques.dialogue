@@ -1,0 +1,89 @@
+## Capítulo 01 de "Pelos Olhos Dele", cena 9: a Rua das Butiques e a loja
+## de pelúcias (livro, l. ~367-437). Só frases-chave, sem mudar as palavras.
+## Escolha (brecha): como Nicholas responde quando Ophelia lhe mostra a
+## criatura que escolheu. Os rótulos entre colchetes são texto provisório do
+## jogo, NÃO do livro. A escolha só muda a relação com Ophelia e volta para
+## a mesma linha do livro.
+
+~ frases_rua
+
+## A carruagem para; o brasão de Olympia faz as pessoas se afastarem.
+A carruagem parou. Chegaram à Rua das Butiques. [ID:CAP1_153]
+O movimento era constante, até o brasão de Olympia ser reconhecido. As pessoas se afastavam, abrindo espaço. [ID:CAP1_154]
+$> Codice.anotar("rua_das_butiques")
+Quatro. Insuficiente, para os padrões do duque. [ID:CAP1_155]
+=> END
+
+~ guardas_dois
+
+## Nicholas escolhe quem entra com eles.
+Nicholas: [#retrato=neutro] Dois comigo. [ID:CAP1_156]
+Entraram. [ID:CAP1_157]
+=> END
+
+~ frases_loja
+
+## Dentro da loja de pelúcias.
+A loja era familiar. Althea já a conhecia bem, suas pelúcias, feitas sob encomenda a partir de desenhos estranhos e criaturas do Mar de Equidna. [ID:CAP1_158]
+=> END
+
+~ lojistas
+
+## Os donos os recebem e perguntam quem é a moça.
+Lojista: [#retrato=neutro] É uma honra tê-los aqui, filhos de Olympia. Ainda mais em um dia tão especial. [ID:CAP1_159]
+Lojista: [#retrato=neutro] E quem seria esta bela jovem que está com vocês? Nunca os vimos trazer amigos. [ID:CAP1_160]
+Ophelia não respondeu. [ID:CAP1_161]
+Nenhuma correção. Nenhuma exigência. [ID:CAP1_162]
+=> END
+
+~ nicholas_intervem
+
+## Nicholas intervém; a loja se ajoelha.
+Nicholas: [#retrato=neutro] Não me admira que não a reconheçam. Eu mesmo nunca a havia encontrado pessoalmente até hoje. Ainda assim, sejam mais cordiais com a Princesa legítima do Império de Hélade. [ID:CAP1_163]
+Lojista: [#retrato=neutro] Nossos pêsames, Vossa Alteza… [ID:CAP1_164]
+Lojista: [#retrato=neutro] Sentimos muito pela Imperatriz… [ID:CAP1_165]
+Lojista: [#retrato=neutro] Que os Deuses a recebam… [ID:CAP1_166]
+=> END
+
+~ ophelia_levanta
+
+## Ophelia acalma a loja; Nicholas leva as meninas à sala lateral.
+Ophelia: [#retrato=neutro] Não há necessidade de tanta cordialidade. Por favor, levantem-se. Hoje é o aniversário de Lady Althea. Viemos apenas comprar um presente antes de partirmos para Olympia. [ID:CAP1_167]
+Lojista: [#retrato=neutro] C-claro, Vossa Alteza… Podemos reservar uma sala, ou— [ID:CAP1_168]
+Nicholas: [#retrato=neutro] Olharemos sozinhos. Vocês sabem que a Thea prefere escolher seus brinquedos. [ID:CAP1_169]
+Lojista: [#retrato=neutro] Claro, Jovem Mestre. [ID:CAP1_170]
+=> END
+
+~ frases_prateleiras
+
+## Na sala lateral.
+Althea se agachou entre as prateleiras baixas. Ophelia fez o mesmo, sem hesitar. Aquilo o incomodou. [ID:CAP1_171]
+=> END
+
+~ presente
+
+## Ophelia mostra a criatura longa, entre cobra e enguia. Escolha de tom.
+Ophelia: [#retrato=neutro] O que acha deste… Nicholas? É assim que prefere? [ID:CAP1_172]
+- [Olhar a criatura com atenção] [ID:CAP1_OPC_PRESENTE_ATENCAO]
+	$> Relacoes.ajustar("ophelia", 1)
+	Nicholas: [#retrato=neutro] Ela não tem um desses. É uma boa escolha. [ID:CAP1_173]
+- [Responder sem olhar] [ID:CAP1_OPC_PRESENTE_SECO]
+	$> Relacoes.ajustar("ophelia", -1)
+	Nicholas: [#retrato=neutro] Ela não tem um desses. É uma boa escolha. [ID:CAP1_174]
+Ophelia analisou o brinquedo, então sorriu de leve. Mostrou para Althea, que aprovou com entusiasmo imediato. [ID:CAP1_175]
+=> END
+
+~ sem_titulos
+
+## O pedido de Ophelia: só o nome, sem títulos.
+Ophelia: [#retrato=neutro] Então, quando estivermos só nós, prefiro que use meu nome. Sem títulos. [ID:CAP1_176]
+Nicholas: [#retrato=neutro] Como quiser… Ophelia. [ID:CAP1_177]
+Sorrisos vazios. Troca justa. [ID:CAP1_178]
+=> END
+
+~ frases_saida
+
+## De volta à carruagem.
+Com a compra feita, retornaram à carruagem. O mesmo ritual os seguiu: olhares, reverências e sussurros. [ID:CAP1_179]
+Ao menos, no almoço, estariam isolados. [ID:CAP1_180]
+=> END

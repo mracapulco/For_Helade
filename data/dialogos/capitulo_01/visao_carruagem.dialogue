@@ -1,0 +1,48 @@
+## Capítulo 01 de "Pelos Olhos Dele", cena 8: a visão na carruagem (livro,
+## l. ~317-365). Reaproveita o efeito do sonho (tic-tac, tremor). A visão em
+## si não tem personagens falando de verdade: só a narração do livro e o
+## "Lia." (a voz "não era dele; era mais grave"). Sem escolhas.
+
+~ frases_cascos
+
+## Algo cede em Nicholas: o som dos cascos, o tic-tac.
+O som dos cascos. Mais alto. Muito mais alto. [ID:CAP1_134]
+Tic. [ID:CAP1_135]
+As vozes… Afastaram-se. [ID:CAP1_136]
+Escuro. Claro. Escuro. [ID:CAP1_137]
+Tac. [ID:CAP1_138]
+=> END
+
+~ frases_visao
+
+## A varanda fria; a garota de costas.
+A garota estava de costas para ele. Parada na varanda fria. [ID:CAP1_139]
+O céu era vasto e limpo, salpicado de luzes distantes. [ID:CAP1_140]
+Não tirava os olhos dela. Não conseguia. [ID:CAP1_141]
+Seus cabelos longos, ondulados, escuros, descendo pelas costas e abraçando sua cintura. [ID:CAP1_142]
+Quando falou, a voz não era dele. Era mais grave. Mais pesada. [ID:CAP1_143]
+=> END
+
+~ frases_lia
+
+## A única palavra da visão.
+Lia. [ID:CAP1_144]
+=> END
+
+~ frases_retorno
+
+## A visão acaba de uma vez.
+O retorno não foi suave. Foi queda. Brusca. [ID:CAP1_145]
+As duas o encaravam. Fixas. Quanto tempo…? [ID:CAP1_146]
+=> END
+
+~ apelido
+
+## Althea age como se nada tivesse acontecido; nasce o apelido "Lia".
+Althea: [#retrato=neutro] Lia é um bom apelido! Você gostou, Princesa? [ID:CAP1_147]
+Ophelia: [#retrato=neutro] Eu… Nunca tive um apelido. Não sei se deveria… [ID:CAP1_148]
+Althea: [#retrato=neutro] Bobagem! O meu irmão é o melhor em dar apelidos, o dele é Nick e ele me deu o apelido Thea… Lia, Thea, é bem parecido! Vamos ser irmãs de apelido. [ID:CAP1_149]
+Ophelia: [#retrato=neutro] Posso aceitar… Se o Jovem Mestre Nicholas quiser também. [ID:CAP1_150]
+Nicholas: [#retrato=neutro] Não me chamando de "Jovem Mestre", pode fazer o que quiser. [ID:CAP1_151]
+O silêncio que se seguiu foi curto, mas incômodo. [ID:CAP1_152]
+=> END

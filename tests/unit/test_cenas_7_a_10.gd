@@ -104,7 +104,7 @@ func test_sopa_ajusta_a_relacao_com_ophelia() -> void:
 
 func test_quem_fala_esta_no_elenco() -> void:
 	for roteiro: DialogueResource in [PALACIO, BUTIQUES, RESTAURANTE]:
-		for marcador: String in roteiro.titles:
+		for marcador: String in _marcadores(roteiro):
 			var pendentes: Array[String] = [marcador]
 			var vistos := {}
 			while not pendentes.is_empty():
@@ -121,6 +121,15 @@ func test_quem_fala_esta_no_elenco() -> void:
 					pendentes.append(opcao.next_id)
 				if linha.responses.is_empty():
 					pendentes.append(linha.next_id)
+
+
+## Marcadores (`~ nome`) do arquivo .dialogue do roteiro.
+func _marcadores(roteiro: DialogueResource) -> Array[String]:
+	var nomes: Array[String] = []
+	for linha in FileAccess.get_file_as_string(roteiro.resource_path).split("\n"):
+		if linha.begins_with("~ "):
+			nomes.append(linha.substr(2).strip_edges())
+	return nomes
 
 
 ## Percorre o marcador (escolhendo [param escolhas] nas opções) e devolve os

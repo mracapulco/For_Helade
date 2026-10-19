@@ -22,6 +22,8 @@ func _abrir(caminho: String, etapa_inicial: String) -> void:
 	cena.trocar_de_cena = false
 	add_child_autofree(cena)
 	await _esperar_etapa(etapa_inicial)
+	# Deixa as frases de abertura (e as notas do códice delas) terminarem.
+	await wait_physics_frames(10)
 
 
 func _esperar_etapa(nome: String) -> void:
@@ -58,7 +60,7 @@ func test_palacio_do_patio_a_partida() -> void:
 	await _esperar_etapa("visao_carruagem")
 	assert_true(Codice.tem("anexo_vazio"))
 	await _esperar_pedido()
-	assert_eq(cena.cena_pedida, SequenciaCenas01.CENAS["butiques"])
+	assert_eq(cena.cena_pedida, SequenciaCenas01.CENAS["visao_carruagem"])
 
 
 func test_palacio_fora_de_ordem_nao_avanca() -> void:
@@ -99,3 +101,10 @@ func test_restaurante_da_mesa_ao_passeio() -> void:
 	assert_eq(cena.etapa, "passeio")
 	assert_eq(cena.cena_pedida, SequenciaCenas01.MENU)
 	assert_eq(Relacoes.valor("ophelia"), 1)
+
+
+func test_visao_da_varanda_leva_as_butiques() -> void:
+	await _abrir("res://scenes/capitulo_01/cena_visao.tscn", "visao")
+	await _esperar_pedido()
+	assert_eq(cena.etapa, "butiques")
+	assert_eq(cena.cena_pedida, SequenciaCenas01.CENAS["butiques"])

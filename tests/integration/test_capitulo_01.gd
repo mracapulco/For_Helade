@@ -418,3 +418,20 @@ func test_no_sonho_nicholas_anda_devagar_ao_som_do_relogio() -> void:
 	capitulo.chegar_na_garota()
 	await _esperar_etapa("quarto")
 	assert_gt(capitulo.jogador.velocidade, Capitulo01.VELOCIDADE_NO_SONHO, "acordado, volta ao passo normal")
+
+
+func test_com_o_duque_althea_segura_a_espada_e_a_aperta_no_peito() -> void:
+	var quadros: SpriteFrames = load("res://assets/art/personagens/althea/althea_6_exploracao.tres")
+	for pose in ["espada_colo", "abraca_espada"]:
+		for lado in ["frente", "costas"]:
+			assert_true(quadros.has_animation("%s_%s" % [pose, lado]), "%s_%s" % [pose, lado])
+	await _ate_o_corredor()
+	await _esperar_o_cortejo()
+	await _acordar_e_entregar()
+	var visual: AnimatedSprite2D = capitulo.objetos["althea"].get_node("Visual")
+	capitulo._pose_de_althea(&"espada_colo")
+	assert_string_starts_with(visual.animation, "espada_colo_", "no colo enquanto o duque fala")
+	var linha := DialogueLine.new()
+	linha.static_id = "CAP1_070"
+	capitulo._ao_ver_fala_do_duque(linha)
+	assert_string_starts_with(visual.animation, "abraca_espada_", "\"P-parem de brigar...\"")

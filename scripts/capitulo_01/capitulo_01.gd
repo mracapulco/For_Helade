@@ -813,7 +813,11 @@ func chegada_do_duque() -> void:
 	await create_tween().tween_property(apollon, "modulate:a", 1.0, maxf(0.4 * escala_tempo, 0.01)).finished
 	await _caminhar(apollon, sala.centro(_casa_livre_perto(_casa_de(jogador), Vector2i(5, 1))), 1.4)
 	_virar(apollon, jogador.position)
+	_pose_de_althea(&"espada_colo")
+	DialogueManager.got_dialogue.connect(_ao_ver_fala_do_duque)
 	await _falar_travado("duque")
+	DialogueManager.got_dialogue.disconnect(_ao_ver_fala_do_duque)
+	_pose_de_althea(&"parado")
 	# O duque parte quase tão depressa quanto chegou.
 	await _caminhar(apollon, sala.centro(Vector2i(5, 1)), 1.4)
 	await create_tween().tween_property(apollon, "modulate:a", 0.0, maxf(0.4 * escala_tempo, 0.01)).finished
@@ -823,6 +827,23 @@ func chegada_do_duque() -> void:
 	await _frases("frases_por_que")
 	await _escurecer()
 	await montar_carruagem()
+
+
+## À mesa, Althea segura a espada de madeira no colo enquanto o duque fala;
+## no "P-parem de brigar...", aperta o punho da espada contra o peito.
+func _ao_ver_fala_do_duque(linha: DialogueLine) -> void:
+	if linha.static_id == "CAP1_070":
+		_pose_de_althea(&"abraca_espada")
+
+
+## Althea numa pose, virada para o mesmo lado (frente ou costas).
+func _pose_de_althea(acao: StringName) -> void:
+	var althea: Node2D = objetos.get("althea")
+	if althea == null or not althea.has_node("Visual"):
+		return
+	var visual: AnimatedSprite2D = althea.get_node("Visual")
+	var lado := "costas" if visual.animation.ends_with("costas") else "frente"
+	visual.play("%s_%s" % [acao, lado])
 
 
 # --- 6. a carruagem ----------------------------------------------------------

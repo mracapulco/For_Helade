@@ -21,6 +21,14 @@ const PASSADEIRA_CIMA := 4
 const PASSADEIRA_BAIXO := 5
 const PASSADEIRA_MEIO := 6
 const PISO_GRAMA := 7
+## Rodada 1 das cenas 7 a 10 (tools/arte/gerar_capitulo_01.py): mármore do
+## pátio do Palácio (9-10), paralelepípedo da rua (11-12), ladrilho (13-14).
+const PISO_MARMORE := 9
+const PISO_RUA := 11
+const PISO_LADRILHO := 13
+## Blocos de parede no atlas: mármore do Palácio, fachada de reboco da rua e
+## reboco com lambri por dentro.
+const PAREDE_ESTILOS := {"marmore": 3, "fachada": 4, "reboco": 5}
 const RAIO_CORPO := 9.0
 const RAIO_TOQUE := 28.0
 
@@ -38,6 +46,12 @@ const RAIO_TOQUE := 28.0
 @export var parede_madeira := false
 ## Só o chão, sem as paredes do fundo (a rua por onde passa a carruagem).
 @export var sem_paredes := false
+## Estilo da parede das cenas 7 a 10: "marmore" (Palácio), "fachada" (Rua das
+## Butiques) ou "reboco" (loja e restaurante). Vazio: segue os campos acima.
+@export var parede_estilo := ""
+## Pisos novos: "patio" (mármore em cruz e nas bordas, jardins de grama nos
+## quatro cantos), "rua" (duas fileiras de lajes junto à fachada e
+## paralelepípedo no resto) e "ladrilho" (xadrez do restaurante).
 
 var chao: TileMapLayer
 var obstaculos: TileMapLayer
@@ -80,6 +94,8 @@ func _ready() -> void:
 
 
 func _quadro_da_parede() -> int:
+	if PAREDE_ESTILOS.has(parede_estilo):
+		return PAREDE_ESTILOS[parede_estilo]
 	if parede_madeira:
 		return 2
 	return 1 if parede_lisa else 0
@@ -93,6 +109,16 @@ func _quadro_do_piso(x: int, y: int) -> int:
 			if absi(y - profundidade / 2) <= 1:
 				return PISO_PEDRA + (x + y) % 2
 			return PISO_GRAMA + (x * 3 + y) % 2
+		"patio":
+			if absi(x - largura / 2) <= 1 or y <= 1 or y >= profundidade - 2:
+				return PISO_MARMORE + (x + y) % 2
+			return PISO_GRAMA + (x * 3 + y) % 2
+		"rua":
+			if y <= 1:
+				return PISO_PEDRA + (x + y) % 2
+			return PISO_RUA + (x + y) % 2
+		"ladrilho":
+			return PISO_LADRILHO + (x + y) % 2
 		"passadeira":
 			if y <= 1:
 				return PASSADEIRA_CIMA

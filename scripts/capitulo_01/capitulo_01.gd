@@ -534,11 +534,11 @@ func entregar_embrulho() -> void:
 
 
 ## Com a espada de madeira: Althea golpeia o ar na direção de Nicholas
-## ("Lady Althea!"); ele finge rendição (as mãos para cima) ou desvia com um
+## (enquanto Nicholas adulto narra o presente); ele finge rendição (as mãos para cima) ou desvia com um
 ## passo curto para o lado enquanto ela golpeia de novo.
 func _ao_ver_fala_da_espada(linha: DialogueLine) -> void:
 	match linha.static_id:
-		"CAP1_053":
+		"CAP1_051":
 			_golpe_de_althea()
 		"CAP1_099":
 			_pose_de_nicholas(&"rendicao")
@@ -876,10 +876,7 @@ func montar_carruagem() -> void:
 	# Antes da conversa, Nicholas olha pelas janelas (até se voltar para Althea).
 	_offset_sentado_x = objetos["nicholas_sentado"].offset.x
 	DialogueManager.got_dialogue.connect(_ao_ver_fala_na_carruagem)
-	# As escolhas das janelas ficam sempre embaixo, para ver a carruagem.
-	CaixaDialogo.escolhas_embaixo = true
 	await _falar_travado("janela")
-	CaixaDialogo.escolhas_embaixo = false
 	DialogueManager.got_dialogue.disconnect(_ao_ver_fala_na_carruagem)
 	await _voltar_para_althea()
 	await _falar_travado("carruagem")

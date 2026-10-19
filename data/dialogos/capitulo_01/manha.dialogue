@@ -103,7 +103,6 @@ Nicholas puxou o monstro marinho de seus braços. [ID:CAP1_095]
 ~ acordar_althea
 
 ## Nicholas acorda a irmã; o embrulho tem a espada de madeira.
-Nicholas: [#retrato=neutro] Ei... [ID:CAP1_044]
 Nicholas: [#retrato=neutro] Feliz aniversário! [ID:CAP1_045]
 Althea: [#retrato=neutro] Nick! [ID:CAP1_046]
 Nicholas: [#retrato=neutro] Eu também senti sua falta nesses oito passos entre os nossos quartos. [ID:CAP1_047]
@@ -114,8 +113,7 @@ Nicholas: [#retrato=neutro] Eu também senti sua falta nesses oito passos entre 
 ## Althea, já fora da cama, vê o embrulho; Nicholas o entrega.
 Althea: [#retrato=neutro] Aquilo ali é meu? [ID:CAP1_048]
 Nicholas: [#retrato=neutro] Não. Pedi que embrulhassem um presente para mim e deixassem no seu quarto. [ID:CAP1_049]
-Dentro dele havia uma espada de madeira, esculpida para o tamanho de suas mãos. [ID:CAP1_051]
-Pany: [#retrato=neutro] Lady Althea! [ID:CAP1_053]
+O presente dela era uma espada de madeira, esculpida para o tamanho das mãos da minha irmã. [ID:CAP1_051]
 - [Fingir rendição] [ID:CAP1_OPC_ESPADA_RENDICAO]
 	$> Relacoes.ajustar("althea", 1)
 	Nicholas ergueu as mãos, fingindo rendição. [ID:CAP1_099]

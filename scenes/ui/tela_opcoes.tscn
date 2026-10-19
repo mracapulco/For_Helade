@@ -18,7 +18,7 @@ corner_radius_top_right = 8
 corner_radius_bottom_right = 8
 corner_radius_bottom_left = 8
 
-[node name="TelaOpcoes" type="PanelContainer" unique_id=1923989200 node_paths=PackedStringArray("idioma", "sensibilidade", "tela_cheia", "vsync", "volume_geral", "volume_musica", "volume_efeitos", "volume_voz", "botao_voltar", "so_no_pc")]
+[node name="TelaOpcoes" type="PanelContainer" unique_id=1923989200 node_paths=PackedStringArray("idioma", "sensibilidade", "tela_cheia", "vsync", "botoes_toque", "volume_geral", "volume_musica", "volume_efeitos", "volume_voz", "botao_voltar", "so_no_pc")]
 visible = false
 layout_mode = 0
 anchor_left = 0.08
@@ -31,12 +31,13 @@ idioma = NodePath("Coluna/Rolagem/Lista/LinhaIdioma/Valor")
 sensibilidade = NodePath("Coluna/Rolagem/Lista/LinhaSensibilidade/Valor")
 tela_cheia = NodePath("Coluna/Rolagem/Lista/LinhaTelaCheia/Valor")
 vsync = NodePath("Coluna/Rolagem/Lista/LinhaVsync/Valor")
+botoes_toque = NodePath("Coluna/Rolagem/Lista/LinhaBotoesToque/Valor")
 volume_geral = NodePath("Coluna/Rolagem/Lista/LinhaVolumeGeral/Valor")
 volume_musica = NodePath("Coluna/Rolagem/Lista/LinhaVolumeMusica/Valor")
 volume_efeitos = NodePath("Coluna/Rolagem/Lista/LinhaVolumeEfeitos/Valor")
 volume_voz = NodePath("Coluna/Rolagem/Lista/LinhaVolumeVoz/Valor")
 botao_voltar = NodePath("Coluna/Voltar")
-so_no_pc = [NodePath("Coluna/Rolagem/Lista/LinhaTelaCheia"), NodePath("Coluna/Rolagem/Lista/Teclas")]
+so_no_pc = [NodePath("Coluna/Rolagem/Lista/LinhaTelaCheia"), NodePath("Coluna/Rolagem/Lista/LinhaBotoesToque"), NodePath("Coluna/Rolagem/Lista/Teclas")]
 
 [node name="Coluna" type="VBoxContainer" parent="." unique_id=1524767276]
 layout_mode = 2
@@ -163,6 +164,23 @@ text = "OPCOES_VSYNC"
 vertical_alignment = 1
 
 [node name="Valor" type="CheckButton" parent="Coluna/Rolagem/Lista/LinhaVsync" unique_id=1363152895]
+custom_minimum_size = Vector2(120, 64)
+layout_mode = 2
+
+[node name="LinhaBotoesToque" type="HBoxContainer" parent="Coluna/Rolagem/Lista"]
+custom_minimum_size = Vector2(0, 72)
+layout_mode = 2
+theme_override_constants/separation = 24
+
+[node name="Rotulo" type="Label" parent="Coluna/Rolagem/Lista/LinhaBotoesToque"]
+custom_minimum_size = Vector2(380, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 30
+theme_override_colors/font_color = Color(0.95, 0.9, 0.8, 1)
+text = "OPCOES_BOTOES_TOQUE"
+vertical_alignment = 1
+
+[node name="Valor" type="CheckButton" parent="Coluna/Rolagem/Lista/LinhaBotoesToque"]
 custom_minimum_size = Vector2(120, 64)
 layout_mode = 2
 

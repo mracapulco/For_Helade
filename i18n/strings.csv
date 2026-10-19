@@ -30,6 +30,7 @@ OPCOES_TECLAS,"W A S D ou setas: andar · Shift: correr · Espaço: pular · E: 
 OPCOES_SECAO_GRAFICOS,Gráficos
 OPCOES_TELA_CHEIA,Tela cheia
 OPCOES_VSYNC,Sincronização vertical (VSync)
+OPCOES_BOTOES_TOQUE,Botões de toque na tela
 OPCOES_SECAO_SOM,Som
 OPCOES_VOLUME_GERAL,Volume geral
 OPCOES_VOLUME_MUSICA,Música

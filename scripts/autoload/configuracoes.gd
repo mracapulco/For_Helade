@@ -12,6 +12,9 @@ var idioma := "pt_BR"
 var sensibilidade_mouse := 1.0
 var tela_cheia := false
 var vsync := true
+## No PC com tela de toque: mostrar os botões de toque (pausa, pular, golpe).
+## No celular eles sempre aparecem.
+var botoes_toque := true
 ## Volumes de 0 a 1.
 var volume_geral := 1.0
 var volume_musica := 0.8
@@ -61,6 +64,11 @@ func aplicar() -> void:
 	mudou.emit()
 
 
+## Se os botões de toque devem aparecer na tela.
+func mostrar_botoes_toque() -> bool:
+	return OS.has_feature("mobile") or (botoes_toque and DisplayServer.is_touchscreen_available())
+
+
 ## Idiomas que o jogo tem traduzidos.
 func idiomas_disponiveis() -> PackedStringArray:
 	var lista := TranslationServer.get_loaded_locales()
@@ -70,4 +78,4 @@ func idiomas_disponiveis() -> PackedStringArray:
 
 
 func _chaves() -> Array[String]:
-	return ["idioma", "sensibilidade_mouse", "tela_cheia", "vsync", "volume_geral", "volume_musica", "volume_efeitos", "volume_voz"]
+	return ["idioma", "sensibilidade_mouse", "tela_cheia", "vsync", "botoes_toque", "volume_geral", "volume_musica", "volume_efeitos", "volume_voz"]

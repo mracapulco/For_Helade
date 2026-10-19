@@ -124,13 +124,13 @@ func test_a_manha_inteira_na_ordem() -> void:
 	var na_mesa: Vector2i = capitulo.sala.chao.local_to_map(capitulo.objetos["althea"].position)
 	assert_eq(na_mesa, Vector2i(3, 4), "Althea espera à mesa de chá")
 	_interagir("althea")
-	await _esperar_etapa("fim")
+	await _esperar_etapa("palacio")
 	assert_true(Codice.tem("imperatriz_callie"))
 	for i in 10:
 		if capitulo.cena_pedida != "":
 			break
 		await wait_physics_frames(1)
-	assert_eq(capitulo.cena_pedida, "res://scenes/main/main.tscn")
+	assert_eq(capitulo.cena_pedida, "res://scenes/capitulo_01/cena_palacio.tscn")
 
 
 func test_fora_de_ordem_nao_avanca() -> void:
@@ -357,7 +357,7 @@ func test_o_duque_entra_e_depois_a_carruagem() -> void:
 	capitulo.etapa_mudou.connect(_anotar_carruagem)
 	_interagir("althea")
 	await _esperar_etapa("duque")
-	await _esperar_etapa("fim")
+	await _esperar_etapa("palacio")
 	assert_false(na_carruagem.is_empty(), "passou pela carruagem")
 	assert_false(na_carruagem.get("apollon", true), "o duque já partiu")
 	assert_true(na_carruagem.get("carro", false), "a carruagem na rua")

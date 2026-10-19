@@ -23,6 +23,11 @@ const ENTRADAS := {
 	"imperatriz_callie": TIPO_CODICE,
 	"atenas": TIPO_CODICE,
 	"palacio_imperial": TIPO_CODICE,
+	# Capítulo 01, cenas 7 a 10: o Palácio, a Rua das Butiques.
+	"poucos_guardas": TIPO_OLHAR,
+	"olhos_de_ophelia": TIPO_OLHAR,
+	"anexo_vazio": TIPO_OLHAR,
+	"rua_das_butiques": TIPO_CODICE,
 }
 
 ## Ids já anotados, na ordem em que foram anotados.

@@ -20,7 +20,9 @@ extends Node2D
 ##    Princesa Ophelia; depois Althea e Nicholas mudam os planos do dia.
 ## 6. carruagem: Nicholas olha pelas janelas (códice) e a caminho do Palácio
 ##    Imperial vem a conversa ("Está bravo comigo, Nick?").
-## 7. fim: o palácio (passo 3) ainda não existe, então o jogo volta ao menu.
+## 7. palacio: a manhã termina e o jogo segue para a cena do Palácio Imperial
+##    (scripts/capitulo_01/cena_palacio.gd), que encadeia as seguintes
+##    (ordem em [SequenciaCenas01]).
 ## O que Nicholas encontra vira nota no [code]Codice[/code] ("olhar").
 ## As salas são montadas por código ([SalaMontada]); os textos estão em
 ## data/dialogos/capitulo_01/manha.dialogue.
@@ -82,7 +84,7 @@ const TEMPO_OLHANDO := 0.5
 ## Falso nos testes: as conversas passam direto, sem abrir a caixa.
 @export var mostrar_dialogos := true
 ## Para onde o jogo vai no fim deste passo.
-@export var cena_depois := "res://scenes/main/main.tscn"
+@export var cena_depois := SequenciaCenas01.CENAS["palacio"]
 
 var etapa := ""
 var sala: SalaMontada
@@ -836,8 +838,8 @@ func montar_carruagem() -> void:
 	camera.zoom = zoom_antes
 	jogador.get_node("Corpo").visible = true
 	jogador.get_node("Sombra").visible = true
-	_mudar("fim")
-	await _frases_soltas([tr("CAP1_PROVISORIO_CONTINUA")])
+	# Encadeia: a manhã termina e o Palácio Imperial (cena_palacio.gd) começa.
+	_mudar("palacio")
 	cena_pedida = cena_depois
 	if trocar_de_cena:
 		TrocaCena.ir_para(cena_depois)

@@ -10,6 +10,7 @@ extends Node2D
 signal etapa_mudou(etapa: String)
 
 const CENA_JOGADOR := preload("res://scenes/capitulo_01/nicholas_11.tscn")
+const CENA_OBJETIVO := preload("res://scenes/ui/objetivo.tscn")
 const QUADROS_NICHOLAS := preload("res://assets/art/personagens/nicholas/nicholas_11_exploracao.tres")
 const QUADROS_ALTHEA := preload("res://assets/art/personagens/althea/althea_6_exploracao.tres")
 const QUADROS_OPHELIA := preload("res://assets/art/personagens/ophelia/ophelia_11_exploracao.tres")
@@ -37,6 +38,11 @@ var objetos := {}
 var cena_pedida := ""
 ## Quando falso, o fim só anota a cena pedida, sem trocar (testes).
 var trocar_de_cena := true
+## Objetivo de cada etapa (chave de i18n/strings.csv); etapa sem chave não
+## mostra objetivo. Cada subclasse preenche o seu em [method _init].
+var objetivos := {}
+## A linha do objetivo no alto da tela ([Objetivo]).
+var objetivo: Objetivo
 
 @onready var texto: TextoSolto = %Texto
 @onready var cortina: ColorRect = %Cortina
@@ -46,6 +52,9 @@ func _ready() -> void:
 	jogador = CENA_JOGADOR.instantiate()
 	jogador.name = "Nicholas"
 	cortina.color.a = 1.0
+	objetivo = CENA_OBJETIVO.instantiate()
+	add_child(objetivo)
+	objetivo.observar(texto)
 	comecar()
 
 
@@ -72,7 +81,14 @@ func terminar() -> void:
 
 func _mudar(nova: String) -> void:
 	etapa = nova
+	_objetivo(objetivos.get(nova, ""))
 	etapa_mudou.emit(nova)
+
+
+## Troca o objetivo na tela (chave de i18n/strings.csv; vazia esconde).
+func _objetivo(chave: String) -> void:
+	if objetivo:
+		objetivo.definir(chave)
 
 
 func _nova_sala(largura: int, profundidade: int, tom: Color, piso: String, parede: String) -> void:

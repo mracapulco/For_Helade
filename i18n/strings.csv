@@ -255,3 +255,21 @@ LOJA_VAI_DESEQUIPAR,Está equipado: será tirado ao vender.
 LOJA_MERCADOR_KHRONOSSES_NOME,Mercador do acampamento (Khronosses)
 LOJA_MERCADOR_AGAPE_NOME,Mercador do acampamento (Ágape)
 LOJA_MERCADOR_OLYMPIA_NOME,Mercador do acampamento (Olympia)
+OBJ_CAP1_ROUPA,Pegue a roupa no armário
+OBJ_CAP1_ESPELHO,Vista-se diante do espelho
+OBJ_CAP1_SAIR_QUARTO,Saia do quarto
+OBJ_CAP1_PORTA_ALTHEA,Espere o cortejo na porta de Althea
+OBJ_CAP1_OLHAR_PONTAS,Olhe para as duas pontas do corredor
+OBJ_CAP1_ACORDAR,Acorde Althea
+OBJ_CAP1_EMBRULHO,Entregue o embrulho a Althea
+OBJ_CAP1_MESA_CHA,Sente-se com Althea à mesa de chá
+OBJ_CAP1_PATIO,Olhe a fonte e os guardas do pátio
+OBJ_CAP1_PATIO_FONTE,Olhe a fonte
+OBJ_CAP1_PATIO_GUARDAS,Olhe os guardas
+OBJ_CAP1_EMBARQUE,Ajude as duas a subir na carruagem
+OBJ_CAP1_ANEXO,Lance um último olhar ao anexo
+OBJ_CAP1_GUARDAS_RUA,Fale com um dos guardas
+OBJ_CAP1_LOJA,Entre na loja de pelúcias
+OBJ_CAP1_PRESENTE,Veja a criatura no expositor
+OBJ_CAP1_MESA,Sente-se à mesa
+OBJ_CAP1_COLHER,Pegue uma colher limpa no armário

@@ -32,6 +32,8 @@ var guardas_escolhidos := false
 
 func _init() -> void:
 	roteiro = ROTEIRO
+	objetivos = {"rua": "OBJ_CAP1_GUARDAS_RUA", "porta": "OBJ_CAP1_LOJA",
+		"escolher_presente": "OBJ_CAP1_PRESENTE"}
 
 
 func id_da_cena() -> String:

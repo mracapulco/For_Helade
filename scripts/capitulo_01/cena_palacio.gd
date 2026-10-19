@@ -31,6 +31,8 @@ var guardas: Array[Node2D] = []
 
 func _init() -> void:
 	roteiro = ROTEIRO
+	objetivos = {"patio": "OBJ_CAP1_PATIO", "embarque": "OBJ_CAP1_EMBARQUE",
+		"ultimo_olhar": "OBJ_CAP1_ANEXO"}
 
 
 func id_da_cena() -> String:
@@ -79,6 +81,7 @@ func ver_fonte() -> void:
 		return
 	fonte_vista = true
 	_ativar(objetos["fonte"], false)
+	_objetivo_do_patio()
 	await _falar_travado("fonte")
 	_travar(false)
 	_verificar_patio()
@@ -90,8 +93,17 @@ func olhar_guardas() -> void:
 	guardas_vistos = true
 	for guarda in guardas:
 		_ativar(guarda, false)
+	_objetivo_do_patio()
 	await _frases("frases_poucos_guardas")
 	_verificar_patio()
+
+
+## No pátio, o objetivo diz o que ainda falta notar.
+func _objetivo_do_patio() -> void:
+	if fonte_vista and not guardas_vistos:
+		_objetivo("OBJ_CAP1_PATIO_GUARDAS")
+	elif guardas_vistos and not fonte_vista:
+		_objetivo("OBJ_CAP1_PATIO_FONTE")
 
 
 ## Com a fonte e os guardas notados, a Princesa aparece.

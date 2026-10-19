@@ -31,6 +31,16 @@ signal etapa_mudou(etapa: String)
 
 const ROTEIRO := preload("res://data/dialogos/capitulo_01/manha.dialogue")
 const CENA_JOGADOR := preload("res://scenes/capitulo_01/nicholas_11.tscn")
+const CENA_OBJETIVO := preload("res://scenes/ui/objetivo.tscn")
+## Objetivo na tela de cada etapa jogável (chave de i18n/strings.csv); no
+## quarto ele muda com o que Nicholas já fez ([method _objetivo_da_etapa]).
+const OBJETIVOS := {
+	"corredor": "OBJ_CAP1_PORTA_ALTHEA",
+	"esperando": "OBJ_CAP1_OLHAR_PONTAS",
+	"quarto_althea": "OBJ_CAP1_ACORDAR",
+	"embrulho": "OBJ_CAP1_EMBRULHO",
+	"a_mesa": "OBJ_CAP1_MESA_CHA",
+}
 const QUADROS_PIJAMA := preload("res://assets/art/personagens/nicholas/nicholas_11_pijama_exploracao.tres")
 const QUADROS_VESTIDO := preload("res://assets/art/personagens/nicholas/nicholas_11_exploracao.tres")
 const QUADROS_APOLLON := preload("res://assets/art/personagens/apollon/apollon_exploracao.tres")
@@ -122,6 +132,8 @@ var _passo_fora_do_sonho := Vector2.ZERO
 
 ## Objetos da sala atual que a sequência usa.
 var objetos := {}
+## A linha do objetivo no alto da tela ([Objetivo]).
+var objetivo: Objetivo
 
 @onready var texto: TextoSolto = %Texto
 @onready var cortina: ColorRect = %Cortina
@@ -132,6 +144,9 @@ func _ready() -> void:
 	jogador.name = "Nicholas"
 	_vestir(QUADROS_PIJAMA)
 	cortina.color.a = 1.0
+	objetivo = CENA_OBJETIVO.instantiate()
+	add_child(objetivo)
+	objetivo.observar(texto)
 	comecar()
 
 
@@ -292,6 +307,7 @@ func pegar_roupas() -> void:
 		return
 	pegou_roupas = true
 	_ativar(objetos["armario"], false)
+	_objetivo_da_etapa()
 	Codice.anotar("roupas_simples")
 
 
@@ -309,6 +325,7 @@ func olhar_espelho() -> void:
 	await _escurecer()
 	_vestir(QUADROS_VESTIDO)
 	vestido = true
+	_objetivo_da_etapa()
 	await _clarear()
 	_travar(false)
 	_ativar(objetos["porta_quarto"], true)
@@ -984,7 +1001,22 @@ func _parte_do_carro(nome: String, arquivo: String, quadros: int) -> Sprite2D:
 
 func _mudar(nova: String) -> void:
 	etapa = nova
+	_objetivo_da_etapa()
 	etapa_mudou.emit(nova)
+
+
+## Chave do objetivo agora ("" quando não há o que fazer: cenas e conversas).
+func chave_do_objetivo() -> String:
+	if etapa == "quarto":
+		if vestido:
+			return "OBJ_CAP1_SAIR_QUARTO"
+		return "OBJ_CAP1_ESPELHO" if pegou_roupas else "OBJ_CAP1_ROUPA"
+	return OBJETIVOS.get(etapa, "")
+
+
+func _objetivo_da_etapa() -> void:
+	if objetivo:
+		objetivo.definir(chave_do_objetivo())
 
 
 func _nova_sala(largura: int, profundidade: int, tom: Color) -> void:

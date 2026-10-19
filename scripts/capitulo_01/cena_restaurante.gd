@@ -31,6 +31,7 @@ var pegou_colher := false
 
 func _init() -> void:
 	roteiro = ROTEIRO
+	objetivos = {"mesa": "OBJ_CAP1_MESA", "armario": "OBJ_CAP1_COLHER"}
 
 
 func id_da_cena() -> String:

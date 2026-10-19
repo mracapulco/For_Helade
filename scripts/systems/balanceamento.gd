@@ -48,6 +48,9 @@ const ATAQUE_BASE := 3
 ## Limites da velocidade somada de todo o equipamento.
 const VELOCIDADE_MINIMA := -40
 const VELOCIDADE_MAXIMA := 40
+## No andar, o equipamento pesa no máximo isto (Rafael, 19/10: com armadura
+## pesada e machado o passo ficava lento demais). O golpe usa o limite cheio.
+const VELOCIDADE_MINIMA_ANDAR := -15
 
 
 ## Pontos que o item pode gastar em bônus.
@@ -109,3 +112,9 @@ static func dano(ataque: int, defesa: int) -> int:
 ## Multiplicador do tempo de andar e de golpear: +20 → 1,2 (mais rápido).
 static func multiplicador_velocidade(velocidade: int) -> float:
 	return 1.0 + clampi(velocidade, VELOCIDADE_MINIMA, VELOCIDADE_MAXIMA) / 100.0
+
+
+## Multiplicador da velocidade de andar: como [method multiplicador_velocidade],
+## mas o peso do equipamento para em [constant VELOCIDADE_MINIMA_ANDAR].
+static func multiplicador_andar(velocidade: int) -> float:
+	return 1.0 + clampi(velocidade, VELOCIDADE_MINIMA_ANDAR, VELOCIDADE_MAXIMA) / 100.0

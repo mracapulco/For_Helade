@@ -168,9 +168,12 @@ func test_andando_trocar_de_direcao_segue_sem_pausa() -> void:
 	await wait_physics_frames(5)
 	Input.action_release("mover_tras")
 	Input.action_press("mover_frente")
-	await wait_seconds(0.6)
+	# Segura o bastante para terminar o passo para trás e começar a volta.
+	var casa := personagem.centro_da_casa(inicio).distance_to(personagem.centro_da_casa(inicio + Vector2i(1, 0)))
+	var tempo_casa := casa / personagem.velocidade_andando()
+	await wait_seconds(tempo_casa * 1.5)
 	Input.action_release("mover_frente")
-	await wait_seconds(0.6)
+	await wait_seconds(tempo_casa * 1.5)
 	assert_eq(personagem.casa_de(personagem.global_position), inicio,
 		"Terminou o passo para trás e já voltou, sem parar para virar.")
 

@@ -41,7 +41,7 @@ func _process(_delta: float) -> void:
 	var acao := escolher_acao(movimento.length(), personagem.velocidade_andando(), interagindo,
 		personagem.golpeando)
 	# O equipamento acelera ou atrasa o passo e o golpe.
-	speed_scale = personagem.ritmo()
+	speed_scale = personagem.ritmo() if personagem.golpeando else personagem.ritmo_andar()
 	var nome := StringName("%s_%s" % [acao, direcao])
 	if not sprite_frames.has_animation(nome):
 		# Desenhos sem golpe (os outros personagens) usam o de interagir.

@@ -43,8 +43,9 @@ const PASSOS: Array[Vector2i] = [
 ]
 
 ## Velocidade de andar sem equipamento. O equipamento aumenta ou diminui
-## (veja [method velocidade_andando]).
-@export var velocidade := 90.0
+## (veja [method velocidade_andando]). 120 = cerca de 0,3 s por casa do chão
+## (Rafael, 19/10: com 90 o passo parecia travado).
+@export var velocidade := 120.0
 ## Quanto mais rápido fica ao correr.
 @export var multiplicador_corrida := 1.5
 ## Camada do chão cujas casas o movimento segue. Sem ela, anda livre.
@@ -101,6 +102,12 @@ var _espera_virar := 0.0
 var _tempo_parado := 1.0
 ## Multiplicador de velocidade do equipamento e das poções (1 = sem bônus).
 var _ritmo := 1.0
+## O mesmo, para andar: o peso do equipamento tem limite menor
+## ([constant Balanceamento.VELOCIDADE_MINIMA_ANDAR]).
+var _ritmo_andar := 1.0
+## Onde ele estava no fim do último quadro de física, para notar quando foi
+## levado de um lugar para outro (troca de sala, derrota, roteiro).
+var _posicao_anterior := Vector2.INF
 ## Onde ele entrou na cena: volta para cá ao ser derrotado.
 var _ponto_de_entrada := Vector2.ZERO
 
@@ -109,8 +116,15 @@ var _ponto_de_entrada := Vector2.ZERO
 @onready var sombra: Node2D = $Sombra
 
 
+## Mais que isto entre dois quadros de física é um salto, não um passo.
+const DISTANCIA_SALTO := 24.0
+
+
 func _ready() -> void:
 	add_to_group(Interagivel.GRUPO_JOGADOR)
+	# Anda na física: a imagem (e a câmera, filha dele) interpola entre os
+	# quadros de física, liso em monitores de 120 ou 240 Hz (Configuracoes).
+	physics_interpolation_mode = Node.PHYSICS_INTERPOLATION_MODE_ON
 	DialogueManager.dialogue_started.connect(_ao_comecar_dialogo)
 	DialogueManager.dialogue_ended.connect(_ao_terminar_dialogo)
 	Inventario.equipamento_mudou.connect(_ao_mudar_equipamento)
@@ -258,9 +272,14 @@ func ritmo() -> float:
 	return _ritmo
 
 
+## Multiplicador de velocidade do andar (o peso do equipamento tem limite).
+func ritmo_andar() -> float:
+	return _ritmo_andar
+
+
 ## Velocidade de andar com o equipamento.
 func velocidade_andando() -> float:
-	return velocidade * _ritmo
+	return velocidade * _ritmo_andar
 
 
 ## Quanto dura o golpe com o equipamento (mais rápido, mais curto).
@@ -470,6 +489,7 @@ func _exit_tree() -> void:
 
 
 func _physics_process(delta: float) -> void:
+	_notar_salto()
 	if grade and not indo_para_casa():
 		_sincronizar_casa()
 	if indo_para_casa():
@@ -635,6 +655,19 @@ func _atualizar_ritmo() -> void:
 	if efeitos:
 		bonus += efeitos.bonus_velocidade()
 	_ritmo = Balanceamento.multiplicador_velocidade(bonus)
+	_ritmo_andar = Balanceamento.multiplicador_andar(bonus)
+
+
+## Foi levado de um lugar para outro desde o último quadro: a imagem e a
+## câmera vão direto para lá, sem deslizar pelo caminho.
+func _notar_salto() -> void:
+	if (_posicao_anterior != Vector2.INF
+			and global_position.distance_to(_posicao_anterior) > DISTANCIA_SALTO):
+		reset_physics_interpolation()
+		var camera := get_node_or_null("Camera") as Camera2D
+		if camera:
+			camera.reset_smoothing()
+	_posicao_anterior = global_position
 
 
 ## Ponto de entrada novo (troca de sala, acampamento).

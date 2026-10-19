@@ -59,6 +59,8 @@ var _destino := Vector2.INF
 
 func _ready() -> void:
 	add_to_group(GRUPO)
+	# Anda na física: a imagem interpola entre os passos (Configuracoes).
+	physics_interpolation_mode = Node.PHYSICS_INTERPOLATION_MODE_ON
 	for id in equipamento:
 		var item := Inventario.item(id)
 		if item:
@@ -92,7 +94,7 @@ func atributos() -> Dictionary:
 
 
 func velocidade_andando() -> float:
-	return velocidade * Balanceamento.multiplicador_velocidade(int(_atributos.velocidade))
+	return velocidade * Balanceamento.multiplicador_andar(int(_atributos.velocidade))
 
 
 func casa_de(ponto: Vector2) -> Vector2i:
@@ -265,7 +267,7 @@ func _preparar() -> void:
 	velocity = Vector2.ZERO
 	if visual:
 		# Aviso: clareia e se ergue um pouco antes de bater.
-		var aviso := create_tween().set_parallel()
+		var aviso := create_tween().set_process_mode(Tween.TWEEN_PROCESS_PHYSICS).set_parallel()
 		aviso.tween_property(visual, "modulate", Color(1.5, 1.4, 1.2), preparo * 0.5)
 		aviso.tween_property(visual, "position", _posicao_visual + Vector2(0, -3), preparo * 0.8)
 
@@ -276,7 +278,7 @@ func _golpear() -> void:
 	golpeou.emit()
 	var direcao := global_position.direction_to(alvo.global_position)
 	if visual:
-		var bote := create_tween()
+		var bote := create_tween().set_process_mode(Tween.TWEEN_PROCESS_PHYSICS)
 		bote.tween_property(visual, "modulate", Color.WHITE, 0.0)
 		bote.tween_property(visual, "position", _posicao_visual + direcao * 5.0, 0.06)
 		bote.tween_property(visual, "position", _posicao_visual, 0.15)

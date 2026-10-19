@@ -10,6 +10,10 @@ extends CanvasLayer
 ## Tempo do fade (para sumir ou aparecer).
 @export var tempo_fade := 0.35
 
+## Altura da linha e distância do alto quando nada a cobre.
+const ALTURA := 40.0
+const TOPO_LIVRE := 18.0
+
 ## Chave atual (vazia quando não há objetivo).
 var chave := ""
 ## Frases soltas que, enquanto aparecem, escondem o objetivo.
@@ -53,6 +57,7 @@ func deve_aparecer() -> bool:
 
 
 func _process(delta: float) -> void:
+	_desviar_da_pausa()
 	var passo := delta / maxf(tempo_fade, 0.01)
 	var novo := texto()
 	if rotulo.text != novo:
@@ -62,6 +67,17 @@ func _process(delta: float) -> void:
 			rotulo.text = novo
 		return
 	rotulo.modulate.a = move_toward(rotulo.modulate.a, 1.0 if deve_aparecer() else 0.0, passo)
+
+
+## Em tela de toque o botão de pausa fica no alto, no centro: a linha desce
+## para baixo dele em vez de ficar escondida atrás.
+func _desviar_da_pausa() -> void:
+	var botao: Control = Pausa.botao_pausa if is_instance_valid(Pausa.botao_pausa) else null
+	var topo := TOPO_LIVRE
+	if botao and botao.visible:
+		topo = botao.offset_bottom + 8.0
+	rotulo.offset_top = topo
+	rotulo.offset_bottom = topo + ALTURA
 
 
 func _ao_comecar_dialogo(_recurso: DialogueResource) -> void:

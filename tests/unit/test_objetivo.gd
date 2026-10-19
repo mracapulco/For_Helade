@@ -52,3 +52,13 @@ func test_todas_as_chaves_do_capitulo_tem_texto() -> void:
 	chaves.append_array(["OBJ_CAP1_PATIO_FONTE", "OBJ_CAP1_PATIO_GUARDAS"])
 	for chave: String in chaves:
 		assert_ne(tr(chave), chave, chave)
+
+
+func test_desce_para_baixo_do_botao_de_pausa_quando_ele_aparece() -> void:
+	# O Pausa reavalia o botão a cada quadro; aqui só a conta da posição.
+	Pausa.botao_pausa.show()
+	objetivo._desviar_da_pausa()
+	assert_gt(objetivo.rotulo.offset_top, Pausa.botao_pausa.offset_bottom)
+	Pausa.botao_pausa.hide()
+	objetivo._desviar_da_pausa()
+	assert_eq(objetivo.rotulo.offset_top, Objetivo.TOPO_LIVRE)

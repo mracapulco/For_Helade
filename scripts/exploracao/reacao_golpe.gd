@@ -59,7 +59,7 @@ func mostrar_dano(valor: int) -> Label:
 	numero.position = Vector2(-16, -altura_numero)
 	numero.z_index = 10
 	add_child(numero)
-	var subir := numero.create_tween().set_parallel()
+	var subir := numero.create_tween().set_process_mode(Tween.TWEEN_PROCESS_PHYSICS).set_parallel()
 	subir.tween_property(numero, "position:y", numero.position.y - 14.0, 0.6)
 	subir.tween_property(numero, "modulate:a", 0.0, 0.6).set_delay(0.25)
 	subir.chain().tween_callback(numero.queue_free)
@@ -75,7 +75,7 @@ func _reagir(direcao: Vector2) -> void:
 	visual.modulate = _cor_original
 	var empurrao := direcao.normalized() * recuo
 	var passo := duracao / 6.0
-	_tween = create_tween().set_parallel(false)
+	_tween = create_tween().set_process_mode(Tween.TWEEN_PROCESS_PHYSICS).set_parallel(false)
 	_tween.tween_property(visual, "position", _posicao_original + empurrao, passo)
 	_tween.tween_property(visual, "position", _posicao_original + empurrao + Vector2(0, -1), passo)
 	_tween.tween_property(visual, "position", _posicao_original + empurrao * 0.5 + Vector2(1, 0), passo)

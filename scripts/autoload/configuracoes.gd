@@ -22,6 +22,12 @@ var arquivo := ARQUIVO
 
 
 func _ready() -> void:
+	# A interpolação de física (project.godot) fica desligada no jogo todo e
+	# só liga em quem anda na física: o personagem da exploração (com a
+	# câmera) e os inimigos. Assim o andar fica liso em monitores acima de
+	# 60 Hz sem atrapalhar o que é movido fora da física (tweens das cenas,
+	# a primeira pessoa do prólogo).
+	get_tree().root.physics_interpolation_mode = Node.PHYSICS_INTERPOLATION_MODE_OFF
 	carregar()
 
 

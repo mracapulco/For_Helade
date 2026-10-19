@@ -366,7 +366,9 @@ func test_anda_de_casa_em_casa_como_na_sala() -> void:
 	var inicio := personagem.casa_de(personagem.global_position)
 	assert_eq(personagem.global_position, personagem.centro_da_casa(inicio), "começa no centro de uma casa")
 	Input.action_press("mover_tras")
-	await wait_physics_frames(5)
+	# Segura além da metade do passo (antes disso, soltar volta para a casa).
+	var casa_s := personagem.centro_da_casa(inicio).distance_to(personagem.centro_da_casa(inicio + Vector2i(1, 0)))
+	await wait_seconds(0.7 * casa_s / personagem.velocidade_andando())
 	Input.action_release("mover_tras")
 	await wait_seconds(1.0)
 	assert_eq(personagem.casa_de(personagem.global_position), inicio + Vector2i(1, 0), "S anda uma casa")

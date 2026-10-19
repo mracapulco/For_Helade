@@ -66,14 +66,58 @@ func _centro_da_casa_mais_perto() -> Vector2:
 	return personagem.centro_da_casa(personagem.casa_de(personagem.global_position))
 
 
-func test_soltar_a_tecla_termina_o_passo_no_centro_da_casa() -> void:
+## Quadros de física para andar esta fração de uma casa.
+func _quadros_para(fracao: float) -> int:
+	var aqui := personagem.casa_de(personagem.global_position)
+	var casa := personagem.centro_da_casa(aqui).distance_to(personagem.centro_da_casa(aqui + Vector2i(1, 0)))
+	return ceili(fracao * casa / personagem.velocidade_andando() * Engine.physics_ticks_per_second)
+
+
+func test_soltar_depois_da_metade_termina_o_passo_no_centro_da_casa() -> void:
 	var inicio := personagem.casa_de(personagem.global_position)
-	await _andar(["mover_tras"], 5)
+	await _andar(["mover_tras"], _quadros_para(0.7))
 	assert_true(personagem.indo_para_casa(), "soltou no meio do passo")
 	await wait_seconds(1.0)
 	assert_false(personagem.indo_para_casa())
 	assert_eq(personagem.casa_de(personagem.global_position), inicio + Vector2i(1, 0), "S anda uma casa em x")
 	assert_eq(personagem.global_position, _centro_da_casa_mais_perto())
+
+
+func test_toque_curto_volta_para_a_casa_de_onde_saiu() -> void:
+	var inicio := personagem.global_position
+	await _andar(["mover_tras"], _quadros_para(0.3))
+	assert_ne(personagem.global_position, inicio, "chegou a sair")
+	await wait_until(func() -> bool: return not personagem.indo_para_casa(), 1.0)
+	assert_eq(personagem.global_position, inicio, "voltou para o centro de onde saiu")
+
+
+func test_duas_teclas_quase_juntas_fazem_a_diagonal_da_tela() -> void:
+	var inicio := personagem.casa_de(personagem.global_position)
+	Input.action_press("mover_tras")
+	await wait_physics_frames(4)
+	Input.action_press("mover_esquerda")
+	await wait_physics_frames(_quadros_para(0.5))
+	Input.action_release("mover_tras")
+	Input.action_release("mover_esquerda")
+	await wait_until(func() -> bool: return not personagem.indo_para_casa(), 1.0)
+	assert_eq(personagem.casa_de(personagem.global_position), inicio + Vector2i(1, 1),
+		"S e A com 4 quadros de diferença: uma casa para baixo na tela, sem zigue-zague")
+
+
+func test_direcao_apertada_depois_da_metade_vale_ao_chegar() -> void:
+	var inicio := personagem.casa_de(personagem.global_position)
+	Input.action_press("mover_tras")
+	await wait_physics_frames(_quadros_para(0.7))
+	Input.action_release("mover_tras")
+	Input.action_press("mover_esquerda")
+	await wait_physics_frames(2)
+	Input.action_release("mover_esquerda")
+	await wait_until(func() -> bool: return not personagem.indo_para_casa(), 1.0)
+	await wait_physics_frames(2)
+	assert_true(personagem.indo_para_casa(), "começou o passo guardado")
+	await wait_until(func() -> bool: return not personagem.indo_para_casa(), 1.0)
+	assert_eq(personagem.casa_de(personagem.global_position), inicio + Vector2i(1, 1),
+		"terminou o passo em S e deu o passo em A guardado")
 
 
 func test_cada_tecla_anda_uma_casa_na_sua_linha() -> void:
@@ -125,9 +169,24 @@ func test_bordas_impedem_sair_da_sala() -> void:
 	assert_true(Geometry2D.is_point_in_polygon(chao.to_local(personagem.global_position), contorno))
 
 
-# ---------- virar antes de andar ----------
+# ---------- virar antes de andar (só em combate) ----------
+
+func _em_combate(sim: bool) -> void:
+	personagem.raio_combate = 100000.0 if sim else 0.0
+
+
+func test_fora_de_combate_direcao_nova_anda_na_hora() -> void:
+	_em_combate(false)
+	var inicio := personagem.global_position
+	personagem.direcao_olhar = PersonagemExploracao.direcao_isometrica(Vector2(0, 1))
+	Input.action_press("mover_frente")
+	await wait_physics_frames(2)
+	assert_ne(personagem.global_position, inicio, "Andou sem parar para virar.")
+	Input.action_release("mover_frente")
+
 
 func test_direcao_nova_primeiro_so_vira() -> void:
+	_em_combate(true)
 	var inicio := personagem.global_position
 	personagem.direcao_olhar = PersonagemExploracao.direcao_isometrica(Vector2(0, 1))
 	Input.action_press("mover_frente")
@@ -138,17 +197,20 @@ func test_direcao_nova_primeiro_so_vira() -> void:
 
 
 func test_segurar_depois_de_virar_anda() -> void:
+	_em_combate(true)
 	var inicio := personagem.casa_de(personagem.global_position)
 	personagem.direcao_olhar = PersonagemExploracao.direcao_isometrica(Vector2(0, 1))
 	Input.action_press("mover_frente")
-	await wait_seconds(personagem.tempo_para_andar + 0.1)
+	await wait_seconds(personagem.tempo_para_andar + 0.05)
 	assert_true(personagem.indo_para_casa(), "Segurou: começou a andar.")
+	await wait_physics_frames(_quadros_para(0.6))
 	Input.action_release("mover_frente")
 	await wait_seconds(1.0)
 	assert_eq(personagem.casa_de(personagem.global_position), inicio + Vector2i(-1, 0))
 
 
 func test_apertar_de_novo_depois_de_virar_anda_na_hora() -> void:
+	_em_combate(true)
 	personagem.direcao_olhar = PersonagemExploracao.direcao_isometrica(Vector2(0, 1))
 	Input.action_press("mover_frente")
 	await wait_physics_frames(2)
@@ -161,18 +223,21 @@ func test_apertar_de_novo_depois_de_virar_anda_na_hora() -> void:
 	Input.action_release("mover_frente")
 
 
-func test_andando_trocar_de_direcao_segue_sem_pausa() -> void:
-	var inicio := personagem.casa_de(personagem.global_position)
+func test_andando_a_direcao_contraria_volta_na_hora() -> void:
+	_em_combate(true)
+	var inicio := personagem.global_position
 	personagem.direcao_olhar = PersonagemExploracao.direcao_isometrica(Vector2(0, 1))
 	Input.action_press("mover_tras")
-	await wait_physics_frames(5)
+	await wait_physics_frames(_quadros_para(0.7))
+	var longe := personagem.global_position.distance_to(inicio)
 	Input.action_release("mover_tras")
 	Input.action_press("mover_frente")
-	await wait_seconds(0.6)
+	await wait_physics_frames(2)
+	assert_lt(personagem.global_position.distance_to(inicio), longe, "Já está voltando, sem esperar o fim do passo.")
+	await wait_physics_frames(_quadros_para(0.5))
 	Input.action_release("mover_frente")
-	await wait_seconds(0.6)
-	assert_eq(personagem.casa_de(personagem.global_position), inicio,
-		"Terminou o passo para trás e já voltou, sem parar para virar.")
+	await wait_until(func() -> bool: return not personagem.indo_para_casa(), 1.0)
+	assert_eq(personagem.global_position, inicio, "Parou de volta na casa de onde saiu.")
 
 
 func test_parado_ha_pouco_ainda_conta_como_andando() -> void:

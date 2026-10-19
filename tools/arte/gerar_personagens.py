@@ -164,6 +164,122 @@ PERSONAGENS = {
             calca='#4A0C12', calca_sombra='#2E070B',
         ),
     ),
+    # --- Rodada 1 do Capítulo 01 (19/10/2026): elenco de apoio ----------------
+    # O livro quase não descreve esses personagens. Em cada entrada, o que vem
+    # do texto/das fichas está dito; todo o resto é INFERÊNCIA provisória,
+    # marcada como tal, até o Rafael ou a Shara confirmarem.
+    #
+    # Danica (duquesa atual, adulta). DO LIVRO (fichas, V1 P2 c12): cabelos
+    # lisos e escuros na altura dos ombros, pele clara demais, vestido
+    # verde-musgo. INFERÊNCIA: o tom exato do verde e dos cabelos, os olhos
+    # castanhos (ela não é Abençoada; o livro não diz), o corte simples do
+    # vestido sem enfeites (ela parece "hóspede" no castelo) e a altura.
+    'danica': dict(
+        topo=4, tronco=12, largura=4, cabelo='chanel', roupa='vestido_longo', saia_passo=5,
+        olho='#5A4636',
+        pele=dict(pele_luz='#F2E2D6', pele='#E6CDBE', pele_sombra='#BE9A8C'),
+        cores=dict(
+            cab_luz='#4A3A38', cab='#2B2223', cab_sombra='#1A1315', cab_fundo='#100B0C',
+            vestido_luz='#7C8B52', vestido='#5B6B3A', vestido_sombra='#3C4A27',
+            calca='#3C4A27', calca_sombra='#28331A',
+        ),
+    ),
+    # Pany definitiva, governanta da Mansão Olympia em Atenas (cap. 01: guia o
+    # cortejo das criadas, acende as velas do bolo, repreende "Lady Althea!").
+    # DO LIVRO: só o cargo e o olhar entre respeito e vontade de puxar a
+    # orelha de Nicholas. INFERÊNCIA (mantida do sprite provisório
+    # pany_provisoria.png): vestido escuro roxo-acinzentado de governanta,
+    # avental claro, chaves na cintura e cabelo grisalho preso em coque; a
+    # idade madura vem daí. Cor de pele: a padrão (livro não diz).
+    'pany': dict(
+        topo=6, tronco=12, largura=4, cabelo='coque', roupa='vestido_longo', saia_passo=5,
+        enfeites=('avental', 'chaves'),
+        cores=dict(
+            cab_luz='#E4E0DA', cab='#B6B1AA', cab_sombra='#807B78', cab_fundo='#5A5654',
+            vestido_luz='#544458', vestido='#3A2F3C', vestido_sombra='#241C26',
+            calca='#241C26', calca_sombra='#150F18',
+            avental='#D8CFC4', avental_sombra='#A79E94',
+        ),
+    ),
+    # Guarda imperial. DO LIVRO (V2 c31): "uniforme dourado e vermelho" e
+    # "colar dourado do uniforme"; no Capítulo 01 são poucos, silenciosos, e
+    # recuam para o anexo. INFERÊNCIA: o corte (casaco vermelho com a faixa
+    # central, ombreiras, cinto e botões dourados), cabelo escuro curto, sem
+    # elmo, sem arma na mão, porte alto de soldado.
+    'guarda_imperial': dict(
+        pasta='guarda_imperial',
+        topo=3, tronco=13, largura=5, cabelo='topete', roupa='colete',
+        enfeites=('colar', 'ombreiras', 'cinto'),
+        cores=dict(
+            cab_luz='#5A4636', cab='#3A2B22', cab_sombra='#24180F', cab_fundo='#170E09',
+            camisa_luz='#ECBD75', camisa='#B98543', camisa_sombra='#8A5E2C',
+            manga='#A8232B', manga_sombra='#6E1219',
+            colete='#A8232B', colete_sombra='#6E1219',
+            cinto='#8A5E2C',
+            calca='#5E1218', calca_sombra='#3E0B10',
+        ),
+    ),
+    # Cocheiro (cap. 01: "cochichou com o cocheiro, alterando a rota"; anuncia
+    # a chegada). DO LIVRO: nada de aparência; a carruagem é azul-marinho e
+    # dourada, com o brasão de Olympia. INFERÊNCIA: é o cocheiro da casa
+    # Olympia, então casaco longo azul-marinho com gola dourada, chapéu de
+    # aba curta com faixa dourada, cabelo castanho, adulto de meia-idade.
+    'cocheiro': dict(
+        topo=5, tronco=13, largura=5, cabelo='topete', roupa='colete', aba=8,
+        enfeites=('gola', 'cinto'),
+        cores=dict(
+            cab_luz='#7A6450', cab='#5A4636', cab_sombra='#3A2B22', cab_fundo='#24180F',
+            camisa_luz='#E4E7EC', camisa='#C9CED8', camisa_sombra='#9AA3B3',
+            manga='#2B3D55', manga_sombra='#13253C',
+            colete='#2B3D55', colete_sombra='#13253C',
+            cinto='#4A3428',
+            calca='#23262F', calca_sombra='#15171C',
+            chapeu='#13253C', chapeu_sombra='#0A1626', chapeu_faixa='#B98543',
+        ),
+    ),
+    # Casal de lojistas da loja de pelúcias (Rua das Butiques). DO LIVRO: são
+    # os "donos" ("o homem do casal"), a loja faz pelúcias sob encomenda a
+    # partir de desenhos estranhos e criaturas do Mar de Equidna, e eles se
+    # ajoelham ao saber quem é Ophelia. INFERÊNCIA: tudo na aparência: roupas
+    # de artesãos com avental, idade madura, cores quentes e discretas.
+    'lojista_homem': dict(
+        pasta='lojista_homem',
+        topo=6, tronco=12, largura=5, cabelo='topete', roupa='colete',
+        enfeites=('avental',),
+        cores=dict(
+            cab_luz='#9A8266', cab='#7A6450', cab_sombra='#554434', cab_fundo='#3A2B22',
+            camisa_luz='#F2EFE8', camisa='#D9D4CA', camisa_sombra='#A9A398',
+            colete='#6B5A3A', colete_sombra='#4A3E28',
+            calca='#3A3F4C', calca_sombra='#23262F',
+            avental='#D8CFC4', avental_sombra='#A79E94',
+        ),
+    ),
+    'lojista_mulher': dict(
+        pasta='lojista_mulher',
+        topo=7, tronco=11, largura=4, cabelo='coque', roupa='vestido_longo', saia_passo=5,
+        enfeites=('avental',),
+        cores=dict(
+            cab_luz='#9A7A5C', cab='#6E5240', cab_sombra='#4A362A', cab_fundo='#33241B',
+            vestido_luz='#C9A08A', vestido='#A67C68', vestido_sombra='#7A5646',
+            calca='#7A5646', calca_sombra='#553B30',
+            avental='#EDE3D2', avental_sombra='#C9B79C',
+        ),
+    ),
+    # Garçom do restaurante (cap. 01: coloca o prato diante de Ophelia e
+    # "permanece"; sai quando Nicholas manda os empregados se retirarem).
+    # DO LIVRO: nada de aparência. INFERÊNCIA: camisa branca, colete escuro,
+    # avental longo branco na cintura, calça escura, cabelo escuro curto.
+    'garcom': dict(
+        topo=5, tronco=12, largura=4, cabelo='topete', roupa='colete',
+        enfeites=('avental',),
+        cores=dict(
+            cab_luz='#4A3A38', cab='#2B2223', cab_sombra='#1A1315', cab_fundo='#100B0C',
+            camisa_luz='#F2EFE8', camisa='#E4E0DA', camisa_sombra='#B6B1AA',
+            colete='#23262F', colete_sombra='#15171C',
+            calca='#23262F', calca_sombra='#15171C',
+            avental='#F2EFE8', avental_sombra='#C9CED8',
+        ),
+    ),
 }
 
 
@@ -271,6 +387,19 @@ def cabelo_frente(q, estilo, x, y):
         q.p(x - 5, y + 2, 'cab_sombra'); q.p(x - 4, y + 2, 'cab_sombra')
         for (dx, dy) in [(-1, -2), (0, -1), (1, -2), (2, -1), (3, 0), (-2, 0), (-3, 1)]:
             q.p(x + dx, y + dy, 'cab_luz')
+    elif estilo == 'coque':
+        # repuxado para trás, risca ao meio e coque no alto da cabeça
+        q.r(x - 5, y, x + 5, y + 3, 'cab')
+        q.r(x - 4, y - 1, x + 4, y - 1, 'cab')
+        q.r(x - 5, y + 3, x - 5, y + 6, 'cab_sombra')
+        q.r(x + 5, y + 3, x + 5, y + 5, 'cab_sombra')
+        q.r(x - 4, y + 3, x - 3, y + 3, 'cab'); q.r(x + 3, y + 3, x + 4, y + 3, 'cab')
+        q.p(x, y, 'cab_sombra'); q.p(x, y + 1, 'cab_sombra')
+        q.r(x - 2, y - 3, x + 2, y - 2, 'cab')
+        q.r(x - 1, y - 4, x + 1, y - 4, 'cab')
+        q.r(x - 2, y - 2, x + 2, y - 2, 'cab_sombra')
+        for (dx, dy) in [(-3, 0), (-2, 1), (2, 0), (3, 1), (-1, -3), (1, -4)]:
+            q.p(x + dx, y + dy, 'cab_luz')
     elif estilo == 'chanel':
         # liso na altura dos ombros, risca de lado e franja varrida para a direita
         q.r(x - 5, y, x + 5, y + 3, 'cab')
@@ -351,6 +480,15 @@ def cabeca_costas(q, estilo, x, y, ate, voa):
             q.p(x + dx, y + dy, 'cab_sombra')
         for (dx, dy) in [(-1, -2), (1, -1), (3, -2), (-3, 1), (0, 1), (2, 2)]:
             q.p(x + dx, y + dy, 'cab_luz')
+    elif estilo == 'coque':
+        q.r(x - 5, y + 2, x + 5, y + 7, 'cab')
+        q.r(x - 4, y + 8, x + 4, y + 8, 'cab_sombra')
+        q.r(x - 2, y - 3, x + 2, y - 2, 'cab')
+        q.r(x - 1, y - 4, x + 1, y - 4, 'cab')
+        q.r(x - 2, y - 2, x + 2, y - 2, 'cab_sombra')
+        for (dx, dy) in [(-3, 1), (0, 2), (3, 3), (-1, 5), (-1, -3), (1, -4)]:
+            q.p(x + dx, y + dy, 'cab_luz')
+        q.p(x + 2, y - 3, 'ouro'); q.p(x - 2, y - 3, 'ouro')       # grampos
     elif estilo == 'chanel':
         q.r(x - 6, y + 2, x + 6, y + 9, 'cab')
         q.r(x - 5, y + 10, x + 5, y + 10, 'cab')
@@ -359,6 +497,15 @@ def cabeca_costas(q, estilo, x, y, ate, voa):
         q.p(x + 2, y, 'cab_sombra'); q.p(x + 2, y + 1, 'cab_sombra')   # risca
         for (dx, dy) in [(-3, 1), (0, 2), (4, 1), (-1, 5), (3, 6), (-4, 8)]:
             q.p(x + dx, y + dy, 'cab_luz')
+
+
+def chapeu(q, x, y):
+    # chapéu de aba curta com faixa; cobre o topo do cabelo (cores 'chapeu*')
+    q.r(x - 5, y - 3, x + 5, y - 1, 'chapeu')
+    q.r(x - 4, y - 4, x + 4, y - 4, 'chapeu')
+    q.r(x - 5, y, x + 5, y, 'chapeu_faixa')
+    q.r(x - 6, y + 1, x + 6, y + 1, 'chapeu_sombra')
+    q.r(x + 2, y - 3, x + 3, y - 2, 'chapeu_sombra')
 
 
 def braco(q, x, y, swing, comprimento, cor, cor_sombra=None, manga=None):
@@ -605,6 +752,36 @@ def enfeites(q, cfg, dir, x, yt, quadril, larg, saia_voa):
         q.r(x - 2, yt, x + 2, yt, 'ouro')
         if dir == 'frente':
             q.p(x, yt + 1, 'ouro_luz')
+    if 'avental' in e:    # avental claro: peitilho e saia (vestido) ou da cintura ao joelho (colete)
+        if cfg['roupa'].startswith('vestido'):
+            hem = PE - (3 if cfg['roupa'] == 'vestido_longo' else 5)
+            topo_av, fim, meia = yt + 3, hem - 1, 3
+        else:
+            topo_av, fim, meia = quadril - 1, quadril + 9, larg
+        if dir == 'frente':
+            q.r(x - meia, topo_av, x + meia, fim, 'avental')
+            q.r(x - meia, topo_av, x - meia, fim, 'avental_sombra')
+            q.r(x - meia, fim, x + meia, fim, 'avental_sombra')
+            q.r(x + 1, topo_av + 1, x + 2, topo_av + 2, 'avental')
+        else:   # de costas só se vê o laço da cintura
+            q.r(x - larg, quadril - 1, x + larg, quadril - 1, 'avental')
+            q.r(x - 1, quadril, x + 1, quadril + 2, 'avental')
+            q.p(x - 1, quadril + 2, 'avental_sombra'); q.p(x + 1, quadril + 2, 'avental_sombra')
+    if 'chaves' in e:     # molho de chaves pendurado na cintura
+        q.r(x + larg - 1, quadril + 1, x + larg, quadril + 3, 'ouro')
+        q.p(x + larg - 1, quadril + 4, 'ouro_sombra'); q.p(x + larg, quadril + 4, 'ouro_luz')
+    if 'colar' in e:      # colar dourado do uniforme, em volta do pescoço
+        if dir == 'frente':
+            for (dx, dy) in [(-3, 0), (-2, 1), (-1, 2), (0, 2), (1, 2), (2, 1), (3, 0)]:
+                q.p(x + dx, yt + dy, 'ouro')
+            q.p(x, yt + 2, 'ouro_luz')
+        else:
+            q.r(x - 3, yt, x + 3, yt, 'ouro')
+    if 'ombreiras' in e:  # ombreiras douradas
+        q.r(x - larg - 2, yt, x - larg, yt + 1, 'ouro')
+        q.r(x + larg, yt, x + larg + 2, yt + 1, 'ouro')
+        q.p(x - larg - 2, yt + 1, 'ouro_sombra'); q.p(x + larg + 2, yt + 1, 'ouro_sombra')
+        q.p(x - larg - 1, yt, 'ouro_luz'); q.p(x + larg + 1, yt, 'ouro_luz')
     if 'barra' in e and cfg['roupa'].startswith('vestido'):   # barra bordada
         hem = PE - (3 if cfg['roupa'] == 'vestido_longo' else 5)
         a = larg + 1 + (hem - quadril) // cfg.get('saia_passo', 3)
@@ -641,6 +818,8 @@ def personagem(cfg, dir, f_esq=0, f_dir=0, lift_esq=0, lift_dir=0, dy=0, inclina
         ombros_da_capa(q, cfg, x, yt, larg)
         cabeca_frente(q, dir, x, yc, olho, bochecha)
         cabelo_frente(q, estilo, x, yc)
+        if 'chapeu' in cores:
+            chapeu(q, x, yc)
         if 'oculos' in cfg:
             oculos_frente(q, x, yc)
     else:
@@ -649,6 +828,8 @@ def personagem(cfg, dir, f_esq=0, f_dir=0, lift_esq=0, lift_dir=0, dy=0, inclina
         enfeites(q, cfg, dir, x, yt, quadril, larg, voa // 2)
         capa(q, cfg, dir, x, yt, quadril, larg)
         cabeca_costas(q, estilo, x, yc, ate, voa)
+        if 'chapeu' in cores:
+            chapeu(q, x, yc)
         if estilo == 'longo':   # braços por cima do cabelo comprido
             braco_costas(q, cfg, x, yt, quadril, larg, braco_esq, braco_dir, alcance)
     if ergue:
@@ -762,12 +943,13 @@ def maos_tres(cfg):
 if __name__ == '__main__':
     raiz = os.path.join(os.path.dirname(__file__), '..', '..', 'assets', 'art', 'personagens')
     for id, cfg in PERSONAGENS.items():
-        pasta = os.path.join(raiz, id.split('_')[0])
+        nome_pasta = cfg.get('pasta', id.split('_')[0])
+        pasta = os.path.join(raiz, nome_pasta)
         os.makedirs(pasta, exist_ok=True)
         im, linhas = folha(cfg)
         im.save(os.path.join(pasta, '%s_exploracao.png' % id))
         with open(os.path.join(pasta, '%s_exploracao.tres' % id), 'w') as f:
-            f.write(sprite_frames(id, linhas))
+            f.write(sprite_frames(id, linhas, 'res://assets/art/personagens/%s/%s_exploracao.png' % (nome_pasta, id)))
         if cfg.get('golpe'):
             with open(os.path.join(pasta, '%s_maos.tres' % id), 'w') as f:
                 f.write(maos_tres(cfg))

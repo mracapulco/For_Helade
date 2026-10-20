@@ -136,6 +136,12 @@ func test_restaurante_da_mesa_ao_passeio() -> void:
 
 func test_visao_da_varanda_leva_as_butiques() -> void:
 	await _abrir("res://scenes/capitulo_01/cena_visao.tscn", "visao")
+	# Os três sentados na carruagem andando, antes e depois da visão.
+	var carruagem: Node2D = cena.objetos["carruagem"]
+	for nome in ["althea_sentado", "ophelia_sentado", "nicholas_sentado"]:
+		assert_eq(cena.objetos[nome].get_parent(), carruagem, nome)
+	assert_eq(carruagem.get_child(-1).name, "Frente")
+	assert_false(cena.jogador.get_node("Corpo").visible, "Nicholas só aparece sentado")
 	await _esperar_pedido()
 	assert_eq(cena.etapa, "butiques")
 	assert_eq(cena.cena_pedida, SequenciaCenas01.CENAS["butiques"])

@@ -98,3 +98,27 @@ func _fala(personagem: String, etiquetas: Array) -> DialogueLine:
 	fala.character = personagem
 	fala.tags = PackedStringArray(etiquetas)
 	return fala
+
+
+func test_boca_mexe_enquanto_a_voz_toca() -> void:
+	var caixa: CaixaDialogo = load("res://scenes/ui/caixa_dialogo.tscn").instantiate()
+	add_child_autofree(caixa)
+	var janet := Elenco.buscar("Janet")
+	caixa._retrato_parado = janet.retrato("neutro")
+	caixa._quadros_fala = janet.quadros_fala("neutro")
+	# Uma voz de 1 s de silêncio no tocador da Voz, como se fosse a fala gravada.
+	var voz := AudioStreamWAV.new()
+	voz.data = PackedByteArray()
+	voz.data.resize(44100 * 2)
+	Voz._tocador.stream = voz
+	Voz._tocador.play()
+	assert_true(Voz.falando())
+	var vistos := {}
+	for i in 8:
+		caixa._process(CaixaDialogo.TEMPO_QUADRO_FALA)
+		vistos[caixa.retrato.texture] = true
+	assert_gt(vistos.size(), 1, "o texto já acabou, mas a voz continua: a boca mexe")
+	Voz.parar()
+	assert_false(Voz.falando())
+	caixa._process(0.0)
+	assert_eq(caixa.retrato.texture, caixa._retrato_parado, "a voz acabou: boca fechada")

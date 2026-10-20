@@ -129,5 +129,10 @@ func tocando() -> bool:
 	return _tocador != null and (_tocador.playing or _som.playing or _coro.any(func(t: AudioStreamPlayer) -> bool: return t.playing))
 
 
+## Alguém está falando agora (a voz ou o coro; o som da fala não conta).
+func falando() -> bool:
+	return _tocador != null and (_tocador.playing or _coro.any(func(t: AudioStreamPlayer) -> bool: return t.playing))
+
+
 static func _normalizar(texto: String) -> String:
 	return " ".join(texto.strip_edges().split(" ", false))

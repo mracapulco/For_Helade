@@ -112,7 +112,8 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	if is_instance_valid(dialogue_line):
 		progress.visible = not dialogue_label.is_typing and dialogue_line.responses.size() == 0
-	animar_boca(delta, is_instance_valid(dialogue_label) and dialogue_label.is_typing)
+	# A boca mexe enquanto o texto aparece e enquanto a voz gravada toca.
+	animar_boca(delta, (is_instance_valid(dialogue_label) and dialogue_label.is_typing) or Voz.falando())
 
 
 ## Mexe a boca do retrato enquanto o texto aparece; parado, mostra o retrato

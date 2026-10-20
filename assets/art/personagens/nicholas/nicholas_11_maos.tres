@@ -17,7 +17,9 @@ pontos = {
 &"golpe_frente": PackedVector2Array(22, 21, 28, 30, 22, 39),
 &"golpe_costas": PackedVector2Array(22, 21, 28, 30, 22, 39),
 &"rendicao_frente": PackedVector2Array(22, 21, 22, 22),
-&"rendicao_costas": PackedVector2Array(22, 21, 22, 22)
+&"rendicao_costas": PackedVector2Array(22, 21, 22, 22),
+&"bracos_cruzados_frente": PackedVector2Array(21, 31, 21, 32),
+&"bracos_cruzados_costas": PackedVector2Array(21, 31, 21, 32)
 }
 angulos = {
 &"golpe_frente": PackedFloat32Array(180, -90, 0),
@@ -35,5 +37,7 @@ pontos_tras = {
 &"golpe_frente": PackedVector2Array(10, 37, 11, 38, 11, 38),
 &"golpe_costas": PackedVector2Array(10, 37, 11, 38, 11, 38),
 &"rendicao_frente": PackedVector2Array(9, 21, 9, 22),
-&"rendicao_costas": PackedVector2Array(9, 21, 9, 22)
+&"rendicao_costas": PackedVector2Array(9, 21, 9, 22),
+&"bracos_cruzados_frente": PackedVector2Array(10, 30, 10, 31),
+&"bracos_cruzados_costas": PackedVector2Array(10, 30, 10, 31)
 }

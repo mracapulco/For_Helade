@@ -121,6 +121,8 @@ var brilhos := {}
 ## virado para cada extremidade.
 var _olhar_na_porta := Vector2.ZERO
 var _tempo_olhando := {}
+## Nicholas de braços cruzados na porta de Althea (CAP1_030), até se mexer.
+var _bracos_cruzados := false
 ## Quantas vezes Nicholas já tocou Althea na cama.
 var toques_na_cama := 0
 ## A garota do sonho andando até a porta.
@@ -385,7 +387,12 @@ func _physics_process(delta: float) -> void:
 	if etapa == "sonho" and perto_da_garota():
 		chegar_na_garota()
 		return
-	if etapa != "esperando" or jogador.direcao_olhar.is_equal_approx(_olhar_na_porta):
+	if etapa != "esperando":
+		return
+	if _bracos_cruzados and (jogador.velocity.length() > 1.0
+			or not jogador.direcao_olhar.is_equal_approx(_olhar_na_porta)):
+		_descruzar_os_bracos()
+	if jogador.direcao_olhar.is_equal_approx(_olhar_na_porta):
 		return
 	_olhar_na_porta = Vector2.INF
 	for nome: String in RUMO_EXTREMIDADES:
@@ -407,6 +414,8 @@ func esperar_cortejo() -> void:
 	_ativar(objetos["porta_althea"], false)
 	_tingir(TOM_AMANHECER, 6.0)
 	_frases("frases_esperando")
+	# "Nicholas cruzou os braços e esperou." (CAP1_030, a primeira frase).
+	_cruzar_os_bracos()
 	for nome: String in EXTREMIDADES:
 		_ativar(objetos[nome], true)
 	# Basta virar para uma ponta (sem ir até lá) para olhar para ela.
@@ -426,6 +435,7 @@ func olhar_extremidade(nome: String) -> void:
 	if etapa != "esperando" or extremidades_vistas.has(nome):
 		return
 	extremidades_vistas.append(nome)
+	_descruzar_os_bracos()
 	_ativar(objetos[nome], false)
 	var janela := "janela_esq" if nome == "extremidade_esq" else "janela_dir"
 	if brilhos.has(janela):
@@ -575,6 +585,20 @@ func _golpe_de_althea() -> void:
 	_virar(althea, jogador.position)
 	visual.frame = 0
 	visual.play()
+
+
+## Na porta de Althea: braços cruzados enquanto espera; ao se mexer (andar
+## ou virar para uma ponta do corredor), o desenho volta a seguir o movimento.
+func _cruzar_os_bracos() -> void:
+	_bracos_cruzados = true
+	_pose_de_nicholas(&"bracos_cruzados")
+
+
+func _descruzar_os_bracos() -> void:
+	if not _bracos_cruzados:
+		return
+	_bracos_cruzados = false
+	jogador.get_node("Corpo/Visual").set_process(true)
 
 
 ## Nicholas numa pose fora das que o desenho escolhe sozinho (a animação do

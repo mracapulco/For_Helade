@@ -420,6 +420,23 @@ func test_no_sonho_nicholas_anda_devagar_ao_som_do_relogio() -> void:
 	assert_gt(capitulo.jogador.velocidade, Capitulo01.VELOCIDADE_NO_SONHO, "acordado, volta ao passo normal")
 
 
+func test_na_porta_de_althea_nicholas_cruza_os_bracos_ate_se_mexer() -> void:
+	var quadros: SpriteFrames = load("res://assets/art/personagens/nicholas/nicholas_11_exploracao.tres")
+	for lado in ["frente", "costas"]:
+		assert_true(quadros.has_animation("bracos_cruzados_%s" % lado), "bracos_cruzados_%s" % lado)
+	await _ate_o_corredor()
+	_interagir("porta_althea")
+	await _esperar_etapa("esperando")
+	var visual: AnimatedSprite2D = capitulo.jogador.get_node("Corpo/Visual")
+	assert_string_starts_with(visual.animation, "bracos_cruzados_", "\"Nicholas cruzou os braços e esperou.\"")
+	await wait_physics_frames(3)
+	assert_string_starts_with(visual.animation, "bracos_cruzados_", "parado, continua de braços cruzados")
+	capitulo.jogador.direcao_olhar = Vector2(1, -1).normalized()
+	await wait_physics_frames(3)
+	assert_true(visual.is_processing(), "ao se mexer, o desenho volta a seguir o movimento")
+	assert_false(String(visual.animation).begins_with("bracos_cruzados_"), "e descruza os braços")
+
+
 func test_com_o_duque_althea_segura_a_espada_e_a_aperta_no_peito() -> void:
 	var quadros: SpriteFrames = load("res://assets/art/personagens/althea/althea_6_exploracao.tres")
 	for pose in ["espada_colo", "abraca_espada"]:

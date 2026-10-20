@@ -12,6 +12,9 @@ const ROTEIRO := preload("res://data/dialogos/capitulo_01/visao_carruagem.dialog
 ## a frente), como no embarque do Palácio (cena_palacio.gd).
 const BANCO := {"althea": -0.9, "ophelia": 0.0, "nicholas": 0.9}
 const CASA_CARRO := Vector2i(15, 8)
+## Segundos de viagem antes da visão começar a ondular (Rafael, 20/10/2026:
+## "pelo menos uns 2 ou 3 segundos da viagem").
+const SEGUNDOS_DE_VIAGEM := 3.0
 
 ## As animações da viagem (balanço, rodas, rua, margens), paradas no fim.
 var _viagem: Array[Tween] = []
@@ -28,6 +31,7 @@ func id_da_cena() -> String:
 func comecar() -> void:
 	montar_carruagem()
 	await _clarear()
+	await _esperar(SEGUNDOS_DE_VIAGEM)
 	_mudar("visao")
 	await VisaoVaranda.tocar(self, escala_tempo)
 	_mudar("apelido")

@@ -9,7 +9,7 @@
 ~ frases_palacio_chegada
 
 ## A carruagem entra no pátio.
-O Palácio Imperial se ergueu diante deles. [ID:CAP1_107]
+O Palácio Imperial se ergueu diante de nós. [ID:CAP1_107]
 Tudo era excessivo. Alto demais, amplo demais, ornamentado demais. [ID:CAP1_108]
 => END
 
@@ -44,7 +44,7 @@ $> Codice.anotar("olhos_de_ophelia")
 
 ## Althea rompe o momento; a princesa ri.
 Althea: [#retrato=neutro] Minha Hera! Princesa, você é muito bonita! [ID:CAP1_120]
-Nicholas esperava constrangimento. Irritação. Em vez disso, a princesa riu. Um som leve, como se estivesse guardado havia tempo demais. [ID:CAP1_121]
+Eu esperava constrangimento. Irritação. Em vez disso, a princesa riu. Um som leve, como se estivesse guardado havia tempo demais. [ID:CAP1_121]
 Algo estava errado. [ID:CAP1_122]
 => END
 
@@ -72,7 +72,7 @@ Curto. Distante. [ID:CAP1_128]
 ~ frases_anexo_vazio
 
 ## Último olhar ao anexo.
-Antes de entrar, ele lançou um último olhar ao anexo. Vazio. [ID:CAP1_129]
+Antes de entrar, lancei um último olhar ao anexo. Vazio. [ID:CAP1_129]
 $> Codice.anotar("anexo_vazio")
 => END
 
@@ -87,5 +87,5 @@ Sim. Leais à Olympia. Não ao Império. [ID:CAP1_132]
 ~ frases_partida
 
 ## A carruagem parte.
-Ele não respondeu. Apenas assentiu, pouco convencido, e bateu na estrutura da carruagem. Partiram. [ID:CAP1_133]
+Não respondi. Apenas assenti, pouco convencido, e bati na estrutura da carruagem. Partimos. [ID:CAP1_133]
 => END

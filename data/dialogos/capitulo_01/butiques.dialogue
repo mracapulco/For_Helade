@@ -8,7 +8,7 @@
 ~ frases_rua
 
 ## A carruagem para; o brasão de Olympia faz as pessoas se afastarem.
-A carruagem parou. Chegaram à Rua das Butiques. [ID:CAP1_153]
+A carruagem parou. Chegamos à Rua das Butiques. [ID:CAP1_153]
 O movimento era constante, até o brasão de Olympia ser reconhecido. As pessoas se afastavam, abrindo espaço. [ID:CAP1_154]
 $> Codice.anotar("rua_das_butiques")
 Quatro. Insuficiente, para os padrões do duque. [ID:CAP1_155]
@@ -18,7 +18,7 @@ Quatro. Insuficiente, para os padrões do duque. [ID:CAP1_155]
 
 ## Nicholas escolhe quem entra com eles.
 Nicholas: [#retrato=neutro] Dois comigo. [ID:CAP1_156]
-Entraram. [ID:CAP1_157]
+Entramos. [ID:CAP1_157]
 => END
 
 ~ frases_loja
@@ -57,7 +57,7 @@ Lojista: [#retrato=neutro] Claro, Jovem Mestre. [ID:CAP1_170]
 ~ frases_prateleiras
 
 ## Na sala lateral.
-Althea se agachou entre as prateleiras baixas. Ophelia fez o mesmo, sem hesitar. Aquilo o incomodou. [ID:CAP1_171]
+Althea se agachou entre as prateleiras baixas. Ophelia fez o mesmo, sem hesitar. Aquilo me incomodou. [ID:CAP1_171]
 => END
 
 ~ presente
@@ -84,6 +84,6 @@ Sorrisos vazios. Troca justa. [ID:CAP1_178]
 ~ frases_saida
 
 ## De volta à carruagem.
-Com a compra feita, retornaram à carruagem. O mesmo ritual os seguiu. Olhares, reverências e sussurros. [ID:CAP1_179]
-Ao menos, no almoço, estariam isolados. [ID:CAP1_180]
+Com a compra feita, retornamos à carruagem. O mesmo ritual nos seguiu. Olhares, reverências e sussurros. [ID:CAP1_179]
+Ao menos, no almoço, estaríamos isolados. [ID:CAP1_180]
 => END

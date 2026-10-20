@@ -20,13 +20,13 @@ Início da Primavera. 12º ano do 20º Ciclo. [ID:CAP1_002]
 ## O corredor quente do sonho; Nicholas segue a garota.
 Tic. [ID:CAP1_003]
 Tac. [ID:CAP1_004]
-Por um corredor não familiar ele seguia uma garota. [ID:CAP1_005]
+Por um corredor não familiar eu seguia uma garota. [ID:CAP1_005]
 => END
 
 ~ frases_porta_do_sonho
 
 ## A porta do fim do corredor se abre para o frio.
-À sua frente, ela parou. E nada disse. [ID:CAP1_012]
+À minha frente, ela parou. E nada disse. [ID:CAP1_012]
 Tic. [ID:CAP1_014]
 Tac. [ID:CAP1_015]
 => END
@@ -34,7 +34,7 @@ Tac. [ID:CAP1_015]
 ~ frases_despertar
 
 ## Nicholas acorda no próprio quarto, antes do amanhecer.
-Nicholas acordou em um salto. [ID:CAP1_016]
+Acordei em um salto. [ID:CAP1_016]
 Era o aniversário de Thea. [ID:CAP1_019]
 => END
 
@@ -48,14 +48,14 @@ Herdeiro da Casa Olympia. [ID:CAP1_026]
 ~ frases_espelho_sem_roupa
 
 ## O espelho antes de pegar a roupa no armário.
-Diante do espelho, grande demais para o quarto e ainda maior para ele. [ID:CAP1_091]
+Diante do espelho, grande demais para o quarto e ainda maior para mim. [ID:CAP1_091]
 => END
 
 ~ frases_esperando
 
 ## Diante da porta de Althea, ninguém chegou ainda.
-Nicholas cruzou os braços e esperou. [ID:CAP1_030]
-Ele olhou para uma das extremidades do corredor. [ID:CAP1_106]
+Cruzei os braços e esperei. [ID:CAP1_030]
+Olhei para uma das extremidades do corredor. [ID:CAP1_106]
 => END
 
 ~ frases_nada
@@ -67,8 +67,8 @@ Nada. [ID:CAP1_092]
 ~ frases_cortejo_chega
 
 ## Depois de olhar as duas extremidades, o cortejo enfim chega.
-Bateu o pé no chão. [ID:CAP1_093]
-Finalmente, ouviu cochichos e risos abafados. [ID:CAP1_034]
+Bati o pé no chão. [ID:CAP1_093]
+Finalmente, ouvi cochichos e risos abafados. [ID:CAP1_034]
 => END
 
 ~ cortejo
@@ -97,7 +97,7 @@ Ela resmungou e apertou a pelúcia. [ID:CAP1_094]
 ~ frases_puxou
 
 ## Na segunda vez, ele tira a pelúcia dos braços dela.
-Nicholas puxou o monstro marinho de seus braços. [ID:CAP1_095]
+Puxei o monstro marinho de seus braços. [ID:CAP1_095]
 => END
 
 ~ acordar_althea
@@ -116,9 +116,9 @@ Nicholas: [#retrato=neutro] Não. Pedi que embrulhassem um presente para mim e d
 O presente dela era uma espada de madeira, esculpida para o tamanho das mãos da minha irmã. [ID:CAP1_051]
 - [Fingir rendição] [ID:CAP1_OPC_ESPADA_RENDICAO]
 	$> Relacoes.ajustar("althea", 1)
-	Nicholas ergueu as mãos, fingindo rendição. [ID:CAP1_099]
+	Ergui as mãos, fingindo rendição. [ID:CAP1_099]
 - [Desviar, rindo] [ID:CAP1_OPC_ESPADA_DESVIAR]
-	Nicholas desviou, rindo. [ID:CAP1_100]
+	Desviei, rindo. [ID:CAP1_100]
 Nicholas: [#retrato=neutro] Veja só. Seis anos e já pretende assassinar o próprio irmão. [ID:CAP1_054]
 Althea: [#retrato=neutro] Você disse que me ensinaria! [ID:CAP1_055]
 Nicholas: [#retrato=neutro] Eu disse que lhe ensinaria a usar uma espada. Não que poderia começar por mim. [ID:CAP1_056]
@@ -127,7 +127,7 @@ Nicholas: [#retrato=neutro] Eu disse que lhe ensinaria a usar uma espada. Não q
 ~ frases_presentes
 
 ## Os empregados entregam os outros presentes.
-Nicholas a observou com orgulho. [ID:CAP1_059]
+Eu a observei com orgulho. [ID:CAP1_059]
 => END
 
 ~ frases_mesa
@@ -156,10 +156,10 @@ Apollon: [#retrato=neutro] Pense o que quiser. Apenas mantenha a postura diante 
 Althea: [#retrato=neutro] Pa-parem de brigar... [ID:CAP1_070]
 - [Olhar para Althea] [ID:CAP1_OPC_DUQUE_ALTHEA]
 	$> Relacoes.ajustar("althea", 1)
-	A irmã apertava o punho da espada contra o peito, os olhos brilhando com lágrimas. [ID:CAP1_102]
+	Minha irmã apertava o punho da espada contra o peito, os olhos brilhando com lágrimas. [ID:CAP1_102]
 - [Encarar o duque] [ID:CAP1_OPC_DUQUE_ENCARAR]
 	$> Relacoes.ajustar("apollon", -1)
-	A desconfiança de Nicholas permaneceu. [ID:CAP1_103]
+	Minha desconfiança permaneceu. [ID:CAP1_103]
 Apollon: [#retrato=neutro] Não vim para discutir. Vim parabenizar minha filha e incumbir os dois de uma tarefa. [ID:CAP1_071]
 Nicholas: [#retrato=neutro] Que tarefa? [ID:CAP1_072]
 Apollon: [#retrato=neutro] Como uma nova condição para o nosso retorno, levaremos a Princesa Ophelia conosco para Olympia. Vocês deverão ir ao Palácio Imperial e trazer ela até o fim do dia. [ID:CAP1_073]

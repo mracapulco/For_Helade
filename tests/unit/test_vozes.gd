@@ -242,7 +242,7 @@ func test_althea_resmunga_com_a_voz_dela() -> void:
 
 func test_nicholas_adulto_narra_no_capitulo_01() -> void:
 	var falas := _da_manha()
-	for id in ["CAP1_061", "CAP1_083", "CAP1_084"]:
+	for id in ["CAP1_016", "CAP1_030", "CAP1_061", "CAP1_083", "CAP1_084", "CAP1_103"]:
 		assert_eq(_arquivo(falas, id).get("voz"), "nicholas", id)
 	for id in ["CAP1_104", "CAP1_105"]:
 		assert_eq(_arquivo(falas, id).get("voz"), "nicholas_crianca", id)

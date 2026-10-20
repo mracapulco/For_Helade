@@ -414,7 +414,7 @@ func esperar_cortejo() -> void:
 	_ativar(objetos["porta_althea"], false)
 	_tingir(TOM_AMANHECER, 6.0)
 	_frases("frases_esperando")
-	# "Nicholas cruzou os braços e esperou." (CAP1_030, a primeira frase).
+	# "Cruzei os braços e esperei." (CAP1_030, a primeira frase).
 	_cruzar_os_bracos()
 	for nome: String in EXTREMIDADES:
 		_ativar(objetos[nome], true)

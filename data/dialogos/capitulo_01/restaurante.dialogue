@@ -10,7 +10,7 @@
 
 ## A mesa redonda.
 A mesa redonda era pequena o bastante para que as três crianças se acomodassem sem dificuldade. [ID:CAP1_181]
-O restaurante era outro dos estabelecimentos que os irmãos Olympia frequentavam em Atenas. [ID:CAP1_182]
+O restaurante era outro dos estabelecimentos que nós, os irmãos Olympia, frequentávamos em Atenas. [ID:CAP1_182]
 Quando gostava de um lugar, voltava. Quando confiava em alguém, continuava confiando. [ID:CAP1_183]
 => END
 
@@ -33,7 +33,7 @@ Ophelia: [#retrato=neutro] Você é uma garota muito esperta, Lady Althea. Mas n
 - [Insistir com firmeza] [ID:CAP1_OPC_SOPA_FIRME]
 	$> Relacoes.ajustar("ophelia", -1)
 	Nicholas: [#retrato=neutro] Faço questão de que coma alguma coisa. Terei sérios problemas com o Duque se ele descobrir que a trouxe até aqui e a deixei passar fome. [ID:CAP1_190]
-Nicholas fez o pedido em voz baixa. [ID:CAP1_191]
+Fiz o pedido em voz baixa. [ID:CAP1_191]
 Althea: [#retrato=neutro] Lia, se você pedir com jeitinho, talvez Nick deixe você comer apenas a sobremesa. [ID:CAP1_192]
 Nicholas: [#retrato=neutro] Eu ouvi isso. [ID:CAP1_193]
 Althea: [#retrato=neutro] Não ouviu, não. [ID:CAP1_194]
@@ -53,11 +53,11 @@ Althea: [#retrato=neutro] Lia tem razão. Você está sendo muito grosseiro, Nic
 ~ colher
 
 ## Nicholas prova a sopa com a própria colher e percebe o que fez.
-Sem pensar, puxou a tigela para perto de si. [ID:CAP1_201]
-Mexeu a sopa com a colher, soprou algumas vezes e levou uma pequena porção à boca para testar a temperatura. [ID:CAP1_202]
+Sem pensar, puxei a tigela para perto de mim. [ID:CAP1_201]
+Mexi a sopa com a colher, soprei algumas vezes e levei uma pequena porção à boca para testar a temperatura. [ID:CAP1_202]
 Nicholas: [#retrato=neutro] Pronto. Não está mais quente. [ID:CAP1_203]
-Foi então que percebeu o silêncio ao redor. [ID:CAP1_204]
-Nicholas olhou para a colher ainda dentro da tigela. A colher que acabara de colocar na própria boca. [ID:CAP1_205]
+Foi então que percebi o silêncio ao redor. [ID:CAP1_204]
+Olhei para a colher ainda dentro da tigela. A colher que acabara de colocar na própria boca. [ID:CAP1_205]
 => END
 
 ~ desculpas
@@ -82,7 +82,7 @@ Nicholas: [#retrato=neutro] Podem nos deixar. [ID:CAP1_212]
 ## A porta se fecha; as três crianças riem.
 A porta mal havia se fechado quando as três crianças começaram a rir. [ID:CAP1_213]
 Althea: [#retrato=neutro] Que bom que seu apetite voltou, Lia! [ID:CAP1_214]
-Nicholas levantou-se, foi até o armário onde o restaurante guardava parte da louça e retirou uma colher limpa. [ID:CAP1_215]
+Levantei-me, fui até o armário onde o restaurante guardava parte da louça e retirei uma colher limpa. [ID:CAP1_215]
 Nicholas: [#retrato=neutro] Você é... Estranha. [ID:CAP1_216]
 => END
 

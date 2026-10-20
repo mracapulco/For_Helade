@@ -428,7 +428,7 @@ func test_na_porta_de_althea_nicholas_cruza_os_bracos_ate_se_mexer() -> void:
 	_interagir("porta_althea")
 	await _esperar_etapa("esperando")
 	var visual: AnimatedSprite2D = capitulo.jogador.get_node("Corpo/Visual")
-	assert_string_starts_with(visual.animation, "bracos_cruzados_", "\"Nicholas cruzou os braços e esperou.\"")
+	assert_string_starts_with(visual.animation, "bracos_cruzados_", "\"Cruzei os braços e esperei.\"")
 	await wait_physics_frames(3)
 	assert_string_starts_with(visual.animation, "bracos_cruzados_", "parado, continua de braços cruzados")
 	capitulo.jogador.direcao_olhar = Vector2(1, -1).normalized()

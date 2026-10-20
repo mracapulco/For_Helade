@@ -287,6 +287,15 @@ def roupa(q, cfg, g):
     elif estilo == 'colete_janet':  # vestido claro e colete azul
         q.poly([(22, y - 1), (42, y - 1), (39, 63), (25, 63)], '#E8DCC4')
         q.poly([(25, y - 1), (39, y - 1), (36, y + 3), (32, y + 4), (28, y + 3)], cfg['pele']['base'])
+    elif estilo == 'uniforme':      # guarda imperial: casaco vermelho, faixa central e colar dourados, ombreiras
+        q.poly([(25, y - 2), (39, y - 2), (37, y + 2), (27, y + 2)], r['luz'])           # gola alta
+        q.r(29, y + 2, 35, 63, '#B98543')                                                 # faixa central
+        q.r(29, y + 2, 29, 63, '#8A5E2C')
+        for yy in range(y + 4, 63, 3):
+            q.p(32, yy, '#ECBD75')                                                        # botões
+        q.linha([(24, y + 1), (28, y + 4), (32, y + 5), (36, y + 4), (40, y + 1)], ANEL)  # colar dourado
+        q.poly([(5, y + 6), (9, y + 2), (17, y), (18, y + 3), (8, y + 7)], '#B98543')     # ombreiras
+        q.poly([(59, y + 6), (55, y + 2), (47, y), (46, y + 3), (56, y + 7)], '#8A5E2C')
     elif estilo == 'governanta':    # vestido escuro fechado com gola branca
         q.poly([(25, y - 1), (39, y - 1), (37, y + 3), (27, y + 3)], '#E4E2DE')
         q.poly([(24, y + 1), (28, y + 4), (32, y + 2), (36, y + 4), (40, y + 1), (38, y + 5), (32, y + 4),
@@ -474,6 +483,14 @@ ELENCO = {
         '': dict(pele=PELE_OLYMPIA, geometria='adulto', cabelo='penteado', cabelo_cores=CAB_APOLLON,
                  olhos=('#DCEAF4', '#9FB4C8'), ruga=True,
                  roupa=dict(estilo='casaco', base='#13253C', sombra='#0A1626', luz='#2B3D55')),
+    },
+    # Guarda imperial do Capítulo 01 (falante "Guarda"). DO LIVRO (V2 c31):
+    # "uniforme dourado e vermelho" e o colar dourado do uniforme. INFERÊNCIA,
+    # como na folha da exploração: cabelo escuro curto, sem elmo, adulto.
+    'guarda': {
+        '': dict(pele=PELE_MADURA, geometria='adulto', cabelo='penteado', cabelo_cores=CAB_ESCURO,
+                 olhos=CASTANHO,
+                 roupa=dict(estilo='uniforme', base='#A8232B', sombra='#6E1219', luz='#C83A40')),
     },
     'janet': {
         '': dict(pele=PELE_ESCURA, geometria='adulta', cabelo='bandana', cabelo_cores=CAB_JANET,

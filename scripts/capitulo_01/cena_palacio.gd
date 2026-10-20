@@ -186,7 +186,6 @@ func chegada_de_ophelia() -> void:
 	await _caminhar(althea, [sala.centro(casa_althea)])
 	_virar(althea, ophelia.position)
 	await _falar_travado("apresentacao")
-	await _frases("frases_olhos")
 	await _falar_travado("ophelia_riu")
 	await _falar_travado("pedido_loja")
 	await recuo_dos_guardas()

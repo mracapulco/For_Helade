@@ -70,7 +70,7 @@ func test_entradas_novas_do_codice() -> void:
 
 func test_marcadores_anotam_o_codice() -> void:
 	await _percorrer(PALACIO, "frases_poucos_guardas", [])
-	await _percorrer(PALACIO, "frases_olhos", [])
+	await _percorrer(PALACIO, "apresentacao", [])
 	await _percorrer(PALACIO, "frases_anexo_vazio", [])
 	await _percorrer(BUTIQUES, "frases_rua", [])
 	for id in ["poucos_guardas", "olhos_de_ophelia", "anexo_vazio", "rua_das_butiques"]:

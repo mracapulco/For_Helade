@@ -34,15 +34,9 @@ Guarda: [#retrato=neutro] Anunciando os filhos do Duque de Olympia, Jovem Mestre
 Nicholas: [#retrato=neutro] É uma honra conhecê-la, Princesa Ophelia. [ID:CAP1_113]
 Althea: [#retrato=neutro] P-prazer… Princesa. [ID:CAP1_114]
 Ophelia: [#retrato=neutro] A honra é minha, filhos de Olympia. Fico feliz de estar aos seus cuidados. [ID:CAP1_115]
-Era a primeira vez que a viam. [ID:CAP1_116]
-=> END
-
-~ frases_olhos
-
-## Nicholas ergue o rosto e vê os olhos de Ophelia.
-Os olhos. [ID:CAP1_117]
-Azuis pálidos. [ID:CAP1_118]
-Iguais aos dele. [ID:CAP1_119]
+## Nicholas adulto narra (Rafael, 20/10/2026: no lugar das frases soltas).
+Essa foi a primeira vez que nós vimos a princesa. [ID:CAP1_116]
+Os olhos dela também eram assim… como os meus. [ID:CAP1_117]
 $> Codice.anotar("olhos_de_ophelia")
 => END
 

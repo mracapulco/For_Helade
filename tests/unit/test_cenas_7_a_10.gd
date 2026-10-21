@@ -93,10 +93,11 @@ func test_presente_ajusta_a_relacao_com_ophelia() -> void:
 func test_butiques_guardas_e_prateleiras_tem_suas_falas() -> void:
 	assert_eq(await _percorrer(BUTIQUES, "guardas_dois", []), ["CAP1_156"] as Array[String])
 	assert_eq(await _percorrer(BUTIQUES, "frases_guardas_porta", []), ["CAP1_218"] as Array[String])
-	# Uma frase por prateleira vista, até a que leva Ophelia a trazer a criatura.
-	for i in CenaButiques.PRATELEIRAS_PARA_ACHAR:
+	# Uma pista e uma frase por pedido da Thea achado, num esconderijo da sala.
+	for i in CenaButiques.PISTAS.size():
 		assert_eq((await _percorrer(BUTIQUES, "frases_prateleira_%d" % (i + 1), [])).size(), 1)
-	assert_true(CenaButiques.PRATELEIRAS_PARA_ACHAR <= CenaButiques.PRATELEIRAS.size())
+		assert_eq((await _percorrer(BUTIQUES, "frases_pista_%d" % (i + 1), [])).size(), 1)
+		assert_true(CenaButiques.ESCONDERIJOS.has(CenaButiques.PISTAS[i][0]))
 
 
 func test_sopa_ajusta_a_relacao_com_ophelia() -> void:

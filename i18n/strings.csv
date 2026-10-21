@@ -271,10 +271,10 @@ OBJ_CAP1_GUARDAS_RUA,Escolha dois guardas para entrar com vocês
 OBJ_CAP1_GUARDAS_MAIS_UM,Escolha mais um guarda
 OBJ_CAP1_LOJA,Entre na loja de pelúcias
 OBJ_CAP1_BUSCAR_THEA,Busque a Thea na vitrine
-OBJ_CAP1_PRESENTE,Ache nas prateleiras as pelúcias dos desenhos da Thea
+OBJ_CAP1_PRESENTE,Siga as pistas da Thea pela sala
 OBJ_CAP1_SALA_LATERAL,Siga para a sala lateral
-DESENHOS_TITULO,Desenhos da Thea
-DESENHOS_PERGUNTA,Esta pelúcia é igual a qual desenho?
-DESENHOS_NENHUM,Nenhum desses
+CALOR_QUENTE,Quente!
+CALOR_MORNO,Morno
+CALOR_FRIO,Frio
 OBJ_CAP1_MESA,Sente-se à mesa
 OBJ_CAP1_COLHER,Pegue uma colher limpa no armário

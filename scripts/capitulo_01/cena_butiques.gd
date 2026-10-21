@@ -13,8 +13,8 @@ extends CenaCapitulo01
 ## 3. lojistas: os donos recebem os irmãos, Nicholas intervém, todos se
 ##    ajoelham e Ophelia os faz levantar.
 ## 4. prateleiras: as duas se agacham entre as prateleiras baixas; o jogador
-##    procura nelas (E em cada uma: "A Thea já tem um desses.", texto do jogo).
-##    Depois de [constant PRATELEIRAS_PARA_ACHAR] prateleiras, Ophelia se
+##    segue as pistas da Thea pela sala lateral (quente ou frio; a última
+##    pede o banquinho; ver [constant PISTAS]). Achadas as três, Ophelia se
 ##    levanta e vem até ele com a criatura longa (escolha de tom, só muda a
 ##    relação com Ophelia) e pede "sem títulos".
 ## Ao terminar a etapa vira "restaurante" e a cena do restaurante abre.
@@ -90,30 +90,41 @@ const GUARDAS_COM_ELE := 2
 ## Salão da loja: a porta da rua, o balcão e a porta da sala lateral.
 const CASA_ENTRADA_SALAO := Vector2i(2, 1)
 const CASA_PORTA_SALA_LATERAL := Vector2i(10, 1)
-## Sala lateral: o jogo dos desenhos da Thea (regra do jogo, não do livro).
-## Os desenhos são das pelúcias que ela já tem; cada prateleira tem uma
-## pelúcia em cima: [casa, pelúcia]. As "_diferente" são parecidas com um
-## desenho, mas não iguais.
-const DESENHOS: Array[String] = ["dragao_marinho", "polvo", "monstro"]
-const PRATELEIRAS := {
-	"prateleira_a": [Vector2i(3, 1), "polvo_diferente"],
-	"prateleira_b": [Vector2i(4, 1), "dragao_marinho"],
-	"prateleira_c": [Vector2i(6, 1), "monstro_diferente"],
-	"prateleira_d": [Vector2i(7, 1), "polvo"],
-	"prateleira_e": [Vector2i(1, 3), "dragao_marinho_diferente"],
-	"prateleira_f": [Vector2i(1, 5), "monstro"],
+## Sala lateral: as pistas da Thea (regra do jogo, não do livro: Rafael,
+## 21/10/2026). Ela pede uma pelúcia por vez com uma pista e esquenta ou
+## esfria conforme Nicholas chega perto do esconderijo; cada uma que ele acha
+## ela já tem ("A Thea já tem um desses."). A última fica no alto da estante
+## alta: ele empurra o banquinho (E empurra caixa e banquinho uma casa) até
+## a frente dela para subir. Esconderijos: [casa, arquivo].
+const ESCONDERIJOS := {
+	"prateleira_a": [Vector2i(3, 1), "loja/prateleira_baixa_esq"],
+	"prateleira_b": [Vector2i(4, 1), "loja/prateleira_baixa_esq"],
+	"prateleira_c": [Vector2i(6, 1), "loja/prateleira_baixa_esq"],
+	"prateleira_d": [Vector2i(7, 1), "loja/prateleira_baixa_esq"],
+	"prateleira_e": [Vector2i(1, 3), "loja/prateleira_baixa_dir"],
+	"prateleira_f": [Vector2i(1, 5), "loja/prateleira_baixa_dir"],
+	"cesta": [Vector2i(8, 6), "loja/cesta_pelucias"],
+	"caixas_presente": [Vector2i(7, 7), "loja/caixas_presente"],
+	"estante_alta": [Vector2i(9, 1), "loja/estante_alta_esq"],
 }
-## Desenhos achados até Ophelia trazer a criatura que a Thea ainda não tem.
-const PRATELEIRAS_PARA_ACHAR := 3
+## A ordem dos pedidos da Thea: [esconderijo, pelúcia].
+const PISTAS := [["cesta", "polvo"], ["caixas_presente", "dragao_marinho"], ["estante_alta", "monstro"]]
+## O que se empurra e de onde sai (Ophelia põe de volta se travar).
+const EMPURRAVEIS := {
+	"banquinho": [Vector2i(5, 3), "loja/banquinho"],
+	"caixa": [Vector2i(7, 2), "loja/caixa_madeira"],
+}
+## Distância (em casas) até o esconderijo para "quente" e "morno".
+const CALOR := Vector2(1.5, 3.5)
 const CASA_ENTRADA_SALA_LATERAL := Vector2i(2, 1)
 const CASA_ALTHEA_AGACHADA := Vector2i(3, 5)
 const CASA_OPHELIA_AGACHADA := Vector2i(6, 3)
 
 var guardas: Array[Node2D] = []
 var escolhidos: Array[Node2D] = []
-var prateleiras_vistas: Array[String] = []
-var desenhos_achados: Array[String] = []
-var desenhos: DesenhosDaThea
+## Quantos pedidos da Thea Nicholas já achou ([constant PISTAS]).
+var achados := 0
+var _calor: Label
 ## Casas para onde os escolhidos já estão indo (para não pararem juntos).
 var casas_reservadas: Array[Vector2i] = []
 var passantes: Array[Node2D] = []
@@ -171,23 +182,26 @@ func montar_rua() -> void:
 	passantes.clear()
 	_passeios.clear()
 	var enfeites: Array = []
-	# Fundo: uma loja atrás da outra (vitrines com toldo, placa e porta).
+	# Fundo: uma loja atrás da outra (vitrines com toldo, placa e porta). A de
+	# pelúcias tem vitrines acesas, toldo próprio e uma placa de cada lado da
+	# porta; as outras vendem outras coisas (inferência: o livro não diz).
 	var portas := [8, 15, 21, 27, 32]
-	var placas := [7, 14, 26]
+	var placas := {7: "pelucias", 9: "pelucias", 14: "chapeus", 20: "joias", 26: "perfumes", 31: "vestidos"}
 	for x in range(1, LARGURA_RUA):
+		var loja := _loja_da_fachada(x)
 		if x in portas:
 			enfeites.append(["porta_esq", Vector2i(x, 0)])
-		elif x in placas:
-			enfeites.append(["placa_butique_esq", Vector2i(x, 0)])
+		elif placas.has(x):
+			enfeites.append(["placa_%s_esq" % placas[x], Vector2i(x, 0)])
 		else:
-			enfeites.append(["vitrine_esq", Vector2i(x, 0)])
-			enfeites.append(["toldo_esq", Vector2i(x, 0)])
-	# Lado esquerdo: mais vitrines.
+			enfeites.append(["vitrine_%s_esq" % loja, Vector2i(x, 0)])
+			enfeites.append(["toldo_pelucias_esq" if loja == "pelucias" else "toldo_esq", Vector2i(x, 0)])
+	# Lado esquerdo: uma joalheria.
 	for y in range(1, PROFUNDIDADE_RUA):
 		if y == 4:
-			enfeites.append(["placa_butique_dir", Vector2i(0, y)])
+			enfeites.append(["placa_joias_dir", Vector2i(0, y)])
 		elif y != 7:
-			enfeites.append(["vitrine_dir", Vector2i(0, y)])
+			enfeites.append(["vitrine_joias_dir", Vector2i(0, y)])
 			enfeites.append(["toldo_dir", Vector2i(0, y)])
 	_pendurar(enfeites)
 	# Calçada: vasos junto às fachadas e lampiões na beira dela.
@@ -196,6 +210,7 @@ func montar_rua() -> void:
 	for x in [4, 12, 18, 24, 30]:
 		_objeto("lampiao_%d" % x, "rua/lampiao", Vector2i(x, 2))
 	_objeto("lampiao_esq", "rua/lampiao", Vector2i(2, 8))
+	_objeto("caixas_presente_rua", "loja/caixas_presente", Vector2i(6, 1))
 	_objeto("carruagem", "rua/carruagem_parada", CASA_CARRUAGEM, false, PE_CARRUAGEM)
 	# O cocheiro já está sentado na boleia (no desenho da carruagem).
 	for i in CASAS_DA_CARRUAGEM.size():
@@ -382,6 +397,22 @@ func _parar_de_seguir() -> void:
 
 # --- Althea foge para as vitrines -------------------------------------------
 
+## Que loja ocupa a fachada do fundo na coluna [param x] (a de pelúcias é a
+## da porta [constant CASA_PORTA_LOJA]).
+func _loja_da_fachada(x: int) -> String:
+	if x <= 4:
+		return "vestidos"
+	if x <= 10:
+		return "pelucias"
+	if x <= 18:
+		return "chapeus"
+	if x <= 23:
+		return "joias"
+	if x <= 29:
+		return "perfumes"
+	return "vestidos"
+
+
 ## Althea sai da fila e corre até uma vitrine da calçada; a porta da loja só
 ## abre depois que Nicholas a busca.
 func althea_foge() -> void:
@@ -452,6 +483,8 @@ func buscar_althea() -> void:
 
 
 func _physics_process(_delta: float) -> void:
+	if etapa == "prateleiras":
+		_atualizar_calor()
 	if seguidores.is_empty() or etapa != "porta":
 		return
 	var casa := _casa_de(jogador)
@@ -501,7 +534,7 @@ func _caminho(de: Vector2i, ate: Vector2i) -> Array[Vector2i]:
 		return caminho
 	var bloqueadas := {}
 	for nome: String in objetos:
-		if nome.begins_with("junto_da_carruagem") or nome.begins_with("lampiao") or nome.begins_with("vaso") \
+		if nome.begins_with("junto_da_carruagem") or nome.begins_with("lampiao") or nome.begins_with("vaso") or nome.begins_with("caixas") \
 				or nome == "carruagem":
 			bloqueadas[_casa_de(objetos[nome])] = true
 	var veio := {de: de}
@@ -543,13 +576,23 @@ func entrar_na_loja() -> void:
 
 func montar_loja() -> void:
 	_nova_sala(12, 9, TOM_DENTRO, "assoalho", "reboco")
-	_pendurar([["porta_esq", Vector2i(2, 0)], ["arandela_esq", Vector2i(4, 0)], ["arandela_esq", Vector2i(8, 0)],
-		["porta_esq", Vector2i(10, 0)], ["arandela_dir", Vector2i(0, 3)], ["arandela_dir", Vector2i(0, 7)]])
+	# A porta da rua e, do outro lado, o arco da sala lateral (com a cortina
+	# aberta e uma pelúcia em cima, para não confundir as duas).
+	_pendurar([["porta_esq", Vector2i(2, 0)], ["arandela_esq", Vector2i(3, 0)], ["arandela_esq", Vector2i(9, 0)],
+		["arco_sala_esq", Vector2i(10, 0)], ["arandela_dir", Vector2i(0, 2)], ["arandela_dir", Vector2i(0, 5)]])
 	_objeto("balcao", "loja/balcao_loja", Vector2i(6, 1), false, PE_CAIXA)
+	_objeto("estante_salao_1", "loja/estante_alta_esq", Vector2i(4, 1), false, PE_CAIXA)
+	_objeto("estante_salao_2", "loja/estante_alta_esq", Vector2i(8, 1), false, PE_CAIXA)
+	_objeto("estante_salao_3", "loja/estante_alta_dir", Vector2i(1, 8), false, PE_CAIXA)
 	for y in [3, 4, 6, 7]:
 		_objeto("prateleira_salao_%d" % y, "loja/prateleira_baixa_dir", Vector2i(1, y), false, PE_CAIXA)
-	_objeto("cesta_1", "loja/cesta_pelucias", Vector2i(9, 6))
-	_objeto("cesta_2", "loja/cesta_pelucias", Vector2i(10, 4))
+	var tapete := _objeto("tapete", "loja/tapete_loja", Vector2i(7, 6), false, 32.0, false)
+	tapete.z_index = -1
+	_objeto("cavalinho", "loja/cavalinho", Vector2i(7, 6))
+	_objeto("cesta_1", "loja/cesta_pelucias", Vector2i(10, 7))
+	_objeto("cesta_2", "loja/cesta_pelucias", Vector2i(11, 4))
+	_objeto("caixas_presente", "loja/caixas_presente", Vector2i(3, 1))
+	_objeto("caixas_presente_2", "loja/caixas_presente", Vector2i(11, 1))
 	_pessoa("lojista_homem", QUADROS_LOJISTA_HOMEM, Vector2i(5, 2))
 	_pessoa("lojista_mulher", QUADROS_LOJISTA_MULHER, Vector2i(7, 2))
 	_pessoa("althea", QUADROS_ALTHEA, Vector2i(4, 4))
@@ -598,99 +641,195 @@ func ir_para_sala_lateral() -> void:
 	await montar_sala_lateral()
 
 
-# --- 3. a sala lateral: os desenhos da Thea ----------------------------------
+# --- 3. a sala lateral: as pistas da Thea -- ----------------------------------
 
 func montar_sala_lateral() -> void:
 	_nova_sala(10, 8, TOM_DENTRO, "assoalho", "reboco")
 	_pendurar([["porta_esq", Vector2i(2, 0)], ["arandela_esq", Vector2i(5, 0)], ["arandela_esq", Vector2i(8, 0)],
 		["arandela_dir", Vector2i(0, 6)]])
-	for nome: String in PRATELEIRAS:
-		var casa: Vector2i = PRATELEIRAS[nome][0]
-		var lado := "esq" if casa.y == 1 else "dir"
-		var prateleira := _objeto(nome, "loja/prateleira_baixa_" + lado, casa, true, PE_CAIXA)
-		var pelucia := Sprite2D.new()
-		pelucia.name = "Pelucia"
-		pelucia.texture = load(ARTE + "loja/pelucia_%s.png" % PRATELEIRAS[nome][1])
-		pelucia.position = Vector2(0, -34)
-		pelucia.scale = Vector2.ONE * 0.75
-		prateleira.add_child(pelucia)
-		_ao_interagir(nome, procurar_na_prateleira.bind(nome))
-		_ativar(prateleira, false)
+	var tapete := _objeto("tapete", "loja/tapete_loja", Vector2i(5, 5), false, 32.0, false)
+	tapete.z_index = -1
+	for nome: String in ESCONDERIJOS:
+		var arquivo: String = ESCONDERIJOS[nome][1]
+		var pe := PE_CAIXA if arquivo.contains("prateleira") or arquivo.contains("estante") else 3.0
+		var esconderijo := _objeto(nome, arquivo, ESCONDERIJOS[nome][0], true, pe)
+		_ao_interagir(nome, procurar.bind(nome))
+		_ativar(esconderijo, false)
+	# A pelúcia do alto fica à vista, longe do alcance.
+	var no_alto := Sprite2D.new()
+	no_alto.name = "Pelucia"
+	no_alto.texture = load(ARTE + "loja/pelucia_monstro.png")
+	no_alto.position = Vector2(0, -60)
+	no_alto.scale = Vector2.ONE * 0.6
+	objetos["estante_alta"].add_child(no_alto)
 	_objeto("prateleira_canto", "loja/prateleira_baixa_dir", Vector2i(1, 7), false, PE_CAIXA)
-	_objeto("cesta", "loja/cesta_pelucias", Vector2i(8, 6))
+	_objeto("cavalinho", "loja/cavalinho", Vector2i(8, 4))
+	for nome: String in EMPURRAVEIS:
+		var coisa := _objeto(nome, EMPURRAVEIS[nome][1], EMPURRAVEIS[nome][0], true)
+		coisa.remove_from_group(NavegacaoSala.GRUPO_OBSTACULOS)
+		_ao_interagir(nome, empurrar.bind(nome))
+		_ativar(coisa, false)
 	_pessoa("althea", QUADROS_ALTHEA, Vector2i(3, 2))
-	_pessoa("ophelia", QUADROS_OPHELIA, Vector2i(4, 2))
+	_pessoa("ophelia", QUADROS_OPHELIA, Vector2i(4, 2), true)
+	_ao_interagir("ophelia", arrumar_as_caixas)
+	_ativar(objetos["ophelia"], false)
 	_entrar(CASA_ENTRADA_SALA_LATERAL)
 	_travar(true)
 	await _clarear()
 	await agachar_nas_prateleiras()
 
 
-## As duas se agacham entre as prateleiras baixas; Nicholas compara as
-## pelúcias com os desenhos da Thea.
+## As duas se agacham entre as prateleiras baixas e a Thea faz o primeiro
+## pedido.
 func agachar_nas_prateleiras() -> void:
 	var althea: Node2D = objetos["althea"]
 	var ophelia: Node2D = objetos["ophelia"]
 	_caminhar(ophelia, [sala.centro(CASA_OPHELIA_AGACHADA)])
 	await _caminhar(althea, [sala.centro(Vector2i(3, 4)), sala.centro(CASA_ALTHEA_AGACHADA)])
-	_virar(althea, sala.centro(PRATELEIRAS["prateleira_f"][0]))
-	_virar(ophelia, sala.centro(PRATELEIRAS["prateleira_c"][0]))
+	_virar(althea, sala.centro(ESCONDERIJOS["prateleira_f"][0]))
+	_virar(ophelia, sala.centro(ESCONDERIJOS["prateleira_c"][0]))
 	_abaixar(althea, true)
 	_abaixar(ophelia, true)
 	await _frases("frases_prateleiras")
-	desenhos_achados.clear()
-	prateleiras_vistas.clear()
-	desenhos = DesenhosDaThea.new()
-	desenhos.name = "DesenhosDaThea"
-	add_child(desenhos)
-	desenhos.mostrar(DESENHOS)
+	achados = 0
+	_calor = Label.new()
+	_calor.name = "Calor"
+	_calor.position = Vector2(-40, -56)
+	_calor.size = Vector2(80, 20)
+	_calor.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_calor.add_theme_font_size_override("font_size", 14)
+	_calor.add_theme_constant_override("outline_size", 4)
+	_calor.add_theme_color_override("font_outline_color", Color(0.05, 0.05, 0.1))
+	althea.add_child(_calor)
+	await _frases("frases_pista_1")
 	_mudar("prateleiras")
-	for nome: String in PRATELEIRAS:
+	for nome: String in ESCONDERIJOS:
 		_ativar(objetos[nome], true)
+	for nome: String in EMPURRAVEIS:
+		_ativar(objetos[nome], true)
+	_ativar(objetos["ophelia"], true)
 	_travar(false)
 
 
-## E numa prateleira: a pelúcia dela aparece grande e o jogador diz a qual
-## desenho ela é igual (ou nenhum).
-func procurar_na_prateleira(nome: String) -> void:
-	if etapa != "prateleiras" or prateleiras_vistas.has(nome) or desenhos.aberto():
+## Thea esquenta ou esfria conforme Nicholas chega perto do esconderijo.
+func _atualizar_calor() -> void:
+	if _calor == null or not is_instance_valid(_calor) or achados >= PISTAS.size():
+		return
+	var distancia := Vector2(_casa_de(jogador) - ESCONDERIJOS[PISTAS[achados][0]][0]).length()
+	if distancia <= CALOR.x:
+		_calor.text = tr("CALOR_QUENTE")
+		_calor.modulate = Color(1.0, 0.55, 0.35)
+	elif distancia <= CALOR.y:
+		_calor.text = tr("CALOR_MORNO")
+		_calor.modulate = Color(1.0, 0.85, 0.5)
+	else:
+		_calor.text = tr("CALOR_FRIO")
+		_calor.modulate = Color(0.6, 0.8, 1.0)
+
+
+## E num esconderijo: se for o do pedido, a pelúcia vai para a Thea (que já
+## tem uma igual) e ela pede a próxima. No alto da estante, só com o
+## banquinho na frente dela.
+func procurar(nome: String) -> void:
+	if etapa != "prateleiras" or achados >= PISTAS.size():
 		return
 	_travar(true)
-	desenhos.comparar(PRATELEIRAS[nome][1])
-	var resposta: String = await desenhos.respondido
-	await responder(nome, resposta)
-
-
-## A resposta do jogador para a pelúcia da prateleira [param nome]: o id de
-## um desenho ou "" (nenhum). Certo: o desenho ganha o visto (ou a parecida
-## sai do jogo); errado: Nicholas olha de novo. Com todos os desenhos
-## achados, Ophelia traz a criatura que a Thea ainda não tem.
-func responder(nome: String, resposta: String) -> void:
-	var pelucia: String = PRATELEIRAS[nome][1]
-	var certa := pelucia if DESENHOS.has(pelucia) else ""
-	if resposta != certa:
-		await _frases("frases_desenho_errado")
+	var pedido: Array = PISTAS[achados]
+	if nome != pedido[0]:
+		await _frases("frases_nada_aqui")
 		_travar(false)
 		return
-	prateleiras_vistas.append(nome)
-	_ativar(objetos[nome], false)
-	if certa == "":
-		await _frases("frases_parecida")
-		_travar(false)
-		return
-	desenhos_achados.append(certa)
-	desenhos.marcar(certa)
-	var achados := desenhos_achados.size()
-	if achados < PRATELEIRAS_PARA_ACHAR:
-		await _frases("frases_prateleira_%d" % achados)
+	if nome == "estante_alta":
+		if not _banquinho_na_frente():
+			await _frases("frases_alto_demais")
+			_travar(false)
+			return
+		await _frases("frases_subir")
+		objetos["estante_alta"].get_node("Pelucia").queue_free()
+	await _levar_para_a_thea(pedido[1], objetos[nome].position)
+	achados += 1
+	await _frases("frases_prateleira_%d" % achados)
+	if achados < PISTAS.size():
+		await _frases("frases_pista_%d" % (achados + 1))
 		_travar(false)
 		return
 	_mudar("presente")
-	for outra: String in PRATELEIRAS:
-		_ativar(objetos[outra], false)
-	await _frases("frases_prateleira_%d" % achados)
-	desenhos.queue_free()
+	_calor.queue_free()
+	for outro: String in ESCONDERIJOS:
+		_ativar(objetos[outro], false)
+	for outro: String in EMPURRAVEIS:
+		_ativar(objetos[outro], false)
+	_ativar(objetos["ophelia"], false)
 	await ophelia_traz_a_criatura()
+
+
+func _banquinho_na_frente() -> bool:
+	var estante: Vector2i = ESCONDERIJOS["estante_alta"][0]
+	var banquinho := _casa_de(objetos["banquinho"])
+	return absi(banquinho.x - estante.x) + absi(banquinho.y - estante.y) == 1
+
+
+## A pelúcia achada pula do esconderijo até a Thea.
+func _levar_para_a_thea(pelucia: String, de: Vector2) -> void:
+	var althea: Node2D = objetos["althea"]
+	var bicho := Sprite2D.new()
+	bicho.name = "Achada"
+	bicho.texture = load(ARTE + "loja/pelucia_%s.png" % pelucia)
+	bicho.scale = Vector2.ONE * 0.6
+	bicho.position = de + Vector2(0, -30)
+	bicho.z_index = 5
+	sala.add_child(bicho)
+	if escala_tempo > 0.0:
+		var voo := create_tween()
+		voo.tween_property(bicho, "position", althea.position + Vector2(0, -24), 0.6 * escala_tempo)
+		await voo.finished
+	bicho.queue_free()
+
+
+## E na caixa ou no banquinho: anda uma casa para o lado oposto a Nicholas,
+## se a casa estiver livre.
+func empurrar(nome: String) -> void:
+	if etapa != "prateleiras":
+		return
+	var coisa: Node2D = objetos[nome]
+	var casa := _casa_de(coisa)
+	var passo := casa - _casa_de(jogador)
+	if absi(passo.x) + absi(passo.y) != 1:
+		return
+	var destino := casa + passo
+	if not _casa_livre(destino):
+		return
+	_travar(true)
+	if escala_tempo > 0.0:
+		var deslize := create_tween()
+		deslize.tween_property(coisa, "position", sala.centro(destino), 0.25 * escala_tempo)
+		await deslize.finished
+	coisa.position = sala.centro(destino)
+	_travar(false)
+
+
+func _casa_livre(casa: Vector2i) -> bool:
+	if casa.x < 1 or casa.y < 1 or casa.x >= sala.largura or casa.y >= sala.profundidade:
+		return false
+	if casa == _casa_de(jogador):
+		return false
+	for nome: String in objetos:
+		var objeto: Node2D = objetos[nome]
+		if nome != "tapete" and is_instance_valid(objeto) and objeto.get_parent() == sala \
+				and _casa_de(objeto) == casa:
+			return false
+	return true
+
+
+## E na Ophelia: ela põe a caixa e o banquinho de volta (se travou).
+func arrumar_as_caixas() -> void:
+	if etapa != "prateleiras":
+		return
+	_travar(true)
+	for nome: String in EMPURRAVEIS:
+		objetos[nome].position = sala.centro(EMPURRAVEIS[nome][0])
+	await _frases("frases_arrumar")
+	_travar(false)
 
 
 ## Ophelia se levanta e vem até ele com a criatura longa, entre cobra e enguia:

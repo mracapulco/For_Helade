@@ -137,6 +137,10 @@ func _objeto(nome: String, arquivo: String, casa: Vector2i, interagivel := false
 ## Pessoa com folha animada (assets/art/personagens/), guardada em [member objetos].
 func _pessoa(nome: String, quadros: SpriteFrames, casa: Vector2i, interagivel := false) -> Node2D:
 	var pessoa := sala.adicionar_pessoa(nome.to_pascal_case(), quadros, casa, interagivel)
+	# Gente anda: fora do mapa de navegação (assado uma vez só), senão a casa
+	# onde a pessoa estava no começo vira um buraco para sempre. O corpo dela
+	# ainda bloqueia o passo pela colisão.
+	pessoa.remove_from_group(NavegacaoSala.GRUPO_OBSTACULOS)
 	objetos[nome] = pessoa
 	return pessoa
 

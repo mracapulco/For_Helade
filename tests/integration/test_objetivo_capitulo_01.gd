@@ -111,9 +111,10 @@ func test_butiques() -> void:
 	cena.ir_para_sala_lateral()
 	await _no(cena, "prateleiras")
 	assert_eq(cena.objetivo.chave, "OBJ_CAP1_PRESENTE")
-	await cena.responder("prateleira_b", "dragao_marinho")
-	await cena.responder("prateleira_d", "polvo")
-	cena.responder("prateleira_f", "monstro")
+	await cena.procurar("cesta")
+	await cena.procurar("caixas_presente")
+	cena.objetos["banquinho"].position = cena.sala.centro(Vector2i(8, 1))
+	cena.procurar("estante_alta")
 	assert_eq(cena.objetivo.chave, "")
 
 

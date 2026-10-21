@@ -1225,40 +1225,69 @@ def portal_anexo():
     return q.im
 
 
-def vitrine():
-    # vitrine de butique com pelúcias na janela
+def vitrine(conteudo='pelucias'):
+    """Vitrine de butique. conteudo: 'pelucias' (a loja da cena, com luz
+    quente por dentro para chamar o olho), 'chapeus', 'vestidos', 'joias' ou
+    'perfumes' (as outras lojas da rua; mercadorias por inferência)."""
     q = Q(26, 18)
     q.r(0, 0, 25, 17, 'madeira_sombra')
-    q.r(2, 2, 23, 13, 'vidro')
+    q.r(2, 2, 23, 13, 'vela' if conteudo == 'pelucias' else 'vidro')
     for i in range(5):
         q.p(4 + i * 2, 3 + i, 'vidro_luz'); q.p(5 + i * 2, 3 + i, 'vidro_luz')
     q.coluna(12, 2, 13, 'madeira_sombra'); q.coluna(13, 2, 13, 'madeira_sombra')
     for k, x in enumerate((6, 10, 16, 20)):
-        _bicho(q, x, 13, *BICHOS[(k * 2) % len(BICHOS)])
+        if conteudo == 'pelucias':
+            _bicho(q, x, 13, *BICHOS[(k * 2) % len(BICHOS)])
+        elif conteudo == 'chapeus':
+            q.coluna(x, 10, 13, 'ferro')
+            q.r(x - 3, 9, x + 3, 9, ('lona', 'veludo', 'oliva', 'creme')[k]); q.r(x - 1, 6, x + 1, 8, ('lona', 'veludo', 'oliva', 'creme')[k])
+            q.linha(8, x - 1, x + 1, 'ouro')
+        elif conteudo == 'vestidos':
+            cor = ('veludo', 'perola', 'lona', 'flor')[k]
+            q.r(x - 1, 4, x + 1, 7, cor); q.r(x - 2, 8, x + 2, 11, cor); q.r(x - 3, 12, x + 3, 13, cor)
+            q.p(x, 3, 'ferro')
+        elif conteudo == 'joias':
+            q.r(x - 2, 10, x + 2, 13, 'veludo'); q.linha(10, x - 2, x + 2, 'veludo_luz')
+            q.p(x - 1, 8, 'ouro'); q.p(x + 1, 8, 'ouro'); q.p(x, 9, ('perola', 'cura', 'flor', 'ouro_luz')[k])
+        elif conteudo == 'perfumes':
+            cor = ('cura', 'flor', 'ouro_luz', 'azul_luz')[k]
+            q.r(x - 1, 10, x + 1, 13, cor); q.p(x, 9, 'ouro'); q.p(x, 8, 'ouro_luz'); q.p(x - 1, 11, 'vidro_luz')
     q.r(0, 14, 25, 17, 'madeira'); q.linha(14, 0, 25, 'madeira_luz')
     return q.im
 
 
-def toldo():
-    # toldo listrado de azul e creme (inferência)
+def toldo(cor='lona', luz='lona_luz'):
+    # toldo listrado (inferência); a loja de pelúcias tem o seu, verde-água
+    # como o monstro da placa
     q = Q(28, 9)
     for x in range(28):
-        cor = 'lona' if (x // 4) % 2 == 0 else 'creme'
-        q.r(x, 0, x, 5, cor)
+        c = cor if (x // 4) % 2 == 0 else 'creme'
+        q.r(x, 0, x, 5, c)
         if x % 4 in (1, 2):
-            q.r(x, 6, x, 7, cor)
-    q.linha(0, 0, 27, 'lona_luz')
+            q.r(x, 6, x, 7, c)
+    q.linha(0, 0, 27, luz)
     return q.im
 
 
-def placa_butique():
-    # placa pendurada com uma pelúcia desenhada (sem letras)
+def placa_butique(tipo='pelucias'):
+    # placa pendurada com o desenho da mercadoria (sem letras); a de
+    # pelúcias tem moldura dourada e o monstro verde-água
     q = Q(14, 16)
     q.linha(0, 0, 13, 'ferro'); q.coluna(3, 0, 3, 'ferro'); q.coluna(10, 0, 3, 'ferro')
     q.r(1, 3, 12, 14, 'madeira'); q.r(1, 3, 12, 3, 'madeira_luz')
-    q.r(1, 14, 12, 14, 'ouro_sombra'); q.coluna(1, 3, 14, 'ouro_sombra'); q.coluna(12, 3, 14, 'ouro_sombra')
-    q.r(4, 6, 9, 12, 'monstro'); q.p(4, 6, 'monstro_luz'); q.p(5, 8, 'branco'); q.p(8, 8, 'branco')
-    q.p(5, 9, 'noite'); q.p(8, 9, 'noite'); q.linha(11, 5, 8, 'branco')
+    moldura = 'ouro' if tipo == 'pelucias' else 'madeira_sombra'
+    q.r(1, 14, 12, 14, moldura); q.coluna(1, 3, 14, moldura); q.coluna(12, 3, 14, moldura)
+    if tipo == 'pelucias':
+        q.r(4, 6, 9, 12, 'monstro'); q.p(4, 6, 'monstro_luz'); q.p(5, 8, 'branco'); q.p(8, 8, 'branco')
+        q.p(5, 9, 'noite'); q.p(8, 9, 'noite'); q.linha(11, 5, 8, 'branco')
+    elif tipo == 'chapeus':
+        q.r(3, 10, 10, 11, 'lona'); q.r(5, 6, 8, 9, 'lona'); q.linha(9, 5, 8, 'ouro')
+    elif tipo == 'vestidos':
+        q.r(5, 5, 8, 7, 'veludo'); q.r(4, 8, 9, 10, 'veludo'); q.r(3, 11, 10, 12, 'veludo'); q.p(6, 4, 'ferro'); q.p(7, 4, 'ferro')
+    elif tipo == 'joias':
+        q.elipse(6, 8, 3, 3, 'ouro'); q.elipse(6, 8, 1, 1, 'madeira'); q.p(6, 4, 'perola'); q.p(6, 5, 'cura')
+    elif tipo == 'perfumes':
+        q.r(5, 7, 8, 12, 'cura'); q.r(6, 5, 7, 6, 'ouro'); q.p(5, 8, 'vidro_luz')
     return q.im
 
 
@@ -1356,11 +1385,11 @@ def vaso_flor():
 
 
 # --- loja de pelúcias ----------------------------------------------------
-def prateleira_baixa(lado):
+def prateleira_baixa(lado, h=22, andares=(0.05, 0.5)):
     """Prateleira baixa (22 px: dá para uma criança se agachar entre elas) com
-    pelúcias nos dois andares e em cima. lado 'esq': encostada na parede da
-    linha y = 0; 'dir': na da coluna x = 0. pe = PE_CAIXA."""
-    h = 22
+    pelúcias nos andares e em cima. lado 'esq': encostada na parede da
+    linha y = 0; 'dir': na da coluna x = 0. pe = PE_CAIXA. Com h maior e mais
+    andares vira a estante alta."""
     if lado == 'esq':
         a0, a1, b0, b1 = -0.45, 0.45, -0.5, -0.2
         q, _, _ = caixa_iso(a0, a1, b0, b1, h, 'madeira_sombra', 'madeira', 'madeira_luz')
@@ -1369,13 +1398,13 @@ def prateleira_baixa(lado):
         a0, a1, b0, b1 = -0.5, -0.2, -0.45, 0.45
         q, _, _ = caixa_iso(a0, a1, b0, b1, h, 'madeira', 'madeira_sombra', 'madeira_luz')
         pt = lambda s_, t_: _tela(a1, b0 + s_ * (b1 - b0), t_ * h, h + 17)
-    for t_ in (0.05, 0.5):                               # tábuas dos andares
+    for t_ in andares:                                  # tábuas dos andares
         for i in range(61):
             x, y = pt(i / 60, t_)
             q.p(int(round(x)), int(round(y)), 'madeira_luz')
             q.p(int(round(x)), int(round(y)) + 1, 'madeira')
     for k, s_ in enumerate((0.14, 0.38, 0.62, 0.86)):
-        for t_, desloc in ((0.05, 0), (0.5, 0), (1.0, 3)):
+        for t_, desloc in [(a, 0) for a in andares] + [(1.0, 3)]:
             x, y = pt(s_, t_)
             cor, luz = BICHOS[(k * 2 + int(t_ * 4)) % len(BICHOS)]
             _bicho(q, int(round(x)), int(round(y)) - 1 - desloc, cor, luz)
@@ -1476,47 +1505,6 @@ def pelucia_monstro(olhos=1):
     return q.contornar()
 
 
-def desenho_da_thea(pelucia):
-    """Desenho de criança (Althea, 6 anos) da pelúcia: folha de papel, giz de
-    cor por cima do formato dela, riscado em diagonal e contorno tremido. Só
-    para o jogo dos desenhos na sala lateral (texto do jogo, não do livro)."""
-    from PIL import Image, ImageDraw
-    im = pelucia.convert('RGBA')
-    # tira a sombra no chão (cinza meio transparente)
-    px = im.load()
-    for y in range(im.height):
-        for x in range(im.width):
-            r, g, b, a = px[x, y]
-            if a < 250:
-                px[x, y] = (0, 0, 0, 0)
-    grande = im.resize((im.width * 2, im.height * 2), Image.NEAREST)
-    L = 64
-    folha = Image.new('RGBA', (L, L), (0, 0, 0, 0))
-    d = ImageDraw.Draw(folha)
-    d.rectangle((1, 1, L - 2, L - 2), fill=(246, 238, 214, 255), outline=(196, 180, 150, 255))
-    ox, oy = (L - grande.width) // 2, (L - grande.height) // 2 + 2
-    g = grande.load()
-    f = folha.load()
-    escuro = (52, 60, 110, 255)
-    for y in range(grande.height):
-        for x in range(grande.width):
-            r, gg, b, a = g[x, y]
-            if a == 0:
-                continue
-            X, Y = x + ox, y + oy
-            if not (2 <= X < L - 2 and 2 <= Y < L - 2):
-                continue
-            borda = any(not (0 <= x + dx < grande.width and 0 <= y + dy < grande.height)
-                        or g[x + dx, y + dy][3] == 0 for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)))
-            escuro_px = r + gg + b < 140
-            if borda or escuro_px:
-                tremido = ((x * 7 + y * 3) % 5 == 0)
-                f[X, Y + (1 if tremido and Y + 1 < L - 2 else 0)] = escuro
-            elif (x + y) % 3 != 0:                     # o giz não cobre tudo
-                f[X, Y] = (min(255, r + 30), min(255, gg + 30), min(255, b + 30), 255)
-    return folha
-
-
 def expositor_enguia():
     """Pedestal baixo com a pelúcia longa enrolada em cima: o objeto que o
     jogador examina para escolher o presente. pe = 5."""
@@ -1543,6 +1531,95 @@ def cesta_pelucias():
         q.linha(y, 5, 27, 'madeira_luz')
     q.elipse(16, 12, 12, 3, 'madeira_luz'); q.elipse(16, 12, 10, 2, 'madeira_sombra')
     return q.contornar()
+
+
+def estante_alta(lado):
+    """Estante alta, com pelúcias em quatro andares (ambiente da loja,
+    inferência). pe = PE_CAIXA."""
+    return prateleira_baixa(lado, h=46, andares=(0.03, 0.27, 0.51, 0.75))
+
+
+def caixas_presente():
+    # pilha de caixas de presente com laço (ambiente da loja, inferência)
+    q = Q(30, 30)
+    q.sombra_no_chao(15, 27, 13, 2)
+    for x0, y0, x1, y1, cor, luz in ((3, 16, 16, 27, 'embrulho', 'embrulho_luz'),
+                                     (15, 18, 26, 27, 'veludo', 'veludo_luz'),
+                                     (7, 7, 18, 16, 'monstro', 'monstro_luz')):
+        q.r(x0, y0, x1, y1, cor); q.linha(y0, x0, x1, luz)
+        meio = (x0 + x1) // 2
+        q.coluna(meio, y0, y1, 'ouro'); q.linha((y0 + y1) // 2, x0, x1, 'ouro')
+    q.p(11, 5, 'ouro_luz'); q.p(14, 5, 'ouro_luz'); q.p(12, 6, 'ouro'); q.p(13, 6, 'ouro')
+    return q.contornar()
+
+
+def cavalinho():
+    # cavalinho de balanço de madeira (brinquedo, ambiente da loja, inferência)
+    q = Q(32, 30)
+    q.sombra_no_chao(16, 27, 13, 2)
+    for x in range(3, 29):                               # o arco de balanço
+        y = 25 + int(round(((x - 16) / 13) ** 2 * -3)) + 1
+        q.p(x, y, 'madeira_sombra'); q.p(x, y - 1, 'madeira')
+    q.coluna(9, 18, 24, 'madeira_sombra'); q.coluna(22, 18, 24, 'madeira_sombra')
+    q.r(8, 12, 23, 18, 'creme'); q.linha(12, 8, 23, 'branco')
+    q.r(20, 5, 25, 13, 'creme'); q.r(24, 7, 27, 10, 'creme')   # pescoço e cabeça
+    q.p(24, 7, 'noite'); q.coluna(19, 5, 12, 'veludo')
+    q.r(4, 12, 7, 15, 'veludo')                          # rabo
+    q.r(12, 10, 17, 12, 'veludo'); q.linha(10, 12, 17, 'ouro')  # sela
+    return q.contornar()
+
+
+def banquinho():
+    """Banquinho de madeira para alcançar a estante alta (jogo das pistas da
+    Thea, regra do jogo). Empurrável."""
+    q, frente, _ = caixa_iso(-0.2, 0.2, -0.2, 0.2, 10, 'madeira', 'madeira_sombra', 'madeira_luz')
+    _riscar(frente, 0.0, 1.0, 0.85, 0.85, 'madeira_sombra')
+    _riscar(frente, 0.15, 0.15, 0.0, 0.85, 'madeira_sombra'); _riscar(frente, 0.85, 0.85, 0.0, 0.85, 'madeira_sombra')
+    return q.contornar()
+
+
+def caixa_madeira():
+    """Caixa de mercadoria fechada (atrapalha o caminho do banquinho).
+    Empurrável."""
+    q, frente, lado = caixa_iso(-0.36, 0.36, -0.36, 0.36, 26, 'madeira_sombra', 'madeira', 'madeira_luz')
+    for t_ in (0.1, 0.9):
+        _riscar(frente, 0.0, 1.0, t_, t_, 'madeira_luz')
+    _riscar(frente, 0.0, 1.0, 0.1, 0.9, 'madeira_luz')
+    return q.contornar()
+
+
+def tapete_loja():
+    """Tapete redondo de brincar, deitado no chão (2×2 casas, 128×64), sem
+    bloquear. Fica no chão: z_index abaixo de quem anda."""
+    q = Q(128, 64)
+    for y in range(64):
+        for x in range(128):
+            d = abs(x - 63.5) / 60 + abs(y - 31.5) / 30
+            if d <= 1.0:
+                cor = 'tapete_azul' if d > 0.9 else ('ouro_sombra' if d > 0.84 else
+                      ('tapete' if d > 0.5 else ('tapete_luz' if d > 0.42 else 'tapete')))
+                q.p(x, y, cor)
+    for k in range(8):                                   # estrelinhas
+        import math as _m
+        a = k * _m.pi / 4
+        q.p(int(64 + _m.cos(a) * 20), int(32 + _m.sin(a) * 10), 'ouro_luz')
+    return q.im
+
+
+def arco_sala():
+    """Passagem em arco para a sala lateral, com a cortina aberta e uma
+    pelúcia pendurada em cima (para não ser confundida com a porta da rua)."""
+    q = Q(18, 30)
+    q.r(0, 4, 17, 29, 'ouro_sombra')
+    q.r(2, 8, 15, 29, 'vela')                            # luz da sala ao fundo
+    for x in range(2, 16):
+        topo = 8 - int(round(4 * (1 - ((x - 8.5) / 6.5) ** 2)))
+        q.coluna(x, topo, 8, 'vela')
+        q.p(x, topo - 1, 'ouro')
+    q.r(2, 8, 4, 29, 'veludo'); q.coluna(5, 10, 29, 'veludo_luz')     # cortinas abertas
+    q.r(13, 8, 15, 29, 'veludo'); q.coluna(12, 10, 29, 'veludo_luz')
+    _bicho(q, 9, 4, 'monstro', 'monstro_luz')
+    return q.im
 
 
 # --- restaurante -----------------------------------------------------------
@@ -1705,14 +1782,36 @@ ARTES = {
     'loja/pelucia_polvo.png': pelucia_polvo,
     'loja/pelucia_monstro.png': pelucia_monstro,
     'loja/expositor_enguia.png': expositor_enguia,
-    # jogo dos desenhos da Thea (sala lateral): as parecidas que não são as dela
-    'loja/pelucia_dragao_marinho_diferente.png': lambda: pelucia_dragao_marinho(nadadeiras=False),
-    'loja/pelucia_polvo_diferente.png': lambda: pelucia_polvo(bracos=3),
-    'loja/pelucia_monstro_diferente.png': lambda: pelucia_monstro(olhos=2),
-    'loja/desenho_dragao_marinho.png': lambda: desenho_da_thea(pelucia_dragao_marinho()),
-    'loja/desenho_polvo.png': lambda: desenho_da_thea(pelucia_polvo()),
-    'loja/desenho_monstro.png': lambda: desenho_da_thea(pelucia_monstro()),
     'loja/cesta_pelucias.png': cesta_pelucias,
+    'loja/estante_alta_esq.png': lambda: estante_alta('esq'),
+    'loja/estante_alta_dir.png': lambda: estante_alta('dir'),
+    'loja/caixas_presente.png': caixas_presente,
+    'loja/cavalinho.png': cavalinho,
+    'loja/banquinho.png': banquinho,
+    'loja/caixa_madeira.png': caixa_madeira,
+    'loja/tapete_loja.png': tapete_loja,
+    'parede/arco_sala_esq.png': lambda: na_face(arco_sala(), 'esq', 7, 4),
+    'parede/toldo_pelucias_esq.png': lambda: na_face(toldo('monstro', 'monstro_luz'), 'esq', 2, 4),
+    'parede/vitrine_chapeus_esq.png': lambda: na_face(vitrine('chapeus'), 'esq', 3, 13),
+    'parede/placa_chapeus_esq.png': lambda: na_face(placa_butique('chapeus'), 'esq', 9, 4),
+    'parede/vitrine_chapeus_dir.png': lambda: na_face(vitrine('chapeus'), 'dir', 3, 13),
+    'parede/placa_chapeus_dir.png': lambda: na_face(placa_butique('chapeus'), 'dir', 9, 4),
+    'parede/vitrine_vestidos_esq.png': lambda: na_face(vitrine('vestidos'), 'esq', 3, 13),
+    'parede/placa_vestidos_esq.png': lambda: na_face(placa_butique('vestidos'), 'esq', 9, 4),
+    'parede/vitrine_vestidos_dir.png': lambda: na_face(vitrine('vestidos'), 'dir', 3, 13),
+    'parede/placa_vestidos_dir.png': lambda: na_face(placa_butique('vestidos'), 'dir', 9, 4),
+    'parede/vitrine_joias_esq.png': lambda: na_face(vitrine('joias'), 'esq', 3, 13),
+    'parede/placa_joias_esq.png': lambda: na_face(placa_butique('joias'), 'esq', 9, 4),
+    'parede/vitrine_joias_dir.png': lambda: na_face(vitrine('joias'), 'dir', 3, 13),
+    'parede/placa_joias_dir.png': lambda: na_face(placa_butique('joias'), 'dir', 9, 4),
+    'parede/vitrine_perfumes_esq.png': lambda: na_face(vitrine('perfumes'), 'esq', 3, 13),
+    'parede/placa_perfumes_esq.png': lambda: na_face(placa_butique('perfumes'), 'esq', 9, 4),
+    'parede/vitrine_perfumes_dir.png': lambda: na_face(vitrine('perfumes'), 'dir', 3, 13),
+    'parede/placa_perfumes_dir.png': lambda: na_face(placa_butique('perfumes'), 'dir', 9, 4),
+    'parede/vitrine_pelucias_esq.png': lambda: na_face(vitrine('pelucias'), 'esq', 3, 13),
+    'parede/placa_pelucias_esq.png': lambda: na_face(placa_butique('pelucias'), 'esq', 9, 4),
+    'parede/vitrine_pelucias_dir.png': lambda: na_face(vitrine('pelucias'), 'dir', 3, 13),
+    'parede/placa_pelucias_dir.png': lambda: na_face(placa_butique('pelucias'), 'dir', 9, 4),
     'restaurante/mesa_redonda.png': mesa_redonda,
     'restaurante/cadeira_frente.png': lambda: cadeira(False),
     'restaurante/cadeira_costas.png': lambda: cadeira(True),

@@ -113,14 +113,46 @@ Esse também. A Thea já tem um igual. [ID:CAP1_220]
 Nada aqui que ela ainda não tenha. [ID:CAP1_221]
 => END
 
-~ frases_desenho_errado
+~ frases_pista_1
 
-Não. Olhando bem, não é igual. [ID:CAP1_224]
+## Pistas da Thea na sala lateral: texto do jogo, não do livro.
+A Thea jurou ter visto braços saindo de uma cesta. [ID:CAP1_226]
 => END
 
-~ frases_parecida
+~ frases_pista_2
 
-Parecida, mas não é a da Thea. [ID:CAP1_225]
+## Texto do jogo, não do livro.
+Agora ela queria a do mar, com barbatanas. Escondida entre os embrulhos. [ID:CAP1_227]
+=> END
+
+~ frases_pista_3
+
+## Texto do jogo, não do livro.
+A última estava lá no alto, longe das mãos dela. [ID:CAP1_228]
+=> END
+
+~ frases_nada_aqui
+
+## Texto do jogo, não do livro.
+Nada aqui. [ID:CAP1_229]
+=> END
+
+~ frases_alto_demais
+
+## Texto do jogo, não do livro.
+Alto demais. Eu precisava de algo para subir. [ID:CAP1_230]
+=> END
+
+~ frases_subir
+
+## Texto do jogo, não do livro.
+Subi no banquinho e alcancei a prateleira de cima. [ID:CAP1_231]
+=> END
+
+~ frases_arrumar
+
+## Texto do jogo, não do livro.
+A Ophelia pôs a caixa e o banquinho de volta no lugar. [ID:CAP1_232]
 => END
 
 ~ presente

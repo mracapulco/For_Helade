@@ -26,6 +26,11 @@ func _abrir(caminho: String, etapa_inicial: String) -> void:
 	await wait_physics_frames(10)
 
 
+func _empurrar(nome: String, de: Vector2i) -> void:
+	cena.jogador.position = cena.sala.centro(de)
+	await cena.empurrar(nome)
+
+
 func _esperar_etapa(nome: String) -> void:
 	for i in 240:
 		if cena.etapa == nome:
@@ -123,16 +128,33 @@ func test_butiques_da_rua_a_loja_e_ao_restaurante() -> void:
 	butiques.ir_para_sala_lateral()
 	await _esperar_etapa("prateleiras")
 	assert_eq(cena.sala.largura, 10, "a sala lateral")
-	# Uma parecida dita igual ao desenho: erro, a prateleira continua.
-	await butiques.responder("prateleira_a", "polvo")
-	assert_false(butiques.prateleiras_vistas.has("prateleira_a"))
-	await butiques.responder("prateleira_a", "")
-	assert_true(butiques.prateleiras_vistas.has("prateleira_a"), "parecida, mas não é a da Thea")
-	await butiques.responder("prateleira_b", "dragao_marinho")
-	await butiques.responder("prateleira_d", "polvo")
-	assert_eq(cena.etapa, "prateleiras", "dois desenhos ainda não bastam")
-	assert_eq(butiques.desenhos_achados.size(), 2)
-	butiques.responder("prateleira_f", "monstro")
+	await wait_physics_frames(3)
+	for casa: Vector2i in [Vector2i(3, 2), Vector2i(4, 2)]:
+		assert_true(cena.jogador.casa_andavel(cena.sala.centro(casa)),
+			"onde as meninas estavam no começo não vira buraco")
+	# Pistas da Thea: só o esconderijo do pedido conta.
+	await butiques.procurar("prateleira_a")
+	assert_eq(butiques.achados, 0, "nada aqui")
+	await butiques.procurar("cesta")
+	await butiques.procurar("caixas_presente")
+	assert_eq(butiques.achados, 2)
+	await butiques.procurar("estante_alta")
+	assert_eq(butiques.achados, 2, "alto demais sem o banquinho")
+	# A caixa sai do caminho e o banquinho vai até a frente da estante.
+	await _empurrar("caixa", Vector2i(6, 2))
+	assert_eq(cena._casa_de(cena.objetos["caixa"]), Vector2i(8, 2))
+	await cena.arrumar_as_caixas()
+	assert_eq(cena._casa_de(cena.objetos["caixa"]), Vector2i(7, 2), "Ophelia põe de volta")
+	await _empurrar("caixa", Vector2i(6, 2))
+	await _empurrar("caixa", Vector2i(7, 2))
+	await _empurrar("banquinho", Vector2i(5, 4))
+	for x in [4, 5, 6]:
+		await _empurrar("banquinho", Vector2i(x, 2))
+	await _empurrar("banquinho", Vector2i(8, 3))
+	assert_eq(cena._casa_de(cena.objetos["banquinho"]), Vector2i(8, 1))
+	await _empurrar("banquinho", Vector2i(8, 2))
+	assert_eq(cena._casa_de(cena.objetos["banquinho"]), Vector2i(8, 1), "a parede não deixa")
+	butiques.procurar("estante_alta")
 	await _esperar_pedido()
 	assert_eq(cena.etapa, "restaurante")
 	assert_eq(cena.cena_pedida, SequenciaCenas01.CENAS["restaurante"])

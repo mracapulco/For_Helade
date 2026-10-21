@@ -3,7 +3,7 @@ extends CenaCapitulo01
 ## Capítulo 01, cena 9: a Rua das Butiques e a loja de pelúcias (livro,
 ## l. ~367-437). Duas salas na mesma cena.
 ## Sequência (cada [member etapa] só avança na ordem):
-## 1. rua: a carruagem para; falar com um dos quatro guardas (E) para
+## 1. rua: a carruagem para (Nicholas conta os guardas); falar com um dos quatro guardas (E) para
 ##    escolher "dois comigo".
 ## 2. porta: E na porta da loja leva para dentro.
 ## 3. lojistas: os donos recebem os irmãos, Nicholas intervém, todos se
@@ -44,6 +44,8 @@ func comecar() -> void:
 	montar_rua()
 	await _clarear()
 	await _frases("frases_rua")
+	await _falar_travado("quatro_guardas")
+	_travar(false)
 
 
 # --- 1. a rua ------------------------------------------------------------
@@ -142,6 +144,7 @@ func montar_loja() -> void:
 func receber_na_loja() -> void:
 	_mudar("lojistas")
 	await _falar_travado("lojistas")
+	await _frases("frases_lojistas_silencio")
 	_abaixar(objetos["lojista_homem"], true)
 	_abaixar(objetos["lojista_mulher"], true)
 	await _falar_travado("nicholas_intervem")
@@ -173,6 +176,7 @@ func escolher_presente() -> void:
 	_mudar("presente")
 	_ativar(objetos["expositor_enguia"], false)
 	await _falar_travado("presente")
+	await _frases("frases_presente")
 	await _falar_travado("sem_titulos")
 	_abaixar(objetos["althea"], false)
 	_abaixar(objetos["ophelia"], false)

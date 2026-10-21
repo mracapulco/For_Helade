@@ -11,14 +11,18 @@
 A carruagem parou. Chegamos à Rua das Butiques. [ID:CAP1_153]
 O movimento era constante, até o brasão de Olympia ser reconhecido. As pessoas se afastavam, abrindo espaço. [ID:CAP1_154]
 $> Codice.anotar("rua_das_butiques")
-Quatro. Insuficiente, para os padrões do duque. [ID:CAP1_155]
+=> END
+
+~ quatro_guardas
+
+## Na caixa: Nicholas conta os guardas.
+Quatro guardas? Isso é insuficiente para os padrões do Duque. [ID:CAP1_155]
 => END
 
 ~ guardas_dois
 
 ## Nicholas escolhe quem entra com eles.
 Nicholas: [#retrato=neutro] Dois comigo. [ID:CAP1_156]
-Entramos. [ID:CAP1_157]
 => END
 
 ~ frases_loja
@@ -32,6 +36,11 @@ A loja era familiar. Althea já a conhecia bem, suas pelúcias, feitas sob encom
 ## Os donos os recebem e perguntam quem é a moça.
 Lojista: [#retrato=neutro] É uma honra tê-los aqui, filhos de Olympia. Ainda mais em um dia tão especial. [ID:CAP1_159]
 Lojista: [#retrato=neutro] E quem seria esta bela jovem que está com vocês? Nunca os vimos trazer amigos. [ID:CAP1_160]
+=> END
+
+~ frases_lojistas_silencio
+
+## Ophelia não se apresenta.
 Ophelia não respondeu. [ID:CAP1_161]
 Nenhuma correção. Nenhuma exigência. [ID:CAP1_162]
 => END
@@ -70,6 +79,11 @@ Ophelia: [#retrato=neutro] O que acha deste… Nicholas? É assim que prefere? [
 - [Responder sem olhar] [ID:CAP1_OPC_PRESENTE_SECO]
 	$> Relacoes.ajustar("ophelia", -1)
 	Nicholas: [#retrato=neutro] Ela não tem um desses. É uma boa escolha. [ID:CAP1_174]
+=> END
+
+~ frases_presente
+
+## As duas opções voltam aqui.
 Ophelia analisou o brinquedo, então sorriu de leve. Mostrou para Althea, que aprovou com entusiasmo imediato. [ID:CAP1_175]
 => END
 
@@ -78,7 +92,6 @@ Ophelia analisou o brinquedo, então sorriu de leve. Mostrou para Althea, que ap
 ## O pedido de Ophelia: só o nome, sem títulos.
 Ophelia: [#retrato=neutro] Então, quando estivermos só nós, prefiro que use meu nome. Sem títulos. [ID:CAP1_176]
 Nicholas: [#retrato=neutro] Como quiser… Ophelia. [ID:CAP1_177]
-Sorrisos vazios. Troca justa. [ID:CAP1_178]
 => END
 
 ~ frases_saida

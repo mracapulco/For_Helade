@@ -92,12 +92,21 @@ func _servir() -> void:
 
 
 func _almoco() -> void:
+	await _frases("frases_prato")
 	await _falar_travado("prato_intocado")
 	await _falar_travado("insistir")
+	await _frases("frases_pedido")
+	await _falar_travado("insistir_thea")
+	await _frases("frases_sopa")
 	await _falar_travado("sopa")
+	await _frases("frases_colher")
 	await _falar_travado("colher")
+	await _frases("frases_silencio")
 	await _falar_travado("desculpas")
+	await _frases("frases_idiota")
 	await _falar_travado("ophelia_toma")
+	await _frases("frases_sobressalto")
+	await _falar_travado("ophelia_toma_fim")
 	await _caminhar(objetos["garcom"], [sala.centro(CASA_GARCOM)], 1.2)
 	await _sumir(objetos["garcom"])
 	await levantar_nicholas()
@@ -123,7 +132,11 @@ func pegar_colher_limpa() -> void:
 		return
 	pegou_colher = true
 	_ativar(objetos["armario"], false)
+	_travar(true)
+	await _frases("frases_risos")
 	await _falar_travado("risos")
+	await _frases("frases_colher_limpa")
+	await _falar_travado("estranha")
 	await _frases("frases_fim_almoco")
 	await terminar()
 

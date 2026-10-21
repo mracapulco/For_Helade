@@ -5,4 +5,6 @@
 [resource]
 script = ExtResource("1_personagem")
 nome_no_roteiro = "Janet"
+pixel_art = true
 cor_provisoria = Color(0.25, 0.35, 0.5, 1)
+id_retratos = "janet"

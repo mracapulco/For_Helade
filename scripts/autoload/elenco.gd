@@ -11,6 +11,9 @@ var personagens: Array[Personagem] = [
 	preload("res://data/personagens/pany.tres"),
 	# Capítulo 01, passo 2: o duque Apollon (aparência provisória).
 	preload("res://data/personagens/apollon.tres"),
+	# Retratos animados por idade e emoção (19/10): Ophelia ainda não fala no
+	# jogo, mas já tem retratos.
+	preload("res://data/personagens/ophelia.tres"),
 	# Provisório: só para a sala de teste da exploração.
 	preload("res://data/personagens/personagem_teste.tres"),
 	# Figurantes genéricos dos acampamentos (não são personagens do livro).

@@ -133,6 +133,25 @@ func test_butiques_da_rua_a_loja_e_ao_restaurante() -> void:
 	assert_eq(Relacoes.valor("ophelia"), 1)
 
 
+func test_butiques_comitiva_segue_nicholas() -> void:
+	await _abrir("res://scenes/capitulo_01/cena_butiques.tscn", "rua")
+	var butiques := cena as CenaButiques
+	butiques.escolher_guarda(butiques.guardas[0])
+	butiques.escolher_guarda(butiques.guardas[1])
+	await _esperar_etapa("porta")
+	assert_eq(butiques.seguidores.size(), 4, "Althea, Ophelia e os dois escolhidos")
+	var casa := cena._casa_de(cena.jogador)
+	var passos: Array[Vector2i] = [casa + Vector2i(0, -1), casa + Vector2i(-1, -1), casa + Vector2i(-2, -1)]
+	for passo in passos:
+		cena.jogador.position = cena.sala.centro(passo)
+		await wait_physics_frames(4)
+	assert_eq(cena._casa_de(cena.objetos["althea"]), passos[1], "Althea vem uma casa atrás")
+	assert_eq(cena._casa_de(cena.objetos["ophelia"]), passos[0], "Ophelia logo atrás dela")
+	for casa_da_carruagem in CenaButiques.CASAS_DA_CARRUAGEM:
+		for guarda in butiques.guardas:
+			assert_ne(cena._casa_de(guarda), CenaButiques.CASA_CARRUAGEM + casa_da_carruagem)
+
+
 func test_butiques_carruagem_fora_do_caminho() -> void:
 	await _abrir("res://scenes/capitulo_01/cena_butiques.tscn", "rua")
 	var carruagem: Vector2i = cena._casa_de(cena.objetos["carruagem"])

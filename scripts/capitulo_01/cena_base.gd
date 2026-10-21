@@ -249,6 +249,8 @@ func _caminhar(pessoa: Node2D, pontos: Array, tempo_por_trecho := 1.2) -> void:
 		_virar(pessoa, destino)
 		visual.play(visual.animation.replace("parado", "andando"))
 		await _andar(pessoa, destino, tempo_por_trecho).finished
+		if not is_instance_valid(visual):
+			return    # a sala mudou no meio do caminho
 	visual.play(visual.animation.replace("andando", "parado"))
 
 

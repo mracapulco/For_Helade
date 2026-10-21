@@ -25,7 +25,6 @@ extends CenaCapitulo01
 const ROTEIRO := preload("res://data/dialogos/capitulo_01/butiques.dialogue")
 const QUADROS_LOJISTA_HOMEM := preload("res://assets/art/personagens/lojista_homem/lojista_homem_exploracao.tres")
 const QUADROS_LOJISTA_MULHER := preload("res://assets/art/personagens/lojista_mulher/lojista_mulher_exploracao.tres")
-const QUADROS_COCHEIRO := preload("res://assets/art/personagens/cocheiro/cocheiro_exploracao.tres")
 const PE_CARRUAGEM := 88.0
 ## Cor provisória dos guardas de Olympia (a arte é a do guarda imperial).
 const COR_GUARDA_OLYMPIA := Color(0.62, 0.74, 1.0)
@@ -35,15 +34,19 @@ const COR_GUARDA_OLYMPIA := Color(0.62, 0.74, 1.0)
 const LARGURA_RUA := 34
 const PROFUNDIDADE_RUA := 12
 const CASA_CARRUAGEM := Vector2i(20, 8)
-## Casas que a imagem da carruagem cobre (relativas a ela): ninguém para
-## nelas, para não sumir atrás dela.
-const ATRAS_DA_CARRUAGEM: Array[Vector2i] = [Vector2i(-4, -1), Vector2i(-3, -1), Vector2i(-2, -1),
-	Vector2i(-1, -1), Vector2i(-3, 0), Vector2i(-2, 0), Vector2i(-1, 0), Vector2i(-3, 1), Vector2i(-2, 1),
-	Vector2i(-1, 1), Vector2i(-2, 2)]
+## Casas onde uma pessoa ficaria sobreposta à carruagem ou aos cavalos
+## (relativas a ela): ninguém para nem passa nelas.
+const CASAS_DA_CARRUAGEM: Array[Vector2i] = [
+	Vector2i(-4, -2), Vector2i(-3, -2), Vector2i(-2, -2),
+	Vector2i(-4, -1), Vector2i(-3, -1), Vector2i(-2, -1), Vector2i(-1, -1), Vector2i(0, -1), Vector2i(1, -1), Vector2i(2, -1),
+	Vector2i(-4, 0), Vector2i(-3, 0), Vector2i(-2, 0), Vector2i(-1, 0), Vector2i(1, 0), Vector2i(2, 0), Vector2i(3, 0),
+	Vector2i(-3, 1), Vector2i(-2, 1), Vector2i(-1, 1), Vector2i(0, 1), Vector2i(1, 1), Vector2i(2, 1), Vector2i(3, 1), Vector2i(4, 1),
+	Vector2i(-2, 2), Vector2i(-1, 2), Vector2i(0, 2), Vector2i(1, 2), Vector2i(2, 2), Vector2i(3, 2), Vector2i(4, 2),
+	Vector2i(-1, 3), Vector2i(0, 3), Vector2i(1, 3), Vector2i(2, 3), Vector2i(3, 3), Vector2i(4, 3)]
 const CASA_JOGADOR_RUA := Vector2i(19, 5)
 ## Os quatro guardas se espalham em volta da carruagem, à vista; o jogador
 ## vai até eles.
-const CASAS_GUARDAS_RUA: Array[Vector2i] = [Vector2i(15, 6), Vector2i(23, 5), Vector2i(24, 9), Vector2i(15, 10)]
+const CASAS_GUARDAS_RUA: Array[Vector2i] = [Vector2i(15, 6), Vector2i(23, 5), Vector2i(26, 9), Vector2i(15, 10)]
 const CASA_PORTA_LOJA := Vector2i(8, 1)
 ## Os que ficam de fora esperam dos dois lados da porta (casas guardadas: os
 ## escolhidos nunca param nelas).
@@ -61,7 +64,7 @@ const PASSANTES := [
 	["dama", Vector2i(2, 10), Vector2i(14, 10), 0.4],
 	["senhor", Vector2i(13, 11), Vector2i(2, 11), 0.7],
 	["moco", Vector2i(25, 10), Vector2i(33, 10), 0.3],
-	["moca", Vector2i(33, 11), Vector2i(23, 11), 0.6],
+	["moca", Vector2i(33, 11), Vector2i(26, 11), 0.6],
 	["dama", Vector2i(26, 6), Vector2i(33, 6), 0.5],
 	["senhor", Vector2i(33, 7), Vector2i(25, 7), 0.2],
 	["moca", Vector2i(5, 5), Vector2i(29, 5), 0.9],
@@ -74,7 +77,9 @@ const CASAS_AFASTADAS: Array[Vector2i] = [Vector2i(31, 1), Vector2i(28, 1), Vect
 	Vector2i(23, 1), Vector2i(1, 5), Vector2i(1, 9), Vector2i(1, 11), Vector2i(1, 3), Vector2i(33, 8),
 	Vector2i(33, 10), Vector2i(33, 6), Vector2i(33, 1), Vector2i(16, 1), Vector2i(13, 1),
 	Vector2i(1, 7), Vector2i(20, 1)]
-## Segundos por casa andada pelos passantes.
+## Linha da rua por onde os guardas da porta vão, longe da carruagem.
+const LINHA_ATE_A_PORTA := 3
+## Segundos por casa andada pelos passantes e pelos guardas.
 const TEMPO_POR_CASA := 0.4
 const GUARDAS_COM_ELE := 2
 ## Na loja: as prateleiras onde dá para procurar (casa de cada uma) e quantas
@@ -91,6 +96,14 @@ var prateleiras_vistas: Array[String] = []
 ## Casas para onde os escolhidos já estão indo (para não pararem juntos).
 var casas_reservadas: Array[Vector2i] = []
 var passantes: Array[Node2D] = []
+## Quem anda atrás de Nicholas depois de "Dois comigo": Althea, Ophelia e os
+## dois escolhidos, nessa ordem, cada um uma casa atrás do anterior.
+var seguidores: Array[Node2D] = []
+## Casas por onde Nicholas passou (a última é a dele).
+var _rastro: Array[Vector2i] = []
+## Para onde cada seguidor está indo e o tween do passo.
+var _destino_seguidor := {}
+var _passo_seguidor := {}
 var _passeios: Array[Tween] = []
 
 
@@ -124,6 +137,7 @@ func montar_rua() -> void:
 	_nova_sala(LARGURA_RUA, PROFUNDIDADE_RUA, TOM_DIA, "rua", "fachada")
 	guardas.clear()
 	escolhidos.clear()
+	seguidores.clear()
 	casas_reservadas.clear()
 	passantes.clear()
 	_passeios.clear()
@@ -154,11 +168,11 @@ func montar_rua() -> void:
 		_objeto("lampiao_%d" % x, "rua/lampiao", Vector2i(x, 2))
 	_objeto("lampiao_esq", "rua/lampiao", Vector2i(2, 8))
 	_objeto("carruagem", "rua/carruagem_parada", CASA_CARRUAGEM, false, PE_CARRUAGEM)
-	for i in ATRAS_DA_CARRUAGEM.size():
-		_bloqueio("atras_carruagem_%d" % i, CASA_CARRUAGEM + ATRAS_DA_CARRUAGEM[i])
-	_pessoa("cocheiro", QUADROS_COCHEIRO, Vector2i(22, 7))
+	# O cocheiro já está sentado na boleia (no desenho da carruagem).
+	for i in CASAS_DA_CARRUAGEM.size():
+		_bloqueio("junto_da_carruagem_%d" % i, CASA_CARRUAGEM + CASAS_DA_CARRUAGEM[i])
 	_pessoa("althea", QUADROS_ALTHEA, Vector2i(17, 5))
-	_pessoa("ophelia", QUADROS_OPHELIA, Vector2i(17, 6))
+	_pessoa("ophelia", QUADROS_OPHELIA, Vector2i(16, 5))
 	for i in CASAS_GUARDAS_RUA.size():
 		var guarda := _pessoa("guarda_%d" % (i + 1), QUADROS_GUARDA, CASAS_GUARDAS_RUA[i], true)
 		guarda.get_node("Visual").modulate = COR_GUARDA_OLYMPIA
@@ -255,6 +269,7 @@ func escolher_guarda(guarda: Node2D) -> void:
 	for i in fora.size():
 		_ir_para_a_porta(fora[i], CASAS_GUARDAS_PORTA[i])
 	await _frases("frases_guardas_porta")
+	_comecar_a_seguir()
 	_mudar("porta")
 	_travar(false)
 	_ativar(objetos["porta_loja"], true)
@@ -271,7 +286,10 @@ func _continencia(guarda: Node2D) -> void:
 
 ## O escolhido para numa casa livre ao lado de Nicholas, fora das da porta.
 func _vir_para_o_lado(guarda: Node2D) -> void:
-	await _caminhar(guarda, [sala.centro(_reservar_ao_lado(guarda))], 0.6)
+	var pontos: Array = []
+	for casa in _caminho(_casa_de(guarda), _reservar_ao_lado(guarda)):
+		pontos.append(sala.centro(casa))
+	await _caminhar(guarda, pontos, TEMPO_POR_CASA)
 	_virar(guarda, sala.centro(CASA_PORTA_LOJA))
 
 
@@ -295,9 +313,112 @@ func _marcar(guarda: Node2D) -> void:
 	guarda.add_child(marca)
 
 
+## Os que não foram escolhidos andam (sem pressa) até a porta da loja, por
+## cima da carruagem (pela linha da calçada).
 func _ir_para_a_porta(guarda: Node2D, casa: Vector2i) -> void:
-	await _caminhar(guarda, [sala.centro(Vector2i(casa.x, _casa_de(guarda).y)), sala.centro(casa)], 0.9)
-	_virar(guarda, sala.centro(CASA_JOGADOR_RUA))
+	var de := _casa_de(guarda)
+	var pontos: Array[Vector2i] = [Vector2i(de.x, LINHA_ATE_A_PORTA), Vector2i(casa.x, LINHA_ATE_A_PORTA), casa]
+	var antes := de
+	for ponto in pontos:
+		await _caminhar(guarda, [sala.centro(ponto)], maxf(Vector2(ponto - antes).length(), 0.5) * TEMPO_POR_CASA)
+		if not is_instance_valid(guarda) or guarda.get_parent() != sala:
+			return    # Nicholas já entrou na loja
+		antes = ponto
+	_virar(guarda, sala.centro(CASA_CARRUAGEM))
+
+
+# --- a comitiva segue Nicholas ------------------------------------------------
+
+func _comecar_a_seguir() -> void:
+	seguidores.clear()
+	seguidores.append(objetos["althea"])
+	seguidores.append(objetos["ophelia"])
+	seguidores.append_array(escolhidos)
+	_rastro.clear()
+	_destino_seguidor.clear()
+	for i in range(seguidores.size() - 1, -1, -1):
+		_rastro.append(_casa_de(seguidores[i]))
+	_rastro.append(_casa_de(jogador))
+	for seguidor in seguidores:
+		# Seguem por onde ele anda: não podem fechar a passagem dele.
+		seguidor.get_node("Colisao").set_deferred("disabled", true)
+		_destino_seguidor[seguidor] = _casa_de(seguidor)
+
+
+func _parar_de_seguir() -> void:
+	seguidores.clear()
+
+
+func _physics_process(_delta: float) -> void:
+	if seguidores.is_empty() or etapa != "porta":
+		return
+	var casa := _casa_de(jogador)
+	if casa == _rastro.back():
+		return
+	_rastro.append(casa)
+	while _rastro.size() > seguidores.size() + 1:
+		_rastro.pop_front()
+	for i in seguidores.size():
+		_seguir(seguidores[i], _rastro[_rastro.size() - 2 - i])
+
+
+## Um passo do seguidor até a casa do rastro, no ritmo do andar de Nicholas.
+## Longe dela (o começo), vai pelo caminho livre.
+func _seguir(seguidor: Node2D, casa: Vector2i) -> void:
+	if _destino_seguidor.get(seguidor) == casa:
+		return
+	_destino_seguidor[seguidor] = casa
+	var passo: Tween = _passo_seguidor.get(seguidor)
+	if passo and passo.is_valid():
+		passo.kill()
+	var pontos := _caminho(_casa_de(seguidor), casa)
+	var tempo_por_casa := 36.0 / maxf(jogador.velocity.length(), jogador.velocidade_andando())
+	passo = create_tween()
+	_passo_seguidor[seguidor] = passo
+	for ponto in pontos:
+		passo.tween_callback(_andando_para.bind(seguidor, sala.centro(ponto)))
+		passo.tween_property(seguidor, "position", sala.centro(ponto), maxf(tempo_por_casa * escala_tempo, 0.01))
+	passo.tween_callback(_parar_de_andar.bind(seguidor))
+
+
+func _parar_de_andar(pessoa: Node2D) -> void:
+	var visual: AnimatedSprite2D = pessoa.get_node("Visual")
+	visual.play(visual.animation.replace("andando", "parado"))
+
+
+## Casas de [param de] até [param ate] (sem a primeira), desviando da
+## carruagem, dos lampiões e dos vasos (busca em largura na grade da rua).
+func _caminho(de: Vector2i, ate: Vector2i) -> Array[Vector2i]:
+	var caminho: Array[Vector2i] = []
+	if Vector2(ate - de).length() < 1.5:
+		caminho.append(ate)
+		return caminho
+	var bloqueadas := {}
+	for nome: String in objetos:
+		if nome.begins_with("junto_da_carruagem") or nome.begins_with("lampiao") or nome.begins_with("vaso") \
+				or nome == "carruagem":
+			bloqueadas[_casa_de(objetos[nome])] = true
+	var veio := {de: de}
+	var fila: Array[Vector2i] = [de]
+	while not fila.is_empty():
+		var atual: Vector2i = fila.pop_front()
+		if atual == ate:
+			break
+		for passo: Vector2i in [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1)]:
+			var vizinha := atual + passo
+			if veio.has(vizinha) or bloqueadas.has(vizinha) or vizinha.x < 1 or vizinha.y < 1 \
+					or vizinha.x >= sala.largura or vizinha.y >= sala.profundidade:
+				continue
+			veio[vizinha] = atual
+			fila.append(vizinha)
+	if not veio.has(ate):
+		caminho.append(ate)
+		return caminho
+	var casa := ate
+	while casa != de:
+		caminho.push_front(casa)
+		casa = veio[casa]
+	return caminho
 
 
 func entrar_na_loja() -> void:
@@ -305,11 +426,9 @@ func entrar_na_loja() -> void:
 		return
 	_ativar(objetos["porta_loja"], false)
 	_travar(true)
-	# Os dois escolhidos acompanham Nicholas até a porta.
-	casas_reservadas.clear()
-	for guarda in escolhidos:
-		_caminhar(guarda, [sala.centro(_reservar_ao_lado(guarda))], 0.6)
+	# A comitiva já vem atrás dele; espera o último passo antes de entrar.
 	await _esperar(0.6)
+	_parar_de_seguir()
 	await _escurecer()
 	await montar_loja()
 

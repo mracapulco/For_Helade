@@ -94,10 +94,10 @@ const CASA_PORTA_SALA_LATERAL := Vector2i(10, 1)
 ## 21/10/2026). Ela pede uma pelúcia por vez com uma pista e esquenta ou
 ## esfria conforme Nicholas chega perto do esconderijo (quente: ela se
 ## levanta); ao chegar ao lado dele, Nicholas acha a pelúcia, que ela já tem
-## ("A Thea já tem um desses."). A última fica no alto da estante alta: o
-## banquinho precisa parar na frente dela. Caixa e banquinho se chutam
-## andando contra eles e deslizam até bater em algo (como em Goof Troop).
-## Esconderijos: [casa, arquivo].
+## ("A Thea já tem um desses."). A última fica no alto da estante alta:
+## Nicholas monta uma escada (banquinho, caixa) na frente dela, agarrando
+## com E para empurrar e puxar, e sobe pulando um degrau por vez
+## ([BlocosDaSala]). Esconderijos: [casa, arquivo].
 const ESCONDERIJOS := {
 	"cesta": [Vector2i(8, 6), "loja/cesta_pelucias"],
 	"caixas_presente": [Vector2i(3, 7), "loja/caixas_presente"],
@@ -108,17 +108,18 @@ const PRATELEIRAS_BAIXAS := [[Vector2i(3, 1), "esq"], [Vector2i(4, 1), "esq"], [
 	[Vector2i(7, 1), "esq"], [Vector2i(1, 3), "dir"], [Vector2i(1, 5), "dir"], [Vector2i(1, 7), "dir"]]
 ## A ordem dos pedidos da Thea: [esconderijo, pelúcia].
 const PISTAS := [["cesta", "polvo"], ["caixas_presente", "dragao_marinho"], ["estante_alta", "monstro"]]
-## O que se chuta e de onde sai (Ophelia põe de volta se travar). Uma
-## solução: caixa para a direita, banquinho para cima, para a direita (para
-## na caixa) e para cima, até a frente da estante.
-const EMPURRAVEIS := {
-	"banquinho": [Vector2i(4, 5), "loja/banquinho"],
-	"caixa": [Vector2i(7, 2), "loja/caixa_madeira"],
+## Os blocos do jogo da escada: [casa, arquivo, altura, pixels do topo,
+## móvel]. A caixa começa no canto (só sai puxando); o caixote pesado não se
+## move nem se sobe e fecha a linha do banquinho. Uma solução: puxar a caixa
+## para fora do canto e empurrá-la até a frente da estante; banquinho para
+## cima e para a direita até encostar nela; subir no banquinho, na caixa.
+const BLOCOS := {
+	"banquinho": [Vector2i(5, 3), "loja/banquinho", 1, 12.0, true],
+	"caixa": [Vector2i(9, 7), "loja/caixa_madeira", 2, 24.0, true],
+	"caixote": [Vector2i(7, 3), "loja/caixote_pesado", 0, 40.0, false],
 }
-## Quanto tempo andando contra a caixa até chutá-la.
-const TEMPO_PARA_CHUTAR := 0.2
-## Segundos por casa deslizada.
-const TEMPO_DESLIZE := 0.1
+## A altura do degrau de onde Nicholas alcança o alto da estante.
+const ALTURA_PARA_ALCANCAR := 2
 ## Distância (em casas) até o esconderijo para achar, "quente" e "morno".
 const CALOR := Vector3(1.5, 2.5, 4.5)
 const CASA_ENTRADA_SALA_LATERAL := Vector2i(2, 1)
@@ -132,9 +133,9 @@ var escolhidos: Array[Node2D] = []
 var achados := 0
 var _calor: Label
 var _procurando := false
-var _chute_tempo := 0.0
-var _chutando := false
 var _avisou_alto := false
+## O jogo da escada da sala lateral.
+var blocos: BlocosDaSala
 ## Casas para onde os escolhidos já estão indo (para não pararem juntos).
 var casas_reservadas: Array[Vector2i] = []
 var passantes: Array[Node2D] = []
@@ -673,9 +674,19 @@ func montar_sala_lateral() -> void:
 	no_alto.scale = Vector2.ONE * 0.6
 	objetos["estante_alta"].add_child(no_alto)
 	_objeto("cavalinho", "loja/cavalinho", Vector2i(6, 6))
-	for nome: String in EMPURRAVEIS:
-		var coisa := _objeto(nome, EMPURRAVEIS[nome][1], EMPURRAVEIS[nome][0])
+	if blocos:
+		blocos.queue_free()
+	blocos = BlocosDaSala.new()
+	blocos.name = "Blocos"
+	blocos.escala_tempo = escala_tempo
+	add_child(blocos)
+	blocos.configurar(sala, jogador, _casa_livre)
+	for nome: String in BLOCOS:
+		var bloco: Array = BLOCOS[nome]
+		var coisa := _objeto(nome, bloco[1], bloco[0], false, PE_CAIXA)
 		coisa.remove_from_group(NavegacaoSala.GRUPO_OBSTACULOS)
+		blocos.adicionar(nome, coisa, bloco[2], bloco[3], bloco[4])
+	blocos.moveu.connect(_ao_mover_na_escada)
 	_pessoa("althea", QUADROS_ALTHEA, Vector2i(3, 2))
 	_pessoa("ophelia", QUADROS_OPHELIA, Vector2i(4, 2), true)
 	_ao_interagir("ophelia", arrumar_as_caixas)
@@ -712,32 +723,36 @@ func agachar_nas_prateleiras() -> void:
 	await _frases("frases_pista_1")
 	_mudar("prateleiras")
 	_ativar(objetos["ophelia"], true)
+	blocos.ativo = true
 	_travar(false)
 
 
-## A cada quadro, na sala lateral: o calor da Thea, achar a pelúcia ao chegar
-## ao lado do esconderijo e chutar o que Nicholas empurra andando.
-func _sala_lateral_quadro(delta: float) -> void:
-	if achados >= PISTAS.size() or _procurando or _chutando:
+## A cada quadro, na sala lateral: o calor da Thea e achar a pelúcia ao
+## chegar ao lado do esconderijo (no chão).
+func _sala_lateral_quadro(_delta: float) -> void:
+	if achados >= PISTAS.size() or _procurando:
 		return
-	var distancia := _distancia_do_pedido()
-	_atualizar_calor(distancia)
-	if distancia <= CALOR.x:
-		if PISTAS[achados][0] != "estante_alta" or _banquinho_na_frente():
-			procurar(PISTAS[achados][0])
-			return
-		if not _avisou_alto:
-			_avisou_alto = true
-			_frases("frases_alto_demais")
-	_chutar_andando(delta)
-
-
-func _distancia_do_pedido() -> float:
 	var nome: String = PISTAS[achados][0]
-	var alvo: Vector2i = ESCONDERIJOS[nome][0]
-	if nome == "estante_alta" and _banquinho_na_frente():
-		alvo = _casa_de(objetos["banquinho"])
-	return Vector2(_casa_de(jogador) - alvo).length()
+	var distancia := Vector2(_casa_de(jogador) - ESCONDERIJOS[nome][0]).length()
+	_atualizar_calor(distancia)
+	if distancia > CALOR.x or blocos.altura > 0 or blocos.segurando != "":
+		return
+	if nome != "estante_alta":
+		procurar(nome)
+	elif not _avisou_alto:
+		_avisou_alto = true
+		_frases("frases_alto_demais")
+
+
+## Em cima da escada, ao lado da estante e alto o bastante: alcança.
+func _ao_mover_na_escada(casa: Vector2i, altura: int) -> void:
+	if achados < PISTAS.size() and PISTAS[achados][0] == "estante_alta" and _alcanca_a_estante(casa, altura):
+		procurar("estante_alta")
+
+
+func _alcanca_a_estante(casa: Vector2i, altura: int) -> bool:
+	var estante: Vector2i = ESCONDERIJOS["estante_alta"][0]
+	return altura >= ALTURA_PARA_ALCANCAR and absi(casa.x - estante.x) + absi(casa.y - estante.y) == 1
 
 
 ## Thea esquenta ou esfria conforme Nicholas chega perto; quente, ela se
@@ -762,26 +777,34 @@ func _atualizar_calor(distancia: float) -> void:
 		_virar(althea, jogador.position if quente else sala.centro(Vector2i(6, 1)))
 
 
-## Nicholas acha a pelúcia do pedido em [param nome]: ela vai para a Thea
-## (que já tem uma igual) e ela pede a próxima. No alto da estante, só com o
-## banquinho na frente dela.
+## Nicholas acha a pelúcia do pedido em [param nome]: ela aparece grande em
+## cima do esconderijo e vai para a Thea (que já tem uma igual), e ela pede
+## a próxima. A do alto da estante, só do alto da escada.
 func procurar(nome: String) -> void:
 	if etapa != "prateleiras" or achados >= PISTAS.size() or _procurando:
 		return
 	var pedido: Array = PISTAS[achados]
-	if nome != pedido[0] or (nome == "estante_alta" and not _banquinho_na_frente()):
+	if nome != pedido[0] or (nome == "estante_alta"
+			and not _alcanca_a_estante(_casa_de(jogador), blocos.altura)):
 		return
 	_procurando = true
+	blocos.ativo = false
+	blocos.soltar()
 	_travar(true)
+	var de: Vector2 = objetos[nome].position
 	if nome == "estante_alta":
-		await _frases("frases_subir")
 		objetos["estante_alta"].get_node("Pelucia").queue_free()
-	await _levar_para_a_thea(pedido[1], objetos[nome].position)
+		de += Vector2(0, -40)
+		await _frases("frases_subir")
+		# Desce para o chão, ao lado da escada.
+		blocos.por_no_chao(_casa_livre_perto(_casa_de(jogador), _casa_de(objetos["althea"])))
+	await _levar_para_a_thea(pedido[1], de)
 	achados += 1
 	await _frases("frases_prateleira_%d" % achados)
 	if achados < PISTAS.size():
 		await _frases("frases_pista_%d" % (achados + 1))
 		_procurando = false
+		blocos.ativo = true
 		_travar(false)
 		return
 	_mudar("presente")
@@ -792,71 +815,31 @@ func procurar(nome: String) -> void:
 	await ophelia_traz_a_criatura()
 
 
-func _banquinho_na_frente() -> bool:
-	var estante: Vector2i = ESCONDERIJOS["estante_alta"][0]
-	var banquinho := _casa_de(objetos["banquinho"])
-	return absi(banquinho.x - estante.x) + absi(banquinho.y - estante.y) == 1
-
-
-## A pelúcia achada pula do esconderijo até a Thea.
+## A pelúcia achada sobe grande em cima do esconderijo, com um som, e voa
+## até a Thea.
 func _levar_para_a_thea(pelucia: String, de: Vector2) -> void:
 	var althea: Node2D = objetos["althea"]
 	var bicho := Sprite2D.new()
 	bicho.name = "Achada"
 	bicho.texture = load(ARTE + "loja/pelucia_%s.png" % pelucia)
-	bicho.scale = Vector2.ONE * 0.6
-	bicho.position = de + Vector2(0, -30)
+	bicho.position = de + Vector2(0, -24)
+	bicho.scale = Vector2.ONE * 0.4
 	bicho.z_index = 5
 	sala.add_child(bicho)
+	var som := AudioStreamPlayer.new()
+	som.stream = load(BlocosDaSala.SFX + "achou.wav")
+	som.bus = BlocosDaSala.BARRAMENTO
+	bicho.add_child(som)
+	som.play()
 	if escala_tempo > 0.0:
 		var voo := create_tween()
+		voo.tween_property(bicho, "position", de + Vector2(0, -56), 0.35 * escala_tempo)
+		voo.parallel().tween_property(bicho, "scale", Vector2.ONE * 1.3, 0.35 * escala_tempo)
+		voo.tween_interval(0.9 * escala_tempo)
 		voo.tween_property(bicho, "position", althea.position + Vector2(0, -24), 0.6 * escala_tempo)
+		voo.parallel().tween_property(bicho, "scale", Vector2.ONE * 0.6, 0.6 * escala_tempo)
 		await voo.finished
 	bicho.queue_free()
-
-
-## Andando contra a caixa ou o banquinho por [constant TEMPO_PARA_CHUTAR]
-## segundos, Nicholas os chuta.
-func _chutar_andando(delta: float) -> void:
-	var teclas := Input.get_vector("mover_esquerda", "mover_direita", "mover_frente", "mover_tras")
-	var passo := PersonagemExploracao.passo_na_grade(teclas)
-	var alvo := ""
-	if absi(passo.x) + absi(passo.y) == 1 and not jogador.indo_para_casa():
-		for nome: String in EMPURRAVEIS:
-			if _casa_de(objetos[nome]) == _casa_de(jogador) + passo:
-				alvo = nome
-	if alvo == "":
-		_chute_tempo = 0.0
-		return
-	_chute_tempo += delta
-	if _chute_tempo >= TEMPO_PARA_CHUTAR:
-		_chute_tempo = 0.0
-		empurrar(alvo)
-
-
-## Chuta [param nome] para o lado oposto a Nicholas (ele precisa estar
-## encostado, numa das quatro direções): desliza até bater em algo.
-func empurrar(nome: String) -> void:
-	if etapa != "prateleiras" or _chutando:
-		return
-	var coisa: Node2D = objetos[nome]
-	var casa := _casa_de(coisa)
-	var passo := casa - _casa_de(jogador)
-	if absi(passo.x) + absi(passo.y) != 1:
-		return
-	var destino := casa
-	while _casa_livre(destino + passo):
-		destino += passo
-	if destino == casa:
-		return
-	_chutando = true
-	if escala_tempo > 0.0:
-		var deslize := create_tween()
-		deslize.tween_property(coisa, "position", sala.centro(destino),
-			TEMPO_DESLIZE * (destino - casa).length() * escala_tempo)
-		await deslize.finished
-	coisa.position = sala.centro(destino)
-	_chutando = false
 
 
 func _casa_livre(casa: Vector2i) -> bool:
@@ -873,14 +856,23 @@ func _casa_livre(casa: Vector2i) -> bool:
 
 
 ## E na Ophelia: ela põe a caixa e o banquinho de volta (se travou).
+## Nicholas desce, se estiver em cima, e sai de onde algum bloco volta.
 func arrumar_as_caixas() -> void:
-	if etapa != "prateleiras":
+	if etapa != "prateleiras" or _procurando:
 		return
 	_travar(true)
-	for nome: String in EMPURRAVEIS:
-		if _casa_de(jogador) != EMPURRAVEIS[nome][0]:
-			objetos[nome].position = sala.centro(EMPURRAVEIS[nome][0])
+	blocos.ativo = false
+	var casa := _casa_de(jogador)
+	var origens: Array[Vector2i] = []
+	for nome: String in BLOCOS:
+		origens.append(BLOCOS[nome][0])
+	if blocos.altura > 0 or origens.has(casa):
+		blocos.por_no_chao(CASA_ENTRADA_SALA_LATERAL + Vector2i(0, 1))
+	blocos.soltar()
+	for nome: String in BLOCOS:
+		objetos[nome].position = sala.centro(BLOCOS[nome][0])
 	await _frases("frases_arrumar")
+	blocos.ativo = true
 	_travar(false)
 
 

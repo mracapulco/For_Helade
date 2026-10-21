@@ -15,6 +15,9 @@ const AparenciaNicholas := preload("res://scripts/systems/aparencia_nicholas.gd"
 
 var direcao := "frente"
 var interagindo := false
+## Ação posta por fora (ex.: "empurrando", "puxando"): vale no lugar da que
+## viria do movimento enquanto não for vazia e a folha tiver a animação.
+var acao_forcada := ""
 
 
 func _ready() -> void:
@@ -42,6 +45,9 @@ func _process(_delta: float) -> void:
 		personagem.golpeando)
 	# O equipamento acelera ou atrasa o passo e o golpe.
 	speed_scale = personagem.ritmo() if personagem.golpeando else personagem.ritmo_andar()
+	if acao_forcada != "" and sprite_frames.has_animation(StringName("%s_%s" % [acao_forcada, direcao])):
+		acao = acao_forcada
+		speed_scale = 1.0
 	var nome := StringName("%s_%s" % [acao, direcao])
 	if not sprite_frames.has_animation(nome):
 		# Desenhos sem golpe (os outros personagens) usam o de interagir.

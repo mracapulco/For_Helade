@@ -26,9 +26,9 @@ func _abrir(caminho: String, etapa_inicial: String) -> void:
 	await wait_physics_frames(10)
 
 
-func _empurrar(nome: String, de: Vector2i) -> void:
+func _olhar(de: Vector2i, para: Vector2i) -> void:
 	cena.jogador.position = cena.sala.centro(de)
-	await cena.empurrar(nome)
+	cena.jogador.direcao_olhar = (cena.sala.centro(para) - cena.sala.centro(de)).normalized()
 
 
 func _esperar_etapa(nome: String) -> void:
@@ -139,29 +139,57 @@ func test_butiques_da_rua_a_loja_e_ao_restaurante() -> void:
 	await butiques.procurar("caixas_presente")
 	assert_eq(butiques.achados, 2)
 	await butiques.procurar("estante_alta")
-	assert_eq(butiques.achados, 2, "alto demais sem o banquinho")
-	# Andar contra o banquinho o chuta (sem apertar E).
-	cena.jogador.position = cena.sala.centro(Vector2i(3, 5))
-	Input.action_press("mover_tras")
-	await wait_physics_frames(40)
-	Input.action_release("mover_tras")
-	assert_gt(cena._casa_de(cena.objetos["banquinho"]).x, 4, "andar contra ele o chuta")
+	assert_eq(butiques.achados, 2, "do chão não alcança")
+	var blocos := butiques.blocos
+	# O banquinho para no caixote pesado; a Ophelia põe tudo de volta.
+	_olhar(Vector2i(4, 3), Vector2i(5, 3))
+	assert_true(blocos.agarrar())
+	await blocos.arrastar(Vector2i(1, 0))
+	await blocos.arrastar(Vector2i(1, 0))
+	assert_eq(blocos.casa_do_bloco("banquinho"), Vector2i(6, 3), "o caixote não deixa passar")
+	blocos.soltar()
 	await cena.arrumar_as_caixas()
-	await wait_physics_frames(10)
-	# Chutes deslizam até bater: caixa à direita, banquinho para cima, para a
-	# direita (para na caixa) e para cima, até a frente da estante.
-	await _empurrar("caixa", Vector2i(6, 2))
-	assert_eq(cena._casa_de(cena.objetos["caixa"]), Vector2i(9, 2))
-	await cena.arrumar_as_caixas()
-	assert_eq(cena._casa_de(cena.objetos["caixa"]), Vector2i(7, 2), "Ophelia põe de volta")
-	await _empurrar("caixa", Vector2i(6, 2))
-	await _empurrar("banquinho", Vector2i(4, 6))
-	assert_eq(cena._casa_de(cena.objetos["banquinho"]), Vector2i(4, 2), "para na prateleira")
-	await _empurrar("banquinho", Vector2i(3, 2))
-	assert_eq(cena._casa_de(cena.objetos["banquinho"]), Vector2i(8, 2), "para na caixa")
-	await _empurrar("banquinho", Vector2i(8, 3))
-	assert_eq(cena._casa_de(cena.objetos["banquinho"]), Vector2i(8, 1))
-	butiques.procurar("estante_alta")
+	assert_eq(blocos.casa_do_bloco("banquinho"), Vector2i(5, 3), "Ophelia põe de volta")
+	# A caixa no canto: empurrar não dá, puxar dá.
+	_olhar(Vector2i(8, 7), Vector2i(9, 7))
+	assert_true(blocos.agarrar())
+	await blocos.arrastar(Vector2i(1, 0))
+	assert_eq(blocos.casa_do_bloco("caixa"), Vector2i(9, 7))
+	await blocos.arrastar(Vector2i(0, 1))
+	assert_eq(blocos.casa_do_bloco("caixa"), Vector2i(9, 7), "para o lado não anda")
+	blocos.soltar()
+	_olhar(Vector2i(9, 6), Vector2i(9, 7))
+	blocos.agarrar()
+	await blocos.arrastar(Vector2i(0, -1))
+	assert_eq(blocos.casa_do_bloco("caixa"), Vector2i(9, 6), "puxou")
+	assert_eq(cena._casa_de(cena.jogador), Vector2i(9, 5), "Nicholas recua junto")
+	blocos.soltar()
+	_olhar(Vector2i(9, 7), Vector2i(9, 6))
+	blocos.agarrar()
+	for i in 5:
+		await blocos.arrastar(Vector2i(0, -1))
+	assert_eq(blocos.casa_do_bloco("caixa"), Vector2i(9, 2), "até a estante")
+	blocos.soltar()
+	# Banquinho para cima e para a direita, até encostar na caixa.
+	_olhar(Vector2i(5, 4), Vector2i(5, 3))
+	blocos.agarrar()
+	await blocos.arrastar(Vector2i(0, -1))
+	blocos.soltar()
+	_olhar(Vector2i(4, 2), Vector2i(5, 2))
+	blocos.agarrar()
+	for i in 4:
+		await blocos.arrastar(Vector2i(1, 0))
+	assert_eq(blocos.casa_do_bloco("banquinho"), Vector2i(8, 2))
+	blocos.soltar()
+	# Do chão, a caixa é alta demais; o banquinho, não. Depois a caixa.
+	_olhar(Vector2i(9, 3), Vector2i(9, 2))
+	assert_false(await blocos.subir(), "dois degraus de uma vez, não")
+	_olhar(Vector2i(8, 3), Vector2i(8, 2))
+	assert_true(await blocos.subir())
+	assert_eq(blocos.altura, 1)
+	assert_true(cena.jogador.controlado)
+	assert_false(await blocos.andar_em_cima(Vector2i(1, 0)), "para cima, só pulando")
+	blocos.subir()
 	await _esperar_pedido()
 	assert_eq(cena.etapa, "restaurante")
 	assert_eq(cena.cena_pedida, SequenciaCenas01.CENAS["restaurante"])

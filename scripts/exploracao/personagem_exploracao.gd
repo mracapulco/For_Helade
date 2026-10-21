@@ -90,6 +90,9 @@ var direcao_olhar := Vector2(2, 1).normalized()
 var em_dialogo := false
 ## Interagível para onde o personagem está indo, se houver.
 var alvo_interacao: Interagivel
+## Outro nó o move (empurrando uma caixa, em cima de um bloco): ele não anda
+## pelas teclas nem pula, mas segue contando a casa onde está.
+var controlado := false
 
 var _tempo_pulo := 0.0
 var _tempo_golpe := 0.0
@@ -170,7 +173,7 @@ func _unhandled_input(event: InputEvent) -> void:
 	elif event.is_action_pressed("golpear") and pode_golpear():
 		golpear()
 		get_viewport().set_input_as_handled()
-	elif event.is_action_pressed("pular"):
+	elif event.is_action_pressed("pular") and not controlado:
 		pular()
 		get_viewport().set_input_as_handled()
 	elif event.is_action_pressed("interagir"):
@@ -513,7 +516,7 @@ func _physics_process(delta: float) -> void:
 		_tempo_parado += delta
 	_atualizar_pulo(delta)
 	_atualizar_golpe(delta)
-	if em_dialogo or golpeando:
+	if em_dialogo or golpeando or controlado:
 		velocity = Vector2.ZERO
 		return
 	var rapidez := velocidade_andando()

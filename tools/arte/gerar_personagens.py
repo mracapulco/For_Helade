@@ -34,8 +34,10 @@ PERSONAGENS = {
         # rendição", no quarto da Althea).
         # bracos_cruzados: na porta da Althea ("Nicholas cruzou os braços e
         # esperou").
+        # empurra: segurar, empurrar e puxar caixas (sala lateral da loja de
+        # pelúcias; regra do jogo, não do livro).
         topo=17, tronco=9, largura=4, cabelo='rebelde', roupa='colete', golpe=True, rendicao=True,
-        bracos_cruzados=True,
+        bracos_cruzados=True, empurra=True,
         cores=dict(
             cab_luz='#F6EED2', cab='#E3D5AE', cab_sombra='#B9A882', cab_fundo='#8C7C5C',
             camisa_luz='#F2EFE8', camisa='#D9D4CA', camisa_sombra='#A9A398',
@@ -956,7 +958,7 @@ def enfeites(q, cfg, dir, x, yt, quadril, larg, saia_voa):
 
 def personagem(cfg, dir, f_esq=0, f_dir=0, lift_esq=0, lift_dir=0, dy=0, inclina=0,
                braco_esq=0, braco_dir=0, alcance=0, voa=0, ergue=False, rende=False, espada=None,
-               colo=False, abraca=False, cruza=False, sauda=False):
+               colo=False, abraca=False, cruza=False, sauda=False, duas=False):
     # sauda: continência com o braço da frente; rende: as duas mãos para cima (rendição); espada: ângulo da espada de
     # madeira na mão da frente (só nos quadros do golpe de quem tem uma);
     # colo: a espada deitada nas mãos; abraca: a espada apertada no peito;
@@ -1024,6 +1026,9 @@ def personagem(cfg, dir, f_esq=0, f_dir=0, lift_esq=0, lift_dir=0, dy=0, inclina
         bracos_cruzados(q, cfg, dir, x, yt, quadril, larg)
     if sauda:
         continencia(q, cfg, dir, x, yt, larg)
+    if duas and alcance:
+        # o outro braço também estendido, um pouco abaixo (as duas mãos na caixa)
+        braco_estendido(q, x + larg + 1, yt + 4, alcance - 1, cor_braco(cfg))
     return q.contornar()
 
 
@@ -1051,13 +1056,26 @@ ANIM = {
     'bracos_cruzados': [dict(cruza=True), dict(cruza=True, dy=1)],
     # só de quem tem cfg['continencia'] (o guarda escolhido nas Butiques)
     'continencia': [dict(sauda=True), dict(sauda=True)],
+    # só de quem tem cfg['empurra'] (Nicholas e as caixas da loja): segurando
+    # a caixa com os braços esticados; empurrando, inclinado para a frente em
+    # passos largos; puxando, o corpo para trás e os pés firmes
+    'segurando':  [dict(alcance=4, inclina=1, duas=True), dict(alcance=4, inclina=1, dy=1, duas=True)],
+    'empurrando': [dict(alcance=3, inclina=3, dy=1, f_dir=3, f_esq=-4, duas=True),
+                   dict(alcance=3, inclina=3, dy=1, lift_esq=1, f_esq=-3, duas=True),
+                   dict(alcance=3, inclina=3, dy=1, f_dir=1, f_esq=-4, duas=True),
+                   dict(alcance=3, inclina=3, dy=1, lift_dir=1, f_esq=-3, duas=True)],
+    'puxando':    [dict(alcance=6, inclina=-3, dy=1, f_dir=3, f_esq=-1, duas=True),
+                   dict(alcance=6, inclina=-3, dy=1, f_dir=3, lift_esq=1, duas=True),
+                   dict(alcance=6, inclina=-3, dy=1, f_dir=2, f_esq=-2, duas=True),
+                   dict(alcance=6, inclina=-3, dy=1, f_dir=3, lift_esq=1, duas=True)],
 }
 # Espada de madeira (Althea): madeira clara, a mesma das tábuas.
 MADEIRA = dict(madeira_luz='#D8B47E', madeira='#A97C4A', madeira_sombra='#6E4C2C')
 ORDEM = ['parado', 'andando', 'correndo', 'interagindo']
 VELOCIDADE = {'parado': 2.0, 'andando': 8.0, 'correndo': 12.0, 'interagindo': 10.0, 'golpe': 12.0,
               'rendicao': 2.0, 'espada_colo': 2.0, 'abraca_espada': 2.0,
-              'bracos_cruzados': 2.0, 'continencia': 2.0}
+              'bracos_cruzados': 2.0, 'continencia': 2.0, 'segurando': 2.0, 'empurrando': 6.0,
+              'puxando': 6.0}
 # Giro do item na mão em cada quadro, em graus (0 = ponta para baixo).
 ANGULOS = {'golpe': [180, -90, 0]}
 DIRS = ['frente', 'costas']
@@ -1087,6 +1105,8 @@ def linhas_da_folha(cfg):
         linhas += [(d, 'bracos_cruzados') for d in DIRS]
     if cfg.get('continencia'):
         linhas += [(d, 'continencia') for d in DIRS]
+    if cfg.get('empurra'):
+        linhas += [(d, a) for a in ('segurando', 'empurrando', 'puxando') for d in DIRS]
     return linhas
 
 
@@ -1121,7 +1141,7 @@ def sprite_frames(id, linhas, caminho=None):
 
 def mao(cfg, dir, f_esq=0, f_dir=0, lift_esq=0, lift_dir=0, dy=0, inclina=0,
         braco_esq=0, braco_dir=0, alcance=0, voa=0, ergue=False, rende=False, espada=None,
-        colo=False, abraca=False, cruza=False):
+        colo=False, abraca=False, cruza=False, duas=False):
     # Canto de cima à esquerda da mão 2×2 do braço da frente (o da direita
     # na tela), com as mesmas contas de personagem().
     x = CX + inclina
@@ -1139,7 +1159,7 @@ def mao(cfg, dir, f_esq=0, f_dir=0, lift_esq=0, lift_dir=0, dy=0, inclina=0,
 
 def mao_tras(cfg, dir, f_esq=0, f_dir=0, lift_esq=0, lift_dir=0, dy=0, inclina=0,
              braco_esq=0, braco_dir=0, alcance=0, voa=0, ergue=False, rende=False, espada=None,
-             colo=False, abraca=False, cruza=False):
+             colo=False, abraca=False, cruza=False, duas=False):
     # Mão do braço de trás (o da esquerda na tela), onde vai o escudo.
     x = CX + inclina
     yt = cfg['topo'] + dy + 10

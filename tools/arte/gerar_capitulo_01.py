@@ -1569,22 +1569,43 @@ def cavalinho():
     return q.contornar()
 
 
+# Blocos da sala lateral (jogo das caixas, regra do jogo): cada um ocupa uma
+# casa inteira; a altura em pixels é a do degrau onde Nicholas pisa
+# (CenaButiques.BLOCOS). pe = PE_CAIXA.
+ALTURA_BANQUINHO = 12
+ALTURA_CAIXA = 24
+ALTURA_CAIXOTE = 40
+
+
 def banquinho():
-    """Banquinho de madeira para alcançar a estante alta (jogo das pistas da
-    Thea, regra do jogo). Empurrável."""
-    q, frente, _ = caixa_iso(-0.2, 0.2, -0.2, 0.2, 10, 'madeira', 'madeira_sombra', 'madeira_luz')
-    _riscar(frente, 0.0, 1.0, 0.85, 0.85, 'madeira_sombra')
-    _riscar(frente, 0.15, 0.15, 0.0, 0.85, 'madeira_sombra'); _riscar(frente, 0.85, 0.85, 0.0, 0.85, 'madeira_sombra')
+    """Banquinho de madeira, degrau baixo (altura 1)."""
+    q, frente, lado = caixa_iso(-0.34, 0.34, -0.34, 0.34, ALTURA_BANQUINHO, 'madeira', 'madeira_sombra', 'madeira_luz')
+    _riscar(frente, 0.0, 1.0, 0.8, 0.8, 'madeira_sombra')
+    _riscar(lado, 0.0, 1.0, 0.8, 0.8, 'madeira')
     return q.contornar()
 
 
 def caixa_madeira():
-    """Caixa de mercadoria fechada (atrapalha o caminho do banquinho).
-    Empurrável."""
-    q, frente, lado = caixa_iso(-0.36, 0.36, -0.36, 0.36, 26, 'madeira_sombra', 'madeira', 'madeira_luz')
-    for t_ in (0.1, 0.9):
-        _riscar(frente, 0.0, 1.0, t_, t_, 'madeira_luz')
-    _riscar(frente, 0.0, 1.0, 0.1, 0.9, 'madeira_luz')
+    """Caixa de mercadoria fechada, degrau médio (altura 2)."""
+    q, frente, lado = caixa_iso(-0.4, 0.4, -0.4, 0.4, ALTURA_CAIXA, 'madeira_luz', 'madeira', 'ouro_luz')
+    for t_ in (0.08, 0.92):
+        _riscar(frente, 0.0, 1.0, t_, t_, 'madeira_sombra')
+        _riscar(lado, 0.0, 1.0, t_, t_, 'madeira_sombra')
+    _riscar(frente, 0.0, 1.0, 0.08, 0.92, 'madeira_sombra')
+    _riscar(lado, 0.0, 1.0, 0.92, 0.08, 'madeira_sombra')
+    return q.contornar()
+
+
+def caixote_pesado():
+    """Caixote pesado com cintas de ferro: alto demais para subir e pesado
+    demais para mover."""
+    q, frente, lado = caixa_iso(-0.42, 0.42, -0.42, 0.42, ALTURA_CAIXOTE, 'madeira_sombra', 'madeira', 'madeira_luz')
+    for t_ in (0.15, 0.5, 0.85):
+        _riscar(frente, 0.0, 1.0, t_, t_, 'ferro')
+        _riscar(lado, 0.0, 1.0, t_, t_, 'ferro')
+    for s_ in (0.06, 0.94):
+        _riscar(frente, s_, s_, 0.0, 1.0, 'ferro')
+        _riscar(lado, s_, s_, 0.0, 1.0, 'ferro')
     return q.contornar()
 
 
@@ -1789,6 +1810,7 @@ ARTES = {
     'loja/cavalinho.png': cavalinho,
     'loja/banquinho.png': banquinho,
     'loja/caixa_madeira.png': caixa_madeira,
+    'loja/caixote_pesado.png': caixote_pesado,
     'loja/tapete_loja.png': tapete_loja,
     'parede/arco_sala_esq.png': lambda: na_face(arco_sala(), 'esq', 7, 4),
     'parede/toldo_pelucias_esq.png': lambda: na_face(toldo('monstro', 'monstro_luz'), 'esq', 2, 4),

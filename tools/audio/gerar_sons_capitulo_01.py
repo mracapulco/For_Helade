@@ -5,6 +5,12 @@
 # cascos_crescendo.wav: cascos que se aproximam e crescem (visão da carruagem).
 # vento_leve.wav: ar frio e quase parado da varanda da visão, em loop.
 # queda.wav: o tranco do retorno da visão ("Foi queda. Brusca.").
+# Sala lateral da loja de pelúcias (caixas e banquinho):
+# agarrar.wav: as mãos batem na madeira e seguram (um toque surdo curto).
+# arrastar.wav: madeira raspando no assoalho por um passo (meio segundo).
+# subir.wav: o pé que pisa em cima da caixa (toque de madeira oca).
+# descer.wav: o pulo de volta para o chão (baque abafado).
+# achou.wav: três notas suaves subindo, quando acha uma pelúcia.
 # Sintetizado, mono, 16 bits, 22050 Hz. Semente fixa: rodar de novo gera o
 # mesmo arquivo. Provisório até vir o som de verdade.
 # Uso: python3 tools/audio/gerar_sons_capitulo_01.py   (rodar na raiz do projeto)
@@ -123,6 +129,58 @@ def queda():
     return som
 
 
+def agarrar():
+    sorte = np.random.default_rng(1705)
+    som = batida(180, dur=0.14, brilho=0.4, sorte=sorte)
+    som = np.convolve(som, np.ones(6) / 6, mode='same')
+    som /= np.max(np.abs(som)) / 0.6
+    return som
+
+
+def arrastar():
+    """Raspar de madeira: ruído com aspereza que treme e um ronco grave."""
+    sorte = np.random.default_rng(1706)
+    n = int(0.5 * SR)
+    t = np.arange(n) / SR
+    ruido = sorte.standard_normal(n)
+    ruido = np.convolve(ruido, np.ones(5) / 5, mode='same')
+    tremor = 0.6 + 0.4 * np.abs(np.sin(2 * np.pi * 23 * t + sorte.standard_normal(n).cumsum() * 0.01))
+    ronco = np.sin(2 * np.pi * 85 * t) * 0.5
+    env = np.minimum(1, t / 0.05) * np.minimum(1, (0.5 - t) / 0.12)
+    som = (ruido * tremor * 0.7 + ronco) * env
+    som /= np.max(np.abs(som)) / 0.45
+    return som
+
+
+def subir():
+    sorte = np.random.default_rng(1707)
+    som = batida(240, dur=0.18, brilho=0.8, sorte=sorte)
+    som = eco(som, [0.03], [0.3], len(som) + int(0.03 * SR))
+    som /= np.max(np.abs(som)) / 0.6
+    return som
+
+
+def descer():
+    n = int(0.3 * SR)
+    t = np.arange(n) / SR
+    som = np.sin(2 * np.pi * (95 - 40 * t) * t) * np.exp(-t * 18)
+    som[:int(0.003 * SR)] *= np.linspace(0, 1, int(0.003 * SR))
+    som /= np.max(np.abs(som)) / 0.7
+    return som
+
+
+def achou():
+    notas = (659.3, 784.0, 987.8)      # mi, sol, si
+    n = int(1.1 * SR)
+    som = np.zeros(n)
+    for i, f in enumerate(notas):
+        ini = int(i * 0.12 * SR)
+        t = np.arange(n - ini) / SR
+        som[ini:] += (np.sin(2 * np.pi * f * t) + 0.3 * np.sin(4 * np.pi * f * t)) * np.exp(-t * 4.5)
+    som /= np.max(np.abs(som)) / 0.4
+    return som
+
+
 def salvar(nome, som):
     os.makedirs(PASTA, exist_ok=True)
     dados = (np.clip(som, -1, 1) * 32767).astype('<i2')
@@ -138,4 +196,7 @@ if __name__ == '__main__':
     salvar('cascos_crescendo.wav', cascos_crescendo())
     salvar('vento_leve.wav', vento_leve())
     salvar('queda.wav', queda())
+    for nome, gerar in (('agarrar', agarrar), ('arrastar', arrastar), ('subir', subir), ('descer', descer),
+                        ('achou', achou)):
+        salvar(nome + '.wav', gerar())
     print('ok:', PASTA)

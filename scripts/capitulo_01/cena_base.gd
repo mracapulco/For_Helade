@@ -141,6 +141,23 @@ func _pessoa(nome: String, quadros: SpriteFrames, casa: Vector2i, interagivel :=
 	return pessoa
 
 
+## Casa que ninguém pode ocupar, sem desenho (ex.: atrás de um objeto alto).
+func _bloqueio(nome: String, casa: Vector2i) -> Node2D:
+	var corpo := StaticBody2D.new()
+	corpo.name = nome.to_pascal_case()
+	corpo.position = sala.centro(casa)
+	corpo.add_to_group(NavegacaoSala.GRUPO_OBSTACULOS)
+	var colisao := CollisionShape2D.new()
+	colisao.name = "Colisao"
+	var forma := CircleShape2D.new()
+	forma.radius = SalaMontada.RAIO_CORPO
+	colisao.shape = forma
+	corpo.add_child(colisao)
+	sala.add_child(corpo)
+	objetos[nome] = corpo
+	return corpo
+
+
 ## Liga a interação de [param nome] ao método.
 func _ao_interagir(nome: String, metodo: Callable) -> void:
 	objetos[nome].get_node("Interagivel").interagido.connect(metodo)

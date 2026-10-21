@@ -1684,17 +1684,17 @@ CENAS = {
                  ('margem/cipreste', (1, 12)), ('margem/cipreste', (13, 12)),
                  ('rua/carruagem_parada', (7, 13))]),
     'butiques': dict(
-        titulo='Cena 9: Rua das Butiques', largura=24, profundidade=10, piso='rua', parede='fachada',
-        pendurar=[(a + '_esq', (x, 0)) for x in (2, 3, 6, 7, 9, 11, 12, 14, 16, 17, 19, 21, 22)
-                  for a in ('vitrine', 'toldo')]
-                 + [('placa_butique_esq', (x, 0)) for x in (4, 13, 18)]
-                 + [('porta_esq', (x, 0)) for x in (5, 10, 15, 20)]
-                 + [(a + '_dir', (0, y)) for y in (2, 3, 6, 7, 9) for a in ('vitrine', 'toldo')]
+        titulo='Cena 9: Rua das Butiques', largura=34, profundidade=12, piso='rua', parede='fachada',
+        pendurar=[('porta_esq', (x, 0)) if x in (8, 15, 21, 27, 32)
+                  else ('placa_butique_esq', (x, 0)) for x in range(1, 34) if x in (7, 14, 26, 8, 15, 21, 27, 32)]
+                 + [(a + '_esq', (x, 0)) for x in range(1, 34) if x not in (7, 14, 26, 8, 15, 21, 27, 32)
+                    for a in ('vitrine', 'toldo')]
+                 + [(a + '_dir', (0, y)) for y in range(1, 12) if y not in (4, 7) for a in ('vitrine', 'toldo')]
                  + [('placa_butique_dir', (0, 4))],
-        objetos=[('rua/vaso_flor', (x, 1)) for x in (2, 8, 11, 13, 17, 21)]
-                + [('rua/lampiao', (x, 2)) for x in (3, 9, 15, 21)] + [('rua/lampiao', (2, 6))]
-                # a carruagem para na beira da rua, atrás de Nicholas (nunca na frente)
-                + [('rua/carruagem_parada', (12, 9))]),
+        objetos=[('rua/vaso_flor', (x, 1)) for x in (3, 11, 19, 24, 29)]
+                + [('rua/lampiao', (x, 2)) for x in (4, 12, 18, 24, 30)] + [('rua/lampiao', (2, 8))]
+                # a carruagem para dentro da rua, atrás de Nicholas (nunca na frente)
+                + [('rua/carruagem_parada', (20, 8))]),
     'loja': dict(
         titulo='Cena 9: loja de pelúcias', largura=8, profundidade=7, piso='assoalho', parede='reboco',
         pendurar=[('arandela_esq', (2, 0)), ('porta_esq', (4, 0)), ('arandela_esq', (6, 0)), ('arandela_dir', (0, 4))],

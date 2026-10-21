@@ -2,10 +2,13 @@
 
 importer="wav"
 type="AudioStreamWAV"
+uid="uid://cvlxptpc81uu7"
+path="res://.godot/imported/prologo_varanda.wav-89a358f836a2d98bb5a884f8947db98b.sample"
 
 [deps]
 
 source_file="res://assets/audio/music/prologo/prologo_varanda.wav"
+dest_files=["res://.godot/imported/prologo_varanda.wav-89a358f836a2d98bb5a884f8947db98b.sample"]
 
 [params]
 

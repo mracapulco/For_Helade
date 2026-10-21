@@ -2,10 +2,13 @@
 
 importer="wav"
 type="AudioStreamWAV"
+uid="uid://6ilksl603x7h"
+path="res://.godot/imported/prologo_abertura.wav-c11b23b66e81c4ff4c06ef07dbefb5ce.sample"
 
 [deps]
 
 source_file="res://assets/audio/music/prologo/prologo_abertura.wav"
+dest_files=["res://.godot/imported/prologo_abertura.wav-c11b23b66e81c4ff4c06ef07dbefb5ce.sample"]
 
 [params]
 

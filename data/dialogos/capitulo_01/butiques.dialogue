@@ -9,6 +9,11 @@
 
 ## A carruagem para; o brasão de Olympia faz as pessoas se afastarem.
 A carruagem parou. Chegamos à Rua das Butiques. [ID:CAP1_153]
+=> END
+
+~ frases_rua_brasao
+
+## Os passantes reconhecem o brasão e se afastam.
 O movimento era constante, até o brasão de Olympia ser reconhecido. As pessoas se afastavam, abrindo espaço. [ID:CAP1_154]
 $> Codice.anotar("rua_das_butiques")
 => END
@@ -40,8 +45,8 @@ A loja era familiar. Althea já a conhecia bem, suas pelúcias, feitas sob encom
 ~ lojistas
 
 ## Os donos os recebem e perguntam quem é a moça.
-Lojista: [#retrato=neutro] É uma honra tê-los aqui, filhos de Olympia. Ainda mais em um dia tão especial. [ID:CAP1_159]
-Lojista: [#retrato=neutro] E quem seria esta bela jovem que está com vocês? Nunca os vimos trazer amigos. [ID:CAP1_160]
+Lojista: [#retrato=alegre] É uma honra tê-los aqui, filhos de Olympia. Ainda mais em um dia tão especial. [ID:CAP1_159]
+Lojista: [#retrato=surpresa] E quem seria esta bela jovem que está com vocês? Nunca os vimos trazer amigos. [ID:CAP1_160]
 => END
 
 ~ frases_lojistas_silencio
@@ -55,16 +60,16 @@ Nenhuma correção. Nenhuma exigência. [ID:CAP1_162]
 
 ## Nicholas intervém; a loja se ajoelha.
 Nicholas: [#retrato=neutro] Não me admira que não a reconheçam. Eu mesmo nunca a havia encontrado pessoalmente até hoje. Ainda assim, sejam mais cordiais com a Princesa legítima do Império de Hélade. [ID:CAP1_163]
-Lojista: [#retrato=neutro] Nossos pêsames, Vossa Alteza… [ID:CAP1_164]
-Lojista: [#retrato=neutro] Sentimos muito pela Imperatriz… [ID:CAP1_165]
-Lojista: [#retrato=neutro] Que os Deuses a recebam… [ID:CAP1_166]
+Lojista: [#retrato=triste] Nossos pêsames, Vossa Alteza… [ID:CAP1_164]
+Lojista: [#retrato=triste] Sentimos muito pela Imperatriz… [ID:CAP1_165]
+Lojista: [#retrato=triste] Que os Deuses a recebam… [ID:CAP1_166]
 => END
 
 ~ ophelia_levanta
 
 ## Ophelia acalma a loja; Nicholas leva as meninas à sala lateral.
 Ophelia: [#retrato=neutro] Não há necessidade de tanta cordialidade. Por favor, levantem-se. Hoje é o aniversário de Lady Althea. Viemos apenas comprar um presente antes de partirmos para Olympia. [ID:CAP1_167]
-Lojista: [#retrato=neutro] C-claro, Vossa Alteza… Podemos reservar uma sala, ou— [ID:CAP1_168]
+Lojista: [#retrato=medo] C-claro, Vossa Alteza… Podemos reservar uma sala, ou— [ID:CAP1_168]
 Nicholas: [#retrato=neutro] Olharemos sozinhos. Vocês sabem que a Thea prefere escolher seus brinquedos. [ID:CAP1_169]
 Lojista: [#retrato=neutro] Claro, Jovem Mestre. [ID:CAP1_170]
 => END

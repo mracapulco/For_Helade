@@ -1684,14 +1684,17 @@ CENAS = {
                  ('margem/cipreste', (1, 12)), ('margem/cipreste', (13, 12)),
                  ('rua/carruagem_parada', (7, 13))]),
     'butiques': dict(
-        titulo='Cena 9: Rua das Butiques', largura=14, profundidade=8, piso='rua', parede='fachada',
-        pendurar=[(a + '_esq', (x, 0)) for x in (2, 3, 7, 8, 11, 12) for a in ('vitrine', 'toldo')]
-                 + [('placa_butique_esq', (4, 0)), ('porta_esq', (5, 0)), ('porta_esq', (10, 0))]
-                 + [(a + '_dir', (0, y)) for y in (3, 5) for a in ('vitrine', 'toldo')],
-        objetos=[('rua/lampiao', (3, 3)), ('rua/lampiao', (9, 3)), ('rua/lampiao', (12, 3)),
-                 ('rua/vaso_flor', (4, 1)), ('rua/vaso_flor', (6, 1)), ('rua/vaso_flor', (9, 1)), ('rua/vaso_flor', (11, 1)),
-                 # a carruagem para na beira da rua, atrás de Nicholas (nunca na frente)
-                 ('rua/carruagem_parada', (11, 7))]),
+        titulo='Cena 9: Rua das Butiques', largura=24, profundidade=10, piso='rua', parede='fachada',
+        pendurar=[(a + '_esq', (x, 0)) for x in (2, 3, 6, 7, 9, 11, 12, 14, 16, 17, 19, 21, 22)
+                  for a in ('vitrine', 'toldo')]
+                 + [('placa_butique_esq', (x, 0)) for x in (4, 13, 18)]
+                 + [('porta_esq', (x, 0)) for x in (5, 10, 15, 20)]
+                 + [(a + '_dir', (0, y)) for y in (2, 3, 6, 7, 9) for a in ('vitrine', 'toldo')]
+                 + [('placa_butique_dir', (0, 4))],
+        objetos=[('rua/vaso_flor', (x, 1)) for x in (2, 8, 11, 13, 17, 21)]
+                + [('rua/lampiao', (x, 2)) for x in (3, 9, 15, 21)] + [('rua/lampiao', (2, 6))]
+                # a carruagem para na beira da rua, atrás de Nicholas (nunca na frente)
+                + [('rua/carruagem_parada', (12, 9))]),
     'loja': dict(
         titulo='Cena 9: loja de pelúcias', largura=8, profundidade=7, piso='assoalho', parede='reboco',
         pendurar=[('arandela_esq', (2, 0)), ('porta_esq', (4, 0)), ('arandela_esq', (6, 0)), ('arandela_dir', (0, 4))],
@@ -1719,7 +1722,7 @@ def _quadro_piso(piso_, x, y, largura, profundidade):
             return 9 + (x + y) % 2
         return 7 + (x * 3 + y) % 2
     if piso_ == 'rua':
-        return 2 + (x + y) % 2 if y <= 1 else 11 + (x + y) % 2
+        return 2 + (x + y) % 2 if y <= 1 or x <= 1 else 11 + (x + y) % 2
     if piso_ == 'ladrilho':
         return 13 + (x + y) % 2
     return (x + y) % 2                                   # assoalho

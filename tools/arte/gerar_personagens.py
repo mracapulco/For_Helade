@@ -222,6 +222,10 @@ PERSONAGENS = {
         pasta='guarda_imperial',
         topo=3, tronco=13, largura=5, cabelo='topete', roupa='colete',
         enfeites=('colar', 'ombreiras', 'cinto'),
+        # continencia: o guarda escolhido por Nicholas bate continência
+        # (Rua das Butiques; INFERÊNCIA: o livro diz só "Fez um sinal breve
+        # com os dedos").
+        continencia=True,
         cores=dict(
             cab_luz='#5A4636', cab='#3A2B22', cab_sombra='#24180F', cab_fundo='#170E09',
             camisa_luz='#ECBD75', camisa='#B98543', camisa_sombra='#8A5E2C',
@@ -274,6 +278,54 @@ PERSONAGENS = {
             cab_luz='#9A7A5C', cab='#6E5240', cab_sombra='#4A362A', cab_fundo='#33241B',
             vestido_luz='#C9A08A', vestido='#A67C68', vestido_sombra='#7A5646',
             calca='#7A5646', calca_sombra='#553B30',
+            avental='#EDE3D2', avental_sombra='#C9B79C',
+        ),
+    ),
+    # Moradores de Atenas que passam pela Rua das Butiques (cap. 01: "O
+    # movimento era constante, até o brasão de Olympia ser reconhecido. As
+    # pessoas se afastavam"). Não são personagens do livro: aparência toda
+    # INFERÊNCIA, roupas simples de cidade em cores variadas.
+    'transeunte_moco': dict(
+        pasta='transeuntes',
+        topo=5, tronco=12, largura=4, cabelo='topete', roupa='colete',
+        cores=dict(
+            cab_luz='#3A2B22', cab='#24180F', cab_sombra='#170E09', cab_fundo='#0C0705',
+            camisa_luz='#F2EFE8', camisa='#D9D4CA', camisa_sombra='#A9A398',
+            colete='#3E6A5A', colete_sombra='#284A3E',
+            calca='#4A3E28', calca_sombra='#2E2618',
+        ),
+    ),
+    'transeunte_senhor': dict(
+        pasta='transeuntes',
+        topo=6, tronco=13, largura=5, cabelo='topete', roupa='colete', aba=8,
+        enfeites=('cinto',),
+        cores=dict(
+            cab_luz='#E4E0DA', cab='#B6B1AA', cab_sombra='#807B78', cab_fundo='#5A5654',
+            camisa_luz='#E8DCC4', camisa='#CDBE9E', camisa_sombra='#9E8E70',
+            colete='#5A3A4A', colete_sombra='#3A2430',
+            cinto='#2E2618',
+            calca='#2E2A30', calca_sombra='#1A181C',
+            chapeu='#3A2F2A', chapeu_sombra='#241C18', chapeu_faixa='#5A3A4A',
+        ),
+    ),
+    'transeunte_dama': dict(
+        pasta='transeuntes',
+        topo=6, tronco=11, largura=4, cabelo='coque', roupa='vestido_longo', saia_passo=5,
+        enfeites=('faixa',),
+        cores=dict(
+            cab_luz='#B07A4A', cab='#8A5A3A', cab_sombra='#5E3A24', cab_fundo='#3E2416',
+            vestido_luz='#C9B0D8', vestido='#A088B4', vestido_sombra='#715C86',
+            calca='#715C86', calca_sombra='#4E3E5E',
+        ),
+    ),
+    'transeunte_moca': dict(
+        pasta='transeuntes',
+        topo=7, tronco=11, largura=4, cabelo='longo', roupa='vestido_longo', saia_passo=4,
+        enfeites=('avental',),
+        cores=dict(
+            cab_luz='#E0C080', cab='#B8984E', cab_sombra='#8A6E34', cab_fundo='#5E4A22',
+            vestido_luz='#8EB8C8', vestido='#6A98AC', vestido_sombra='#4A7080',
+            calca='#4A7080', calca_sombra='#30505C',
             avental='#EDE3D2', avental_sombra='#C9B79C',
         ),
     ),
@@ -629,6 +681,21 @@ def bracos_cruzados(q, cfg, dir, x, yt, quadril, larg):
     q.r(x + larg + 1, yt + 4, x + larg + 2, yt + 4, 'pele')         # a mão no braço direito
 
 
+def continencia(q, cfg, dir, x, yt, larg):
+    # Continência: o braço da frente sobe dobrado e a mão para na têmpora.
+    # De costas, só o cotovelo aparece para fora do ombro. Desenhado por
+    # último, por cima do cabelo.
+    cor = cor_braco(cfg)
+    q.r(x + larg + 1, yt, x + larg + 4, yt + 1, cor)                # braço para fora
+    q.r(x + larg + 2, yt + 1, x + larg + 4, yt + 1, cor + '_sombra')
+    q.r(x + larg + 3, yt - 2, x + larg + 4, yt - 1, cor)            # antebraço subindo
+    q.p(x + larg + 4, yt - 1, cor + '_sombra')
+    if dir != 'frente':
+        return
+    q.r(x + larg + 2, yt - 4, x + larg + 3, yt - 3, cor)
+    q.r(x + larg, yt - 6, x + larg + 2, yt - 5, 'pele')             # a mão na têmpora
+
+
 # Roupas do nosso mundo (convidados): 'camiseta' (manga curta), 'moletom'
 # (manga comprida, capuz caído, cordões e bolso) ou 'escoteiro' (camisa de
 # manga curta com bolsos, lenço no pescoço com anel e cinto). Cores:
@@ -889,8 +956,8 @@ def enfeites(q, cfg, dir, x, yt, quadril, larg, saia_voa):
 
 def personagem(cfg, dir, f_esq=0, f_dir=0, lift_esq=0, lift_dir=0, dy=0, inclina=0,
                braco_esq=0, braco_dir=0, alcance=0, voa=0, ergue=False, rende=False, espada=None,
-               colo=False, abraca=False, cruza=False):
-    # rende: as duas mãos para cima (rendição); espada: ângulo da espada de
+               colo=False, abraca=False, cruza=False, sauda=False):
+    # sauda: continência com o braço da frente; rende: as duas mãos para cima (rendição); espada: ângulo da espada de
     # madeira na mão da frente (só nos quadros do golpe de quem tem uma);
     # colo: a espada deitada nas mãos; abraca: a espada apertada no peito;
     # cruza: os braços cruzados.
@@ -920,7 +987,7 @@ def personagem(cfg, dir, f_esq=0, f_dir=0, lift_esq=0, lift_dir=0, dy=0, inclina
         capa(q, cfg, dir, x, yt, quadril, larg)
         cabelo_atras_frente(q, estilo, x, yc, ate, voa)
         pernas(q, CX, quadril, f_esq, f_dir, lift_esq, lift_dir)
-        corpo_frente(q, cfg, x, yt, quadril, larg, braco_esq, braco_dir, alcance, voa // 2, ergue, rende,
+        corpo_frente(q, cfg, x, yt, quadril, larg, braco_esq, braco_dir, alcance, voa // 2, ergue or sauda, rende,
                      abraca or cruza)
         enfeites(q, cfg, dir, x, yt, quadril, larg, voa // 2)
         ombros_da_capa(q, cfg, x, yt, larg)
@@ -932,7 +999,7 @@ def personagem(cfg, dir, f_esq=0, f_dir=0, lift_esq=0, lift_dir=0, dy=0, inclina
             oculos_frente(q, x, yc)
     else:
         pernas(q, CX, quadril, f_esq, f_dir, lift_esq, lift_dir)
-        corpo_costas(q, cfg, x, yt, quadril, larg, braco_esq, braco_dir, alcance, voa // 2, ergue, rende,
+        corpo_costas(q, cfg, x, yt, quadril, larg, braco_esq, braco_dir, alcance, voa // 2, ergue or sauda, rende,
                      abraca or cruza)
         enfeites(q, cfg, dir, x, yt, quadril, larg, voa // 2)
         capa(q, cfg, dir, x, yt, quadril, larg)
@@ -955,6 +1022,8 @@ def personagem(cfg, dir, f_esq=0, f_dir=0, lift_esq=0, lift_dir=0, dy=0, inclina
         abraca_espada(q, cfg, dir, x, yt, quadril, larg)
     if cruza:
         bracos_cruzados(q, cfg, dir, x, yt, quadril, larg)
+    if sauda:
+        continencia(q, cfg, dir, x, yt, larg)
     return q.contornar()
 
 
@@ -980,13 +1049,15 @@ ANIM = {
     'abraca_espada': [dict(abraca=True), dict(abraca=True, dy=1)],
     # só de quem tem cfg['bracos_cruzados'] (Nicholas esperando na porta)
     'bracos_cruzados': [dict(cruza=True), dict(cruza=True, dy=1)],
+    # só de quem tem cfg['continencia'] (o guarda escolhido nas Butiques)
+    'continencia': [dict(sauda=True), dict(sauda=True)],
 }
 # Espada de madeira (Althea): madeira clara, a mesma das tábuas.
 MADEIRA = dict(madeira_luz='#D8B47E', madeira='#A97C4A', madeira_sombra='#6E4C2C')
 ORDEM = ['parado', 'andando', 'correndo', 'interagindo']
 VELOCIDADE = {'parado': 2.0, 'andando': 8.0, 'correndo': 12.0, 'interagindo': 10.0, 'golpe': 12.0,
               'rendicao': 2.0, 'espada_colo': 2.0, 'abraca_espada': 2.0,
-              'bracos_cruzados': 2.0}
+              'bracos_cruzados': 2.0, 'continencia': 2.0}
 # Giro do item na mão em cada quadro, em graus (0 = ponta para baixo).
 ANGULOS = {'golpe': [180, -90, 0]}
 DIRS = ['frente', 'costas']
@@ -1014,6 +1085,8 @@ def linhas_da_folha(cfg):
         linhas += [(d, a) for a in ('espada_colo', 'abraca_espada') for d in DIRS]
     if cfg.get('bracos_cruzados'):
         linhas += [(d, 'bracos_cruzados') for d in DIRS]
+    if cfg.get('continencia'):
+        linhas += [(d, 'continencia') for d in DIRS]
     return linhas
 
 

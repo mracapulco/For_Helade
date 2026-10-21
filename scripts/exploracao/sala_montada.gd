@@ -50,7 +50,7 @@ const RAIO_TOQUE := 28.0
 ## Butiques) ou "reboco" (loja e restaurante). Vazio: segue os campos acima.
 @export var parede_estilo := ""
 ## Pisos novos: "patio" (mármore em cruz e nas bordas, jardins de grama nos
-## quatro cantos), "rua" (duas fileiras de lajes junto à fachada e
+## quatro cantos), "rua" (duas fileiras de lajes junto às fachadas do fundo e da esquerda e
 ## paralelepípedo no resto) e "ladrilho" (xadrez do restaurante).
 
 var chao: TileMapLayer
@@ -114,7 +114,8 @@ func _quadro_do_piso(x: int, y: int) -> int:
 				return PISO_MARMORE + (x + y) % 2
 			return PISO_GRAMA + (x * 3 + y) % 2
 		"rua":
-			if y <= 1:
+			# Calçada junto às fachadas do fundo e da esquerda.
+			if y <= 1 or x <= 1:
 				return PISO_PEDRA + (x + y) % 2
 			return PISO_RUA + (x + y) % 2
 		"ladrilho":

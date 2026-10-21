@@ -72,7 +72,7 @@ func test_marcadores_anotam_o_codice() -> void:
 	await _percorrer(PALACIO, "frases_poucos_guardas", [])
 	await _percorrer(PALACIO, "frases_olhos_de_ophelia", [])
 	await _percorrer(PALACIO, "frases_anexo_vazio", [])
-	await _percorrer(BUTIQUES, "frases_rua", [])
+	await _percorrer(BUTIQUES, "frases_rua_brasao", [])
 	for id in ["poucos_guardas", "olhos_de_ophelia", "anexo_vazio", "rua_das_butiques"]:
 		assert_true(Codice.tem(id), id)
 

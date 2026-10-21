@@ -193,9 +193,10 @@ func _casa_de(no: Node2D) -> Vector2i:
 
 
 ## Casa do chão ao lado de [param casa] que ninguém ocupa, a mais perto de
-## [param de_onde].
-func _casa_livre_perto(casa: Vector2i, de_onde: Vector2i) -> Vector2i:
+## [param de_onde]. [param evitar]: casas guardadas para outros.
+func _casa_livre_perto(casa: Vector2i, de_onde: Vector2i, evitar: Array[Vector2i] = []) -> Vector2i:
 	var ocupadas: Array[Vector2i] = [_casa_de(jogador)]
+	ocupadas.append_array(evitar)
 	for nome: String in objetos:
 		var objeto: Node2D = objetos[nome]
 		if is_instance_valid(objeto) and objeto.get_parent() == sala:

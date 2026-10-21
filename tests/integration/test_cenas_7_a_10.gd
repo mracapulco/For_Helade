@@ -104,7 +104,7 @@ func test_palacio_fora_de_ordem_nao_avanca() -> void:
 func test_butiques_da_rua_a_loja_e_ao_restaurante() -> void:
 	await _abrir("res://scenes/capitulo_01/cena_butiques.tscn", "rua")
 	var butiques := cena as CenaButiques
-	assert_eq(cena.sala.largura, 14)
+	assert_eq(cena.sala.largura, CenaButiques.LARGURA_RUA)
 	cena.entrar_na_loja()
 	assert_eq(cena.etapa, "rua", "a porta só abre depois de escolher os guardas")
 	butiques.escolher_guarda(butiques.guardas[0])

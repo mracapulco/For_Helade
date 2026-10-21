@@ -152,6 +152,29 @@ func test_butiques_comitiva_segue_nicholas() -> void:
 			assert_ne(cena._casa_de(guarda), CenaButiques.CASA_CARRUAGEM + casa_da_carruagem)
 
 
+func test_butiques_althea_foge_para_a_vitrine() -> void:
+	await _abrir("res://scenes/capitulo_01/cena_butiques.tscn", "rua")
+	var butiques := cena as CenaButiques
+	butiques.escolher_guarda(butiques.guardas[0])
+	butiques.escolher_guarda(butiques.guardas[1])
+	await _esperar_etapa("porta")
+	var casa := cena._casa_de(cena.jogador)
+	for i in CenaButiques.FUGAS_DE_ALTHEA[0]:
+		casa += Vector2i(0, -1) if casa.y > 3 else Vector2i(1, 0)
+		cena.jogador.position = cena.sala.centro(casa)
+		await wait_physics_frames(3)
+	assert_true(butiques.althea_fora, "Althea correu para uma vitrine")
+	assert_false(butiques.seguidores.has(cena.objetos["althea"]))
+	assert_eq(cena.objetivo.chave, "OBJ_CAP1_BUSCAR_THEA")
+	cena.entrar_na_loja()
+	await wait_physics_frames(3)
+	assert_eq(cena.etapa, "porta", "sem a Thea, a porta não abre")
+	butiques.buscar_althea()
+	assert_false(butiques.althea_fora)
+	assert_eq(butiques.seguidores[0], cena.objetos["althea"], "ela volta para a frente da fila")
+	assert_eq(cena.objetivo.chave, "OBJ_CAP1_LOJA")
+
+
 func test_butiques_carruagem_fora_do_caminho() -> void:
 	await _abrir("res://scenes/capitulo_01/cena_butiques.tscn", "rua")
 	var carruagem: Vector2i = cena._casa_de(cena.objetos["carruagem"])

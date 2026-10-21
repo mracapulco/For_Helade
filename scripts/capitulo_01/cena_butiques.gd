@@ -77,6 +77,11 @@ const CASAS_AFASTADAS: Array[Vector2i] = [Vector2i(31, 1), Vector2i(28, 1), Vect
 	Vector2i(23, 1), Vector2i(1, 5), Vector2i(1, 9), Vector2i(1, 11), Vector2i(1, 3), Vector2i(33, 8),
 	Vector2i(33, 10), Vector2i(33, 6), Vector2i(33, 1), Vector2i(16, 1), Vector2i(13, 1),
 	Vector2i(1, 7), Vector2i(20, 1)]
+## Depois de quantas casas andadas atrás de Nicholas a Althea foge para uma
+## vitrine (texto e regra do jogo, não do livro: Rafael, 21/10/2026).
+const FUGAS_DE_ALTHEA: Array[int] = [5, 13]
+## A que distância (em casas) de Nicholas fica a vitrine para onde ela corre.
+const DISTANCIA_DA_FUGA := Vector2i(3, 6)
 ## Linha da rua por onde os guardas da porta vão, longe da carruagem.
 const LINHA_ATE_A_PORTA := 3
 ## Segundos por casa andada pelos passantes e pelos guardas.
@@ -104,6 +109,10 @@ var _rastro: Array[Vector2i] = []
 ## Para onde cada seguidor está indo e o tween do passo.
 var _destino_seguidor := {}
 var _passo_seguidor := {}
+## Casas andadas pela comitiva e quantas vezes a Althea já fugiu.
+var _passos_andados := 0
+var fugas := 0
+var althea_fora := false
 var _passeios: Array[Tween] = []
 
 
@@ -138,6 +147,9 @@ func montar_rua() -> void:
 	guardas.clear()
 	escolhidos.clear()
 	seguidores.clear()
+	_passos_andados = 0
+	fugas = 0
+	althea_fora = false
 	casas_reservadas.clear()
 	passantes.clear()
 	_passeios.clear()
@@ -171,7 +183,9 @@ func montar_rua() -> void:
 	# O cocheiro já está sentado na boleia (no desenho da carruagem).
 	for i in CASAS_DA_CARRUAGEM.size():
 		_bloqueio("junto_da_carruagem_%d" % i, CASA_CARRUAGEM + CASAS_DA_CARRUAGEM[i])
-	_pessoa("althea", QUADROS_ALTHEA, Vector2i(17, 5))
+	var althea := _pessoa("althea", QUADROS_ALTHEA, Vector2i(17, 5), true)
+	_ativar(althea, false)
+	_ao_interagir("althea", buscar_althea)
 	_pessoa("ophelia", QUADROS_OPHELIA, Vector2i(16, 5))
 	for i in CASAS_GUARDAS_RUA.size():
 		var guarda := _pessoa("guarda_%d" % (i + 1), QUADROS_GUARDA, CASAS_GUARDAS_RUA[i], true)
@@ -349,6 +363,77 @@ func _parar_de_seguir() -> void:
 	seguidores.clear()
 
 
+# --- Althea foge para as vitrines -------------------------------------------
+
+## Althea sai da fila e corre até uma vitrine da calçada; a porta da loja só
+## abre depois que Nicholas a busca.
+func althea_foge() -> void:
+	var althea: Node2D = objetos["althea"]
+	var vitrine := _vitrine_para_fugir()
+	fugas += 1
+	althea_fora = true
+	seguidores.erase(althea)
+	var passo: Tween = _passo_seguidor.get(althea)
+	if passo and passo.is_valid():
+		passo.kill()
+	_destino_seguidor.erase(althea)
+	_ativar(objetos["porta_loja"], false)
+	_objetivo("OBJ_CAP1_BUSCAR_THEA")
+	_frases("frases_fuga_%d" % fugas)
+	var visual: AnimatedSprite2D = althea.get_node("Visual")
+	for ponto in _caminho(_casa_de(althea), vitrine):
+		_virar(althea, sala.centro(ponto))
+		visual.play("correndo_" + visual.animation.get_slice("_", 1))
+		await _andar(althea, sala.centro(ponto), TEMPO_POR_CASA * 0.5).finished
+		if not is_instance_valid(althea) or not althea_fora:
+			return
+	visual.play("parado_costas")
+	visual.flip_h = false
+	_ativar(althea, true)
+
+
+## A vitrine (casa da calçada, junto à fachada do fundo) a algumas casas de
+## Nicholas, livre e longe da porta da loja de pelúcias.
+func _vitrine_para_fugir() -> Vector2i:
+	var ocupadas := {}
+	for nome: String in objetos:
+		ocupadas[_casa_de(objetos[nome])] = true
+	for casa in CASAS_GUARDAS_PORTA:
+		ocupadas[casa] = true
+	var nicholas := _casa_de(jogador)
+	var melhor := Vector2i(nicholas.x, 1)
+	var maior := -1.0
+	for x in range(2, LARGURA_RUA - 1):
+		var casa := Vector2i(x, 1)
+		var longe := absi(x - nicholas.x)
+		if ocupadas.has(casa) or absi(x - CASA_PORTA_LOJA.x) <= 2 \
+				or longe < DISTANCIA_DA_FUGA.x or longe > DISTANCIA_DA_FUGA.y:
+			continue
+		var distancia := Vector2(casa - nicholas).length()
+		if distancia > maior:
+			maior = distancia
+			melhor = casa
+	return melhor
+
+
+## E na Althea, na vitrine: ela volta para a frente da fila.
+func buscar_althea() -> void:
+	if not althea_fora:
+		return
+	var althea: Node2D = objetos["althea"]
+	_ativar(althea, false)
+	althea_fora = false
+	_virar(althea, jogador.position)
+	seguidores.push_front(althea)
+	_rastro.clear()
+	for i in range(seguidores.size() - 1, -1, -1):
+		_rastro.append(_destino_seguidor.get(seguidores[i], _casa_de(seguidores[i])))
+	_rastro.append(_casa_de(jogador))
+	_seguir(althea, _casa_livre_perto(_casa_de(jogador), _casa_de(althea), CASAS_GUARDAS_PORTA))
+	_objetivo("OBJ_CAP1_LOJA")
+	_ativar(objetos["porta_loja"], true)
+
+
 func _physics_process(_delta: float) -> void:
 	if seguidores.is_empty() or etapa != "porta":
 		return
@@ -360,6 +445,10 @@ func _physics_process(_delta: float) -> void:
 		_rastro.pop_front()
 	for i in seguidores.size():
 		_seguir(seguidores[i], _rastro[_rastro.size() - 2 - i])
+	_passos_andados += 1
+	if not althea_fora and fugas < FUGAS_DE_ALTHEA.size() and _passos_andados >= FUGAS_DE_ALTHEA[fugas] \
+			and Vector2(casa - CASA_PORTA_LOJA).length() > 4.0:
+		althea_foge()
 
 
 ## Um passo do seguidor até a casa do rastro, no ritmo do andar de Nicholas.
@@ -422,7 +511,7 @@ func _caminho(de: Vector2i, ate: Vector2i) -> Array[Vector2i]:
 
 
 func entrar_na_loja() -> void:
-	if etapa != "porta":
+	if etapa != "porta" or althea_fora:
 		return
 	_ativar(objetos["porta_loja"], false)
 	_travar(true)

@@ -36,6 +36,19 @@ Nicholas: [#retrato=neutro] Dois comigo. [ID:CAP1_156]
 Os outros dois ficaram na porta. [ID:CAP1_218]
 => END
 
+## A Althea foge para as vitrines no caminho até a loja. Estas duas frases
+## NÃO são do livro (texto do jogo, Rafael, 21/10/2026).
+
+~ frases_fuga_1
+
+Thea disparou na direção de uma vitrine. [ID:CAP1_222]
+=> END
+
+~ frases_fuga_2
+
+De novo. Hoje ela não ia parar quieta. [ID:CAP1_223]
+=> END
+
 ~ frases_loja
 
 ## Dentro da loja de pelúcias.

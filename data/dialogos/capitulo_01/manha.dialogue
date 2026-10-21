@@ -78,20 +78,22 @@ Finalmente, ouvi cochichos e risos abafados. [ID:CAP1_034]
 Nicholas: [#retrato=neutro] Deixemos isso para lá. Hoje é o aniversário da Thea e nosso último dia em Atenas. Ninguém vai estragá-lo. [ID:CAP1_040]
 => END
 
-~ frases_quarto_althea
-
 ~ frases_resmungou
 
 ## Nicholas toca o ombro de Althea pela primeira vez.
 Althea resmungou e apertou a pelúcia. [ID:CAP1_094]
+=> END
 
+~ frases_puxei
+
+## No alto, antes da conversa (Rafael, 21/10/2026).
+Puxei o monstro marinho de seus braços. [ID:CAP1_095]
 => END
 
 ~ acordar_althea
 
-## Na segunda vez, ele tira a pelúcia dos braços dela (na caixa, Rafael
+## Na segunda vez, ele tira a pelúcia dos braços dela (no alto, Rafael
 ## 21/10/2026) e acorda a irmã; o embrulho tem a espada de madeira.
-Puxei o monstro marinho de seus braços. [ID:CAP1_095]
 Nicholas: [#retrato=neutro] Feliz aniversário! [ID:CAP1_045]
 Althea: [#retrato=neutro] Nick! [ID:CAP1_046]
 Nicholas: [#retrato=neutro] Eu também senti sua falta nesses oito passos entre os nossos quartos. [ID:CAP1_047]
@@ -123,10 +125,6 @@ O presente dela era uma espada de madeira, esculpida para o tamanho das mãos da
 => END
 
 ~ escolheu_desvio
-=> END
-
-~ frases_rendicao
-Ergui as mãos, fingindo rendição. [ID:CAP1_099]
 => END
 
 ~ frases_desvio
@@ -250,8 +248,3 @@ Nicholas: [#retrato=neutro] Porque estou. Não gostei que o Duque nos mandou bus
 Althea: [#retrato=neutro] ...Não o chame assim. Ele é o papai. [ID:CAP1_089]
 => END
 
-~ frases_silencio
-
-## Depois do "Ele é o papai", no alto.
-Silêncio. [ID:CAP1_090]
-=> END

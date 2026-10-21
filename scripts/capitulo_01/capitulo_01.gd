@@ -515,7 +515,6 @@ func montar_quarto_althea() -> void:
 	_ativar(objetos["embrulho"], false)
 	_mudar("quarto_althea")
 	await _clarear()
-	_frases("frases_quarto_althea")
 
 
 ## Primeiro toque: "Ela resmungou e apertou a pelúcia." No segundo, Nicholas
@@ -531,6 +530,7 @@ func acordar_althea() -> void:
 	_mudar("aniversario")
 	_ativar(objetos["cama_althea"], false)
 	_travar(true)
+	await _frases("frases_puxei")
 	await _falar("acordar_althea")
 	await _levantar_althea()
 	# "O embrulho comprido apoiado ao lado da cama": Nicholas o entrega.
@@ -551,8 +551,9 @@ func entregar_embrulho() -> void:
 	await _frases("frases_espada")
 	match await _falar_e_escolher("espada_escolha", true):
 		"escolheu_rendicao":
-			_reagir_na_espada("CAP1_099")
-			await _frases("frases_rendicao")
+			# Sem frase (CAP1_099 saiu, Rafael 21/10/2026): só a pose de rendição.
+			_reagir_na_espada("rendicao")
+			await _esperar(1.2)
 		"escolheu_desvio":
 			_reagir_na_espada("CAP1_100")
 			await _frases("frases_desvio")
@@ -578,7 +579,7 @@ func _reagir_na_espada(id: String) -> void:
 	match id:
 		"CAP1_051":
 			_golpe_de_althea()
-		"CAP1_099":
+		"rendicao":
 			_pose_de_nicholas(&"rendicao")
 		"CAP1_100":
 			_golpe_de_althea()
@@ -587,22 +588,40 @@ func _reagir_na_espada(id: String) -> void:
 			_mover_suave(jogador.get_node("Corpo"), "position:x", _corpo_x + lado * 6.0)
 
 
-func _golpe_de_althea() -> void:
+## Althea golpeia algumas vezes na direção de Nicholas, com um avanço curto
+## a cada golpe: o desenho do golpe tem só 3 quadros (0,25 s) e, sozinho,
+## passava despercebido enquanto a frase aparecia no alto.
+func _golpe_de_althea(vezes := 3) -> void:
 	var althea: Node2D = objetos.get("althea")
 	if althea == null:
 		return
 	var visual: AnimatedSprite2D = althea.get_node("Visual")
-	visual.play(&"golpe_frente")
-	_virar(althea, jogador.position)
-	visual.frame = 0
-	visual.play()
+	var etapa_do_golpe := etapa
+	for i in vezes:
+		if not is_instance_valid(visual) or etapa != etapa_do_golpe:
+			return
+		visual.play(&"golpe_frente")
+		_virar(althea, jogador.position)
+		visual.frame = 0
+		visual.play()
+		if escala_tempo <= 0.0:
+			return
+		var lado := signf(jogador.position.x - althea.position.x)
+		var avanco := create_tween()
+		avanco.tween_property(visual, "position:x", lado * 5.0, 0.12)
+		avanco.tween_property(visual, "position:x", 0.0, 0.2)
+		await visual.animation_finished
+		await _esperar(0.35)
+	if is_instance_valid(visual) and etapa == etapa_do_golpe:
+		visual.play("parado_%s" % visual.animation.get_slice("_", 1))
 
 
 ## Na porta de Althea: braços cruzados enquanto espera; ao se mexer (andar
 ## ou virar para uma ponta do corredor), o desenho volta a seguir o movimento.
 func _cruzar_os_bracos() -> void:
 	_bracos_cruzados = true
-	_pose_de_nicholas(&"bracos_cruzados")
+	# Virado para a câmera (Rafael, 21/10/2026).
+	_pose_de_nicholas(&"bracos_cruzados", "frente")
 
 
 func _descruzar_os_bracos() -> void:
@@ -614,10 +633,12 @@ func _descruzar_os_bracos() -> void:
 
 ## Nicholas numa pose fora das que o desenho escolhe sozinho (a animação do
 ## jogador fica parada até [method _fim_da_espada]).
-func _pose_de_nicholas(acao: StringName) -> void:
+func _pose_de_nicholas(acao: StringName, lado := "") -> void:
 	var visual: AnimatedSprite2D = jogador.get_node("Corpo/Visual")
 	visual.set_process(false)
-	visual.play("%s_%s" % [acao, visual.animation.get_slice("_", 1)])
+	if lado == "":
+		lado = visual.animation.get_slice("_", 1)
+	visual.play("%s_%s" % [acao, lado])
 
 
 ## Fim da conversa: todos voltam ao parado (e Nicholas ao lugar).
@@ -978,7 +999,6 @@ func montar_carruagem() -> void:
 	DialogueManager.got_dialogue.disconnect(_ao_ver_fala_na_carruagem)
 	await _voltar_para_althea()
 	await _falar_travado("carruagem")
-	await _frases("frases_silencio")
 	await _escurecer()
 	balanco.kill()
 	rodas.kill()

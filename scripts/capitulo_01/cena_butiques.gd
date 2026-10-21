@@ -44,7 +44,8 @@ func comecar() -> void:
 	montar_rua()
 	await _clarear()
 	await _frases("frases_rua")
-	await _falar_travado("quatro_guardas")
+	_travar(true)
+	await _frases("frases_quatro_guardas")
 	_travar(false)
 
 

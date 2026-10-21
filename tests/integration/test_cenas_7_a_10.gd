@@ -103,21 +103,44 @@ func test_palacio_fora_de_ordem_nao_avanca() -> void:
 
 func test_butiques_da_rua_a_loja_e_ao_restaurante() -> void:
 	await _abrir("res://scenes/capitulo_01/cena_butiques.tscn", "rua")
+	var butiques := cena as CenaButiques
 	assert_eq(cena.sala.largura, 14)
 	cena.entrar_na_loja()
 	assert_eq(cena.etapa, "rua", "a porta só abre depois de escolher os guardas")
-	cena.escolher_guardas()
+	butiques.escolher_guarda(butiques.guardas[0])
+	butiques.escolher_guarda(butiques.guardas[0])
+	await wait_physics_frames(5)
+	assert_eq(cena.etapa, "rua", "um guarda só (escolhido duas vezes) não basta")
+	assert_eq(butiques.escolhidos.size(), 1)
+	assert_not_null(butiques.guardas[0].get_node_or_null("Marca"))
+	butiques.escolher_guarda(butiques.guardas[2])
 	await _esperar_etapa("porta")
 	assert_true(Codice.tem("rua_das_butiques"))
 	cena.entrar_na_loja()
-	await _esperar_etapa("escolher_presente")
+	await _esperar_etapa("prateleiras")
 	assert_eq(cena.sala.largura, 8)
 	assert_true(cena.objetos.has("lojista_homem"))
-	cena.escolher_presente()
+	var nomes: Array = CenaButiques.PRATELEIRAS.keys()
+	butiques.procurar_na_prateleira(nomes[0])
+	butiques.procurar_na_prateleira(nomes[0])
+	butiques.procurar_na_prateleira(nomes[1])
+	await wait_physics_frames(5)
+	assert_eq(cena.etapa, "prateleiras", "duas prateleiras ainda não bastam")
+	butiques.procurar_na_prateleira(nomes[2])
 	await _esperar_pedido()
 	assert_eq(cena.etapa, "restaurante")
 	assert_eq(cena.cena_pedida, SequenciaCenas01.CENAS["restaurante"])
 	assert_eq(Relacoes.valor("ophelia"), 1)
+
+
+func test_butiques_carruagem_fora_do_caminho() -> void:
+	await _abrir("res://scenes/capitulo_01/cena_butiques.tscn", "rua")
+	var carruagem: Vector2i = cena._casa_de(cena.objetos["carruagem"])
+	var nicholas: Vector2i = cena._casa_de(cena.jogador)
+	var porta := CenaButiques.CASA_PORTA_LOJA
+	# A carruagem fica atrás de Nicholas: mais longe da porta do que ele.
+	assert_gt(carruagem.y, nicholas.y)
+	assert_gt((carruagem - porta).length(), (nicholas - porta).length())
 
 
 func test_restaurante_da_mesa_ao_passeio() -> void:

@@ -99,13 +99,17 @@ func test_palacio() -> void:
 func test_butiques() -> void:
 	await _abrir("res://scenes/capitulo_01/cena_butiques.tscn", "rua")
 	assert_eq(cena.objetivo.chave, "OBJ_CAP1_GUARDAS_RUA")
-	cena.escolher_guardas()
+	cena.escolher_guarda(cena.guardas[0])
+	assert_eq(cena.objetivo.chave, "OBJ_CAP1_GUARDAS_MAIS_UM")
+	cena.escolher_guarda(cena.guardas[1])
+	assert_eq(cena.objetivo.chave, "")
 	await _no(cena, "porta")
 	assert_eq(cena.objetivo.chave, "OBJ_CAP1_LOJA")
 	cena.entrar_na_loja()
-	await _no(cena, "escolher_presente")
+	await _no(cena, "prateleiras")
 	assert_eq(cena.objetivo.chave, "OBJ_CAP1_PRESENTE")
-	cena.escolher_presente()
+	for nome: String in CenaButiques.PRATELEIRAS.keys().slice(0, CenaButiques.PRATELEIRAS_PARA_ACHAR):
+		cena.procurar_na_prateleira(nome)
 	assert_eq(cena.objetivo.chave, "")
 
 

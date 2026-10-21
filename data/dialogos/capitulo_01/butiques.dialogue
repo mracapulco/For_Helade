@@ -21,8 +21,14 @@ Quatro guardas? Isso é insuficiente para os padrões do Duque. [ID:CAP1_155]
 
 ~ guardas_dois
 
-## Nicholas escolhe quem entra com eles.
+## Depois que o jogador escolhe os dois guardas (E em dois deles).
 Nicholas: [#retrato=neutro] Dois comigo. [ID:CAP1_156]
+=> END
+
+~ frases_guardas_porta
+
+## No alto: os que não foram escolhidos ficam na porta da loja.
+Os outros dois ficaram na porta. [ID:CAP1_218]
 => END
 
 ~ frases_loja
@@ -67,6 +73,25 @@ Lojista: [#retrato=neutro] Claro, Jovem Mestre. [ID:CAP1_170]
 
 ## Na sala lateral.
 Althea se agachou entre as prateleiras baixas. Ophelia fez o mesmo, sem hesitar. Aquilo me incomodou. [ID:CAP1_171]
+=> END
+
+## Nicholas procura nas prateleiras (E em cada uma). Estas três frases NÃO
+## são do livro (texto do jogo, Rafael, 21/10/2026): uma por prateleira vista,
+## na ordem, sem nomear criaturas novas.
+
+~ frases_prateleira_1
+
+A Thea já tem um desses. [ID:CAP1_219]
+=> END
+
+~ frases_prateleira_2
+
+Esse também. A Thea já tem um igual. [ID:CAP1_220]
+=> END
+
+~ frases_prateleira_3
+
+Nada aqui que ela ainda não tenha. [ID:CAP1_221]
 => END
 
 ~ presente

@@ -1690,14 +1690,17 @@ CENAS = {
                  + [(a + '_dir', (0, y)) for y in (3, 5) for a in ('vitrine', 'toldo')],
         objetos=[('rua/lampiao', (3, 3)), ('rua/lampiao', (9, 3)), ('rua/lampiao', (12, 3)),
                  ('rua/vaso_flor', (4, 1)), ('rua/vaso_flor', (6, 1)), ('rua/vaso_flor', (9, 1)), ('rua/vaso_flor', (11, 1)),
-                 ('rua/carruagem_parada', (8, 5))]),
+                 # a carruagem para na beira da rua, atrás de Nicholas (nunca na frente)
+                 ('rua/carruagem_parada', (11, 7))]),
     'loja': dict(
         titulo='Cena 9: loja de pelúcias', largura=8, profundidade=7, piso='assoalho', parede='reboco',
         pendurar=[('arandela_esq', (2, 0)), ('porta_esq', (4, 0)), ('arandela_esq', (6, 0)), ('arandela_dir', (0, 4))],
+        # as prateleiras baixas onde se procura o presente (a criatura longa vem
+        # na mão de Ophelia, sem expositor)
         objetos=[('loja/prateleira_baixa_esq', (2, 1)), ('loja/prateleira_baixa_esq', (3, 1)), ('loja/balcao_loja', (6, 1)),
-                 ('loja/prateleira_baixa_dir', (1, 3)), ('loja/prateleira_baixa_dir', (1, 5)),
-                 ('loja/expositor_enguia', (4, 3)), ('loja/cesta_pelucias', (6, 4)),
-                 ('loja/pelucia_dragao_marinho', (3, 5)), ('loja/pelucia_polvo', (5, 5)), ('loja/pelucia_monstro', (6, 3))]),
+                 ('loja/prateleira_baixa_dir', (1, 3)), ('loja/prateleira_baixa_dir', (1, 5)), ('loja/prateleira_baixa_dir', (1, 6)),
+                 ('loja/cesta_pelucias', (6, 5)),
+                 ('loja/pelucia_dragao_marinho', (4, 6)), ('loja/pelucia_polvo', (7, 4)), ('loja/pelucia_monstro', (7, 5))]),
     'restaurante': dict(
         titulo='Cena 10: restaurante', largura=8, profundidade=7, piso='ladrilho', parede='reboco',
         pendurar=[('quadro_atenas_esq', (2, 0)), ('arandela_esq', (3, 0)), ('janela_carruagem_esq', (4, 0)),

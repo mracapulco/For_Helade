@@ -90,6 +90,15 @@ func test_presente_ajusta_a_relacao_com_ophelia() -> void:
 	assert_has(await _percorrer(BUTIQUES, "frases_presente", []), "CAP1_175")
 
 
+func test_butiques_guardas_e_prateleiras_tem_suas_falas() -> void:
+	assert_eq(await _percorrer(BUTIQUES, "guardas_dois", []), ["CAP1_156"] as Array[String])
+	assert_eq(await _percorrer(BUTIQUES, "frases_guardas_porta", []), ["CAP1_218"] as Array[String])
+	# Uma frase por prateleira vista, até a que leva Ophelia a trazer a criatura.
+	for i in CenaButiques.PRATELEIRAS_PARA_ACHAR:
+		assert_eq((await _percorrer(BUTIQUES, "frases_prateleira_%d" % (i + 1), [])).size(), 1)
+	assert_true(CenaButiques.PRATELEIRAS_PARA_ACHAR <= CenaButiques.PRATELEIRAS.size())
+
+
 func test_sopa_ajusta_a_relacao_com_ophelia() -> void:
 	var calma := await _percorrer(RESTAURANTE, "insistir", [0] as Array[int])
 	assert_eq(Relacoes.valor("ophelia"), 1)

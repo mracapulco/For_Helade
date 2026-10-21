@@ -267,8 +267,9 @@ OBJ_CAP1_MESA_CHA,Sente-se com Althea à mesa de chá
 OBJ_CAP1_PATIO,Siga Althea até a fonte
 OBJ_CAP1_EMBARQUE,Ajude as duas a subir na carruagem
 OBJ_CAP1_ANEXO,Lance um último olhar ao anexo
-OBJ_CAP1_GUARDAS_RUA,Fale com um dos guardas
+OBJ_CAP1_GUARDAS_RUA,Escolha dois guardas para entrar com vocês
+OBJ_CAP1_GUARDAS_MAIS_UM,Escolha mais um guarda
 OBJ_CAP1_LOJA,Entre na loja de pelúcias
-OBJ_CAP1_PRESENTE,Veja a criatura no expositor
+OBJ_CAP1_PRESENTE,Procure nas prateleiras uma criatura que Althea ainda não tem
 OBJ_CAP1_MESA,Sente-se à mesa
 OBJ_CAP1_COLHER,Pegue uma colher limpa no armário

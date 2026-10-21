@@ -165,7 +165,7 @@ func atirar_flecha() -> void:
 	flecha.show()
 	if _tween_flecha:
 		_tween_flecha.kill()
-	_tween_flecha = flecha.create_tween()
+	_tween_flecha = flecha.create_tween().set_process_mode(Tween.TWEEN_PROCESS_PHYSICS)
 	_tween_flecha.tween_property(flecha, "position", inicio + rumo * voo_flecha, tempo_flecha)
 	_tween_flecha.parallel().tween_property(flecha, "modulate:a", 0.0, tempo_flecha * 0.4).set_delay(tempo_flecha * 0.6)
 	_tween_flecha.tween_callback(flecha.hide)

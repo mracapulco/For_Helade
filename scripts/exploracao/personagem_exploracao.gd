@@ -43,8 +43,9 @@ const PASSOS: Array[Vector2i] = [
 ]
 
 ## Velocidade de andar sem equipamento. O equipamento aumenta ou diminui
-## (veja [method velocidade_andando]).
-@export var velocidade := 90.0
+## (veja [method velocidade_andando]). 120 = cerca de 0,3 s por casa do chão
+## (Rafael, 19/10: com 90 o passo parecia travado).
+@export var velocidade := 120.0
 ## Quanto mais rápido fica ao correr.
 @export var multiplicador_corrida := 1.5
 ## Camada do chão cujas casas o movimento segue. Sem ela, anda livre.
@@ -63,9 +64,10 @@ const PASSOS: Array[Vector2i] = [
 @export var alcance_golpe := 40.0
 ## Sem arma, o clique dá soco quando há um inimigo vivo a esta distância.
 @export var raio_combate := 200.0
-## Com [member grade], parado: apertar uma direção diferente da que ele olha
-## só vira o corpo; segurando a tecla por este tempo (ou apertando de novo),
-## anda. Andando, trocar de direção vira e segue sem pausa.
+## Com [member grade], parado e em combate: apertar uma direção diferente da
+## que ele olha só vira o corpo; segurando a tecla por este tempo (ou
+## apertando de novo), anda. Fora de combate anda na hora (Rafael, 19/10).
+## Andando, trocar de direção vira e segue sem pausa.
 @export var tempo_para_andar := 0.12
 ## Tempo sem andar para contar como parado (e o primeiro aperto só virar).
 @export var tempo_para_parar := 0.15
@@ -94,6 +96,15 @@ var _tempo_golpe := 0.0
 ## Centro da casa para onde está indo pelo teclado (INF = nenhuma).
 var _casa_destino := Vector2.INF
 var _casa_origem := Vector2.ZERO
+## O passo (casa vizinha) do andar pelo teclado em andamento.
+var _passo_atual := Vector2i.ZERO
+## Direção apertada depois da metade do passo: vale quando ele chegar.
+var _passo_guardado := Vector2i.ZERO
+## Multiplica a velocidade do passo em andamento (2 = voltando de um toque curto).
+var _pressa := 1.0
+## O passo em andamento vai até o fim mesmo sem tecla (veio de uma direção
+## guardada).
+var _passo_firme := false
 var _golpe_pendente := false
 ## Quanto falta segurar a tecla, depois de virar, para começar a andar.
 var _espera_virar := 0.0
@@ -101,6 +112,12 @@ var _espera_virar := 0.0
 var _tempo_parado := 1.0
 ## Multiplicador de velocidade do equipamento e das poções (1 = sem bônus).
 var _ritmo := 1.0
+## O mesmo, para andar: o peso do equipamento tem limite menor
+## ([constant Balanceamento.VELOCIDADE_MINIMA_ANDAR]).
+var _ritmo_andar := 1.0
+## Onde ele estava no fim do último quadro de física, para notar quando foi
+## levado de um lugar para outro (troca de sala, derrota, roteiro).
+var _posicao_anterior := Vector2.INF
 ## Onde ele entrou na cena: volta para cá ao ser derrotado.
 var _ponto_de_entrada := Vector2.ZERO
 
@@ -109,8 +126,17 @@ var _ponto_de_entrada := Vector2.ZERO
 @onready var sombra: Node2D = $Sombra
 
 
+## Mais que isto entre dois quadros de física é um salto, não um passo.
+const DISTANCIA_SALTO := 24.0
+## Golpear andando: o passo termina em no máximo este tempo e o golpe sai.
+const TEMPO_ATE_GOLPE := 0.08
+
+
 func _ready() -> void:
 	add_to_group(Interagivel.GRUPO_JOGADOR)
+	# Anda na física: a imagem (e a câmera, filha dele) interpola entre os
+	# quadros de física, liso em monitores de 120 ou 240 Hz (Configuracoes).
+	physics_interpolation_mode = Node.PHYSICS_INTERPOLATION_MODE_ON
 	DialogueManager.dialogue_started.connect(_ao_comecar_dialogo)
 	DialogueManager.dialogue_ended.connect(_ao_terminar_dialogo)
 	Inventario.equipamento_mudou.connect(_ao_mudar_equipamento)
@@ -258,9 +284,14 @@ func ritmo() -> float:
 	return _ritmo
 
 
+## Multiplicador de velocidade do andar (o peso do equipamento tem limite).
+func ritmo_andar() -> float:
+	return _ritmo_andar
+
+
 ## Velocidade de andar com o equipamento.
 func velocidade_andando() -> float:
-	return velocidade * _ritmo
+	return velocidade * _ritmo_andar
 
 
 ## Quanto dura o golpe com o equipamento (mais rápido, mais curto).
@@ -287,8 +318,11 @@ func golpear() -> bool:
 	if em_dialogo or golpeando or not pode_golpear():
 		return false
 	if indo_para_casa():
-		# Termina o passo antes, para golpear sempre do centro de uma casa.
+		# Termina o passo antes, para golpear sempre do centro de uma casa,
+		# mas depressa: chega em no máximo [constant TEMPO_ATE_GOLPE].
 		_golpe_pendente = true
+		var falta := global_position.distance_to(_casa_destino)
+		_pressa = maxf(_pressa, falta / (velocidade_andando() * TEMPO_ATE_GOLPE))
 		return true
 	golpeando = true
 	_tempo_golpe = 0.0
@@ -470,6 +504,7 @@ func _exit_tree() -> void:
 
 
 func _physics_process(delta: float) -> void:
+	_notar_salto()
 	if grade and not indo_para_casa():
 		_sincronizar_casa()
 	if indo_para_casa():
@@ -489,7 +524,7 @@ func _physics_process(delta: float) -> void:
 	if teclas == Vector2.ZERO:
 		# Soltou: apertar de novo na mesma direção já anda.
 		_espera_virar = 0.0
-	if grade and (indo_para_casa() or teclas != Vector2.ZERO):
+	if grade and (indo_para_casa() or teclas != Vector2.ZERO or _passo_guardado != Vector2i.ZERO):
 		_andar_na_grade(teclas, rapidez, delta)
 		return
 	if teclas != Vector2.ZERO:
@@ -522,11 +557,23 @@ func _physics_process(delta: float) -> void:
 
 
 ## Teclado com grade: anda uma casa por vez e só para no centro de uma casa.
-## Soltar a tecla no meio do caminho termina o passo. Parado, numa direção
-## nova o primeiro aperto só vira (veja [member tempo_para_andar]).
+## Responde na hora (Rafael, 19/10; planos/navegacao-fluida.md, passo 2):
+## - soltar antes da metade do passo volta, rápido, para a casa de onde saiu;
+##   depois da metade, termina o passo;
+## - a direção contrária volta na hora; outra direção, antes da metade, troca
+##   a casa de destino (assim duas teclas quase juntas fazem a diagonal da
+##   tela) e, depois da metade, fica guardada para quando ele chegar;
+## - parado e em combate, numa direção nova o primeiro aperto só vira (veja
+##   [member tempo_para_andar]).
 func _andar_na_grade(teclas: Vector2, rapidez: float, delta: float) -> void:
+	if indo_para_casa():
+		_ajustar_passo(teclas)
 	if not indo_para_casa():
 		var passo := passo_na_grade(teclas)
+		var guardado := passo == Vector2i.ZERO and _passo_guardado != Vector2i.ZERO
+		if guardado:
+			passo = _passo_guardado
+		_passo_guardado = Vector2i.ZERO
 		if passo == Vector2i.ZERO:
 			velocity = Vector2.ZERO
 			return
@@ -534,8 +581,9 @@ func _andar_na_grade(teclas: Vector2, rapidez: float, delta: float) -> void:
 		if andando:
 			andando = false
 			chegou.emit()
-		var rumo := direcao_isometrica(teclas)
-		if rumo.dot(direcao_olhar) < 0.99 and _tempo_parado >= tempo_para_parar:
+		var rumo := _rumo_do_passo(passo)
+		if (not guardado and rumo.dot(direcao_olhar) < 0.99 and _tempo_parado >= tempo_para_parar
+				and em_combate()):
 			direcao_olhar = rumo
 			_espera_virar = tempo_para_andar
 			velocity = Vector2.ZERO
@@ -545,29 +593,24 @@ func _andar_na_grade(teclas: Vector2, rapidez: float, delta: float) -> void:
 			velocity = Vector2.ZERO
 			return
 		direcao_olhar = rumo
-		# Na diagonal da grade, se a casa estiver fechada (parede de um lado,
-		# como num corredor), escorrega pelo eixo que estiver livre.
-		var tentativas: Array[Vector2i] = [passo]
-		if passo.x != 0 and passo.y != 0:
-			tentativas.append_array([Vector2i(passo.x, 0), Vector2i(0, passo.y)])
-		var proxima := Vector2.INF
-		for tentativa in tentativas:
-			var casa := centro_da_casa(casa_de(global_position) + tentativa)
-			if (not test_move(global_transform, casa - global_position) and casa_andavel(casa)
-					and GradeOcupacao.ocupar(casa_de(casa), self)):
-				proxima = casa
-				break
-		if proxima == Vector2.INF:
+		var aqui := casa_de(global_position)
+		var proxima := _reservar_vizinha(aqui, passo)
+		if proxima == Vector2i.MAX:
 			velocity = Vector2.ZERO
 			return
-		_casa_origem = centro_da_casa(casa_de(global_position))
-		_casa_destino = proxima
+		_casa_origem = centro_da_casa(aqui)
+		_casa_destino = centro_da_casa(proxima)
+		_passo_atual = proxima - aqui
+		_pressa = 1.0
+		_passo_firme = guardado
+	rapidez *= _pressa
 	var falta := _casa_destino - global_position
 	var anda := rapidez * delta
 	velocity = falta.normalized() * rapidez
 	if falta.length() <= anda:
 		global_position = _casa_destino
 		_casa_destino = Vector2.INF
+		_pressa = 1.0
 		_sincronizar_casa()
 		if _golpe_pendente:
 			_golpe_pendente = false
@@ -577,7 +620,80 @@ func _andar_na_grade(teclas: Vector2, rapidez: float, delta: float) -> void:
 	move_and_slide()
 	if global_position.distance_to(antes) < anda * 0.1:
 		# Algo entrou no caminho: volta para a casa de onde saiu.
-		_casa_destino = _casa_origem
+		_voltar_para_origem()
+
+
+## A casa vizinha de [param casa] no rumo de [param passo], já reservada para
+## ele, ou MAX se não der. Na diagonal da grade, se a casa estiver fechada
+## (parede de um lado, como num corredor), escorrega pelo eixo livre.
+func _reservar_vizinha(casa: Vector2i, passo: Vector2i) -> Vector2i:
+	var tentativas: Array[Vector2i] = [passo]
+	if passo.x != 0 and passo.y != 0:
+		tentativas.append_array([Vector2i(passo.x, 0), Vector2i(0, passo.y)])
+	for tentativa in tentativas:
+		var vizinha := casa + tentativa
+		var centro := centro_da_casa(vizinha)
+		if (not test_move(global_transform, centro - global_position) and casa_andavel(centro)
+				and GradeOcupacao.ocupar(vizinha, self)):
+			return vizinha
+	return Vector2i.MAX
+
+
+## Para onde ele olha andando esse passo da grade.
+func _rumo_do_passo(passo: Vector2i) -> Vector2:
+	var aqui := casa_de(global_position)
+	return (centro_da_casa(aqui + passo) - centro_da_casa(aqui)).normalized()
+
+
+## Quanto do passo em andamento já foi feito, de 0 a 1.
+func _progresso_do_passo() -> float:
+	var total := _casa_origem.distance_to(_casa_destino)
+	if total < 0.5:
+		return 1.0
+	return clampf(1.0 - global_position.distance_to(_casa_destino) / total, 0.0, 1.0)
+
+
+## Inverte o passo em andamento: volta para a casa de onde saiu.
+func _voltar_para_origem() -> void:
+	var saiu_de := _casa_origem
+	_casa_origem = _casa_destino
+	_casa_destino = saiu_de
+	_passo_atual = -_passo_atual
+
+
+## No meio de um passo pelo teclado, as teclas podem mudar o destino.
+func _ajustar_passo(teclas: Vector2) -> void:
+	if _golpe_pendente:
+		return
+	var passo := passo_na_grade(teclas)
+	var feito := _progresso_do_passo()
+	if passo == Vector2i.ZERO:
+		# Toque curto: soltou antes da metade, volta (rápido) de onde saiu.
+		if feito < 0.5 and not _passo_firme:
+			GradeOcupacao.liberar(casa_de(_casa_destino), self)
+			_voltar_para_origem()
+			_pressa = 2.0
+		return
+	if passo == _passo_atual:
+		return
+	_passo_guardado = Vector2i.ZERO
+	if passo == -_passo_atual:
+		_voltar_para_origem()
+		direcao_olhar = _rumo_do_passo(_passo_atual)
+		return
+	if feito >= 0.5:
+		_passo_guardado = passo
+		return
+	# Antes da metade: troca a casa de destino, a partir da casa de onde saiu.
+	var origem := casa_de(_casa_origem)
+	var antiga := casa_de(_casa_destino)
+	var nova := _reservar_vizinha(origem, passo)
+	if nova == Vector2i.MAX or nova == antiga:
+		return
+	GradeOcupacao.liberar(antiga, self)
+	_casa_destino = centro_da_casa(nova)
+	_passo_atual = nova - origem
+	direcao_olhar = (_casa_destino - _casa_origem).normalized()
 
 
 func _atualizar_golpe(delta: float) -> void:
@@ -635,6 +751,19 @@ func _atualizar_ritmo() -> void:
 	if efeitos:
 		bonus += efeitos.bonus_velocidade()
 	_ritmo = Balanceamento.multiplicador_velocidade(bonus)
+	_ritmo_andar = Balanceamento.multiplicador_andar(bonus)
+
+
+## Foi levado de um lugar para outro desde o último quadro: a imagem e a
+## câmera vão direto para lá, sem deslizar pelo caminho.
+func _notar_salto() -> void:
+	if (_posicao_anterior != Vector2.INF
+			and global_position.distance_to(_posicao_anterior) > DISTANCIA_SALTO):
+		reset_physics_interpolation()
+		var camera := get_node_or_null("Camera") as Camera2D
+		if camera:
+			camera.reset_smoothing()
+	_posicao_anterior = global_position
 
 
 ## Ponto de entrada novo (troca de sala, acampamento).
@@ -648,6 +777,8 @@ func _ao_ser_derrotado() -> void:
 	pulando = false
 	alvo_interacao = null
 	_casa_destino = Vector2.INF
+	_passo_guardado = Vector2i.ZERO
+	_pressa = 1.0
 	_golpe_pendente = false
 	velocity = Vector2.ZERO
 	corpo.position.y = 0.0

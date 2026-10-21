@@ -5,4 +5,10 @@
 [resource]
 script = ExtResource("1_personagem")
 nome_no_roteiro = "Ophelia"
-cor_provisoria = Color(0.55, 0.45, 0.65, 1)
+pixel_art = true
+cor_provisoria = Color(0.46, 0.12, 0.15, 1)
+id_retratos = "ophelia"
+idade_por_fase = Dictionary[String, String]({
+"crianca": "11",
+"adulto": "17"
+})

@@ -10,6 +10,17 @@ const EXPRESSAO_PADRAO := "neutro"
 ## fala: 0 fechada, 1 entreaberta, 2 aberta) e o tempo de cada um.
 const SEQUENCIA_FALA := [1, 2, 1, 0]
 const TEMPO_QUADRO_FALA := 0.09
+## Piscada do retrato parado: intervalo sorteado entre as piscadas e quanto
+## tempo os olhos ficam fechados.
+const INTERVALO_PISCAR := Vector2(2.5, 5.0)
+const TEMPO_PISCANDO := 0.12
+## Entrada do close quando muda quem fala: começa nesta escala, sem cor, e
+## chega ao tamanho cheio neste tempo.
+const ESCALA_ENTRADA := 0.85
+const TEMPO_ENTRADA := 0.2
+
+## Um rosto novo entrou em close (mudou quem fala).
+signal rosto_entrou(nome: String)
 
 ## Recurso de diálogo (quando a caixa é colocada direto numa cena).
 @export var dialogue_resource: DialogueResource
@@ -50,6 +61,13 @@ var _retrato_parado: Texture2D
 var _quadros_fala: Array[Texture2D] = []
 var _tempo_fala := 0.0
 var _passo_fala := 0
+## Retrato de olhos fechados e o tempo até a próxima piscada (negativo:
+## piscando agora).
+var _retrato_piscando: Texture2D
+var _ate_piscar := INTERVALO_PISCAR.x
+## Quem falou por último, para o close só entrar quando muda quem fala.
+var _ultimo_falante := ""
+var _entrada: Tween
 
 ## Fala atual. Ao receber null, a conversa acabou e a caixa fecha.
 var dialogue_line: DialogueLine:
@@ -59,6 +77,7 @@ var dialogue_line: DialogueLine:
 			apply_dialogue_line()
 		else:
 			Voz.parar()
+			_ultimo_falante = ""
 			if owner == null:
 				queue_free()
 			else:
@@ -94,18 +113,18 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	if is_instance_valid(dialogue_line):
 		progress.visible = not dialogue_label.is_typing and dialogue_line.responses.size() == 0
-	animar_boca(delta, is_instance_valid(dialogue_label) and dialogue_label.is_typing)
+	# A boca mexe enquanto o texto aparece e enquanto a voz gravada toca.
+	animar_boca(delta, (is_instance_valid(dialogue_label) and dialogue_label.is_typing) or Voz.falando())
 
 
 ## Mexe a boca do retrato enquanto o texto aparece; parado, mostra o retrato
-## de boca fechada.
+## de boca fechada, piscando de vez em quando.
 func animar_boca(delta: float, falando: bool) -> void:
-	if _quadros_fala.is_empty():
-		return
-	if not falando:
+	if _quadros_fala.is_empty() or not falando:
 		_tempo_fala = 0.0
 		_passo_fala = 0
-		retrato.texture = _retrato_parado
+		if _retrato_parado != null:
+			retrato.texture = _retrato_parado if not _piscando(delta) else _retrato_piscando
 		return
 	_tempo_fala += delta
 	if _tempo_fala >= TEMPO_QUADRO_FALA:
@@ -113,6 +132,16 @@ func animar_boca(delta: float, falando: bool) -> void:
 		_passo_fala = (_passo_fala + 1) % SEQUENCIA_FALA.size()
 	var quadro: int = mini(SEQUENCIA_FALA[_passo_fala], _quadros_fala.size() - 1)
 	retrato.texture = _quadros_fala[quadro]
+
+
+# Conta o tempo da piscada; true enquanto os olhos estão fechados.
+func _piscando(delta: float) -> bool:
+	if _retrato_piscando == null:
+		return false
+	_ate_piscar -= delta
+	if _ate_piscar < -TEMPO_PISCANDO:
+		_ate_piscar = randf_range(INTERVALO_PISCAR.x, INTERVALO_PISCAR.y)
+	return _ate_piscar < 0.0
 
 
 func _unhandled_input(_event: InputEvent) -> void:
@@ -133,6 +162,7 @@ func _notification(what: int) -> void:
 ## Começa uma conversa.
 func start(with_dialogue_resource: DialogueResource = null, cue: String = "", extra_game_states: Array = []) -> void:
 	temporary_game_states = [self] + extra_game_states
+	_ultimo_falante = ""
 	is_waiting_for_input = false
 	if is_instance_valid(with_dialogue_resource):
 		dialogue_resource = with_dialogue_resource
@@ -223,22 +253,38 @@ func expressao_atual() -> String:
 	return EXPRESSAO_PADRAO if expressao.is_empty() else expressao
 
 
+## Fase da vida que decide a idade dos rostos: a da etiqueta
+## [code][#idade=crianca][/code] da fala (memórias, sonhos) ou a do Nicholas
+## agora ("crianca", "adolescente" ou "adulto").
+func fase_atual() -> String:
+	var idade: String = dialogue_line.get_tag_value("idade")
+	if not idade.is_empty():
+		return idade
+	return str(Inventario.FaixaEtaria.find_key(Inventario.faixa_etaria)).to_lower()
+
+
 # Mostra a arte do personagem ou, sem arte, um quadro provisório com o nome
 # e a expressão pedida.
 func _mostrar_retrato() -> void:
 	var tem_personagem: bool = not dialogue_line.character.is_empty()
 	var personagem: Personagem = Elenco.buscar(dialogue_line.character) if tem_personagem else null
 	var expressao: String = expressao_atual()
-	var textura: Texture2D = personagem.retrato(expressao) if personagem else null
+	var fase: String = fase_atual()
+	var textura: Texture2D = personagem.retrato(expressao, fase) if personagem else null
 
 	# Falas sem nome (narração, pensamentos de Nicholas) não reservam espaço de retrato.
 	retrato.get_parent().visible = tem_personagem
 	retrato.visible = textura != null
 	retrato.texture = textura
 	_retrato_parado = textura
-	_quadros_fala = personagem.quadros_fala(expressao) if personagem and textura else ([] as Array[Texture2D])
+	_quadros_fala = personagem.quadros_fala(expressao, fase) if personagem and textura else ([] as Array[Texture2D])
+	_retrato_piscando = personagem.retrato_piscando(expressao, fase) if personagem and textura else null
 	_passo_fala = 0
 	_tempo_fala = 0.0
+	_ate_piscar = randf_range(INTERVALO_PISCAR.x, INTERVALO_PISCAR.y)
+	if textura != null and dialogue_line.character != _ultimo_falante:
+		_entrar_close()
+	_ultimo_falante = dialogue_line.character if textura != null else ""
 	retrato.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST if personagem and personagem.pixel_art else CanvasItem.TEXTURE_FILTER_PARENT_NODE
 	retrato_provisorio.visible = tem_personagem and textura == null
 	if retrato_provisorio.visible:
@@ -248,6 +294,19 @@ func _mostrar_retrato() -> void:
 			expressao,
 			tr("RETRATO_PROVISORIO") if personagem else tr("RETRATO_FORA_DO_ELENCO"),
 		]
+
+
+# O rosto de quem passa a falar cresce um pouco e aparece, como um close.
+func _entrar_close() -> void:
+	if _entrada:
+		_entrada.kill()
+	retrato.pivot_offset = retrato.size / 2.0
+	retrato.scale = Vector2.ONE * ESCALA_ENTRADA
+	retrato.modulate.a = 0.0
+	_entrada = create_tween().set_parallel().set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	_entrada.tween_property(retrato, "scale", Vector2.ONE, TEMPO_ENTRADA)
+	_entrada.tween_property(retrato, "modulate:a", 1.0, TEMPO_ENTRADA)
+	rosto_entrou.emit(dialogue_line.character)
 
 
 #region Sinais

@@ -93,9 +93,10 @@ Lojista: [#retrato=neutro] Claro, Jovem Mestre. [ID:CAP1_170]
 Althea se agachou entre as prateleiras baixas. Ophelia fez o mesmo, sem hesitar. Aquilo me incomodou. [ID:CAP1_171]
 => END
 
-## Nicholas procura nas prateleiras (E em cada uma). Estas três frases NÃO
-## são do livro (texto do jogo, Rafael, 21/10/2026): uma por prateleira vista,
-## na ordem, sem nomear criaturas novas.
+## Jogo dos desenhos da Thea na sala lateral (E em cada prateleira). Estas
+## frases NÃO são do livro (texto do jogo, Rafael, 21/10/2026): uma por
+## desenho achado, na ordem, sem nomear criaturas novas; e as de errar ou
+## de achar uma parecida.
 
 ~ frases_prateleira_1
 
@@ -110,6 +111,16 @@ Esse também. A Thea já tem um igual. [ID:CAP1_220]
 ~ frases_prateleira_3
 
 Nada aqui que ela ainda não tenha. [ID:CAP1_221]
+=> END
+
+~ frases_desenho_errado
+
+Não. Olhando bem, não é igual. [ID:CAP1_224]
+=> END
+
+~ frases_parecida
+
+Parecida, mas não é a da Thea. [ID:CAP1_225]
 => END
 
 ~ presente

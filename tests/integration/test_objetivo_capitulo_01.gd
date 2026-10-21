@@ -106,10 +106,14 @@ func test_butiques() -> void:
 	await _no(cena, "porta")
 	assert_eq(cena.objetivo.chave, "OBJ_CAP1_LOJA")
 	cena.entrar_na_loja()
+	await _no(cena, "sala_lateral")
+	assert_eq(cena.objetivo.chave, "OBJ_CAP1_SALA_LATERAL")
+	cena.ir_para_sala_lateral()
 	await _no(cena, "prateleiras")
 	assert_eq(cena.objetivo.chave, "OBJ_CAP1_PRESENTE")
-	for nome: String in CenaButiques.PRATELEIRAS.keys().slice(0, CenaButiques.PRATELEIRAS_PARA_ACHAR):
-		cena.procurar_na_prateleira(nome)
+	await cena.responder("prateleira_b", "dragao_marinho")
+	await cena.responder("prateleira_d", "polvo")
+	cena.responder("prateleira_f", "monstro")
 	assert_eq(cena.objetivo.chave, "")
 
 

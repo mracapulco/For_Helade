@@ -1423,46 +1423,98 @@ def pelucia_enguia():
     return q.contornar()
 
 
-def pelucia_dragao_marinho():
+def pelucia_dragao_marinho(nadadeiras=True):
+    # nadadeiras=False (sem nadadeiras nem chifres): a do jogo dos desenhos
+    # que NÃO é a da Thea
     q = Q(30, 28)
     q.sombra_no_chao(15, 24, 12, 3)
     for k in range(5):                                                   # cauda enrolada
         q.elipse(22 + k, 20 - k, 3 - k // 3, 3 - k // 3, 'bolo_sombra')
     q.elipse(14, 17, 9, 7, 'bolo'); q.elipse(12, 15, 5, 3, 'bolo_luz')
     q.elipse(8, 9, 5, 4, 'bolo'); q.elipse(6, 11, 3, 2, 'bolo_luz')      # cabeça e focinho
-    for x in (11, 14, 17, 20):                                           # nadadeiras dorsais
+    for x in (11, 14, 17, 20) if nadadeiras else ():                     # nadadeiras dorsais
         q.p(x, 9 + (x - 11) // 2, 'ouro'); q.p(x, 10 + (x - 11) // 2, 'ouro_luz')
-    q.p(6, 4, 'ouro_luz'); q.p(9, 4, 'ouro_luz'); q.p(6, 5, 'ouro'); q.p(9, 5, 'ouro')
+    if nadadeiras:                                                       # chifres
+        q.p(6, 4, 'ouro_luz'); q.p(9, 4, 'ouro_luz'); q.p(6, 5, 'ouro'); q.p(9, 5, 'ouro')
     q.p(5, 8, 'noite'); q.p(9, 8, 'noite'); q.p(5, 7, 'branco'); q.p(9, 7, 'branco')
     q.linha(12, 4, 7, 'noite')
     return q.contornar()
 
 
-def pelucia_polvo():
+def pelucia_polvo(bracos=6):
+    # bracos=3: a do jogo dos desenhos que NÃO é a da Thea
     q = Q(26, 26)
     q.sombra_no_chao(13, 23, 10, 2)
-    for k, x in enumerate((5, 8, 11, 14, 17, 20)):
+    for k, x in enumerate((5, 8, 11, 14, 17, 20) if bracos == 6 else (7, 13, 19)):
         for y in range(14, 22):
             q.p(x + (1 if (y // 2 + k) % 2 else 0), y, 'flor_sombra')
             q.p(x + (1 if (y // 2 + k) % 2 else 0) - 1, y, 'flor')
+            if bracos != 6:                                              # braços grossos
+                q.p(x + (1 if (y // 2 + k) % 2 else 0) - 2, y, 'flor')
     q.elipse(13, 10, 9, 8, 'flor'); q.elipse(10, 7, 4, 3, 'perola')
     q.elipse(13, 12, 8, 4, 'flor')
     q.r(8, 10, 9, 12, 'branco'); q.r(16, 10, 17, 12, 'branco'); q.p(9, 11, 'noite'); q.p(17, 11, 'noite')
     return q.contornar()
 
 
-def pelucia_monstro():
+def pelucia_monstro(olhos=1):
     # monstrinho de olho grande e dentes, parente do que Althea abraça (livro:
-    # "pelúcia de um monstro marinho")
+    # "pelúcia de um monstro marinho"); olhos=2: a do jogo dos desenhos que
+    # NÃO é a da Thea
     q = Q(26, 26)
     q.sombra_no_chao(13, 23, 10, 2)
     q.elipse(13, 15, 9, 8, 'monstro'); q.elipse(10, 12, 4, 3, 'monstro_luz')
     q.p(7, 5, 'ouro_luz'); q.p(7, 6, 'ouro'); q.p(18, 5, 'ouro_luz'); q.p(18, 6, 'ouro')
     q.r(4, 21, 8, 22, 'monstro'); q.r(17, 21, 21, 22, 'monstro')
-    q.elipse(13, 11, 4, 3, 'branco'); q.p(13, 11, 'noite'); q.p(14, 11, 'noite')
+    if olhos == 1:
+        q.elipse(13, 11, 4, 3, 'branco'); q.p(13, 11, 'noite'); q.p(14, 11, 'noite')
+    else:
+        for cx in (9, 17):
+            q.elipse(cx, 11, 2, 2, 'branco'); q.p(cx, 11, 'noite')
     for x in range(8, 18, 2):
         q.p(x, 18, 'branco'); q.p(x + 1, 17, 'branco')
     return q.contornar()
+
+
+def desenho_da_thea(pelucia):
+    """Desenho de criança (Althea, 6 anos) da pelúcia: folha de papel, giz de
+    cor por cima do formato dela, riscado em diagonal e contorno tremido. Só
+    para o jogo dos desenhos na sala lateral (texto do jogo, não do livro)."""
+    from PIL import Image, ImageDraw
+    im = pelucia.convert('RGBA')
+    # tira a sombra no chão (cinza meio transparente)
+    px = im.load()
+    for y in range(im.height):
+        for x in range(im.width):
+            r, g, b, a = px[x, y]
+            if a < 250:
+                px[x, y] = (0, 0, 0, 0)
+    grande = im.resize((im.width * 2, im.height * 2), Image.NEAREST)
+    L = 64
+    folha = Image.new('RGBA', (L, L), (0, 0, 0, 0))
+    d = ImageDraw.Draw(folha)
+    d.rectangle((1, 1, L - 2, L - 2), fill=(246, 238, 214, 255), outline=(196, 180, 150, 255))
+    ox, oy = (L - grande.width) // 2, (L - grande.height) // 2 + 2
+    g = grande.load()
+    f = folha.load()
+    escuro = (52, 60, 110, 255)
+    for y in range(grande.height):
+        for x in range(grande.width):
+            r, gg, b, a = g[x, y]
+            if a == 0:
+                continue
+            X, Y = x + ox, y + oy
+            if not (2 <= X < L - 2 and 2 <= Y < L - 2):
+                continue
+            borda = any(not (0 <= x + dx < grande.width and 0 <= y + dy < grande.height)
+                        or g[x + dx, y + dy][3] == 0 for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)))
+            escuro_px = r + gg + b < 140
+            if borda or escuro_px:
+                tremido = ((x * 7 + y * 3) % 5 == 0)
+                f[X, Y + (1 if tremido and Y + 1 < L - 2 else 0)] = escuro
+            elif (x + y) % 3 != 0:                     # o giz não cobre tudo
+                f[X, Y] = (min(255, r + 30), min(255, gg + 30), min(255, b + 30), 255)
+    return folha
 
 
 def expositor_enguia():
@@ -1653,6 +1705,13 @@ ARTES = {
     'loja/pelucia_polvo.png': pelucia_polvo,
     'loja/pelucia_monstro.png': pelucia_monstro,
     'loja/expositor_enguia.png': expositor_enguia,
+    # jogo dos desenhos da Thea (sala lateral): as parecidas que não são as dela
+    'loja/pelucia_dragao_marinho_diferente.png': lambda: pelucia_dragao_marinho(nadadeiras=False),
+    'loja/pelucia_polvo_diferente.png': lambda: pelucia_polvo(bracos=3),
+    'loja/pelucia_monstro_diferente.png': lambda: pelucia_monstro(olhos=2),
+    'loja/desenho_dragao_marinho.png': lambda: desenho_da_thea(pelucia_dragao_marinho()),
+    'loja/desenho_polvo.png': lambda: desenho_da_thea(pelucia_polvo()),
+    'loja/desenho_monstro.png': lambda: desenho_da_thea(pelucia_monstro()),
     'loja/cesta_pelucias.png': cesta_pelucias,
     'restaurante/mesa_redonda.png': mesa_redonda,
     'restaurante/cadeira_frente.png': lambda: cadeira(False),

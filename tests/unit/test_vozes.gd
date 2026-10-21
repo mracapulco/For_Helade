@@ -277,3 +277,27 @@ func test_estabilidade_por_fala_vence_a_da_voz() -> void:
 	var com := GeradorVozes.falas_do_roteiro(load(MANHA), vozes, {}, {}, {}, {id: 0.9})
 	assert_eq(com[0].estabilidade, 0.9)
 	assert_eq(com[1].estabilidade, base[1].estabilidade, "as outras seguem a voz")
+
+
+func test_podar_tira_do_indice_o_que_nao_tem_mais_voz() -> void:
+	var falas: Array[Dictionary] = [{"id": "A"}, {"id": "S", "arquivo": "S_1"}]
+	var indice := {"A": {"fala": "A"}, "S_1": {"fala": "S"}, "CAP1_107": {"fala": "CAP1_107"}, "S_2": {"fala": "S"}}
+	var podado := GeradorVozes.podar(falas, indice)
+	assert_eq_deep(podado.keys(), ["A", "S_1"])
+
+
+func test_mp3_antigo_fora_do_indice_nao_toca() -> void:
+	DirAccess.make_dir_recursive_absolute(PASTA_TESTE)
+	var caminho := PASTA_TESTE.path_join("indice.json")
+	FileAccess.open(caminho, FileAccess.WRITE).store_string(JSON.stringify({"CAP1_080": {"fala": "CAP1_080", "texto": "Não."}}))
+	Voz.carregar_indice(caminho)
+	assert_true(Voz.indexado("CAP1_080"))
+	assert_false(Voz.indexado("CAP1_107"), "Fala que virou só texto: o mp3 antigo não toca")
+	assert_false(Voz.disponivel("CAP1_107"))
+	assert_false(Voz.tem("CAP1_107"))
+	assert_eq(Voz.tocar("CAP1_107"), 0.0)
+
+
+func test_sem_indice_toca_o_que_existir() -> void:
+	Voz.carregar_indice(PASTA_TESTE.path_join("nao_existe.json"))
+	assert_true(Voz.indexado("CAP1_107"), "Sem índice nada fica mudo por engano")

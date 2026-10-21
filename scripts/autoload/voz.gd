@@ -21,6 +21,10 @@ var _coro: Array[AudioStreamPlayer] = []
 var _som: AudioStreamPlayer
 ## Texto da fala -> ID, para as frases que chegam só com o texto.
 var _por_texto: Dictionary[String, String] = {}
+## Arquivos que o índice lista. O índice é quem manda: um mp3 antigo que
+## sobrou na pasta (a fala virou só texto) não toca. Índice vazio ou com
+## erro: toca qualquer arquivo que exista, para nada ficar mudo sem querer.
+var _indexados: Dictionary[String, bool] = {}
 
 
 func _ready() -> void:
@@ -44,11 +48,13 @@ func _ready() -> void:
 ## Lê o índice das falas gravadas (o gerador o atualiza).
 func carregar_indice(caminho := PASTA.path_join("indice.json")) -> void:
 	_por_texto.clear()
+	_indexados.clear()
 	if not FileAccess.file_exists(caminho):
 		return
 	var dados: Variant = JSON.parse_string(FileAccess.get_file_as_string(caminho))
 	if dados is Dictionary:
 		for arquivo: String in dados:
+			_indexados[arquivo] = true
 			# Nas vozes de coro o arquivo é <ID>_1, <ID>_2...: guarda o ID da fala.
 			_por_texto[_normalizar(dados[arquivo].get("texto", ""))] = dados[arquivo].get("fala", arquivo)
 
@@ -57,8 +63,18 @@ func caminho_de(id: String) -> String:
 	return PASTA.path_join(id + ".mp3")
 
 
+## O índice deixa tocar este arquivo? (Sem índice, deixa todos.)
+func indexado(arquivo: String) -> bool:
+	return _indexados.is_empty() or _indexados.has(arquivo)
+
+
+## O arquivo existe e está no índice.
+func disponivel(arquivo: String) -> bool:
+	return indexado(arquivo) and ResourceLoader.exists(caminho_de(arquivo))
+
+
 func tem(id: String) -> bool:
-	return not id.is_empty() and (ResourceLoader.exists(caminho_de(id)) or not vozes_do_coro(id).is_empty() or ResourceLoader.exists(caminho_de(id + "_som")))
+	return not id.is_empty() and (disponivel(id) or not vozes_do_coro(id).is_empty() or disponivel(id + "_som"))
 
 
 ## Os arquivos de uma fala de coro, em ordem (vazio se não for coro).
@@ -66,7 +82,7 @@ func vozes_do_coro(id: String) -> PackedStringArray:
 	var arquivos := PackedStringArray()
 	for i in MAXIMO_CORO:
 		var arquivo := "%s_%d" % [id, i + 1]
-		if not ResourceLoader.exists(caminho_de(arquivo)):
+		if not disponivel(arquivo):
 			break
 		arquivos.append(arquivo)
 	return arquivos
@@ -78,7 +94,7 @@ func tocar(id: String) -> float:
 	if id.is_empty():
 		return 0.0
 	var som := 0.0
-	if ResourceLoader.exists(caminho_de(id + "_som")):
+	if disponivel(id + "_som"):
 		_som.stream = load(caminho_de(id + "_som"))
 		_som.play()
 		som = _som.stream.get_length()
@@ -86,7 +102,7 @@ func tocar(id: String) -> float:
 
 
 func _tocar_voz(id: String) -> float:
-	if ResourceLoader.exists(caminho_de(id)):
+	if disponivel(id):
 		_tocador.stream = load(caminho_de(id))
 		_tocador.play()
 		return _tocador.stream.get_length()

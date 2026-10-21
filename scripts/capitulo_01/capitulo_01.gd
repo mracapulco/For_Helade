@@ -134,6 +134,8 @@ var _passo_fora_do_sonho := Vector2.ZERO
 
 ## Objetos da sala atual que a sequência usa.
 var objetos := {}
+## Marcador "escolheu_..." da última escolha (ver _falar_e_escolher).
+var _escolha := ""
 ## A linha do objetivo no alto da tela ([Objetivo]).
 var objetivo: Objetivo
 
@@ -317,8 +319,10 @@ func olhar_espelho() -> void:
 	if etapa != "quarto" or viu_espelho:
 		return
 	if not pegou_roupas:
-		# Sem a roupa, o espelho só mostra o quarto (e ele, pequeno diante dele).
-		_frases("frases_espelho_sem_roupa")
+		# Sem a roupa: "Preciso me arrumar, rápido." (na caixa).
+		_travar(true)
+		await _falar("espelho_sem_roupa")
+		_travar(false)
 		return
 	viu_espelho = true
 	_ativar(objetos["espelho"], false)
@@ -331,7 +335,6 @@ func olhar_espelho() -> void:
 	await _clarear()
 	_travar(false)
 	_ativar(objetos["porta_quarto"], true)
-	await _frases("frases_espelho")
 
 
 func sair_do_quarto() -> void:
@@ -528,7 +531,6 @@ func acordar_althea() -> void:
 	_mudar("aniversario")
 	_ativar(objetos["cama_althea"], false)
 	_travar(true)
-	await _frases("frases_puxou")
 	await _falar("acordar_althea")
 	await _levantar_althea()
 	# "O embrulho comprido apoiado ao lado da cama": Nicholas o entrega.
@@ -543,9 +545,18 @@ func entregar_embrulho() -> void:
 	_mudar("espada")
 	_ativar(objetos["embrulho"], false)
 	_corpo_x = jogador.get_node("Corpo").position.x
-	DialogueManager.got_dialogue.connect(_ao_ver_fala_da_espada)
-	await _falar("espada")
-	DialogueManager.got_dialogue.disconnect(_ao_ver_fala_da_espada)
+	await _falar_travado("espada")
+	# A narração vai no alto, entre as partes da conversa.
+	_reagir_na_espada("CAP1_051")
+	await _frases("frases_espada")
+	match await _falar_e_escolher("espada_escolha", true):
+		"escolheu_rendicao":
+			_reagir_na_espada("CAP1_099")
+			await _frases("frases_rendicao")
+		"escolheu_desvio":
+			_reagir_na_espada("CAP1_100")
+			await _frases("frases_desvio")
+	await _falar("espada_fim")
 	_fim_da_espada()
 	objetos["embrulho"].visible = false
 	_mudar("presentes")
@@ -563,8 +574,8 @@ func entregar_embrulho() -> void:
 ## Com a espada de madeira: Althea golpeia o ar na direção de Nicholas
 ## (enquanto Nicholas adulto narra o presente); ele finge rendição (as mãos para cima) ou desvia com um
 ## passo curto para o lado enquanto ela golpeia de novo.
-func _ao_ver_fala_da_espada(linha: DialogueLine) -> void:
-	match linha.static_id:
+func _reagir_na_espada(id: String) -> void:
+	match id:
 		"CAP1_051":
 			_golpe_de_althea()
 		"CAP1_099":
@@ -779,6 +790,24 @@ func _falar_travado(marcador: String) -> void:
 	_travar(true)
 
 
+## Conversa com escolha: devolve o marcador "escolheu_..." por onde a opção
+## passou ("" sem caixa), para a narração da escolha ir no alto depois.
+func _falar_e_escolher(marcador: String, travado: bool) -> String:
+	_escolha = ""
+	DialogueManager.passed_cue.connect(_ao_passar_marcador)
+	if travado:
+		await _falar_travado(marcador)
+	else:
+		await _falar(marcador)
+	DialogueManager.passed_cue.disconnect(_ao_passar_marcador)
+	return _escolha
+
+
+func _ao_passar_marcador(marcador: String) -> void:
+	if marcador.begins_with("escolheu_"):
+		_escolha = marcador
+
+
 func _casa_de(no: Node2D) -> Vector2i:
 	return sala.chao.local_to_map(no.position)
 
@@ -839,7 +868,7 @@ func sentar_a_mesa() -> void:
 	_mudar("mesa")
 	_travar(true)
 	await _frases("frases_mesa")
-	await _frases("frases_duque")
+	await _falar_travado("anuncio_do_duque")
 	await chegada_do_duque()
 
 
@@ -856,8 +885,15 @@ func chegada_do_duque() -> void:
 	_virar(apollon, jogador.position)
 	_pose_de_althea(&"espada_colo")
 	DialogueManager.got_dialogue.connect(_ao_ver_fala_do_duque)
-	await _falar_travado("duque")
+	var escolha := await _falar_e_escolher("duque", true)
 	DialogueManager.got_dialogue.disconnect(_ao_ver_fala_do_duque)
+	match escolha:
+		"escolheu_olhar_althea":
+			_pose_de_althea(&"abraca_espada")
+			await _frases("frases_olhar_althea")
+		"escolheu_encarar":
+			await _frases("frases_encarar")
+	await _falar_travado("duque_tarefa")
 	_pose_de_althea(&"parado")
 	# O duque parte quase tão depressa quanto chegou.
 	await _caminhar(apollon, sala.centro(Vector2i(5, 1)), 1.4)
@@ -942,6 +978,7 @@ func montar_carruagem() -> void:
 	DialogueManager.got_dialogue.disconnect(_ao_ver_fala_na_carruagem)
 	await _voltar_para_althea()
 	await _falar_travado("carruagem")
+	await _frases("frases_silencio")
 	await _escurecer()
 	balanco.kill()
 	rodas.kill()

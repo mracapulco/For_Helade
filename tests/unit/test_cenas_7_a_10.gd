@@ -70,7 +70,7 @@ func test_entradas_novas_do_codice() -> void:
 
 func test_marcadores_anotam_o_codice() -> void:
 	await _percorrer(PALACIO, "frases_poucos_guardas", [])
-	await _percorrer(PALACIO, "apresentacao", [])
+	await _percorrer(PALACIO, "frases_olhos_de_ophelia", [])
 	await _percorrer(PALACIO, "frases_anexo_vazio", [])
 	await _percorrer(BUTIQUES, "frases_rua", [])
 	for id in ["poucos_guardas", "olhos_de_ophelia", "anexo_vazio", "rua_das_butiques"]:
@@ -85,9 +85,9 @@ func test_presente_ajusta_a_relacao_com_ophelia() -> void:
 	Relacoes.limpar()
 	var seco := await _percorrer(BUTIQUES, "presente", [1] as Array[int])
 	assert_eq(Relacoes.valor("ophelia"), -1)
-	# As duas opções voltam para a mesma linha do livro.
-	assert_has(atencao, "CAP1_175")
-	assert_has(seco, "CAP1_175")
+	# As duas opções terminam o marcador; a linha do livro segue em frases_presente.
+	assert_eq(atencao.size(), seco.size())
+	assert_has(await _percorrer(BUTIQUES, "frases_presente", []), "CAP1_175")
 
 
 func test_sopa_ajusta_a_relacao_com_ophelia() -> void:
@@ -96,8 +96,8 @@ func test_sopa_ajusta_a_relacao_com_ophelia() -> void:
 	Relacoes.limpar()
 	var firme := await _percorrer(RESTAURANTE, "insistir", [1] as Array[int])
 	assert_eq(Relacoes.valor("ophelia"), -1)
-	assert_has(calma, "CAP1_193")
-	assert_has(firme, "CAP1_193")
+	assert_eq(calma.size(), firme.size())
+	assert_has(await _percorrer(RESTAURANTE, "insistir_thea", []), "CAP1_193")
 
 
 # --- elenco -------------------------------------------------------------------

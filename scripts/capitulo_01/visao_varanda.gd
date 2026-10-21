@@ -114,19 +114,19 @@ func _cascos_e_escuro() -> void:
 	# O ar treme cada vez mais, como no sonho.
 	_tween_tremor(0.007, _t(8.0))
 
-	await _dizer(_frase(frases, 0))                 # O som dos cascos. Mais alto.
+	await _dizer(_frase(frases, 0))                 # O som dos cascos foi ficando...
 	_tween_escuro(0.35, _t(1.2))
 	_golpe_do_relogio(0.0, 1.2)
 	await _dizer(_frase(frases, 1))                 # Tic.
 	_tween_escuro(0.7, _t(1.2))
-	await _dizer(_frase(frases, 2))                 # As vozes… Afastaram-se.
-	# Escuro. Claro. Escuro: um lampejo da varanda entre dois apagões.
+	await _dizer(_frase(frases, 2))                 # E, de repente, as vozes se afastaram.
+	# Um lampejo da varanda entre dois apagões (sem texto).
 	_mundo.visible = true
 	_piscar()
-	await _dizer(_frase(frases, 3))
+	await _esperar(1.0)
 	_tween_volume(_cascos, SILENCIO_DB, _t(0.5))
 	_golpe_do_relogio(POSICAO_TAC, 1.2)
-	await _dizer(_frase(frases, 4))                 # Tac.
+	await _dizer(_frase(frases, 3))                 # Tac.
 	_cascos.stop()
 	_tremor.visible = false
 
@@ -193,9 +193,9 @@ func _retorno() -> void:
 	_material_tremor.set_shader_parameter("forca", 0.01)
 	_tween_tremor(0.0, _t(4.0))
 
-	await _dizer(_frase(frases, 0))                 # O retorno não foi suave. Foi queda.
+	await _dizer(_frase(frases, 0))                 # Sem entender, voltei. Como uma queda.
 	_tween_escuro(0.0, _t(1.5))
-	await _dizer(_frase(frases, 1))                 # As duas o encaravam.
+	await _dizer(_frase(frases, 1))                 # As duas estavam ali, me encarando.
 	_vento.stop()
 	_tremor.visible = false
 

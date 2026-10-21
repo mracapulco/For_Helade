@@ -9,7 +9,7 @@ extends CenaCapitulo01
 ##    vazios, e nota os poucos guardas (Códice "olhar"). Ao chegar à fonte, a
 ##    Princesa aparece.
 ## 2. ophelia: a Princesa sai do Palácio, é apresentada, os olhos azuis, o
-##    riso e o pedido de passar numa loja.
+##    pedido de passar numa loja.
 ## 3. embarque: os guardas recuam para o anexo; Althea leva Ophelia até a
 ##    carruagem e Nicholas ajuda as duas a subir (E na carruagem).
 ## 4. ultimo_olhar: ele olha para o anexo vazio (virar-se para a porta, ir
@@ -186,6 +186,7 @@ func chegada_de_ophelia() -> void:
 	await _caminhar(althea, [sala.centro(casa_althea)])
 	_virar(althea, ophelia.position)
 	await _falar_travado("apresentacao")
+	await _frases("frases_olhos_de_ophelia")
 	await _falar_travado("ophelia_riu")
 	await _falar_travado("pedido_loja")
 	await recuo_dos_guardas()

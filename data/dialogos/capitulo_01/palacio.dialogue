@@ -11,12 +11,13 @@
 ## A carruagem entra no pátio.
 O Palácio Imperial se ergueu diante de nós. [ID:CAP1_107]
 Tudo era excessivo. Alto demais, amplo demais, ornamentado demais. [ID:CAP1_108]
+## Logo ao descer: Althea vê a fonte (Rafael, 21/10/2026: no alto).
+A fonte central jorrava água que, aos olhos de Althea, eram diamantes líquidos. [ID:CAP1_109]
 => END
 
 ~ fonte
 
 ## Logo ao descer: Althea vê a fonte e corre até ela (Nicholas a segue).
-A fonte central jorrava água que, aos olhos de Althea, eram diamantes líquidos. [ID:CAP1_109]
 Althea: [#retrato=neutro] Nick… olha isso… [ID:CAP1_110]
 => END
 
@@ -34,7 +35,11 @@ Guarda: [#retrato=neutro] Anunciando os filhos do Duque de Olympia, Jovem Mestre
 Nicholas: [#retrato=neutro] É uma honra conhecê-la, Princesa Ophelia. [ID:CAP1_113]
 Althea: [#retrato=neutro] P-prazer… Princesa. [ID:CAP1_114]
 Ophelia: [#retrato=neutro] A honra é minha, filhos de Olympia. Fico feliz de estar aos seus cuidados. [ID:CAP1_115]
-## Nicholas adulto narra (Rafael, 20/10/2026: no lugar das frases soltas).
+=> END
+
+~ frases_olhos_de_ophelia
+
+## Logo depois da apresentação, no alto (Rafael, 21/10/2026).
 Essa foi a primeira vez que nós vimos a princesa. [ID:CAP1_116]
 Os olhos dela também eram assim… como os meus. [ID:CAP1_117]
 $> Codice.anotar("olhos_de_ophelia")
@@ -42,10 +47,8 @@ $> Codice.anotar("olhos_de_ophelia")
 
 ~ ophelia_riu
 
-## Althea rompe o momento; a princesa ri.
+## Althea rompe o momento.
 Althea: [#retrato=neutro] Minha Hera! Princesa, você é muito bonita! [ID:CAP1_120]
-Eu esperava constrangimento. Irritação. Em vez disso, a princesa riu. Um som leve, como se estivesse guardado havia tempo demais. [ID:CAP1_121]
-Algo estava errado. [ID:CAP1_122]
 => END
 
 ~ pedido_loja
@@ -66,7 +69,6 @@ Nenhum guarda as seguiu. Pelo contrário, recuaram, em silêncio, para o anexo. 
 
 ## Nicholas ajuda as duas a subir na carruagem.
 Ophelia: [#retrato=neutro] Obrigada. [ID:CAP1_127]
-Curto. Distante. [ID:CAP1_128]
 => END
 
 ~ frases_anexo_vazio
@@ -81,11 +83,11 @@ $> Codice.anotar("anexo_vazio")
 ## Sem dama de companhia nem escolta.
 Nicholas: [#retrato=neutro] A Princesa não levará nenhuma dama de companhia? Ou escolta? [ID:CAP1_130]
 Ophelia: [#retrato=neutro] Oh… Bem… Acredito que estarei segura com os guardas de Olympia. São conhecidos por sua lealdade. [ID:CAP1_131]
-Sim. Leais à Olympia. Não ao Império. [ID:CAP1_132]
 => END
 
 ~ frases_partida
 
-## A carruagem parte.
-Não respondi. Apenas assenti, pouco convencido, e bati na estrutura da carruagem. Partimos. [ID:CAP1_133]
+## Logo depois da escolta, no alto; a carruagem parte.
+Sim. Leais à Olympia. Não ao Império. [ID:CAP1_132]
+Não respondi, apenas aceitei. Esperei um pouco e bati na lateral da carruagem para continuarmos nosso passeio. [ID:CAP1_133]
 => END

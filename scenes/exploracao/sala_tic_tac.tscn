@@ -1,0 +1,10 @@
+[gd_scene format=4]
+
+[ext_resource type="PackedScene" path="res://scenes/exploracao/sala_teste.tscn" id="1_sala"]
+
+[node name="SalaTicTac" instance=ExtResource("1_sala")]
+
+[node name="Bandido" parent="."]
+preparo = 0.9
+golpe_pelas_costas = true
+provoca_tic_tac = true

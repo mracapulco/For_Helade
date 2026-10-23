@@ -1,0 +1,43 @@
+[gd_resource type="TileSet" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/art/placeholders/biblioteca/chao_madeira_iso.png" id="1_chao"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholders/biblioteca/estante_baixa_iso.png" id="2_baixa"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholders/biblioteca/estante_alta_iso.png" id="3_alta"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholders/biblioteca/parede_janela_iso.png" id="4_janela"]
+
+[sub_resource type="TileSetAtlasSource" id="Fonte_chao"]
+texture = ExtResource("1_chao")
+texture_region_size = Vector2i(64, 32)
+0:0/0 = 0
+1:0/0 = 0
+
+[sub_resource type="TileSetAtlasSource" id="Fonte_estante_baixa"]
+texture = ExtResource("2_baixa")
+texture_region_size = Vector2i(64, 64)
+0:0/0 = 0
+0:0/0/texture_origin = Vector2i(0, 16)
+0:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(-32, 0, 0, -16, 32, 0, 0, 16)
+
+[sub_resource type="TileSetAtlasSource" id="Fonte_estante_alta"]
+texture = ExtResource("3_alta")
+texture_region_size = Vector2i(64, 128)
+0:0/0 = 0
+0:0/0/texture_origin = Vector2i(0, 48)
+0:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(-32, 0, 0, -16, 32, 0, 0, 16)
+
+[sub_resource type="TileSetAtlasSource" id="Fonte_parede_janela"]
+texture = ExtResource("4_janela")
+texture_region_size = Vector2i(64, 128)
+0:0/0 = 0
+0:0/0/texture_origin = Vector2i(0, 48)
+0:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(-32, 0, 0, -16, 32, 0, 0, 16)
+
+[resource]
+tile_shape = 1
+tile_layout = 5
+tile_size = Vector2i(64, 32)
+physics_layer_0/collision_layer = 1
+sources/0 = SubResource("Fonte_chao")
+sources/1 = SubResource("Fonte_estante_baixa")
+sources/2 = SubResource("Fonte_estante_alta")
+sources/3 = SubResource("Fonte_parede_janela")

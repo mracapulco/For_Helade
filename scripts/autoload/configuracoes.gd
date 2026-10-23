@@ -20,6 +20,10 @@ var volume_geral := 1.0
 var volume_musica := 0.8
 var volume_efeitos := 0.8
 var volume_voz := 1.0
+## Andar antigo na exploração: de casa em casa, com as teclas nas linhas do
+## quadriculado. Desligado (padrão desde 23/10), anda livre pela tela. Fica
+## para comparar (F3 alterna no jogo).
+var movimento_em_grade := false
 
 var arquivo := ARQUIVO
 
@@ -84,4 +88,4 @@ func idiomas_disponiveis() -> PackedStringArray:
 
 
 func _chaves() -> Array[String]:
-	return ["idioma", "sensibilidade_mouse", "tela_cheia", "vsync", "botoes_toque", "volume_geral", "volume_musica", "volume_efeitos", "volume_voz"]
+	return ["idioma", "sensibilidade_mouse", "tela_cheia", "vsync", "botoes_toque", "volume_geral", "volume_musica", "volume_efeitos", "volume_voz", "movimento_em_grade"]

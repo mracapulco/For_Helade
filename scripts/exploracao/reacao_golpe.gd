@@ -33,15 +33,16 @@ func _ready() -> void:
 
 
 ## Levou um golpe vindo na [param direcao] (de quem bateu para quem apanhou),
-## com esse [param ataque] (0 = só a reação). Devolve o dano tirado.
-func receber_golpe(direcao: Vector2, ataque: int = 0) -> int:
+## com esse [param ataque] (0 = só a reação). [param empurrao] multiplica o
+## [member recuo] (o terceiro golpe do combo empurra mais). Devolve o dano tirado.
+func receber_golpe(direcao: Vector2, ataque: int = 0, empurrao: float = 1.0) -> int:
 	atingido.emit(direcao)
 	var dano := 0
 	if vida and ataque > 0:
 		dano = vida.receber_ataque(ataque)
 		if dano > 0:
 			mostrar_dano(dano)
-	_reagir(direcao)
+	_reagir(direcao, empurrao)
 	return dano
 
 
@@ -66,14 +67,14 @@ func mostrar_dano(valor: int) -> Label:
 	return numero
 
 
-func _reagir(direcao: Vector2) -> void:
+func _reagir(direcao: Vector2, forca: float = 1.0) -> void:
 	if visual == null:
 		return
 	if _tween:
 		_tween.kill()
 	visual.position = _posicao_original
 	visual.modulate = _cor_original
-	var empurrao := direcao.normalized() * recuo
+	var empurrao := direcao.normalized() * recuo * forca
 	var passo := duracao / 6.0
 	_tween = create_tween().set_process_mode(Tween.TWEEN_PROCESS_PHYSICS).set_parallel(false)
 	_tween.tween_property(visual, "position", _posicao_original + empurrao, passo)

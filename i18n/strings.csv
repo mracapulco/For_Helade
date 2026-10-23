@@ -2,6 +2,7 @@ keys,pt_BR
 JOGO_TITULO,Por Hélade
 EXPLORACAO_BOTAO_CORRER,Correr
 EXPLORACAO_BOTAO_PULAR,Pular
+EXPLORACAO_BOTAO_ESQUIVAR,Esquivar
 EXPLORACAO_BOTAO_GOLPE,Golpe
 PROLOGO_DICA_TOQUE,Toque na porta para ir até ela
 PROLOGO_DICA_SEGURAR_TOQUE,Toque no brilho para segurar Althea
@@ -26,7 +27,7 @@ OPCOES_IDIOMA,Idioma do jogo
 IDIOMA_pt_BR,Português (Brasil)
 OPCOES_SECAO_CONTROLES,Controles
 OPCOES_SENSIBILIDADE,Sensibilidade do mouse
-OPCOES_TECLAS,"W A S D ou setas: andar · Shift: correr · Espaço: pular · E: interagir · Esc: soltar o mouse"
+OPCOES_TECLAS,"W A S D ou setas: andar · Shift: correr · Espaço: pular (em combate, esquivar) · E: interagir · I: bolsa · C: Códice · F3: andar livre ou em casas · Esc: soltar o mouse"
 OPCOES_SECAO_GRAFICOS,Gráficos
 OPCOES_TELA_CHEIA,Tela cheia
 OPCOES_VSYNC,Sincronização vertical (VSync)
@@ -132,8 +133,17 @@ BOLSA_EQUIPADO,(equipado)
 AVISO_MOEDAS,+ %d moedas
 AVISO_OLHAR,Olhar de Nicholas: %s
 AVISO_CODICE,Códice: %s
+TELA_CODICE_BOTAO,Códice
+TELA_CODICE_TITULO,Códice
+TELA_CODICE_ABA_OLHAR,O olhar de Nicholas
+TELA_CODICE_ABA_CODICE,Códice
+TELA_CODICE_FECHAR,Fechar
+TELA_CODICE_VAZIO,Nada anotado ainda.
+TELA_CODICE_ESCOLHA,Escolha uma anotação para ler.
 AVISO_BOLSA_CHEIA,Bolsa cheia
 AVISO_PESADO_DEMAIS,Pesado demais por enquanto
+AVISO_MOVIMENTO_LIVRE,Andar livre (F3 troca)
+AVISO_MOVIMENTO_GRADE,Andar em casas (F3 troca)
 AVISO_SUBIU_NIVEL,Subiu para o nível %d!
 AVISO_LIMITE_NIVEL,Avance na história para subir mais
 MAPA_OLYMPIA_NOME,Olympia
@@ -278,3 +288,9 @@ CALOR_MORNO,Morno
 CALOR_FRIO,Frio
 OBJ_CAP1_MESA,Sente-se à mesa
 OBJ_CAP1_COLHER,Pegue uma colher limpa no armário
+TIC_TAC_TIC,Tic.
+TIC_TAC_TAC,Tac.
+CODICE_PILHAS_DE_LIVROS_TITULO,Pilhas de livros
+CODICE_PILHAS_DE_LIVROS_TEXTO,"Livros empilhados no chão e prateleiras desarrumadas: o castigo do Duque. Quando sai da linha, Nicholas arruma a biblioteca."
+CODICE_MESA_DE_XADREZ_TITULO,A mesa de xadrez
+CODICE_MESA_DE_XADREZ_TEXTO,"Pequena, redonda e levemente empoeirada, perto da janela. Duas cadeiras estofadas ficam uma de frente para a outra, alinhadas com o tabuleiro de mármore embutido no centro. O tampo se abre como um pequeno alçapão, onde as peças ficam guardadas."

@@ -17,8 +17,12 @@ extends Node2D
 	set(valor):
 		progresso = valor
 		queue_redraw()
+## Cor do leque.
+@export var cor := COR
 
 const COR := Color(0.85, 0.32, 0.22)
+## O golpe de verdade visto no Tic. Tac. (P4): dourado, como o anel dos olhos.
+const COR_DOURADA := Color(0.93, 0.74, 0.36)
 const PONTOS := 20
 
 
@@ -61,9 +65,9 @@ func leque(r: float) -> PackedVector2Array:
 
 func _draw() -> void:
 	var borda := leque(raio)
-	draw_colored_polygon(borda, Color(COR, 0.18))
+	draw_colored_polygon(borda, Color(cor, 0.18))
 	if progresso > 0.0:
-		draw_colored_polygon(leque(raio * progresso), Color(COR, 0.25 + 0.3 * progresso))
+		draw_colored_polygon(leque(raio * progresso), Color(cor, 0.25 + 0.3 * progresso))
 	var contorno := borda.duplicate()
 	contorno.append(borda[0])
-	draw_polyline(contorno, Color(COR, 0.7), 1.0)
+	draw_polyline(contorno, Color(cor, 0.7), 1.0)

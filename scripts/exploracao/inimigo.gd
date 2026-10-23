@@ -11,6 +11,8 @@ extends CharacterBody2D
 
 signal golpeou
 signal morreu
+## Começou a preparar um golpe (o aviso apareceu no chão).
+signal comecou_a_preparar
 
 ## Grupo dos inimigos vivos (o Nicholas sabe que está em combate).
 const GRUPO := &"inimigos"
@@ -37,6 +39,12 @@ enum Estado { PARADO, PERSEGUINDO, PREPARANDO, DESCANSANDO, VOLTANDO, MORTO }
 @export var alcance_golpe := 72.0
 ## Abertura do golpe dele, em graus.
 @export var arco_golpe := 120.0
+## Protótipo do Tic. Tac. (Rafael, 23/10; P4): o aviso no chão é uma finta;
+## na hora do golpe ele salta para trás do jogador e bate pelas costas, como
+## Persephone em V2 c20 ("cruzou por trás, a fim de acertá-lo nas costas").
+@export var golpe_pelas_costas := false
+## Ao preparar o golpe, pode trazer o Tic. Tac. ao Nicholas (TicTac).
+@export var provoca_tic_tac := false
 ## Moedas que deixa ao morrer.
 @export var moedas := 0
 ## Experiência que dá a quem o derrota (Experiencia). Lutar é opcional:
@@ -76,6 +84,13 @@ var _espera_caminho := 0.0
 var aviso_no_chao: AvisoNoChao
 ## Para onde vai o golpe que está preparando, no chão (fica fixo no aviso).
 var _direcao_golpe := Vector2.RIGHT
+## Golpe pelas costas: o leque dourado da área de verdade. Escondido; só o
+## Tic. Tac. mostra (null sem golpe pelas costas).
+var aviso_verdadeiro: AvisoNoChao
+## De onde sai o golpe pelas costas (atrás do jogador), ou INF sem ele.
+var origem_golpe := Vector2.INF
+var _direcao_verdadeira := Vector2.RIGHT
+
 
 
 func _ready() -> void:
@@ -190,6 +205,8 @@ func _physics_process(delta: float) -> void:
 			_tempo += delta
 			if aviso_no_chao:
 				aviso_no_chao.progresso = clampf(_tempo / preparo, 0.0, 1.0)
+			if aviso_verdadeiro:
+				aviso_verdadeiro.progresso = clampf(_tempo / preparo, 0.0, 1.0)
 			if _tempo >= preparo:
 				_golpear()
 		Estado.DESCANSANDO:
@@ -318,6 +335,8 @@ func outro_atacando() -> bool:
 
 ## O golpe que ele prepara agora pega quem está em [param ponto]?
 func golpe_pega(ponto: Vector2) -> bool:
+	if origem_golpe != Vector2.INF:
+		return AvisoNoChao.atinge(origem_golpe, _direcao_verdadeira, ponto, alcance_golpe, arco_golpe)
 	return AvisoNoChao.atinge(global_position, _direcao_golpe, ponto, alcance_golpe, arco_golpe)
 
 
@@ -325,6 +344,9 @@ func _tirar_aviso() -> void:
 	if aviso_no_chao:
 		aviso_no_chao.queue_free()
 		aviso_no_chao = null
+	if aviso_verdadeiro:
+		aviso_verdadeiro.queue_free()
+		aviso_verdadeiro = null
 
 
 func _preparar() -> void:
@@ -342,11 +364,39 @@ func _preparar() -> void:
 	aviso_no_chao.arco = arco_golpe
 	aviso_no_chao.direcao = _direcao_golpe
 	add_child(aviso_no_chao)
+	origem_golpe = Vector2.INF
+	if golpe_pelas_costas:
+		_preparar_golpe_pelas_costas()
 	if visual:
 		# Aviso: clareia e se ergue um pouco antes de bater.
 		_aviso = create_tween().set_process_mode(Tween.TWEEN_PROCESS_PHYSICS).set_parallel()
 		_aviso.tween_property(visual, "modulate", Color(1.5, 1.4, 1.2), preparo * 0.5)
 		_aviso.tween_property(visual, "position", _posicao_visual + Vector2(0, -3), preparo * 0.8)
+	comecou_a_preparar.emit()
+	if provoca_tic_tac:
+		TicTac.de(alvo).talvez(self)
+
+
+## Escolhe a casa atrás do jogador (a do outro lado, na mesma linha da grade) para o golpe pelas
+## costas e prepara o leque dourado, escondido. Sem casa livre, golpe normal.
+func _preparar_golpe_pelas_costas() -> void:
+	var casa_alvo := casa_de(alvo.global_position)
+	var passo := casa_alvo - casa_de(global_position)
+	var casa := casa_alvo + Vector2i(signi(passo.x), signi(passo.y))
+	if casa == casa_alvo or not casa_andavel(casa) or not GradeOcupacao.livre_para(casa, self):
+		return
+	origem_golpe = centro_da_casa(casa)
+	_direcao_verdadeira = AvisoNoChao.para_o_chao(alvo.global_position - origem_golpe).normalized()
+	aviso_verdadeiro = AvisoNoChao.new()
+	aviso_verdadeiro.name = "AvisoVerdadeiro"
+	aviso_verdadeiro.raio = alcance_golpe
+	aviso_verdadeiro.arco = arco_golpe
+	aviso_verdadeiro.direcao = _direcao_verdadeira
+	aviso_verdadeiro.cor = AvisoNoChao.COR_DOURADA
+	aviso_verdadeiro.visible = false
+	add_child(aviso_verdadeiro)
+	aviso_verdadeiro.top_level = true
+	aviso_verdadeiro.global_position = origem_golpe
 
 
 ## Levou o golpe forte (o terceiro do combo do Nicholas): se estava se
@@ -357,6 +407,7 @@ func interromper() -> void:
 	estado = Estado.DESCANSANDO
 	_tempo = 0.0
 	_tirar_aviso()
+	origem_golpe = Vector2.INF
 	if _aviso:
 		_aviso.kill()
 	if visual:
@@ -370,9 +421,24 @@ func _golpear() -> void:
 	golpeou.emit()
 	_tirar_aviso()
 	var direcao := AvisoNoChao.para_a_tela(_direcao_golpe).normalized()
+	var salto := Vector2.ZERO
+	if origem_golpe != Vector2.INF:
+		var casa := casa_de(origem_golpe)
+		if GradeOcupacao.livre_para(casa, self):
+			# Salta para trás do jogador: o corpo vai na hora, o desenho chega voando.
+			salto = global_position - origem_golpe
+			GradeOcupacao.liberar_tudo(self)
+			global_position = origem_golpe
+			GradeOcupacao.ocupar(casa, self)
+			direcao = AvisoNoChao.para_a_tela(_direcao_verdadeira).normalized()
+		else:
+			origem_golpe = Vector2.INF
 	if visual:
 		var bote := create_tween().set_process_mode(Tween.TWEEN_PROCESS_PHYSICS)
 		bote.tween_property(visual, "modulate", Color.WHITE, 0.0)
+		if salto != Vector2.ZERO:
+			visual.position = _posicao_visual + salto
+			bote.tween_property(visual, "position", _posicao_visual, 0.08)
 		bote.tween_property(visual, "position", _posicao_visual + direcao * 5.0, 0.06)
 		bote.tween_property(visual, "position", _posicao_visual, 0.15)
 		# Cansado: mais escuro por um instante, a hora de bater nele.
@@ -384,6 +450,7 @@ func _golpear() -> void:
 		var reacao_alvo := alvo.get_node_or_null("ReacaoAoGolpe") as ReacaoAoGolpe
 		if reacao_alvo:
 			reacao_alvo.receber_golpe(global_position.direction_to(alvo.global_position), int(_atributos.ataque))
+	origem_golpe = Vector2.INF
 
 
 ## O jogador está invulnerável (no começo da esquiva).

@@ -18,6 +18,12 @@ const ZOOM_PIXEL_ART := 2.0
 ## Rapidez com que o adiantamento acompanha (maior = mais rápido).
 @export var suavidade_adiantamento := 3.0
 
+## Adiantamento atual (sem o tremor).
+var _adiantamento_atual := Vector2.ZERO
+## Tremor em andamento: força em pixels e quanto falta.
+var _forca_tremor := 0.0
+var _tremor_restante := 0.0
+
 
 func _ready() -> void:
 	zoom = Vector2.ONE * ZOOM_PIXEL_ART
@@ -33,7 +39,24 @@ func _process(delta: float) -> void:
 	var dono := get_parent() as CharacterBody2D
 	if dono == null:
 		return
-	offset = offset.lerp(adiantamento_para(dono.velocity), 1.0 - exp(-suavidade_adiantamento * delta))
+	_adiantamento_atual = _adiantamento_atual.lerp(adiantamento_para(dono.velocity),
+		1.0 - exp(-suavidade_adiantamento * delta))
+	var tremor := Vector2.ZERO
+	if _tremor_restante > 0.0:
+		_tremor_restante -= delta
+		tremor = Vector2(randf_range(-1.0, 1.0), randf_range(-1.0, 1.0)) * _forca_tremor
+	offset = _adiantamento_atual + tremor
+
+
+## Treme a tela um instante (golpe forte): [param forca] em pixels da arte.
+func tremer(forca := 2.0, duracao := 0.1) -> void:
+	_forca_tremor = forca
+	_tremor_restante = duracao
+
+
+## Está tremendo agora.
+func tremendo() -> bool:
+	return _tremor_restante > 0.0
 
 
 ## Para onde a câmera se adianta com o personagem andando a [param velocidade]:

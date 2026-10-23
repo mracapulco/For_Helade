@@ -53,6 +53,8 @@ var _itens: Array[Item] = []
 var _atributos := {}
 var _tempo := 0.0
 var _posicao_visual := Vector2.ZERO
+## O aviso (clarear e se erguer) em andamento, para poder cortar.
+var _aviso: Tween
 ## Casa onde ele fica de guarda.
 var _posto := Vector2i.ZERO
 ## Centro da casa para onde está andando, ou INF parado num centro.
@@ -293,9 +295,23 @@ func _preparar() -> void:
 	velocity = Vector2.ZERO
 	if visual:
 		# Aviso: clareia e se ergue um pouco antes de bater.
-		var aviso := create_tween().set_process_mode(Tween.TWEEN_PROCESS_PHYSICS).set_parallel()
-		aviso.tween_property(visual, "modulate", Color(1.5, 1.4, 1.2), preparo * 0.5)
-		aviso.tween_property(visual, "position", _posicao_visual + Vector2(0, -3), preparo * 0.8)
+		_aviso = create_tween().set_process_mode(Tween.TWEEN_PROCESS_PHYSICS).set_parallel()
+		_aviso.tween_property(visual, "modulate", Color(1.5, 1.4, 1.2), preparo * 0.5)
+		_aviso.tween_property(visual, "position", _posicao_visual + Vector2(0, -3), preparo * 0.8)
+
+
+## Levou o golpe forte (o terceiro do combo do Nicholas): se estava se
+## preparando para bater, perde o golpe e descansa (Rafael, 23/10; P2).
+func interromper() -> void:
+	if estado != Estado.PREPARANDO:
+		return
+	estado = Estado.DESCANSANDO
+	_tempo = 0.0
+	if _aviso:
+		_aviso.kill()
+	if visual:
+		visual.modulate = Color.WHITE
+		visual.position = _posicao_visual
 
 
 func _golpear() -> void:

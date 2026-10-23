@@ -14,7 +14,13 @@ extends CharacterBody2D
 ## em casa com as teclas nas linhas do quadriculado, continua como opção
 ## ([member Configuracoes.movimento_em_grade], F3 alterna) para comparar.
 ## Golpe: com uma arma equipada, o clique esquerdo (ou o botão Golpe, no
-## celular) golpeia para onde ele olha. Sem arma, com um inimigo vivo
+## celular) golpeia para onde ele olha; no andar livre, o clique golpeia na
+## direção do cursor.
+## Golpe com peso (Rafael, 23/10; P2): até três golpes em combo, num arco de
+## [member arco_golpe] à frente; o clique feito um pouco antes de poder
+## golpear fica guardado ([member buffer_golpe]) e emenda o próximo golpe
+## logo depois do corte. Acertar dá uma pausa de impacto; o terceiro golpe
+## empurra mais, treme a tela e interrompe o aviso do inimigo. Sem arma, com um inimigo vivo
 ## por perto ([member raio_combate]), o mesmo clique dá um soco (ataque base). No PC o clique só golpeia e o Enter
 ## só interage (Rafael, 15/10): o clique nunca anda nem interage. Quem estiver
 ## perto, na frente dele, reage ao golpe (ReacaoAoGolpe) e perde vida se
@@ -76,6 +82,25 @@ const PASSOS: Array[Vector2i] = [
 ## Até onde o golpe pega, a partir dos pés dele, em pixels, quando a arma
 ## não tem alcance próprio.
 @export var alcance_golpe := 40.0
+## Arco do golpe à frente dele, em graus (no andar livre).
+@export var arco_golpe := 110.0
+## O golpe pega um pouco além do alcance da arma: o jogador sente que acerta.
+@export var folga_alcance := 1.15
+## Golpe seguinte dentro deste tempo depois do anterior continua o combo.
+@export var janela_combo := 0.35
+## Depois do corte, o tempo em que a lâmina ainda corta; passado ele, um
+## golpe guardado já emenda o próximo do combo.
+@export var tempo_ativo := 0.08
+## Um clique feito até este tempo antes de poder golpear não se perde.
+@export var buffer_golpe := 0.15
+## Pausa do jogo quando o golpe acerta (o "peso"), em segundos reais.
+@export var pausa_impacto := 0.05
+## Pausa maior no terceiro golpe do combo.
+@export var pausa_impacto_final := 0.1
+## Quanto ele avança no golpe, em pixels (até o corte).
+@export var avanco_golpe := 6.0
+## Quanto o terceiro golpe empurra mais que os outros.
+@export var empurrao_final := 2.5
 ## Sem arma, o clique dá soco quando há um inimigo vivo a esta distância.
 @export var raio_combate := 200.0
 ## Com [member grade], parado e em combate: apertar uma direção diferente da
@@ -97,6 +122,8 @@ const PASSOS: Array[Vector2i] = [
 var andando := false
 var pulando := false
 var golpeando := false
+## Qual golpe do combo está em andamento (1 a 3); 0 fora de combo.
+var golpe_no_combo := 0
 ## Para onde ele olha: a última direção em que andou (começa olhando para
 ## baixo e para a direita, como o desenho).
 var direcao_olhar := Vector2(2, 1).normalized()
@@ -120,6 +147,14 @@ var _pressa := 1.0
 ## guardada).
 var _passo_firme := false
 var _golpe_pendente := false
+## Há quanto tempo o golpe guardado foi pedido (< 0: nenhum guardado).
+var _golpe_guardado := -1.0
+## Direção pedida com o golpe guardado (ZERO: a das teclas ou a do olhar).
+var _mira_guardada := Vector2.ZERO
+## Há quanto tempo terminou o último golpe (para o combo).
+var _desde_o_golpe := INF
+## Pausas de impacto em andamento (uma pode começar antes da outra acabar).
+var _pausas_de_impacto := 0
 ## Quanto falta segurar a tecla, depois de virar, para começar a andar.
 var _espera_virar := 0.0
 ## Há quanto tempo ele não anda (sem passo em andamento).
@@ -183,7 +218,10 @@ func _unhandled_input(event: InputEvent) -> void:
 		tocar(tela_para_mundo(event.position))
 		get_viewport().set_input_as_handled()
 	elif event.is_action_pressed("golpear") and pode_golpear():
-		golpear()
+		var mira := Vector2.ZERO
+		if event is InputEventMouseButton and not anda_em_casas():
+			mira = get_global_mouse_position() - global_position
+		golpear(mira)
 		get_viewport().set_input_as_handled()
 	elif event.is_action_pressed("alternar_movimento"):
 		Configuracoes.definir("movimento_em_grade", not Configuracoes.movimento_em_grade)
@@ -342,12 +380,20 @@ func alcance_do_golpe() -> float:
 
 
 ## Golpe com a arma equipada (ou soco, sem arma, em combate), para onde ele
-## está olhando ([member direcao_olhar]). Para de andar. Devolve false se não
-## puder golpear agora (sem arma fora de combate, em conversa ou no meio de
-## outro golpe).
-func golpear() -> bool:
-	if em_dialogo or golpeando or not pode_golpear():
+## está olhando ([member direcao_olhar]) ou, no andar livre, para
+## [param mira] (o cursor) ou para as teclas apertadas. Para de andar. No
+## meio de um golpe (andar livre), fica guardado para emendar. Devolve false
+## se não puder golpear agora (sem arma fora de combate, em conversa ou, no
+## andar em casas, no meio de outro golpe).
+func golpear(mira := Vector2.ZERO) -> bool:
+	if em_dialogo or not pode_golpear():
 		return false
+	if golpeando:
+		if anda_em_casas():
+			return false
+		_golpe_guardado = 0.0
+		_mira_guardada = mira
+		return true
 	if indo_para_casa():
 		# Termina o passo antes, para golpear sempre do centro de uma casa,
 		# mas depressa: chega em no máximo [constant TEMPO_ATE_GOLPE].
@@ -355,13 +401,27 @@ func golpear() -> bool:
 		var falta := global_position.distance_to(_casa_destino)
 		_pressa = maxf(_pressa, falta / (velocidade_andando() * TEMPO_ATE_GOLPE))
 		return true
+	_comecar_golpe(mira)
+	return true
+
+
+func _comecar_golpe(mira: Vector2) -> void:
+	if not anda_em_casas():
+		var teclas := Input.get_vector("mover_esquerda", "mover_direita", "mover_frente", "mover_tras")
+		if mira.length() > 4.0:
+			direcao_olhar = mira.normalized()
+		elif teclas != Vector2.ZERO:
+			direcao_olhar = direcao_tela(teclas).normalized()
+	var continua := golpe_no_combo > 0 and golpe_no_combo < 3 and _desde_o_golpe <= janela_combo
+	golpe_no_combo = golpe_no_combo + 1 if continua else 1
+	_golpe_guardado = -1.0
+	_mira_guardada = Vector2.ZERO
 	golpeando = true
 	_tempo_golpe = 0.0
 	andando = false
 	alvo_interacao = null
 	velocity = Vector2.ZERO
 	golpeou.emit()
-	return true
 
 
 ## Quem o golpe pega agora. Na grade: quem está na casa da frente ou, com
@@ -384,20 +444,23 @@ func alvos_do_golpe() -> Array[ReacaoAoGolpe]:
 		var alvo := no as ReacaoAoGolpe
 		if alvo == null or is_ancestor_of(alvo):
 			continue
-		if pega_no_golpe(global_position, direcao_olhar, alvo.global_position, alcance_do_golpe()):
+		if pega_no_golpe(global_position, direcao_olhar, alvo.global_position,
+				alcance_do_golpe() * folga_alcance, arco_golpe):
 			alvos.append(alvo)
 	return alvos
 
 
 ## O golpe de quem está em [param origem], olhando para [param olhar], pega
-## quem está em [param alvo]? Perto o bastante e num leque à frente.
-static func pega_no_golpe(origem: Vector2, olhar: Vector2, alvo: Vector2, alcance: float) -> bool:
+## quem está em [param alvo]? Perto o bastante e num leque à frente de
+## [param arco] graus.
+static func pega_no_golpe(origem: Vector2, olhar: Vector2, alvo: Vector2, alcance: float,
+		arco := 90.0) -> bool:
 	var ate_alvo := alvo - origem
 	if ate_alvo.length() > alcance:
 		return false
 	if ate_alvo.length() < 1.0:
 		return true
-	return olhar.normalized().dot(ate_alvo.normalized()) >= 0.7
+	return olhar.normalized().dot(ate_alvo.normalized()) >= cos(deg_to_rad(arco / 2.0)) - 0.0001
 
 
 ## Quantas casas o golpe alcança na grade: 1 de perto; o arco, mais.
@@ -561,6 +624,9 @@ func _ao_terminar_dialogo(_recurso: DialogueResource) -> void:
 
 func _exit_tree() -> void:
 	GradeOcupacao.liberar_tudo(self)
+	if _pausas_de_impacto > 0:
+		_pausas_de_impacto = 0
+		Engine.time_scale = 1.0
 
 
 func _physics_process(delta: float) -> void:
@@ -573,6 +639,12 @@ func _physics_process(delta: float) -> void:
 		_tempo_parado += delta
 	_atualizar_pulo(delta)
 	_atualizar_golpe(delta)
+	if golpeando and not em_dialogo and not anda_em_casas() and _tempo_golpe < momento_do_corte / _ritmo:
+		# Avança um pouco até o corte: o golpe leva o corpo junto.
+		velocity = direcao_olhar * avanco_golpe / (momento_do_corte / _ritmo)
+		move_and_slide()
+		velocity = Vector2.ZERO
+		return
 	if em_dialogo or golpeando:
 		velocity = Vector2.ZERO
 		return
@@ -771,19 +843,67 @@ func _ajustar_passo(teclas: Vector2) -> void:
 
 
 func _atualizar_golpe(delta: float) -> void:
+	if _golpe_guardado >= 0.0:
+		_golpe_guardado += delta
 	if not golpeando:
+		_desde_o_golpe += delta
+		if _desde_o_golpe > janela_combo:
+			golpe_no_combo = 0
 		return
 	var antes := _tempo_golpe
 	_tempo_golpe += delta
 	var corte := momento_do_corte / _ritmo
 	if antes < corte and _tempo_golpe >= corte:
-		var alvos := alvos_do_golpe()
-		var forca := ataque()
-		for alvo in alvos:
-			alvo.receber_golpe(global_position.direction_to(alvo.global_position), forca)
-		acertou.emit(alvos)
-	if _tempo_golpe >= duracao_do_golpe():
-		golpeando = false
+		_cortar()
+	var pode_emendar := golpe_no_combo < 3 and _tempo_golpe >= corte + tempo_ativo
+	if pode_emendar or _tempo_golpe >= duracao_do_golpe():
+		# Vale o clique feito até [member buffer_golpe] antes deste momento
+		# (com folga de um quadro); um mais antigo se perde.
+		var guardado := _golpe_guardado >= 0.0 and _golpe_guardado <= buffer_golpe + 0.02
+		if not guardado and _golpe_guardado > buffer_golpe + 0.02:
+			_golpe_guardado = -1.0
+		if guardado or _tempo_golpe >= duracao_do_golpe():
+			golpeando = false
+			_desde_o_golpe = 0.0
+			if guardado and not em_dialogo:
+				_comecar_golpe(_mira_guardada)
+
+
+## O quadro do corte: quem está no arco leva o golpe.
+func _cortar() -> void:
+	var alvos := alvos_do_golpe()
+	var forca := ataque()
+	var final := golpe_no_combo >= 3
+	for alvo in alvos:
+		alvo.receber_golpe(global_position.direction_to(alvo.global_position), forca,
+			empurrao_final if final else 1.0)
+		var inimigo := alvo.get_parent() as Inimigo
+		if final and inimigo:
+			inimigo.interromper()
+	if not alvos.is_empty():
+		pausar_no_impacto(pausa_impacto_final if final else pausa_impacto)
+		var camera := get_node_or_null("Camera") as CameraExploracao
+		if final and camera:
+			camera.tremer()
+	acertou.emit(alvos)
+
+
+## Pausa curta do jogo todo quando um golpe acerta: dá peso ao golpe.
+func pausar_no_impacto(duracao: float) -> void:
+	if duracao <= 0.0 or not is_inside_tree():
+		return
+	_pausas_de_impacto += 1
+	Engine.time_scale = 0.05
+	await get_tree().create_timer(duracao, true, false, true).timeout
+	_pausas_de_impacto -= 1
+	if _pausas_de_impacto <= 0:
+		_pausas_de_impacto = 0
+		Engine.time_scale = 1.0
+
+
+## Está na pausa de impacto agora.
+func em_pausa_de_impacto() -> bool:
+	return _pausas_de_impacto > 0
 
 
 func _atualizar_pulo(delta: float) -> void:
@@ -881,6 +1001,8 @@ func definir_ponto_de_entrada(ponto: Vector2) -> void:
 
 func _ao_ser_derrotado() -> void:
 	golpeando = false
+	golpe_no_combo = 0
+	_golpe_guardado = -1.0
 	andando = false
 	pulando = false
 	alvo_interacao = null

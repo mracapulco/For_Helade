@@ -67,7 +67,8 @@ func test_golpe_sai_para_onde_ele_andou_e_para_de_andar() -> void:
 	assert_eq(visual.animation, esperado)
 
 
-func test_clique_nao_muda_a_direcao_do_golpe() -> void:
+func test_no_andar_em_casas_o_clique_nao_muda_a_direcao_do_golpe() -> void:
+	Configuracoes.movimento_em_grade = true
 	_armar()
 	var antes := personagem.direcao_olhar
 	var clique := InputEventMouseButton.new()
@@ -75,8 +76,21 @@ func test_clique_nao_muda_a_direcao_do_golpe() -> void:
 	clique.pressed = true
 	clique.position = Vector2(5, 5)
 	personagem._unhandled_input(clique)
+	Configuracoes.movimento_em_grade = false
 	assert_true(personagem.golpeando)
 	assert_eq(personagem.direcao_olhar, antes)
+
+
+func test_no_andar_livre_o_clique_golpeia_na_direcao_do_cursor() -> void:
+	# Rafael, 23/10 (P2): no andar livre o golpe sai para o cursor.
+	_armar()
+	var clique := InputEventMouseButton.new()
+	clique.button_index = MOUSE_BUTTON_LEFT
+	clique.pressed = true
+	personagem._unhandled_input(clique)
+	assert_true(personagem.golpeando)
+	var para_o_cursor := (personagem.get_global_mouse_position() - personagem.global_position).normalized()
+	assert_almost_eq(personagem.direcao_olhar, para_o_cursor, Vector2(0.001, 0.001))
 
 
 func test_golpe_pega_quem_esta_perto_e_na_frente() -> void:

@@ -2,14 +2,16 @@ class_name BlocosDaSala
 extends Node
 ## Caixas e degraus numa sala de grade (sala lateral da loja de pelúcias;
 ## regra do jogo, não do livro: Rafael, 21/10/2026).
-## - Segurando E de frente para um bloco móvel (numa das quatro direções da
-##   grade, a casa marcada no chão), Nicholas o agarra. Andando para a frente
-##   empurra, para trás puxa: uma casa por passo, os dois juntos. Para os
-##   lados não anda. Soltando E, larga.
-## - Cada bloco tem uma altura (1 = banquinho, 2 = caixa...). Com o pulo,
-##   Nicholas sobe num bloco à frente que seja um degrau acima de onde está;
-##   em cima, anda para blocos da mesma altura e desce andando para os mais
-##   baixos ou para o chão. Bloco com altura 0 não se sobe (caixote alto).
+## Nicholas anda livre pela tela; os blocos ficam nas casas do chão.
+## - Segurando o clique esquerdo perto de um bloco móvel e virado para ele
+##   (Rafael, 23/10), Nicholas o agarra: encaixa no lado do bloco mais perto
+##   dele. Andando na direção do bloco empurra, na contrária puxa: uma casa
+##   por passo, os dois juntos. Para os lados não anda. Soltando, larga.
+## - Cada bloco tem uma altura (1 = banquinho, 2 = caixa...). Com o Espaço,
+##   Nicholas sobe no bloco perto à frente que seja um degrau acima de onde
+##   está; em cima, as teclas levam à casa vizinha mais na direção delas:
+##   blocos da mesma altura, mais baixos ou o chão livre. Bloco com altura 0
+##   não se sobe (caixote alto).
 ## Enquanto segura ou está em cima, este nó move o jogador
 ## ([member PersonagemExploracao.controlado]).
 ## Sons: assets/audio/sfx/capitulo_01 (agarrar, arrastar, subir, descer).
@@ -23,6 +25,12 @@ const BARRAMENTO := &"Efeitos"
 const TEMPO_ARRASTAR := 0.55
 const TEMPO_ANDAR_EM_CIMA := 0.32
 const TEMPO_PULO := 0.35
+## Até onde (pixels, dos pés ao centro do bloco) ele alcança um bloco.
+const ALCANCE := 46.0
+## Quanto o bloco precisa estar na frente dele (produto escalar com o olhar).
+const NA_FRENTE := 0.35
+## Quanto as teclas precisam apontar para o bloco agarrado para empurrar.
+const NA_DIRECAO := 0.35
 ## Folga em y para Nicholas ser desenhado depois do bloco onde pisa.
 const ACIMA_DO_BLOCO := Vector2(0, 1)
 const COR_MARCA := Color(0.95, 0.8, 0.4, 0.9)
@@ -34,7 +42,12 @@ var jogador: PersonagemExploracao
 ## pessoas, bordas). Recebe a casa.
 var casa_livre_no_chao: Callable
 ## Liga e desliga o controle (fora do jogo das caixas, nada acontece).
-var ativo := false
+## Ligado, o clique esquerdo agarra em vez de golpear.
+var ativo := false:
+	set(valor):
+		ativo = valor
+		if jogador and is_instance_valid(jogador):
+			jogador.sem_golpe = valor
 ## Multiplica a duração dos passos (0 nos testes: tudo na hora).
 var escala_tempo := 1.0
 ## Os blocos: nome -> {"no": Node2D, "altura": int, "topo": float (pixels),
@@ -95,11 +108,28 @@ func bloco_em(casa: Vector2i) -> String:
 	return ""
 
 
-## A casa vizinha para onde ele olha, se for uma das quatro direções da
-## grade; senão, ZERO.
+## A casa vizinha para onde ele olha (uma das oito).
 func passo_da_frente() -> Vector2i:
-	var passo := jogador.passo_do_olhar()
-	return passo if absi(passo.x) + absi(passo.y) == 1 else Vector2i.ZERO
+	return jogador.passo_do_olhar()
+
+
+## O bloco mais perto ao alcance e na frente dele (que passe no filtro, se
+## houver), ou "".
+func bloco_perto(filtro := Callable()) -> String:
+	var melhor := ""
+	var menor := INF
+	for nome: String in blocos:
+		var no: Node2D = blocos[nome]["no"]
+		var ate := no.position - jogador.position
+		var distancia := ate.length()
+		if distancia > ALCANCE or (filtro.is_valid() and not filtro.call(nome)):
+			continue
+		if distancia > 1.0 and ate.normalized().dot(jogador.direcao_olhar) < NA_FRENTE:
+			continue
+		if distancia < menor:
+			menor = distancia
+			melhor = nome
+	return melhor
 
 
 ## Põe Nicholas de volta no chão nesta casa (Ophelia arrumando, fim do jogo).
@@ -120,37 +150,70 @@ func _physics_process(_delta: float) -> void:
 	if _ocupado:
 		return
 	var teclas := Input.get_vector("mover_esquerda", "mover_direita", "mover_frente", "mover_tras")
-	var passo := PersonagemExploracao.passo_na_grade(teclas)
-	if absi(passo.x) + absi(passo.y) != 1:
-		passo = Vector2i.ZERO
 	if segurando != "":
-		if not Input.is_action_pressed("interagir"):
+		if not Input.is_action_pressed("golpear"):
 			soltar()
-		elif passo != Vector2i.ZERO:
-			arrastar(passo)
+		elif teclas != Vector2.ZERO:
+			var no: Node2D = blocos[segurando]["no"]
+			var eixo := (no.position - jogador.position).normalized()
+			var nota := teclas.normalized().dot(eixo)
+			var frente := casa_do_bloco(segurando) - _casa(jogador.position)
+			if nota >= NA_DIRECAO:
+				arrastar(frente)
+			elif nota <= -NA_DIRECAO:
+				arrastar(-frente)
 		return
-	if Input.is_action_just_pressed("pular"):
+	if Input.is_action_just_pressed("pular") or Input.is_action_just_pressed("esquivar"):
 		subir()
 		return
 	if altura > 0:
-		if passo != Vector2i.ZERO:
-			andar_em_cima(passo)
+		if teclas != Vector2.ZERO:
+			andar_em_cima(_passo_das_teclas(teclas))
 		return
-	if Input.is_action_pressed("interagir") and not jogador.indo_para_casa():
+	if Input.is_action_pressed("golpear"):
 		agarrar()
 
 
-## Agarra o bloco móvel da frente (no chão). Devolve se agarrou.
+## A casa vizinha (das oito) mais na direção das teclas, na tela.
+func _passo_das_teclas(teclas: Vector2) -> Vector2i:
+	var aqui := _casa(jogador.position)
+	var melhor := Vector2i.ZERO
+	var maior := -INF
+	for passo in PersonagemExploracao.PASSOS:
+		var nota := (sala.centro(aqui + passo) - sala.centro(aqui)).normalized().dot(teclas.normalized())
+		if nota > maior:
+			maior = nota
+			melhor = passo
+	return melhor
+
+
+## Agarra o bloco móvel perto à frente (no chão), encaixando Nicholas no
+## lado livre do bloco mais perto dele. Devolve se agarrou.
 func agarrar() -> bool:
-	var frente := passo_da_frente()
-	if altura > 0 or frente == Vector2i.ZERO:
+	if altura > 0 or segurando != "":
 		return false
-	var nome := bloco_em(_casa(jogador.position) + frente)
-	if nome == "" or not blocos[nome]["movel"]:
+	var nome := bloco_perto(func(n: String) -> bool: return blocos[n]["movel"])
+	if nome == "":
+		return false
+	var bloco := casa_do_bloco(nome)
+	var lado := Vector2i.MAX
+	var menor := INF
+	var aqui := _casa(jogador.position)
+	for passo: Vector2i in [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1)]:
+		var casa := bloco + passo
+		if casa != aqui and not _chao_livre(casa):
+			continue
+		var distancia := sala.centro(casa).distance_to(jogador.position)
+		if distancia < menor:
+			menor = distancia
+			lado = casa
+	if lado == Vector2i.MAX:
 		return false
 	segurando = nome
 	jogador.controlado = true
-	jogador.position = sala.centro(_casa(jogador.position))
+	jogador.velocity = Vector2.ZERO
+	jogador.position = sala.centro(lado)
+	jogador.direcao_olhar = (sala.centro(bloco) - sala.centro(lado)).normalized()
 	_animar("segurando")
 	_sons["agarrar"].play()
 	return true
@@ -166,8 +229,10 @@ func soltar() -> void:
 
 ## Segurando: [param passo] igual à frente empurra, o contrário puxa.
 func arrastar(passo: Vector2i) -> void:
-	var frente := passo_da_frente()
-	if segurando == "" or (passo != frente and passo != -frente):
+	if segurando == "" or _ocupado:
+		return
+	var frente := casa_do_bloco(segurando) - _casa(jogador.position)
+	if passo != frente and passo != -frente:
 		return
 	var no: Node2D = blocos[segurando]["no"]
 	var casa_bloco := _casa(no.position)
@@ -189,13 +254,16 @@ func arrastar(passo: Vector2i) -> void:
 
 ## Pula para o bloco da frente, se for um degrau acima.
 func subir() -> bool:
-	var frente := passo_da_frente()
-	if segurando != "" or frente == Vector2i.ZERO or _ocupado:
+	if segurando != "" or _ocupado:
 		return false
-	var destino := _casa(jogador.position) + frente
-	var nome := bloco_em(destino)
+	var nome := ""
+	if altura == 0:
+		nome = bloco_perto(func(n: String) -> bool: return blocos[n]["altura"] == 1)
+	else:
+		nome = bloco_em(_casa(jogador.position) + passo_da_frente())
 	if nome == "" or blocos[nome]["altura"] != altura + 1:
 		return false
+	var destino := casa_do_bloco(nome)
 	_ocupado = true
 	jogador.controlado = true
 	jogador.pular()
@@ -282,23 +350,26 @@ func _casa(ponto: Vector2) -> Vector2i:
 	return jogador.casa_de(ponto)
 
 
-## A casa da frente marcada no chão: dourada onde dá para agarrar,
+## O bloco ao alcance marcado no chão: dourado onde dá para agarrar,
 ## azul onde dá para subir.
 func _atualizar_marca() -> void:
 	if _marca == null or not is_instance_valid(_marca):
 		return
-	var frente := passo_da_frente()
 	var cor := Color.TRANSPARENT
-	if frente != Vector2i.ZERO and not jogador.indo_para_casa():
-		var casa := _casa(jogador.position) + frente
-		var nome := bloco_em(casa)
-		if segurando != "":
-			cor = COR_MARCA
-		elif nome != "" and int(blocos[nome]["altura"]) == altura + 1:
+	var nome := segurando
+	if nome != "":
+		cor = COR_MARCA
+	elif altura == 0:
+		nome = bloco_perto(func(n: String) -> bool: return blocos[n]["altura"] == 1 or blocos[n]["movel"])
+		if nome != "":
+			cor = COR_MARCA_SUBIR if blocos[nome]["altura"] == 1 else COR_MARCA
+	else:
+		nome = bloco_em(_casa(jogador.position) + passo_da_frente())
+		if nome != "" and int(blocos[nome]["altura"]) == altura + 1:
 			cor = COR_MARCA_SUBIR
-		elif nome != "" and altura == 0 and blocos[nome]["movel"]:
-			cor = COR_MARCA
-		if cor != Color.TRANSPARENT:
-			_marca.position = sala.centro(casa)
+		else:
+			nome = ""
+	if nome != "":
+		_marca.position = sala.centro(casa_do_bloco(nome))
 	_marca.default_color = cor
 	_marca.visible = cor != Color.TRANSPARENT

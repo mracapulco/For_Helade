@@ -120,8 +120,12 @@ const BLOCOS := {
 }
 ## A altura do degrau de onde Nicholas alcança o alto da estante.
 const ALTURA_PARA_ALCANCAR := 2
-## Distância (em casas) até o esconderijo para achar, "quente" e "morno".
+## Distância (em casas) até o esconderijo para "quente" e "morno" (o x
+## ficou sem uso: achar é pelo [constant ACHAR_A]).
 const CALOR := Vector3(1.5, 2.5, 4.5)
+## Até onde (pixels, dos pés ao meio do esconderijo) Nicholas acha a pelúcia:
+## encostado nele (Rafael, 23/10: achava ainda um pouco longe).
+const ACHAR_A := 40.0
 const CASA_ENTRADA_SALA_LATERAL := Vector2i(2, 1)
 ## Onde cada uma se agacha, entre as prateleiras baixas.
 const CASA_ALTHEA_AGACHADA := Vector2i(5, 1)
@@ -735,7 +739,8 @@ func _sala_lateral_quadro(_delta: float) -> void:
 	var nome: String = PISTAS[achados][0]
 	var distancia := Vector2(_casa_de(jogador) - ESCONDERIJOS[nome][0]).length()
 	_atualizar_calor(distancia)
-	if distancia > CALOR.x or blocos.altura > 0 or blocos.segurando != "":
+	var perto := jogador.position.distance_to(sala.centro(ESCONDERIJOS[nome][0])) <= ACHAR_A
+	if not perto or blocos.altura > 0 or blocos.segurando != "":
 		return
 	if nome != "estante_alta":
 		procurar(nome)
@@ -752,7 +757,7 @@ func _ao_mover_na_escada(casa: Vector2i, altura: int) -> void:
 
 func _alcanca_a_estante(casa: Vector2i, altura: int) -> bool:
 	var estante: Vector2i = ESCONDERIJOS["estante_alta"][0]
-	return altura >= ALTURA_PARA_ALCANCAR and absi(casa.x - estante.x) + absi(casa.y - estante.y) == 1
+	return altura >= ALTURA_PARA_ALCANCAR and maxi(absi(casa.x - estante.x), absi(casa.y - estante.y)) == 1
 
 
 ## Thea esquenta ou esfria conforme Nicholas chega perto; quente, ela se

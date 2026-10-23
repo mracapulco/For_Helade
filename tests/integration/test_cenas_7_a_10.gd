@@ -141,6 +141,16 @@ func test_butiques_da_rua_a_loja_e_ao_restaurante() -> void:
 	await butiques.procurar("estante_alta")
 	assert_eq(butiques.achados, 2, "do chão não alcança")
 	var blocos := butiques.blocos
+	assert_true(cena.jogador.sem_golpe, "o clique esquerdo agarra, não golpeia")
+	# Fora do centro da casa, perto e de frente: agarra e encaixa no lado.
+	_olhar(Vector2i(4, 3), Vector2i(5, 3))
+	cena.jogador.position += Vector2(6, -3)
+	assert_true(blocos.agarrar())
+	assert_eq(cena.jogador.position, cena.sala.centro(Vector2i(4, 3)), "encaixou no lado do banquinho")
+	blocos.soltar()
+	# Longe demais, não.
+	_olhar(Vector2i(2, 3), Vector2i(5, 3))
+	assert_false(blocos.agarrar())
 	# O banquinho para no caixote pesado; a Ophelia põe tudo de volta.
 	_olhar(Vector2i(4, 3), Vector2i(5, 3))
 	assert_true(blocos.agarrar())
@@ -170,6 +180,9 @@ func test_butiques_da_rua_a_loja_e_ao_restaurante() -> void:
 		await blocos.arrastar(Vector2i(0, -1))
 	assert_eq(blocos.casa_do_bloco("caixa"), Vector2i(9, 2), "até a estante")
 	blocos.soltar()
+	# Do chão, a caixa é alta demais.
+	_olhar(Vector2i(9, 3), Vector2i(9, 2))
+	assert_false(await blocos.subir(), "dois degraus de uma vez, não")
 	# Banquinho para cima e para a direita, até encostar na caixa.
 	_olhar(Vector2i(5, 4), Vector2i(5, 3))
 	blocos.agarrar()
@@ -181,9 +194,7 @@ func test_butiques_da_rua_a_loja_e_ao_restaurante() -> void:
 		await blocos.arrastar(Vector2i(1, 0))
 	assert_eq(blocos.casa_do_bloco("banquinho"), Vector2i(8, 2))
 	blocos.soltar()
-	# Do chão, a caixa é alta demais; o banquinho, não. Depois a caixa.
-	_olhar(Vector2i(9, 3), Vector2i(9, 2))
-	assert_false(await blocos.subir(), "dois degraus de uma vez, não")
+	# O banquinho, sim (perto e na frente). Depois a caixa.
 	_olhar(Vector2i(8, 3), Vector2i(8, 2))
 	assert_true(await blocos.subir())
 	assert_eq(blocos.altura, 1)

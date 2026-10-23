@@ -363,6 +363,16 @@ func esquivar() -> bool:
 	return true
 
 
+## Quanto da esquiva já passou, de 0 a 1 (-1 fora da esquiva). Usado pelo desenho.
+func progresso_esquiva() -> float:
+	return clampf(_tempo_esquiva / duracao_esquiva, 0.0, 1.0) if esquivando else -1.0
+
+
+## Para que lado da tela vai a esquiva (vale para o desenho rolar para esse lado).
+func rumo_esquiva() -> Vector2:
+	return _rumo_esquiva
+
+
 ## Nenhum golpe pega agora (o começo da esquiva).
 func invulneravel() -> bool:
 	return esquivando and _tempo_esquiva < tempo_invulneravel

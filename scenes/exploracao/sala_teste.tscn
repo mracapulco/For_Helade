@@ -41,6 +41,7 @@
 [ext_resource type="Script" path="res://scripts/ui/barra_rapida.gd" id="90_barra"]
 [ext_resource type="Script" path="res://scripts/exploracao/paredes_translucidas.gd" id="91_paredes"]
 
+[ext_resource type="PackedScene" path="res://scenes/ui/tela_codice.tscn" id="90_codice"]
 [sub_resource type="CircleShape2D" id="CircleShape2D_pn2jv"]
 radius = 7.0
 
@@ -565,3 +566,5 @@ script = ExtResource("90_barra")
 script = ExtResource("35_hud_vida")
 vida = NodePath("../Personagem/Vida")
 efeitos = NodePath("../Personagem/Efeitos")
+
+[node name="TelaCodice" parent="." instance=ExtResource("90_codice")]

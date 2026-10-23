@@ -30,6 +30,7 @@
 [ext_resource type="Resource" path="res://data/dialogos/teste/exploracao.dialogue" id="28_tgmbn"]
 [ext_resource type="Texture2D" path="res://assets/art/placeholders/biblioteca/mesa_xadrez.png" id="29_ptoud"]
 
+[ext_resource type="PackedScene" path="res://scenes/ui/tela_codice.tscn" id="90_codice"]
 [sub_resource type="CircleShape2D" id="CircleShape2D_pn2jv"]
 radius = 7.0
 
@@ -248,3 +249,5 @@ marcador = "mesa_de_xadrez"
 [node name="AreaDeToque" type="CollisionShape2D" parent="MesaDeXadrez/Interagivel" unique_id=49706198]
 position = Vector2(0, -12)
 shape = SubResource("CircleShape2D_toque")
+
+[node name="TelaCodice" parent="." instance=ExtResource("90_codice")]

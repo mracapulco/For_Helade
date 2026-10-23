@@ -183,3 +183,18 @@ func test_paredes_mudam_quando_ele_passa_atras() -> void:
 	personagem.global_position = centro + Vector2(0, 60)
 	await wait_process_frames(2)
 	assert_false(paredes.translucida(bloco))
+
+
+func test_bloco_volta_a_ficar_opaco_quando_ele_sai() -> void:
+	# Rafael, 23/10: alguns blocos ficavam translúcidos depois que ele saía.
+	var paredes: ParedesTranslucidas = sala.get_node("Obstaculos")
+	var bloco := paredes.get_used_cells()[0]
+	var centro := paredes.to_global(paredes.map_to_local(bloco))
+	personagem.global_position = centro + Vector2(0, -20)
+	await wait_process_frames(2)
+	personagem.global_position = centro + Vector2(0, 60)
+	await wait_process_frames(2)
+	assert_true(paredes._use_tile_data_runtime_update(bloco), "continua sendo atualizado, para voltar ao normal")
+	var dados := TileData.new()
+	paredes._tile_data_runtime_update(bloco, dados)
+	assert_eq(dados.modulate.a, 1.0, "opaco de novo")

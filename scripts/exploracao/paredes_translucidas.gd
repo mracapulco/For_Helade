@@ -14,6 +14,11 @@ extends TileMapLayer
 
 ## Casas translúcidas agora (Vector2i → true).
 var _translucidas := {}
+## Casas que já ficaram translúcidas alguma vez (Vector2i → true). Elas
+## continuam passando pela atualização em tempo real, com opacidade cheia
+## quando ele sai: se deixassem de passar, o Godot manteria o desenho
+## translúcido antigo (Rafael, 23/10: alguns blocos ficavam translúcidos).
+var _tocadas := {}
 
 
 func _process(_delta: float) -> void:
@@ -24,6 +29,7 @@ func _process(_delta: float) -> void:
 			novas[casa] = true
 	if novas != _translucidas:
 		_translucidas = novas
+		_tocadas.merge(novas)
 		notify_runtime_tile_data_update()
 
 
@@ -66,8 +72,8 @@ func retangulo_do_bloco(casa: Vector2i) -> Rect2:
 
 
 func _use_tile_data_runtime_update(coords: Vector2i) -> bool:
-	return _translucidas.has(coords)
+	return _tocadas.has(coords)
 
 
-func _tile_data_runtime_update(_coords: Vector2i, tile_data: TileData) -> void:
-	tile_data.modulate.a = opacidade
+func _tile_data_runtime_update(coords: Vector2i, tile_data: TileData) -> void:
+	tile_data.modulate.a = opacidade if _translucidas.has(coords) else 1.0

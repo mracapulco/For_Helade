@@ -6,12 +6,15 @@ var personagem: PersonagemExploracao
 
 
 func before_each() -> void:
+	# Testes do andar antigo, de casa em casa (opção F3 desde 23/10).
+	Configuracoes.movimento_em_grade = true
 	sala = add_child_autofree(load("res://scenes/exploracao/sala_teste.tscn").instantiate())
 	personagem = sala.get_node("Personagem")
 	await wait_physics_frames(3)
 
 
 func after_each() -> void:
+	Configuracoes.movimento_em_grade = false
 	for acao in ["mover_frente", "mover_tras", "mover_esquerda", "mover_direita", "correr"]:
 		Input.action_release(acao)
 

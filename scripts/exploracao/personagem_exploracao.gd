@@ -5,10 +5,26 @@ extends CharacterBody2D
 ## terá outro controle depois). Clicar ou tocar num interagível ao alcance
 ## interage com ele. Mouse e toque passam pelo mesmo caminho (o projeto emula
 ## toque com o mouse).
-## Teclado (PC): WASD ou setas para andar, Shift para correr, Espaço para pular,
-## E para interagir com o interagível mais próximo ao alcance.
+## Teclado (PC): WASD ou setas para andar, Shift para correr, Espaço para
+## esquivar (no andar em casas, pular), E para interagir com o interagível
+## mais próximo ao alcance.
+## Esquiva (Rafael, 23/10; P3): um rolamento curto para as teclas apertadas
+## (ou para onde olha), invulnerável no começo, com [member cargas_esquiva]
+## cargas que voltam com o tempo. Corta o golpe em andamento.
+## Movimento livre pela tela (Rafael, 23/10; planos/jogabilidade-isometrica.md,
+## P1): W sobe, S desce, A vai para a esquerda e D para a direita na tela, em
+## qualquer ângulo, como em Hades, Diablo e Tunic. Acelera e freia rápido
+## ([member tempo_acelerar], [member tempo_frear]). O andar antigo, de casa
+## em casa com as teclas nas linhas do quadriculado, continua como opção
+## ([member Configuracoes.movimento_em_grade], F3 alterna) para comparar.
 ## Golpe: com uma arma equipada, o clique esquerdo (ou o botão Golpe, no
-## celular) golpeia para onde ele olha. Sem arma, com um inimigo vivo
+## celular) golpeia para onde ele olha; no andar livre, o clique golpeia na
+## direção do cursor.
+## Golpe com peso (Rafael, 23/10; P2): até três golpes em combo, num arco de
+## [member arco_golpe] à frente; o clique feito um pouco antes de poder
+## golpear fica guardado ([member buffer_golpe]) e emenda o próximo golpe
+## logo depois do corte. Acertar dá uma pausa de impacto; o terceiro golpe
+## empurra mais, treme a tela e interrompe o aviso do inimigo. Sem arma, com um inimigo vivo
 ## por perto ([member raio_combate]), o mesmo clique dá um soco (ataque base). No PC o clique só golpeia e o Enter
 ## só interage (Rafael, 15/10): o clique nunca anda nem interage. Quem estiver
 ## perto, na frente dele, reage ao golpe (ReacaoAoGolpe) e perde vida se
@@ -20,12 +36,11 @@ extends CharacterBody2D
 ## na cena, com a vida cheia, sem perder nada.
 ## Tocar num Interagivel: anda até ele e interage ao chegar.
 ## Durante uma conversa o personagem fica parado e ignora toques e teclas.
-## Na grade, cada casa tem um personagem só (GradeOcupacao): ele não entra
-## na casa de um inimigo, e o golpe pega só quem está na casa da frente (a
-## flecha, o primeiro da linha).
-## Com uma [member grade], ele anda de casa em casa do chão e sempre para no
-## centro de uma casa, pelo teclado ou pelo toque; assim fica claro quando
-## está alinhado com alguém.
+## Com uma [member grade], ele ocupa a casa onde está (GradeOcupacao), para
+## o modo antigo em casas (os inimigos andam livres desde 23/10).
+## No andar antigo (em casas), ele anda de casa em casa do chão e sempre para
+## no centro de uma casa; não entra na casa de um inimigo, e o golpe pega só
+## quem está na casa da frente (a flecha, o primeiro da linha).
 
 signal destino_definido(destino: Vector2)
 signal chegou
@@ -35,6 +50,8 @@ signal golpeou
 signal acertou(alvos: Array[ReacaoAoGolpe])
 ## A vida chegou a zero; ele já voltou ao ponto de entrada.
 signal derrotado
+## Começou uma esquiva.
+signal esquivou
 
 ## As 8 casas vizinhas, no sistema de casas do chão.
 const PASSOS: Array[Vector2i] = [
@@ -48,8 +65,17 @@ const PASSOS: Array[Vector2i] = [
 @export var velocidade := 120.0
 ## Quanto mais rápido fica ao correr.
 @export var multiplicador_corrida := 1.5
-## Camada do chão cujas casas o movimento segue. Sem ela, anda livre.
+## Camada do chão da sala: as casas que ele ocupa e, no andar antigo, as
+## casas que o movimento segue. Sem ela, anda sempre livre.
 @export var grade: TileMapLayer
+## Tempo para ir de parado à velocidade toda (movimento livre).
+@export var tempo_acelerar := 0.06
+## Tempo para ir da velocidade toda a parado ao soltar as teclas.
+@export var tempo_frear := 0.08
+## Quanto da velocidade vale subindo ou descendo na tela (1 = igual à
+## horizontal). No isométrico, meia casa na vertical da tela é uma casa do
+## chão inteira: com 1, subir pareceria o dobro de rápido.
+@export var fator_vertical := 0.7
 @export var altura_pulo := 20.0
 @export var duracao_pulo := 0.45
 ## Id do personagem no Inventario, para saber se está armado.
@@ -62,6 +88,35 @@ const PASSOS: Array[Vector2i] = [
 ## Até onde o golpe pega, a partir dos pés dele, em pixels, quando a arma
 ## não tem alcance próprio.
 @export var alcance_golpe := 40.0
+## Arco do golpe à frente dele, em graus (no andar livre).
+@export var arco_golpe := 110.0
+## O golpe pega um pouco além do alcance da arma: o jogador sente que acerta.
+@export var folga_alcance := 1.15
+## Golpe seguinte dentro deste tempo depois do anterior continua o combo.
+@export var janela_combo := 0.35
+## Depois do corte, o tempo em que a lâmina ainda corta; passado ele, um
+## golpe guardado já emenda o próximo do combo.
+@export var tempo_ativo := 0.08
+## Um clique feito até este tempo antes de poder golpear não se perde.
+@export var buffer_golpe := 0.15
+## Pausa do jogo quando o golpe acerta (o "peso"), em segundos reais.
+@export var pausa_impacto := 0.05
+## Pausa maior no terceiro golpe do combo.
+@export var pausa_impacto_final := 0.1
+## Quanto ele avança no golpe, em pixels (até o corte).
+@export var avanco_golpe := 6.0
+## Quanto o terceiro golpe empurra mais que os outros.
+@export var empurrao_final := 2.5
+## Quanto dura a esquiva.
+@export var duracao_esquiva := 0.25
+## Quanto a esquiva leva, em pixels (na horizontal da tela).
+@export var distancia_esquiva := 56.0
+## Começo da esquiva em que nenhum golpe pega.
+@export var tempo_invulneravel := 0.18
+## Esquivas seguidas antes de precisar esperar.
+@export var cargas_esquiva := 2
+## Tempo para uma carga de esquiva voltar.
+@export var recarga_esquiva := 0.8
 ## Sem arma, o clique dá soco quando há um inimigo vivo a esta distância.
 @export var raio_combate := 200.0
 ## Com [member grade], parado e em combate: apertar uma direção diferente da
@@ -83,6 +138,11 @@ const PASSOS: Array[Vector2i] = [
 var andando := false
 var pulando := false
 var golpeando := false
+## Qual golpe do combo está em andamento (1 a 3); 0 fora de combo.
+var golpe_no_combo := 0
+var esquivando := false
+## Cargas de esquiva prontas agora.
+var cargas := 2
 ## Para onde ele olha: a última direção em que andou (começa olhando para
 ## baixo e para a direita, como o desenho).
 var direcao_olhar := Vector2(2, 1).normalized()
@@ -106,6 +166,18 @@ var _pressa := 1.0
 ## guardada).
 var _passo_firme := false
 var _golpe_pendente := false
+## Há quanto tempo o golpe guardado foi pedido (< 0: nenhum guardado).
+var _golpe_guardado := -1.0
+## Direção pedida com o golpe guardado (ZERO: a das teclas ou a do olhar).
+var _mira_guardada := Vector2.ZERO
+## Há quanto tempo terminou o último golpe (para o combo).
+var _desde_o_golpe := INF
+var _tempo_esquiva := 0.0
+var _rumo_esquiva := Vector2.ZERO
+## Quanto já recarregou da próxima carga de esquiva.
+var _recarga := 0.0
+## Pausas de impacto em andamento (uma pode começar antes da outra acabar).
+var _pausas_de_impacto := 0
 ## Quanto falta segurar a tecla, depois de virar, para começar a andar.
 var _espera_virar := 0.0
 ## Há quanto tempo ele não anda (sem passo em andamento).
@@ -147,6 +219,8 @@ func _ready() -> void:
 	if vida:
 		vida.morreu.connect(_ao_ser_derrotado)
 	_ponto_de_entrada = global_position
+	cargas = cargas_esquiva
+	Configuracoes.mudou.connect(_ao_mudar_configuracoes)
 	_atualizar_vida_maxima()
 	_atualizar_ritmo()
 
@@ -168,10 +242,23 @@ func _unhandled_input(event: InputEvent) -> void:
 		tocar(tela_para_mundo(event.position))
 		get_viewport().set_input_as_handled()
 	elif event.is_action_pressed("golpear") and pode_golpear():
-		golpear()
+		var mira := Vector2.ZERO
+		if event is InputEventMouseButton and not anda_em_casas():
+			mira = get_global_mouse_position() - global_position
+		golpear(mira)
 		get_viewport().set_input_as_handled()
-	elif event.is_action_pressed("pular"):
-		pular()
+	elif event.is_action_pressed("alternar_movimento"):
+		Configuracoes.definir("movimento_em_grade", not Configuracoes.movimento_em_grade)
+		_mostrar_aviso(tr("AVISO_MOVIMENTO_GRADE") if Configuracoes.movimento_em_grade
+			else tr("AVISO_MOVIMENTO_LIVRE"))
+		get_viewport().set_input_as_handled()
+	elif event.is_action_pressed("esquivar"):
+		# Espaço esquiva só em combate (Rafael, 23/10); fora dele, e no
+		# andar em casas (o antigo, F3), pula.
+		if espaco_esquiva():
+			esquivar()
+		else:
+			pular()
 		get_viewport().set_input_as_handled()
 	elif event.is_action_pressed("interagir"):
 		var alvo := interagivel_ao_alcance()
@@ -234,7 +321,7 @@ func interagir_com(alvo: Interagivel) -> void:
 func ir_para(destino: Vector2) -> void:
 	var mapa := agente.get_navigation_map()
 	var na_grade := Vector2.INF
-	if grade:
+	if anda_em_casas():
 		na_grade = casa_livre_perto(destino)
 	if na_grade != Vector2.INF:
 		destino = na_grade
@@ -255,6 +342,66 @@ func pular() -> void:
 	_tempo_pulo = 0.0
 
 
+## Esquiva: um rolamento curto para as teclas apertadas (ou para onde ele
+## olha). Corta o golpe em andamento. Devolve false sem carga, em conversa,
+## já esquivando ou no andar em casas.
+func esquivar() -> bool:
+	if em_dialogo or esquivando or cargas < 1 or anda_em_casas():
+		return false
+	var teclas := Input.get_vector("mover_esquerda", "mover_direita", "mover_frente", "mover_tras")
+	_rumo_esquiva = direcao_tela(teclas).normalized() if teclas != Vector2.ZERO else direcao_olhar.normalized()
+	direcao_olhar = _rumo_esquiva
+	golpeando = false
+	golpe_no_combo = 0
+	_golpe_guardado = -1.0
+	andando = false
+	alvo_interacao = null
+	cargas -= 1
+	esquivando = true
+	_tempo_esquiva = 0.0
+	corpo.modulate.a = 0.55
+	esquivou.emit()
+	return true
+
+
+## Espaço esquiva agora (em combate, andando livre); senão, pula.
+func espaco_esquiva() -> bool:
+	return not movimento_antigo() and em_combate()
+
+
+## Quanto da esquiva já passou, de 0 a 1 (-1 fora da esquiva). Usado pelo desenho.
+func progresso_esquiva() -> float:
+	return clampf(_tempo_esquiva / duracao_esquiva, 0.0, 1.0) if esquivando else -1.0
+
+
+## Para que lado da tela vai a esquiva (vale para o desenho rolar para esse lado).
+func rumo_esquiva() -> Vector2:
+	return _rumo_esquiva
+
+
+## Nenhum golpe pega agora (o começo da esquiva).
+func invulneravel() -> bool:
+	return esquivando and _tempo_esquiva < tempo_invulneravel
+
+
+func _atualizar_esquiva(delta: float) -> void:
+	if cargas < cargas_esquiva:
+		_recarga += delta
+		if _recarga >= recarga_esquiva:
+			_recarga = 0.0
+			cargas += 1
+	if not esquivando:
+		return
+	_tempo_esquiva += delta
+	if _tempo_esquiva >= tempo_invulneravel:
+		corpo.modulate.a = 1.0
+	if _tempo_esquiva >= duracao_esquiva:
+		esquivando = false
+		corpo.modulate.a = 1.0
+		# Sai do rolamento andando, sem parar seco.
+		velocity = velocidade_na_tela(_rumo_esquiva, velocidade_andando())
+
+
 ## Tem uma arma equipada no Inventario.
 func armado() -> bool:
 	return not Inventario.equipado(id_inventario, Item.Encaixe.ARMA).is_empty()
@@ -272,6 +419,17 @@ func em_combate() -> bool:
 ## Pode golpear agora: com arma sempre; sem arma, só em combate (soco).
 func pode_golpear() -> bool:
 	return armado() or em_combate()
+
+
+## O andar antigo está ligado (opção para comparar, F3): teclas nas linhas
+## do quadriculado e, com uma [member grade], de casa em casa.
+func movimento_antigo() -> bool:
+	return Configuracoes.movimento_em_grade
+
+
+## Anda de casa em casa (o andar antigo com uma [member grade]).
+func anda_em_casas() -> bool:
+	return grade != null and movimento_antigo()
 
 
 ## Arma equipada agora, ou null.
@@ -311,12 +469,20 @@ func alcance_do_golpe() -> float:
 
 
 ## Golpe com a arma equipada (ou soco, sem arma, em combate), para onde ele
-## está olhando ([member direcao_olhar]). Para de andar. Devolve false se não
-## puder golpear agora (sem arma fora de combate, em conversa ou no meio de
-## outro golpe).
-func golpear() -> bool:
-	if em_dialogo or golpeando or not pode_golpear():
+## está olhando ([member direcao_olhar]) ou, no andar livre, para
+## [param mira] (o cursor) ou para as teclas apertadas. Para de andar. No
+## meio de um golpe (andar livre), fica guardado para emendar. Devolve false
+## se não puder golpear agora (sem arma fora de combate, em conversa ou, no
+## andar em casas, no meio de outro golpe).
+func golpear(mira := Vector2.ZERO) -> bool:
+	if em_dialogo or not pode_golpear():
 		return false
+	if golpeando:
+		if anda_em_casas():
+			return false
+		_golpe_guardado = 0.0
+		_mira_guardada = mira
+		return true
 	if indo_para_casa():
 		# Termina o passo antes, para golpear sempre do centro de uma casa,
 		# mas depressa: chega em no máximo [constant TEMPO_ATE_GOLPE].
@@ -324,13 +490,27 @@ func golpear() -> bool:
 		var falta := global_position.distance_to(_casa_destino)
 		_pressa = maxf(_pressa, falta / (velocidade_andando() * TEMPO_ATE_GOLPE))
 		return true
+	_comecar_golpe(mira)
+	return true
+
+
+func _comecar_golpe(mira: Vector2) -> void:
+	if not anda_em_casas():
+		var teclas := Input.get_vector("mover_esquerda", "mover_direita", "mover_frente", "mover_tras")
+		if mira.length() > 4.0:
+			direcao_olhar = mira.normalized()
+		elif teclas != Vector2.ZERO:
+			direcao_olhar = direcao_tela(teclas).normalized()
+	var continua := golpe_no_combo > 0 and golpe_no_combo < 3 and _desde_o_golpe <= janela_combo
+	golpe_no_combo = golpe_no_combo + 1 if continua else 1
+	_golpe_guardado = -1.0
+	_mira_guardada = Vector2.ZERO
 	golpeando = true
 	_tempo_golpe = 0.0
 	andando = false
 	alvo_interacao = null
 	velocity = Vector2.ZERO
 	golpeou.emit()
-	return true
 
 
 ## Quem o golpe pega agora. Na grade: quem está na casa da frente ou, com
@@ -338,7 +518,7 @@ func golpear() -> bool:
 ## quem está perto e na frente dele.
 func alvos_do_golpe() -> Array[ReacaoAoGolpe]:
 	var alvos: Array[ReacaoAoGolpe] = []
-	if grade:
+	if anda_em_casas():
 		var passo := passo_do_olhar()
 		var casa := casa_de(global_position)
 		for i in casas_do_golpe():
@@ -353,20 +533,23 @@ func alvos_do_golpe() -> Array[ReacaoAoGolpe]:
 		var alvo := no as ReacaoAoGolpe
 		if alvo == null or is_ancestor_of(alvo):
 			continue
-		if pega_no_golpe(global_position, direcao_olhar, alvo.global_position, alcance_do_golpe()):
+		if pega_no_golpe(global_position, direcao_olhar, alvo.global_position,
+				alcance_do_golpe() * folga_alcance, arco_golpe):
 			alvos.append(alvo)
 	return alvos
 
 
 ## O golpe de quem está em [param origem], olhando para [param olhar], pega
-## quem está em [param alvo]? Perto o bastante e num leque à frente.
-static func pega_no_golpe(origem: Vector2, olhar: Vector2, alvo: Vector2, alcance: float) -> bool:
+## quem está em [param alvo]? Perto o bastante e num leque à frente de
+## [param arco] graus.
+static func pega_no_golpe(origem: Vector2, olhar: Vector2, alvo: Vector2, alcance: float,
+		arco := 90.0) -> bool:
 	var ate_alvo := alvo - origem
 	if ate_alvo.length() > alcance:
 		return false
 	if ate_alvo.length() < 1.0:
 		return true
-	return olhar.normalized().dot(ate_alvo.normalized()) >= 0.7
+	return olhar.normalized().dot(ate_alvo.normalized()) >= cos(deg_to_rad(arco / 2.0)) - 0.0001
 
 
 ## Quantas casas o golpe alcança na grade: 1 de perto; o arco, mais.
@@ -484,6 +667,35 @@ static func direcao_isometrica(direcao_teclas: Vector2) -> Vector2:
 	return direcao.normalized()
 
 
+## Direção das teclas na tela: W para cima, D para a direita (o movimento
+## livre). No analógico, a inclinação vira velocidade parcial; no teclado,
+## duas teclas juntas fazem a diagonal com o mesmo tamanho de uma.
+static func direcao_tela(direcao_teclas: Vector2) -> Vector2:
+	return direcao_teclas.limit_length(1.0)
+
+
+## Velocidade na tela para andar no [param rumo] (tamanho até 1) com
+## [param rapidez]: a parte vertical vale [member fator_vertical].
+func velocidade_na_tela(rumo: Vector2, rapidez: float) -> Vector2:
+	return Vector2(rumo.x, rumo.y * fator_vertical) * rapidez
+
+
+## Quanto da rapidez sobra andando nesta direção (1 na horizontal,
+## [member fator_vertical] na vertical). Serve para a animação saber se ele
+## corre mesmo subindo.
+func fator_da_direcao(direcao: Vector2) -> float:
+	if direcao.length() < 0.001:
+		return 1.0
+	if movimento_antigo():
+		return 1.0
+	var d := direcao.normalized()
+	# A velocidade do rumo d é (d.x, d.y·f)·rapidez; para um movimento que já
+	# saiu achatado, desfaz o achatamento para achar o rumo original.
+	var original := Vector2(d.x, d.y / fator_vertical).normalized()
+	return Vector2(original.x, original.y * fator_vertical).length()
+
+
+
 func _ao_comecar_dialogo(_recurso: DialogueResource) -> void:
 	em_dialogo = true
 	andando = false
@@ -501,6 +713,9 @@ func _ao_terminar_dialogo(_recurso: DialogueResource) -> void:
 
 func _exit_tree() -> void:
 	GradeOcupacao.liberar_tudo(self)
+	if _pausas_de_impacto > 0:
+		_pausas_de_impacto = 0
+		Engine.time_scale = 1.0
 
 
 func _physics_process(delta: float) -> void:
@@ -513,6 +728,17 @@ func _physics_process(delta: float) -> void:
 		_tempo_parado += delta
 	_atualizar_pulo(delta)
 	_atualizar_golpe(delta)
+	_atualizar_esquiva(delta)
+	if esquivando and not em_dialogo:
+		velocity = velocidade_na_tela(_rumo_esquiva, distancia_esquiva / duracao_esquiva)
+		move_and_slide()
+		return
+	if golpeando and not em_dialogo and not anda_em_casas() and _tempo_golpe < momento_do_corte / _ritmo:
+		# Avança um pouco até o corte: o golpe leva o corpo junto.
+		velocity = direcao_olhar * avanco_golpe / (momento_do_corte / _ritmo)
+		move_and_slide()
+		velocity = Vector2.ZERO
+		return
 	if em_dialogo or golpeando:
 		velocity = Vector2.ZERO
 		return
@@ -524,7 +750,8 @@ func _physics_process(delta: float) -> void:
 	if teclas == Vector2.ZERO:
 		# Soltou: apertar de novo na mesma direção já anda.
 		_espera_virar = 0.0
-	if grade and (indo_para_casa() or teclas != Vector2.ZERO or _passo_guardado != Vector2i.ZERO):
+	if anda_em_casas() and (indo_para_casa() or teclas != Vector2.ZERO
+			or _passo_guardado != Vector2i.ZERO):
 		_andar_na_grade(teclas, rapidez, delta)
 		return
 	if teclas != Vector2.ZERO:
@@ -532,16 +759,29 @@ func _physics_process(delta: float) -> void:
 		if andando:
 			andando = false
 			chegou.emit()
-		velocity = direcao_isometrica(teclas) * rapidez
-		direcao_olhar = velocity.normalized()
+		if movimento_antigo():
+			# Andar antigo sem grade (Capítulo 01): teclas nas linhas do
+			# quadriculado, velocidade na hora.
+			velocity = direcao_isometrica(teclas) * rapidez
+		else:
+			var rumo := direcao_tela(teclas)
+			velocity = velocity.move_toward(velocidade_na_tela(rumo, rapidez),
+				rapidez / maxf(tempo_acelerar, 0.001) * delta)
+		direcao_olhar = velocity.normalized() if velocity.length() > 0.001 else direcao_olhar
 		move_and_slide()
 		return
 
 	if not andando:
-		velocity = Vector2.ZERO
+		# Soltou: freia rápido, sem parar seco (no andar antigo, para na hora).
+		if movimento_antigo():
+			velocity = Vector2.ZERO
+			return
+		velocity = velocity.move_toward(Vector2.ZERO, velocidade_andando() / maxf(tempo_frear, 0.001) * delta)
+		if velocity != Vector2.ZERO:
+			move_and_slide()
 		return
 	if agente.is_navigation_finished():
-		if grade and global_position.distance_to(agente.target_position) < 6.0:
+		if anda_em_casas() and global_position.distance_to(agente.target_position) < 6.0:
 			global_position = agente.target_position
 		andando = false
 		velocity = Vector2.ZERO
@@ -697,19 +937,67 @@ func _ajustar_passo(teclas: Vector2) -> void:
 
 
 func _atualizar_golpe(delta: float) -> void:
+	if _golpe_guardado >= 0.0:
+		_golpe_guardado += delta
 	if not golpeando:
+		_desde_o_golpe += delta
+		if _desde_o_golpe > janela_combo:
+			golpe_no_combo = 0
 		return
 	var antes := _tempo_golpe
 	_tempo_golpe += delta
 	var corte := momento_do_corte / _ritmo
 	if antes < corte and _tempo_golpe >= corte:
-		var alvos := alvos_do_golpe()
-		var forca := ataque()
-		for alvo in alvos:
-			alvo.receber_golpe(global_position.direction_to(alvo.global_position), forca)
-		acertou.emit(alvos)
-	if _tempo_golpe >= duracao_do_golpe():
-		golpeando = false
+		_cortar()
+	var pode_emendar := golpe_no_combo < 3 and _tempo_golpe >= corte + tempo_ativo
+	if pode_emendar or _tempo_golpe >= duracao_do_golpe():
+		# Vale o clique feito até [member buffer_golpe] antes deste momento
+		# (com folga de um quadro); um mais antigo se perde.
+		var guardado := _golpe_guardado >= 0.0 and _golpe_guardado <= buffer_golpe + 0.02
+		if not guardado and _golpe_guardado > buffer_golpe + 0.02:
+			_golpe_guardado = -1.0
+		if guardado or _tempo_golpe >= duracao_do_golpe():
+			golpeando = false
+			_desde_o_golpe = 0.0
+			if guardado and not em_dialogo:
+				_comecar_golpe(_mira_guardada)
+
+
+## O quadro do corte: quem está no arco leva o golpe.
+func _cortar() -> void:
+	var alvos := alvos_do_golpe()
+	var forca := ataque()
+	var final := golpe_no_combo >= 3
+	for alvo in alvos:
+		alvo.receber_golpe(global_position.direction_to(alvo.global_position), forca,
+			empurrao_final if final else 1.0)
+		var inimigo := alvo.get_parent() as Inimigo
+		if final and inimigo:
+			inimigo.interromper()
+	if not alvos.is_empty():
+		pausar_no_impacto(pausa_impacto_final if final else pausa_impacto)
+		var camera := get_node_or_null("Camera") as CameraExploracao
+		if final and camera:
+			camera.tremer()
+	acertou.emit(alvos)
+
+
+## Pausa curta do jogo todo quando um golpe acerta: dá peso ao golpe.
+func pausar_no_impacto(duracao: float) -> void:
+	if duracao <= 0.0 or not is_inside_tree():
+		return
+	_pausas_de_impacto += 1
+	Engine.time_scale = 0.05
+	await get_tree().create_timer(duracao, true, false, true).timeout
+	_pausas_de_impacto -= 1
+	if _pausas_de_impacto <= 0:
+		_pausas_de_impacto = 0
+		Engine.time_scale = 1.0
+
+
+## Está na pausa de impacto agora.
+func em_pausa_de_impacto() -> bool:
+	return _pausas_de_impacto > 0
 
 
 func _atualizar_pulo(delta: float) -> void:
@@ -724,6 +1012,40 @@ func _atualizar_pulo(delta: float) -> void:
 		pulando = false
 		corpo.position.y = 0.0
 		sombra.scale = Vector2.ONE
+
+
+func _ao_mudar_configuracoes() -> void:
+	if anda_em_casas():
+		velocity = Vector2.ZERO
+		return
+	# Saiu do andar em casas: esquece o passo em andamento.
+	if indo_para_casa():
+		GradeOcupacao.liberar(casa_de(_casa_destino), self)
+	_casa_destino = Vector2.INF
+	_passo_guardado = Vector2i.ZERO
+	_pressa = 1.0
+	_golpe_pendente = false
+	_espera_virar = 0.0
+
+
+## Um texto curto que sobe e some acima da cabeça (ao trocar o jeito de andar).
+func _mostrar_aviso(texto: String) -> void:
+	var aviso := Label.new()
+	aviso.name = "AvisoMovimento"
+	aviso.text = texto
+	aviso.add_theme_font_size_override("font_size", 8)
+	aviso.add_theme_color_override("font_color", Color(0.9255, 0.7412, 0.4588))
+	aviso.add_theme_color_override("font_outline_color", Color(0.0196, 0.0471, 0.0784))
+	aviso.add_theme_constant_override("outline_size", 3)
+	aviso.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	aviso.size = Vector2(120, 12)
+	aviso.position = Vector2(-60, -64)
+	aviso.z_index = 20
+	add_child(aviso)
+	var sumir := aviso.create_tween().set_parallel()
+	sumir.tween_property(aviso, "position:y", aviso.position.y - 10.0, 1.2)
+	sumir.tween_property(aviso, "modulate:a", 0.0, 0.5).set_delay(0.8)
+	sumir.chain().tween_callback(aviso.queue_free)
 
 
 func _ao_mudar_equipamento(quem: String, _encaixe: Item.Encaixe, _id: String) -> void:
@@ -773,6 +1095,10 @@ func definir_ponto_de_entrada(ponto: Vector2) -> void:
 
 func _ao_ser_derrotado() -> void:
 	golpeando = false
+	golpe_no_combo = 0
+	_golpe_guardado = -1.0
+	esquivando = false
+	cargas = cargas_esquiva
 	andando = false
 	pulando = false
 	alvo_interacao = null

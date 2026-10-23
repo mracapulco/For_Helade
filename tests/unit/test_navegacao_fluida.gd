@@ -7,7 +7,13 @@ var sala: Node2D
 var personagem: PersonagemExploracao
 
 
+func after_each() -> void:
+	Configuracoes.movimento_em_grade = false
+
+
 func before_each() -> void:
+	# Testes do andar antigo, de casa em casa (opção F3 desde 23/10).
+	Configuracoes.movimento_em_grade = true
 	Inventario.limpar()
 	sala = add_child_autofree(load("res://scenes/exploracao/sala_teste.tscn").instantiate())
 	personagem = sala.get_node("Personagem")
@@ -80,31 +86,3 @@ func test_golpear_andando_sai_quase_na_hora() -> void:
 	assert_lte(quadros, 7, "o golpe sai em uns 0,1 s, não no fim do passo normal")
 	assert_eq(personagem.global_position, personagem.centro_da_casa(personagem.casa_de(personagem.global_position)),
 		"golpeia do centro de uma casa")
-
-
-func _inimigo() -> Inimigo:
-	return get_tree().get_first_node_in_group(Inimigo.GRUPO) as Inimigo
-
-
-func test_busca_sem_caminho_e_rapida() -> void:
-	await wait_seconds(0.5)
-	var inimigo := _inimigo()
-	var casa := inimigo.casa_de(inimigo.global_position)
-	var longe: Array[Vector2i] = [Vector2i(9999, 9999)]
-	inimigo.proximo_passo(casa, longe)   # monta o mapa de casas andáveis
-	var inicio := Time.get_ticks_usec()
-	for i in 10:
-		inimigo.proximo_passo(casa, longe)
-	var cada := (Time.get_ticks_usec() - inicio) / 10.0
-	gut.p("busca sem caminho: %.0f us" % cada)
-	assert_lt(cada, 1000.0, "antes: 2.600 us nesta sala")
-
-
-func test_inimigo_sem_caminho_espera_antes_de_procurar_de_novo() -> void:
-	await wait_seconds(0.5)
-	var inimigo := _inimigo()
-	var casa := inimigo.casa_de(inimigo.global_position)
-	var cercado: Array[Vector2i] = [casa + Vector2i(50, 50)]
-	inimigo._comecar_passo(cercado)
-	assert_gt(inimigo._espera_caminho, 0.0, "não achou caminho: espera")
-	assert_false(inimigo.andando())

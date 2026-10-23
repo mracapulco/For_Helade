@@ -22,6 +22,19 @@ Guarda de teste: [Provisório] Figurante genérico, não é personagem do livro.
 Criada de teste: [Provisório] Outra figurante genérica, só para testar a arte. [ID:EXPLORACAO_TESTE_005]
 => END
 
+~ pilha_de_livros
+
+[Provisório] Pilhas de livros pelo chão. Uma trilha delas segue até a estante alta do fundo e some atrás dela. [ID:BIBLIOTECA_OLYMPIA_001]
+$> Codice.anotar("pilhas_de_livros")
+=> END
+
+~ mesa_de_xadrez
+
+Uma mesa de xadrez. Pequena, redonda e levemente empoeirada. [ID:BIBLIOTECA_OLYMPIA_002]
+O tampo se ergue como um pequeno alçapão, e as peças estão guardadas lá dentro. [ID:BIBLIOTECA_OLYMPIA_003]
+$> Codice.anotar("mesa_de_xadrez")
+=> END
+
 ~ placa_teste
 
 [Provisório] A placa ainda não diz nada. Os nomes dos lugares virão do livro. [ID:EXPLORACAO_TESTE_006]

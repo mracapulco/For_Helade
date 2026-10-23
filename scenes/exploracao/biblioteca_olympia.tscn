@@ -1,0 +1,250 @@
+[gd_scene format=4]
+
+[ext_resource type="TileSet" path="res://scenes/exploracao/tileset_biblioteca.tres" id="1_v1tug"]
+[ext_resource type="Script" path="res://scripts/exploracao/paredes_translucidas.gd" id="2_cujs1"]
+[ext_resource type="Script" path="res://scripts/exploracao/navegacao_sala.gd" id="3_o1f3d"]
+[ext_resource type="Script" path="res://scripts/exploracao/marcador_destino.gd" id="4_qjv2i"]
+[ext_resource type="Script" path="res://scripts/exploracao/personagem_exploracao.gd" id="5_mq6nn"]
+[ext_resource type="SpriteFrames" path="res://assets/art/personagens/nicholas/nicholas_exploracao.tres" id="6_c4ot5"]
+[ext_resource type="Script" path="res://scripts/exploracao/animacao_personagem.gd" id="7_7rssq"]
+[ext_resource type="Script" path="res://scripts/exploracao/camada_equipamento.gd" id="8_m8jlx"]
+[ext_resource type="Script" path="res://scripts/exploracao/item_na_mao.gd" id="9_x524h"]
+[ext_resource type="Resource" path="res://assets/art/personagens/nicholas/nicholas_maos.tres" id="10_vkb4q"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholders/itens/rastro_golpe.png" id="11_p5ilc"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholders/combate/flecha.png" id="12_r8bup"]
+[ext_resource type="Script" path="res://scripts/systems/vida.gd" id="13_c18xe"]
+[ext_resource type="Script" path="res://scripts/systems/efeitos_temporarios.gd" id="14_5yicy"]
+[ext_resource type="Script" path="res://scripts/exploracao/reacao_golpe.gd" id="15_4c530"]
+[ext_resource type="Script" path="res://scripts/exploracao/camera_exploracao.gd" id="16_rwhsh"]
+[ext_resource type="PackedScene" path="res://scenes/ui/botoes_toque.tscn" id="17_53p32"]
+[ext_resource type="Script" path="res://scripts/ui/botoes_toque.gd" id="18_l7un2"]
+[ext_resource type="PackedScene" path="res://scenes/ui/tela_bolsa.tscn" id="19_jvojg"]
+[ext_resource type="Script" path="res://scripts/ui/tela_bolsa.gd" id="20_1bthn"]
+[ext_resource type="PackedScene" path="res://scenes/ui/aviso_itens.tscn" id="21_87e1c"]
+[ext_resource type="Script" path="res://scripts/ui/aviso_itens.gd" id="22_4arnk"]
+[ext_resource type="Script" path="res://scripts/ui/barra_rapida.gd" id="23_buovb"]
+[ext_resource type="Script" path="res://scripts/ui/hud_vida.gd" id="24_wivew"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholders/biblioteca/mesa.png" id="25_grr33"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholders/biblioteca/pilha_livros.png" id="26_dika0"]
+[ext_resource type="Script" path="res://scripts/exploracao/interagivel.gd" id="27_3ynsk"]
+[ext_resource type="Resource" path="res://data/dialogos/teste/exploracao.dialogue" id="28_tgmbn"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholders/biblioteca/mesa_xadrez.png" id="29_ptoud"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_pn2jv"]
+radius = 7.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_nnpy2"]
+radius = 14.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_figurante"]
+radius = 9.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_toque"]
+radius = 28.0
+
+[node name="BibliotecaOlympia" type="Node2D" unique_id=749893232]
+y_sort_enabled = true
+texture_filter = 1
+
+[node name="Chao" type="TileMapLayer" parent="." unique_id=2023771221]
+z_index = -1
+tile_map_data = PackedByteArray("AAAAAAAAAAAAAAAAAAAAAAEAAAABAAAAAAAAAAIAAAAAAAAAAAAAAAMAAAABAAAAAAAAAAQAAAAAAAAAAAAAAAUAAAABAAAAAAAAAAYAAAAAAAAAAAAAAAcAAAABAAAAAAAAAAgAAAAAAAAAAAAAAAkAAAABAAAAAAAAAAoAAAAAAAAAAAAAAAsAAAABAAAAAAAAAAwAAAAAAAAAAAAAAA0AAAABAAAAAAAAAA4A//////////8AAA8A//////////8BAAAAAAABAAAAAAABAAEAAAAAAAAAAAABAAIAAAABAAAAAAABAAMAAAAAAAAAAAABAAQAAAABAAAAAAABAAUAAAAAAAAAAAABAAYAAAABAAAAAAABAAcAAAAAAAAAAAABAAgAAAABAAAAAAABAAkAAAAAAAAAAAABAAoAAAABAAAAAAABAAsAAAAAAAAAAAABAAwAAAABAAAAAAABAA0AAAAAAAAAAAABAA4A//////////8BAA8A//////////8CAAAAAAAAAAAAAAACAAEAAAABAAAAAAACAAIAAAAAAAAAAAACAAMAAAABAAAAAAACAAQAAAAAAAAAAAACAAUAAAABAAAAAAACAAYAAAAAAAAAAAACAAcAAAABAAAAAAACAAgAAAAAAAAAAAACAAkAAAABAAAAAAACAAoAAAAAAAAAAAACAAsAAAABAAAAAAACAAwAAAAAAAAAAAACAA0AAAABAAAAAAACAA4A//////////8CAA8A//////////8DAAAAAAABAAAAAAADAAEAAAAAAAAAAAADAAIAAAABAAAAAAADAAMAAAAAAAAAAAADAAQAAAABAAAAAAADAAUAAAAAAAAAAAADAAYAAAABAAAAAAADAAcAAAAAAAAAAAADAAgAAAABAAAAAAADAAkAAAAAAAAAAAADAAoAAAABAAAAAAADAAsAAAAAAAAAAAADAAwAAAABAAAAAAADAA0AAAAAAAAAAAADAA4A//////////8DAA8A//////////8EAAAAAAAAAAAAAAAEAAEAAAABAAAAAAAEAAIAAAAAAAAAAAAEAAMAAAABAAAAAAAEAAQAAAAAAAAAAAAEAAUAAAABAAAAAAAEAAYAAAAAAAAAAAAEAAcAAAABAAAAAAAEAAgAAAAAAAAAAAAEAAkAAAABAAAAAAAEAAoAAAAAAAAAAAAEAAsAAAABAAAAAAAEAAwAAAAAAAAAAAAEAA0AAAABAAAAAAAEAA4A//////////8EAA8A//////////8FAAAAAAABAAAAAAAFAAEAAAAAAAAAAAAFAAIAAAABAAAAAAAFAAMAAAAAAAAAAAAFAAQAAAABAAAAAAAFAAUAAAAAAAAAAAAFAAYAAAABAAAAAAAFAAcAAAAAAAAAAAAFAAgAAAABAAAAAAAFAAkAAAAAAAAAAAAFAAoAAAABAAAAAAAFAAsAAAAAAAAAAAAFAAwAAAABAAAAAAAFAA0AAAAAAAAAAAAFAA4A//////////8FAA8A//////////8GAAAAAAAAAAAAAAAGAAEAAAABAAAAAAAGAAIAAAAAAAAAAAAGAAMAAAABAAAAAAAGAAQAAAAAAAAAAAAGAAUAAAABAAAAAAAGAAYAAAAAAAAAAAAGAAcAAAABAAAAAAAGAAgAAAAAAAAAAAAGAAkAAAABAAAAAAAGAAoAAAAAAAAAAAAGAAsAAAABAAAAAAAGAAwAAAAAAAAAAAAGAA0AAAABAAAAAAAGAA4A//////////8GAA8A//////////8HAAAAAAABAAAAAAAHAAEAAAAAAAAAAAAHAAIAAAABAAAAAAAHAAMAAAAAAAAAAAAHAAQAAAABAAAAAAAHAAUAAAAAAAAAAAAHAAYAAAABAAAAAAAHAAcAAAAAAAAAAAAHAAgAAAABAAAAAAAHAAkAAAAAAAAAAAAHAAoAAAABAAAAAAAHAAsAAAAAAAAAAAAHAAwAAAABAAAAAAAHAA0AAAAAAAAAAAAHAA4A//////////8HAA8A//////////8IAAAAAAAAAAAAAAAIAAEAAAABAAAAAAAIAAIAAAAAAAAAAAAIAAMAAAABAAAAAAAIAAQAAAAAAAAAAAAIAAUAAAABAAAAAAAIAAYAAAAAAAAAAAAIAAcAAAABAAAAAAAIAAgAAAAAAAAAAAAIAAkAAAABAAAAAAAIAAoAAAAAAAAAAAAIAAsAAAABAAAAAAAIAAwAAAAAAAAAAAAIAA0AAAABAAAAAAAIAA4A//////////8IAA8A//////////8JAAAAAAABAAAAAAAJAAEAAAAAAAAAAAAJAAIAAAABAAAAAAAJAAMAAAAAAAAAAAAJAAQAAAABAAAAAAAJAAUAAAAAAAAAAAAJAAYAAAABAAAAAAAJAAcAAAAAAAAAAAAJAAgAAAABAAAAAAAJAAkAAAAAAAAAAAAJAAoAAAABAAAAAAAJAAsAAAAAAAAAAAAJAAwAAAABAAAAAAAJAA0AAAAAAAAAAAAJAA4A//////////8JAA8A//////////8KAAAAAAAAAAAAAAAKAAEAAAABAAAAAAAKAAIAAAAAAAAAAAAKAAMAAAABAAAAAAAKAAQAAAAAAAAAAAAKAAUAAAABAAAAAAAKAAYAAAAAAAAAAAAKAAcAAAABAAAAAAAKAAgAAAAAAAAAAAAKAAkAAAABAAAAAAAKAAoAAAAAAAAAAAAKAAsAAAABAAAAAAAKAAwAAAAAAAAAAAAKAA0AAAABAAAAAAAKAA4A//////////8KAA8A//////////8LAAAAAAABAAAAAAALAAEAAAAAAAAAAAALAAIAAAABAAAAAAALAAMAAAAAAAAAAAALAAQAAAABAAAAAAALAAUAAAAAAAAAAAALAAYAAAABAAAAAAALAAcAAAAAAAAAAAALAAgAAAABAAAAAAALAAkAAAAAAAAAAAALAAoAAAABAAAAAAALAAsAAAAAAAAAAAALAAwAAAABAAAAAAALAA0AAAAAAAAAAAALAA4A//////////8LAA8A//////////8MAAAAAAAAAAAAAAAMAAEAAAABAAAAAAAMAAIAAAAAAAAAAAAMAAMAAAABAAAAAAAMAAQAAAAAAAAAAAAMAAUAAAABAAAAAAAMAAYAAAAAAAAAAAAMAAcAAAABAAAAAAAMAAgAAAAAAAAAAAAMAAkAAAABAAAAAAAMAAoAAAAAAAAAAAAMAAsAAAABAAAAAAAMAAwAAAAAAAAAAAAMAA0AAAABAAAAAAAMAA4A//////////8MAA8A//////////8NAAAAAAABAAAAAAANAAEAAAAAAAAAAAANAAIAAAABAAAAAAANAAMAAAAAAAAAAAANAAQAAAABAAAAAAANAAUAAAAAAAAAAAANAAYAAAABAAAAAAANAAcAAAAAAAAAAAANAAgAAAABAAAAAAANAAkAAAAAAAAAAAANAAoAAAABAAAAAAANAAsAAAAAAAAAAAANAAwAAAABAAAAAAANAA0AAAAAAAAAAAANAA4A//////////8NAA8A//////////8OAAAA//////////8OAAEA//////////8OAAIA//////////8OAAMA//////////8OAAQA//////////8OAAUA//////////8OAAYA//////////8OAAcA//////////8OAAgA//////////8OAAkA//////////8OAAoA//////////8OAAsA//////////8OAAwA//////////8OAA0A//////////8OAA4A//////////8OAA8A//////////8PAAAA//////////8PAAEA//////////8PAAIA//////////8PAAMA//////////8PAAQA//////////8PAAUA//////////8PAAYA//////////8PAAcA//////////8PAAgA//////////8PAAkA//////////8PAAoA//////////8PAAsA//////////8PAAwA//////////8PAA0A//////////8PAA4A//////////8PAA8A//////////8=")
+tile_set = ExtResource("1_v1tug")
+
+[node name="Obstaculos" type="TileMapLayer" parent="." unique_id=1303301837]
+y_sort_enabled = true
+tile_map_data = PackedByteArray("AAAAAAAAAwAAAAAAAAAAAAEAAgAAAAAAAAAAAAIAAgAAAAAAAAAAAAMAAgAAAAAAAAAAAAQAAgAAAAAAAAAAAAUAAgAAAAAAAAAAAAYAAgAAAAAAAAAAAAcAAgAAAAAAAAAAAAgAAgAAAAAAAAAAAAkAAgAAAAAAAAAAAAoAAgAAAAAAAAAAAAsAAgAAAAAAAAAAAAwAAgAAAAAAAAAAAA0AAgAAAAAAAAAAAA4A//////////8AAA8A//////////8BAAAAAwAAAAAAAAACAAAAAwAAAAAAAAADAAAAAwAAAAAAAAAEAAAAAwAAAAAAAAAFAAAAAwAAAAAAAAAGAAAAAwAAAAAAAAAHAAAAAwAAAAAAAAAIAAAAAwAAAAAAAAAJAAAAAwAAAAAAAAAKAAAAAwAAAAAAAAALAAAAAwAAAAAAAAAMAAAAAwAAAAAAAAANAAAAAwAAAAAAAAAOAAAA//////////8PAAAA//////////8EAAQAAgAAAAAAAAAFAAQA//////////8EAAUA//////////8KAAcA//////////8KAAgA//////////8KAAkAAQAAAAAAAAAHAAsA//////////8BAAMAAgAAAAAAAAACAAMAAgAAAAAAAAAEAAMAAgAAAAAAAAAFAAMAAgAAAAAAAAAGAAMAAgAAAAAAAAAHAAMAAgAAAAAAAAAIAAMAAgAAAAAAAAAJAAMAAgAAAAAAAAAKAAMAAgAAAAAAAAALAAMAAgAAAAAAAAAMAAMAAgAAAAAAAAANAAMAAgAAAAAAAAALAAEAAgAAAAAAAAALAAIAAgAAAAAAAAAMAAEAAgAAAAAAAAAMAAIAAgAAAAAAAAANAAEAAgAAAAAAAAANAAIAAgAAAAAAAAAGAAYAAQAAAAAAAAAHAAYAAQAAAAAAAAAIAAYAAQAAAAAAAAAJAAYAAQAAAAAAAAALAAYAAQAAAAAAAAAMAAYAAQAAAAAAAAACAAkAAQAAAAAAAAADAAkAAQAAAAAAAAAEAAkAAQAAAAAAAAAFAAkAAQAAAAAAAAAIAAkAAQAAAAAAAAAJAAkAAQAAAAAAAAALAAkAAQAAAAAAAAA=")
+tile_set = ExtResource("1_v1tug")
+script = ExtResource("2_cujs1")
+
+[node name="Navegacao" type="NavigationRegion2D" parent="." unique_id=1603202086 node_paths=PackedStringArray("chao", "obstaculos")]
+script = ExtResource("3_o1f3d")
+chao = NodePath("../Chao")
+obstaculos = NodePath("../Obstaculos")
+
+[node name="MarcadorDestino" type="Node2D" parent="." unique_id=317200477 node_paths=PackedStringArray("personagem")]
+z_index = -1
+script = ExtResource("4_qjv2i")
+personagem = NodePath("../Personagem")
+
+[node name="Personagem" type="CharacterBody2D" parent="." unique_id=997458425 node_paths=PackedStringArray("grade", "vida", "efeitos")]
+position = Vector2(-128, 320)
+motion_mode = 1
+script = ExtResource("5_mq6nn")
+grade = NodePath("../Chao")
+vida = NodePath("Vida")
+efeitos = NodePath("Efeitos")
+
+[node name="Sombra" type="Polygon2D" parent="Personagem" unique_id=615637889]
+color = Color(0, 0, 0, 0.35)
+polygon = PackedVector2Array(10, 0, 9.6593, 1.2941, 8.6603, 2.5, 7.0711, 3.5355, 5, 4.3301, 2.5882, 4.8296, 0, 5, -2.5882, 4.8296, -5, 4.3301, -7.0711, 3.5355, -8.6603, 2.5, -9.6593, 1.2941, -10, 0, -9.6593, -1.2941, -8.6603, -2.5, -7.0711, -3.5355, -5, -4.3301, -2.5882, -4.8296, 0, -5, 2.5882, -4.8296, 5, -4.3301, 7.0711, -3.5355, 8.6603, -2.5, 9.6593, -1.2941)
+
+[node name="Corpo" type="Node2D" parent="Personagem" unique_id=337995875]
+
+[node name="Visual" type="AnimatedSprite2D" parent="Personagem/Corpo" unique_id=320417579]
+sprite_frames = ExtResource("6_c4ot5")
+animation = &"parado_frente"
+offset = Vector2(0, -22)
+script = ExtResource("7_7rssq")
+nicholas_pela_idade = true
+
+[node name="CamadaArmadura" type="AnimatedSprite2D" parent="Personagem/Corpo/Visual" unique_id=1463963500]
+script = ExtResource("8_m8jlx")
+nicholas_pela_idade = true
+
+[node name="CamadaElmo" type="AnimatedSprite2D" parent="Personagem/Corpo/Visual" unique_id=1242801178]
+script = ExtResource("8_m8jlx")
+encaixe = 5
+nicholas_pela_idade = true
+
+[node name="ItemNaMao" type="Sprite2D" parent="Personagem/Corpo/Visual" unique_id=753634602 node_paths=PackedStringArray("rastro", "flecha")]
+centered = false
+script = ExtResource("9_x524h")
+maos = ExtResource("10_vkb4q")
+maos_pela_idade = true
+rastro = NodePath("../Rastro")
+flecha = NodePath("../Flecha")
+
+[node name="Rastro" type="Sprite2D" parent="Personagem/Corpo/Visual" unique_id=1721831910]
+visible = false
+texture = ExtResource("11_p5ilc")
+centered = false
+
+[node name="ProtecaoNaMao" type="Sprite2D" parent="Personagem/Corpo/Visual" unique_id=497236777]
+centered = false
+script = ExtResource("9_x524h")
+maos = ExtResource("10_vkb4q")
+maos_pela_idade = true
+encaixe = 4
+mao_de_tras = true
+
+[node name="Flecha" type="Sprite2D" parent="Personagem/Corpo/Visual" unique_id=1233190906]
+visible = false
+texture = ExtResource("12_r8bup")
+centered = false
+
+[node name="Vida" type="Node" parent="Personagem" unique_id=1195000640]
+script = ExtResource("13_c18xe")
+maxima = 40
+id_inventario = "nicholas"
+
+[node name="Efeitos" type="Node" parent="Personagem" unique_id=1686963914 node_paths=PackedStringArray("vida")]
+script = ExtResource("14_5yicy")
+vida = NodePath("../Vida")
+
+[node name="ReacaoAoGolpe" type="Node2D" parent="Personagem" unique_id=2145542238 node_paths=PackedStringArray("visual", "vida")]
+script = ExtResource("15_4c530")
+visual = NodePath("../Corpo/Visual")
+vida = NodePath("../Vida")
+
+[node name="Colisao" type="CollisionShape2D" parent="Personagem" unique_id=2084710673]
+shape = SubResource("CircleShape2D_pn2jv")
+
+[node name="Camera" type="Camera2D" parent="Personagem" unique_id=43459017 node_paths=PackedStringArray("mapa")]
+script = ExtResource("16_rwhsh")
+mapa = NodePath("../../Chao")
+
+[node name="Agente" type="NavigationAgent2D" parent="Personagem" unique_id=100217193]
+path_desired_distance = 4.0
+target_desired_distance = 4.0
+radius = 7.0
+
+[node name="BotoesToque" type="CanvasLayer" parent="." unique_id=2063365112 instance=ExtResource("17_53p32")]
+layer = 5
+script = ExtResource("18_l7un2")
+sempre_mostrar = true
+
+[node name="TelaBolsa" type="CanvasLayer" parent="." unique_id=823926688 instance=ExtResource("19_jvojg")]
+layer = 20
+script = ExtResource("20_1bthn")
+itens_de_teste = true
+
+[node name="AvisoItens" type="CanvasLayer" parent="." unique_id=1836457059 instance=ExtResource("21_87e1c")]
+layer = 15
+script = ExtResource("22_4arnk")
+
+[node name="BarraRapida" type="CanvasLayer" parent="." unique_id=1459576715]
+script = ExtResource("23_buovb")
+
+[node name="HudVida" type="CanvasLayer" parent="." unique_id=2011513406 node_paths=PackedStringArray("vida", "efeitos")]
+script = ExtResource("24_wivew")
+vida = NodePath("../Personagem/Vida")
+efeitos = NodePath("../Personagem/Efeitos")
+
+[node name="Mesa1" type="StaticBody2D" parent="." unique_id=978242850 groups=["navegacao_obstaculos"]]
+position = Vector2(0, 352)
+
+[node name="Visual" type="Sprite2D" parent="Mesa1" unique_id=188136782]
+texture = ExtResource("25_grr33")
+offset = Vector2(0, -14)
+
+[node name="Colisao" type="CollisionShape2D" parent="Mesa1" unique_id=1725590506]
+shape = SubResource("CircleShape2D_nnpy2")
+
+[node name="Mesa2" type="StaticBody2D" parent="." unique_id=1487080523 groups=["navegacao_obstaculos"]]
+position = Vector2(-224, 240)
+
+[node name="Visual" type="Sprite2D" parent="Mesa2" unique_id=274495958]
+texture = ExtResource("25_grr33")
+offset = Vector2(0, -14)
+
+[node name="Colisao" type="CollisionShape2D" parent="Mesa2" unique_id=1457286821]
+shape = SubResource("CircleShape2D_nnpy2")
+
+[node name="Mesa3" type="StaticBody2D" parent="." unique_id=1718363651 groups=["navegacao_obstaculos"]]
+position = Vector2(128, 320)
+
+[node name="Visual" type="Sprite2D" parent="Mesa3" unique_id=576570895]
+texture = ExtResource("25_grr33")
+offset = Vector2(0, -14)
+
+[node name="Colisao" type="CollisionShape2D" parent="Mesa3" unique_id=1662186400]
+shape = SubResource("CircleShape2D_nnpy2")
+
+[node name="PilhaDeLivros" type="StaticBody2D" parent="." unique_id=1426584671 groups=["navegacao_obstaculos"]]
+position = Vector2(64, 192)
+
+[node name="Visual" type="Sprite2D" parent="PilhaDeLivros" unique_id=1936225188]
+texture = ExtResource("26_dika0")
+offset = Vector2(0, -12)
+
+[node name="Colisao" type="CollisionShape2D" parent="PilhaDeLivros" unique_id=1673097162]
+shape = SubResource("CircleShape2D_figurante")
+
+[node name="Interagivel" type="Area2D" parent="PilhaDeLivros" unique_id=1445888229]
+script = ExtResource("27_3ynsk")
+dialogo = ExtResource("28_tgmbn")
+marcador = "pilha_de_livros"
+
+[node name="AreaDeToque" type="CollisionShape2D" parent="PilhaDeLivros/Interagivel" unique_id=1251106077]
+position = Vector2(0, -12)
+shape = SubResource("CircleShape2D_toque")
+
+[node name="PilhaDeLivros2" type="StaticBody2D" parent="." unique_id=1527786528 groups=["navegacao_obstaculos"]]
+position = Vector2(-64, 352)
+
+[node name="Visual" type="Sprite2D" parent="PilhaDeLivros2" unique_id=1765661167]
+texture = ExtResource("26_dika0")
+offset = Vector2(0, -12)
+
+[node name="Colisao" type="CollisionShape2D" parent="PilhaDeLivros2" unique_id=788554160]
+shape = SubResource("CircleShape2D_figurante")
+
+[node name="MesaDeXadrez" type="StaticBody2D" parent="." unique_id=323983499 groups=["navegacao_obstaculos"]]
+position = Vector2(320, 192)
+
+[node name="Visual" type="Sprite2D" parent="MesaDeXadrez" unique_id=1584958336]
+texture = ExtResource("29_ptoud")
+offset = Vector2(0, -14)
+
+[node name="Colisao" type="CollisionShape2D" parent="MesaDeXadrez" unique_id=2135010066]
+shape = SubResource("CircleShape2D_figurante")
+
+[node name="Interagivel" type="Area2D" parent="MesaDeXadrez" unique_id=946059701]
+script = ExtResource("27_3ynsk")
+dialogo = ExtResource("28_tgmbn")
+marcador = "mesa_de_xadrez"
+
+[node name="AreaDeToque" type="CollisionShape2D" parent="MesaDeXadrez/Interagivel" unique_id=49706198]
+position = Vector2(0, -12)
+shape = SubResource("CircleShape2D_toque")

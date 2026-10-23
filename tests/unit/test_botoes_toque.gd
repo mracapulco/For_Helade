@@ -32,22 +32,54 @@ func test_botoes_sao_grandes() -> void:
 	assert_gte(botoes.botao_pular.size.y, 120.0)
 
 
+## Põe o bandido ao lado dele (em combate) ou longe (fora de combate).
+func _bandido_perto(perto: bool) -> void:
+	var bandido: Node2D = sala.get_node("Bandido")
+	bandido.process_mode = Node.PROCESS_MODE_DISABLED
+	var escudo := sala.get_node_or_null("BandidoEscudo")
+	if escudo:
+		sala.remove_child(escudo)
+		escudo.free()
+	bandido.global_position = personagem.global_position + (Vector2(60, 0) if perto else Vector2(2000, 0))
+	await wait_process_frames(2)
+
+
 func test_textos_vem_da_traducao() -> void:
 	TranslationServer.set_locale("pt_BR")
 	assert_eq(tr(botoes.botao_correr.text), "Correr")
-	assert_eq(tr(botoes.botao_pular.text), "Pular")
+	await _bandido_perto(false)
+	assert_eq(tr(botoes.botao_pular.text), "Pular", "fora de combate")
+	await _bandido_perto(true)
+	assert_eq(tr(botoes.botao_pular.text), "Esquivar", "em combate o botão vira Esquivar (23/10)")
 
 
-func test_pular_faz_o_personagem_pular() -> void:
+func test_fora_de_combate_o_botao_pula() -> void:
+	await _bandido_perto(false)
 	botoes.botao_pular.pressed.emit()
 	await wait_process_frames(2)
 	assert_true(personagem.pulando)
+	assert_false(personagem.esquivando)
 
 
-func test_pular_nao_deixa_a_tecla_presa() -> void:
+func test_em_combate_o_botao_esquiva() -> void:
+	await _bandido_perto(true)
 	botoes.botao_pular.pressed.emit()
 	await wait_process_frames(2)
-	assert_false(Input.is_action_pressed(&"pular"))
+	assert_true(personagem.esquivando or personagem.cargas < personagem.cargas_esquiva)
+
+
+func test_no_andar_em_casas_o_botao_pula() -> void:
+	Configuracoes.movimento_em_grade = true
+	botoes.botao_pular.pressed.emit()
+	await wait_process_frames(2)
+	Configuracoes.movimento_em_grade = false
+	assert_true(personagem.pulando)
+
+
+func test_esquivar_nao_deixa_a_tecla_presa() -> void:
+	botoes.botao_pular.pressed.emit()
+	await wait_process_frames(2)
+	assert_false(Input.is_action_pressed(&"esquivar"))
 
 
 func test_correr_liga_e_desliga() -> void:

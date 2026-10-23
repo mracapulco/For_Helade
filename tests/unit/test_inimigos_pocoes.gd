@@ -11,7 +11,13 @@ var bandido: Inimigo
 var bandido_escudo: Inimigo
 
 
+func after_each() -> void:
+	Configuracoes.movimento_em_grade = false
+
+
 func before_each() -> void:
+	# Testes do andar antigo, de casa em casa (opção F3 desde 23/10).
+	Configuracoes.movimento_em_grade = true
 	Inventario.limpar()
 	Experiencia.limpar()
 	GradeOcupacao.limpar()
@@ -173,14 +179,14 @@ func _olhar_para(passo: Vector2i) -> void:
 	personagem.direcao_olhar = (personagem.centro_da_casa(aqui + passo) - personagem.centro_da_casa(aqui)).normalized()
 
 
-func test_inimigo_fica_no_centro_de_uma_casa_e_ocupa_ela() -> void:
+func test_inimigo_nao_ocupa_casas_da_grade() -> void:
+	# Desde 23/10 (P3b) os inimigos andam livres, fora da grade.
 	for inimigo: Inimigo in [bandido, bandido_escudo]:
-		assert_eq(inimigo.global_position, personagem.centro_da_casa(_casa(inimigo)))
-		assert_eq(GradeOcupacao.ocupante(_casa(inimigo)), inimigo)
-	assert_eq(GradeOcupacao.casas_de(personagem), [_casa(personagem)] as Array[Vector2i])
+		assert_eq(GradeOcupacao.casas_de(inimigo), [] as Array[Vector2i], inimigo.name)
 
 
-func test_inimigo_persegue_pela_grade_avisa_e_golpeia() -> void:
+func test_inimigo_persegue_avisa_e_golpeia() -> void:
+	Configuracoes.movimento_em_grade = false
 	await _esperar_navegacao()
 	bandido_escudo.process_mode = Node.PROCESS_MODE_DISABLED
 	bandido.preparo = 0.1
@@ -189,41 +195,23 @@ func test_inimigo_persegue_pela_grade_avisa_e_golpeia() -> void:
 	await wait_physics_frames(3)
 	assert_eq(bandido.estado, Inimigo.Estado.PERSEGUINDO)
 	await wait_until(func() -> bool: return bandido.estado == Inimigo.Estado.PREPARANDO, 4.0)
-	assert_true(bandido.vizinho_do_alvo())
-	assert_eq(bandido.global_position, personagem.centro_da_casa(_casa(bandido)), "Para no centro de uma casa.")
+	assert_true(bandido.perto_do_alvo())
 	await wait_for_signal(bandido.golpeou, 1.0)
 	var dano := Balanceamento.dano(int(bandido.atributos().ataque), vida.defesa_total())
 	assert_eq(vida.atual, vida_antes - dano, "O golpe tirou vida do Nicholas.")
 
 
-func test_dois_inimigos_nunca_dividem_uma_casa() -> void:
+func test_dois_inimigos_nunca_ficam_um_em_cima_do_outro() -> void:
+	Configuracoes.movimento_em_grade = false
 	await _esperar_navegacao()
 	bandido.preparo = 5.0
 	bandido_escudo.preparo = 5.0
 	_levar(personagem, _casa(bandido) + Vector2i(-2, 0))
 	for i in 40:
 		await wait_physics_frames(3)
-		assert_ne(_casa(bandido), _casa(bandido_escudo))
-		assert_ne(_casa(bandido), _casa(personagem))
-		assert_ne(_casa(bandido_escudo), _casa(personagem))
-		for inimigo: Inimigo in [bandido, bandido_escudo]:
-			for casa in GradeOcupacao.casas_de(inimigo):
-				assert_ne(GradeOcupacao.ocupante(casa), bandido if inimigo == bandido_escudo else bandido_escudo)
-	assert_true(bandido.vizinho_do_alvo() and bandido_escudo.vizinho_do_alvo(), "Os dois chegaram perto, cada um na sua casa.")
-
-
-func test_nicholas_nao_entra_na_casa_de_um_inimigo() -> void:
-	await _esperar_navegacao()
-	bandido.process_mode = Node.PROCESS_MODE_DISABLED
-	bandido_escudo.process_mode = Node.PROCESS_MODE_DISABLED
-	_levar(personagem, _casa(bandido) + Vector2i(-1, 0))
-	personagem.direcao_olhar = PersonagemExploracao.direcao_isometrica(Vector2(0, 1))
-	var antes := _casa(personagem)
-	Input.action_press("mover_tras")
-	await wait_seconds(0.5)
-	Input.action_release("mover_tras")
-	await wait_seconds(0.3)
-	assert_eq(_casa(personagem), antes, "A casa da frente é do bandido.")
+		assert_gt(bandido.global_position.distance_to(bandido_escudo.global_position), Inimigo.RAIO_CORPO,
+			"afastados um do outro")
+	assert_true(bandido.perto_do_alvo() or bandido_escudo.perto_do_alvo(), "Chegaram perto do Nicholas.")
 
 
 func test_inimigo_nao_ataca_durante_dialogo() -> void:
@@ -238,28 +226,27 @@ func test_inimigo_nao_ataca_durante_dialogo() -> void:
 func test_inimigo_desiste_e_volta_ao_posto() -> void:
 	await _esperar_navegacao()
 	bandido_escudo.process_mode = Node.PROCESS_MODE_DISABLED
-	var posto := _casa(bandido)
+	var posto := bandido.global_position
 	var inicio := _casa(personagem)
-	_levar(personagem, posto + Vector2i(-3, 0))
+	_levar(personagem, _casa(bandido) + Vector2i(-3, 0))
 	await wait_physics_frames(3)
 	assert_eq(bandido.estado, Inimigo.Estado.PERSEGUINDO)
 	await wait_seconds(0.4)
 	_levar(personagem, inicio)
 	await wait_until(func() -> bool: return bandido.estado == Inimigo.Estado.VOLTANDO, 2.0)
 	await wait_until(func() -> bool: return bandido.estado == Inimigo.Estado.PARADO, 5.0)
-	assert_eq(_casa(bandido), posto)
+	assert_eq(bandido.estado, Inimigo.Estado.PARADO)
+	assert_lt(bandido.global_position.distance_to(posto), Inimigo.CHEGOU + 1.0, "Voltou para onde estava.")
 
 
 func test_inimigo_morre_some_e_deixa_moedas() -> void:
 	var moedas := Inventario.dinheiro()
-	var casa := _casa(bandido)
 	watch_signals(bandido)
 	bandido.reacao.receber_golpe(Vector2.RIGHT, 999)
 	assert_signal_emitted(bandido, "morreu")
 	assert_eq(bandido.estado, Inimigo.Estado.MORTO)
 	assert_eq(Inventario.dinheiro(), moedas + bandido.moedas)
 	assert_false(bandido.reacao.is_in_group(ReacaoAoGolpe.GRUPO), "Morto não é mais atingido.")
-	assert_null(GradeOcupacao.ocupante(casa), "A casa fica livre.")
 	await wait_seconds(1.0)
 	assert_false(is_instance_valid(bandido), "Some da sala depois de apagar.")
 

@@ -3,7 +3,8 @@ extends CanvasLayer
 ## Botões grandes na tela para quem joga no toque: Correr (liga e desliga),
 ## Esquivar e Golpe (com uma arma na mão, algo para usar na barra rápida ou,
 ## sem arma, em combate: soco). Fazem o mesmo que Shift, Espaço
-## e o clique esquerdo no PC. O botão de pular virou Esquivar (Rafael, 23/10). Somem durante as conversas.
+## e o clique esquerdo no PC. Em combate, o botão de pular vira Esquivar
+## (Rafael, 23/10). Somem durante as conversas.
 ## Por padrão só aparecem em aparelhos com tela de toque.
 
 const GRUPO_BLOQUEIA_TOQUE := &"bloqueia_toque"
@@ -22,7 +23,7 @@ const GRUPO_BLOQUEIA_TOQUE := &"bloqueia_toque"
 func _ready() -> void:
 	painel.add_to_group(GRUPO_BLOQUEIA_TOQUE)
 	botao_correr.toggled.connect(_ao_alternar_corrida)
-	botao_pular.text = "EXPLORACAO_BOTAO_ESQUIVAR"
+	_atualizar_botao_pular()
 	botao_pular.pressed.connect(esquivar)
 	botao_golpe.pressed.connect(golpear)
 	Inventario.equipamento_mudou.connect(_ao_mudar_equipamento)
@@ -44,7 +45,7 @@ func pular() -> void:
 	_apertar_e_soltar(&"pular")
 
 
-## Aperta e solta "esquivar" (Espaço): esquiva (ou pulo, no andar em casas).
+## Aperta e solta "esquivar" (Espaço): esquiva em combate; fora dele, pula.
 func esquivar() -> void:
 	_apertar_e_soltar(&"esquivar")
 
@@ -70,6 +71,7 @@ func _ao_mudar_equipamento(quem: String, _encaixe: Item.Encaixe, _id: String) ->
 func _process(_delta: float) -> void:
 	# O combate começa e acaba sem aviso: confere a cada quadro.
 	_atualizar_botao_golpe()
+	_atualizar_botao_pular()
 
 
 func _ao_mudar_selecao(_indice: int) -> void:
@@ -85,6 +87,13 @@ func _atualizar_botao_golpe() -> void:
 		var jogador := get_tree().get_first_node_in_group(Interagivel.GRUPO_JOGADOR)
 		visivel = jogador != null and jogador.has_method("em_combate") and jogador.em_combate()
 	botao_golpe.visible = visivel
+
+
+## Em combate o botão diz Esquivar; fora dele, Pular.
+func _atualizar_botao_pular() -> void:
+	var jogador := get_tree().get_first_node_in_group(Interagivel.GRUPO_JOGADOR)
+	var esquiva: bool = jogador != null and jogador.has_method("espaco_esquiva") and jogador.espaco_esquiva()
+	botao_pular.text = "EXPLORACAO_BOTAO_ESQUIVAR" if esquiva else "EXPLORACAO_BOTAO_PULAR"
 
 
 func _ao_alternar_corrida(ligado: bool) -> void:

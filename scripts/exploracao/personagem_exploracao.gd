@@ -253,11 +253,12 @@ func _unhandled_input(event: InputEvent) -> void:
 			else tr("AVISO_MOVIMENTO_LIVRE"))
 		get_viewport().set_input_as_handled()
 	elif event.is_action_pressed("esquivar"):
-		# No andar em casas (o antigo, F3), Espaço continua pulando.
-		if movimento_antigo():
-			pular()
-		else:
+		# Espaço esquiva só em combate (Rafael, 23/10); fora dele, e no
+		# andar em casas (o antigo, F3), pula.
+		if espaco_esquiva():
 			esquivar()
+		else:
+			pular()
 		get_viewport().set_input_as_handled()
 	elif event.is_action_pressed("interagir"):
 		var alvo := interagivel_ao_alcance()
@@ -361,6 +362,11 @@ func esquivar() -> bool:
 	corpo.modulate.a = 0.55
 	esquivou.emit()
 	return true
+
+
+## Espaço esquiva agora (em combate, andando livre); senão, pula.
+func espaco_esquiva() -> bool:
+	return not movimento_antigo() and em_combate()
 
 
 ## Quanto da esquiva já passou, de 0 a 1 (-1 fora da esquiva). Usado pelo desenho.

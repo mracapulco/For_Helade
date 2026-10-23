@@ -27,7 +27,7 @@ OPCOES_IDIOMA,Idioma do jogo
 IDIOMA_pt_BR,Português (Brasil)
 OPCOES_SECAO_CONTROLES,Controles
 OPCOES_SENSIBILIDADE,Sensibilidade do mouse
-OPCOES_TECLAS,"W A S D ou setas: andar · Shift: correr · Espaço: esquivar · E: interagir · F3: andar livre ou em casas (nele, Espaço pula) · Esc: soltar o mouse"
+OPCOES_TECLAS,"W A S D ou setas: andar · Shift: correr · Espaço: pular (em combate, esquivar) · E: interagir · F3: andar livre ou em casas · Esc: soltar o mouse"
 OPCOES_SECAO_GRAFICOS,Gráficos
 OPCOES_TELA_CHEIA,Tela cheia
 OPCOES_VSYNC,Sincronização vertical (VSync)

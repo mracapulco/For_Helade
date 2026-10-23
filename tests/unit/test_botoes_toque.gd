@@ -32,13 +32,37 @@ func test_botoes_sao_grandes() -> void:
 	assert_gte(botoes.botao_pular.size.y, 120.0)
 
 
+## Põe o bandido ao lado dele (em combate) ou longe (fora de combate).
+func _bandido_perto(perto: bool) -> void:
+	var bandido: Node2D = sala.get_node("Bandido")
+	bandido.process_mode = Node.PROCESS_MODE_DISABLED
+	var escudo := sala.get_node_or_null("BandidoEscudo")
+	if escudo:
+		sala.remove_child(escudo)
+		escudo.free()
+	bandido.global_position = personagem.global_position + (Vector2(60, 0) if perto else Vector2(2000, 0))
+	await wait_process_frames(2)
+
+
 func test_textos_vem_da_traducao() -> void:
 	TranslationServer.set_locale("pt_BR")
 	assert_eq(tr(botoes.botao_correr.text), "Correr")
-	assert_eq(tr(botoes.botao_pular.text), "Esquivar", "o botão de pular virou Esquivar (23/10)")
+	await _bandido_perto(false)
+	assert_eq(tr(botoes.botao_pular.text), "Pular", "fora de combate")
+	await _bandido_perto(true)
+	assert_eq(tr(botoes.botao_pular.text), "Esquivar", "em combate o botão vira Esquivar (23/10)")
 
 
-func test_esquivar_faz_o_personagem_esquivar() -> void:
+func test_fora_de_combate_o_botao_pula() -> void:
+	await _bandido_perto(false)
+	botoes.botao_pular.pressed.emit()
+	await wait_process_frames(2)
+	assert_true(personagem.pulando)
+	assert_false(personagem.esquivando)
+
+
+func test_em_combate_o_botao_esquiva() -> void:
+	await _bandido_perto(true)
 	botoes.botao_pular.pressed.emit()
 	await wait_process_frames(2)
 	assert_true(personagem.esquivando or personagem.cargas < personagem.cargas_esquiva)

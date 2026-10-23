@@ -1,6 +1,7 @@
 extends GutTest
-## Animação da esquiva (Rafael, 23/10): agacha, rola uma volta para o lado
-## da esquiva e levanta, deixando vultos azulados no caminho.
+## Animação da esquiva (Rafael, 23/10): abaixa, avança inclinado para o lado
+## da esquiva e se endireita, deixando vultos azulados no caminho. Começou
+## como cambalhota, mas "parecia um ninja".
 
 var sala: Node2D
 var personagem: PersonagemExploracao
@@ -28,45 +29,35 @@ func after_all() -> void:
 	Inventario.limpar()
 
 
-func test_pose_agacha_rola_e_levanta() -> void:
-	var agachado := AnimacaoPersonagem.pose_do_rolamento(0.1)
-	assert_lt(agachado.escala.y, 1.0, "agacha")
-	assert_eq(agachado.giro, 0.0)
-	var no_meio := AnimacaoPersonagem.pose_do_rolamento(0.5)
-	assert_almost_eq(no_meio.giro, PI, 0.01, "na metade, de cabeça para baixo")
-	assert_gt(no_meio.altura, 0.0, "com um pulinho")
-	var quase := AnimacaoPersonagem.pose_do_rolamento(AnimacaoPersonagem.LEVANTAR - 0.001)
-	assert_almost_eq(quase.giro, TAU, 0.05, "uma volta inteira")
-	var fim := AnimacaoPersonagem.pose_do_rolamento(1.0)
+func test_pose_abaixa_inclina_e_se_endireita() -> void:
+	var abaixando := AnimacaoPersonagem.pose_da_esquiva(0.1)
+	assert_lt(abaixando.escala.y, 1.0, "abaixa")
+	var no_meio := AnimacaoPersonagem.pose_da_esquiva(0.5)
+	assert_lt(no_meio.escala.y, 1.0, "baixo")
+	assert_almost_eq(no_meio.giro, AnimacaoPersonagem.INCLINACAO, 0.001, "inclinado para a frente")
+	assert_lt(absf(no_meio.giro), 0.5, "só inclina, sem cambalhota")
+	var fim := AnimacaoPersonagem.pose_da_esquiva(1.0)
 	assert_eq(fim.escala, Vector2.ONE)
+	assert_almost_eq(fim.giro, 0.0, 0.001)
 
 
-func test_rola_para_o_lado_da_esquiva() -> void:
-	assert_lt(AnimacaoPersonagem.pose_do_rolamento(0.5, -1.0).giro, 0.0, "para a esquerda, ao contrário")
+func test_inclina_para_o_lado_da_esquiva() -> void:
+	assert_lt(AnimacaoPersonagem.pose_da_esquiva(0.5, -1.0).giro, 0.0, "para a esquerda, ao contrário")
 
 
-func test_gira_em_volta_do_meio_do_corpo() -> void:
-	personagem.esquivar()
-	visual.rolar(0.5)
-	# O meio do corpo fica no lugar (mais o pulinho); só gira em volta dele.
-	var meio := visual.position + (AnimacaoPersonagem.EIXO_ROLAMENTO * visual.scale).rotated(visual.rotation)
-	var pose := AnimacaoPersonagem.pose_do_rolamento(0.5)
-	assert_almost_eq(meio, AnimacaoPersonagem.EIXO_ROLAMENTO + Vector2(0, -pose.altura), Vector2(0.01, 0.01))
-
-
-func test_esquivar_rola_e_depois_volta_ao_normal() -> void:
+func test_esquivar_inclina_e_depois_volta_ao_normal() -> void:
 	Input.action_press("mover_direita")
 	await wait_physics_frames(2)
 	assert_true(personagem.esquivar())
-	await wait_until(func() -> bool: return absf(visual.rotation) > 1.0, 0.5)
-	assert_true(visual.rolando)
-	assert_gt(visual.rotation, 0.0, "para a direita, no sentido do relógio")
+	await wait_until(func() -> bool: return visual.rotation > 0.2, 0.5)
+	assert_true(visual.esquivando)
+	assert_gt(visual.rotation, 0.0, "para a direita, inclina para a direita")
+	assert_eq(visual.position, Vector2.ZERO, "os pés ficam no chão")
 	await wait_until(func() -> bool: return not personagem.esquivando, 1.0)
 	await wait_process_frames(2)
-	assert_false(visual.rolando)
+	assert_false(visual.esquivando)
 	assert_eq(visual.rotation, 0.0)
 	assert_eq(visual.scale, Vector2.ONE)
-	assert_eq(visual.position, Vector2.ZERO)
 
 
 func test_deixa_vultos_que_somem() -> void:

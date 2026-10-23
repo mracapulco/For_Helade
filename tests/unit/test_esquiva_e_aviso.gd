@@ -45,12 +45,24 @@ func _apertar_espaco() -> void:
 	Input.parse_input_event(tecla)
 
 
-func test_espaco_esquiva() -> void:
+func test_em_combate_espaco_esquiva() -> void:
 	assert_true(InputMap.has_action("esquivar"))
 	assert_eq((InputMap.action_get_events("esquivar")[0] as InputEventKey).physical_keycode, KEY_SPACE)
+	bandido.global_position = personagem.global_position + Vector2(60, 0)
+	assert_true(personagem.em_combate())
 	await _apertar_espaco()
 	assert_true(personagem.esquivando)
-	assert_false(personagem.pulando, "no andar livre, Espaço não pula")
+	assert_false(personagem.pulando, "em combate, Espaço não pula")
+
+
+func test_fora_de_combate_espaco_pula() -> void:
+	# Rafael, 23/10: a esquiva é só para confrontos; fora deles, Espaço pula.
+	for inimigo in [bandido, bandido_escudo]:
+		inimigo.global_position = personagem.global_position + Vector2(2000, 0)
+	assert_false(personagem.em_combate())
+	await _apertar_espaco()
+	assert_true(personagem.pulando)
+	assert_false(personagem.esquivando)
 
 
 func test_no_andar_em_casas_espaco_pula() -> void:

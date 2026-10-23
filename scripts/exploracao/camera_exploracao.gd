@@ -10,6 +10,14 @@ extends Camera2D
 ## Quantas vezes a arte é ampliada na tela (piso de 64×32 aparece com 128×64).
 const ZOOM_PIXEL_ART := 2.0
 
+## Quanto a câmera se adianta para onde o personagem anda, em pixels da arte,
+## para mostrar o que vem pela frente (Rafael, 23/10; P1). 0 desliga.
+@export var adiantamento := 32.0
+## Na vertical a tela é mais baixa que larga: adianta só esta parte.
+@export var adiantamento_vertical := 0.6
+## Rapidez com que o adiantamento acompanha (maior = mais rápido).
+@export var suavidade_adiantamento := 3.0
+
 
 func _ready() -> void:
 	zoom = Vector2.ONE * ZOOM_PIXEL_ART
@@ -17,6 +25,24 @@ func _ready() -> void:
 	limit_smoothed = true
 	if mapa:
 		aplicar_limites(limites_do_mapa(mapa))
+
+
+# A cada quadro desenhado (não na física), para o adiantamento ficar liso em
+# monitores de 120 ou 240 Hz.
+func _process(delta: float) -> void:
+	var dono := get_parent() as CharacterBody2D
+	if dono == null:
+		return
+	offset = offset.lerp(adiantamento_para(dono.velocity), 1.0 - exp(-suavidade_adiantamento * delta))
+
+
+## Para onde a câmera se adianta com o personagem andando a [param velocidade]:
+## parado, nada; andando, [member adiantamento] na direção do passo.
+func adiantamento_para(velocidade: Vector2) -> Vector2:
+	if velocidade.length() < 5.0 or adiantamento <= 0.0:
+		return Vector2.ZERO
+	var direcao := velocidade.normalized()
+	return Vector2(direcao.x, direcao.y * adiantamento_vertical) * adiantamento
 
 
 func aplicar_limites(limites: Rect2) -> void:

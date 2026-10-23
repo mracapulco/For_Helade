@@ -7,6 +7,12 @@ extends CharacterBody2D
 ## toque com o mouse).
 ## Teclado (PC): WASD ou setas para andar, Shift para correr, Espaço para pular,
 ## E para interagir com o interagível mais próximo ao alcance.
+## Movimento livre pela tela (Rafael, 23/10; planos/jogabilidade-isometrica.md,
+## P1): W sobe, S desce, A vai para a esquerda e D para a direita na tela, em
+## qualquer ângulo, como em Hades, Diablo e Tunic. Acelera e freia rápido
+## ([member tempo_acelerar], [member tempo_frear]). O andar antigo, de casa
+## em casa com as teclas nas linhas do quadriculado, continua como opção
+## ([member Configuracoes.movimento_em_grade], F3 alterna) para comparar.
 ## Golpe: com uma arma equipada, o clique esquerdo (ou o botão Golpe, no
 ## celular) golpeia para onde ele olha. Sem arma, com um inimigo vivo
 ## por perto ([member raio_combate]), o mesmo clique dá um soco (ataque base). No PC o clique só golpeia e o Enter
@@ -20,12 +26,11 @@ extends CharacterBody2D
 ## na cena, com a vida cheia, sem perder nada.
 ## Tocar num Interagivel: anda até ele e interage ao chegar.
 ## Durante uma conversa o personagem fica parado e ignora toques e teclas.
-## Na grade, cada casa tem um personagem só (GradeOcupacao): ele não entra
-## na casa de um inimigo, e o golpe pega só quem está na casa da frente (a
-## flecha, o primeiro da linha).
-## Com uma [member grade], ele anda de casa em casa do chão e sempre para no
-## centro de uma casa, pelo teclado ou pelo toque; assim fica claro quando
-## está alinhado com alguém.
+## Com uma [member grade], ele ocupa a casa onde está (GradeOcupacao), para
+## os inimigos, que ainda andam de casa em casa, não entrarem nela.
+## No andar antigo (em casas), ele anda de casa em casa do chão e sempre para
+## no centro de uma casa; não entra na casa de um inimigo, e o golpe pega só
+## quem está na casa da frente (a flecha, o primeiro da linha).
 
 signal destino_definido(destino: Vector2)
 signal chegou
@@ -48,8 +53,17 @@ const PASSOS: Array[Vector2i] = [
 @export var velocidade := 120.0
 ## Quanto mais rápido fica ao correr.
 @export var multiplicador_corrida := 1.5
-## Camada do chão cujas casas o movimento segue. Sem ela, anda livre.
+## Camada do chão da sala: as casas que ele ocupa e, no andar antigo, as
+## casas que o movimento segue. Sem ela, anda sempre livre.
 @export var grade: TileMapLayer
+## Tempo para ir de parado à velocidade toda (movimento livre).
+@export var tempo_acelerar := 0.06
+## Tempo para ir da velocidade toda a parado ao soltar as teclas.
+@export var tempo_frear := 0.08
+## Quanto da velocidade vale subindo ou descendo na tela (1 = igual à
+## horizontal). No isométrico, meia casa na vertical da tela é uma casa do
+## chão inteira: com 1, subir pareceria o dobro de rápido.
+@export var fator_vertical := 0.7
 @export var altura_pulo := 20.0
 @export var duracao_pulo := 0.45
 ## Id do personagem no Inventario, para saber se está armado.
@@ -147,6 +161,7 @@ func _ready() -> void:
 	if vida:
 		vida.morreu.connect(_ao_ser_derrotado)
 	_ponto_de_entrada = global_position
+	Configuracoes.mudou.connect(_ao_mudar_configuracoes)
 	_atualizar_vida_maxima()
 	_atualizar_ritmo()
 
@@ -169,6 +184,11 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 	elif event.is_action_pressed("golpear") and pode_golpear():
 		golpear()
+		get_viewport().set_input_as_handled()
+	elif event.is_action_pressed("alternar_movimento"):
+		Configuracoes.definir("movimento_em_grade", not Configuracoes.movimento_em_grade)
+		_mostrar_aviso(tr("AVISO_MOVIMENTO_GRADE") if Configuracoes.movimento_em_grade
+			else tr("AVISO_MOVIMENTO_LIVRE"))
 		get_viewport().set_input_as_handled()
 	elif event.is_action_pressed("pular"):
 		pular()
@@ -234,7 +254,7 @@ func interagir_com(alvo: Interagivel) -> void:
 func ir_para(destino: Vector2) -> void:
 	var mapa := agente.get_navigation_map()
 	var na_grade := Vector2.INF
-	if grade:
+	if anda_em_casas():
 		na_grade = casa_livre_perto(destino)
 	if na_grade != Vector2.INF:
 		destino = na_grade
@@ -272,6 +292,17 @@ func em_combate() -> bool:
 ## Pode golpear agora: com arma sempre; sem arma, só em combate (soco).
 func pode_golpear() -> bool:
 	return armado() or em_combate()
+
+
+## O andar antigo está ligado (opção para comparar, F3): teclas nas linhas
+## do quadriculado e, com uma [member grade], de casa em casa.
+func movimento_antigo() -> bool:
+	return Configuracoes.movimento_em_grade
+
+
+## Anda de casa em casa (o andar antigo com uma [member grade]).
+func anda_em_casas() -> bool:
+	return grade != null and movimento_antigo()
 
 
 ## Arma equipada agora, ou null.
@@ -338,7 +369,7 @@ func golpear() -> bool:
 ## quem está perto e na frente dele.
 func alvos_do_golpe() -> Array[ReacaoAoGolpe]:
 	var alvos: Array[ReacaoAoGolpe] = []
-	if grade:
+	if anda_em_casas():
 		var passo := passo_do_olhar()
 		var casa := casa_de(global_position)
 		for i in casas_do_golpe():
@@ -484,6 +515,35 @@ static func direcao_isometrica(direcao_teclas: Vector2) -> Vector2:
 	return direcao.normalized()
 
 
+## Direção das teclas na tela: W para cima, D para a direita (o movimento
+## livre). No analógico, a inclinação vira velocidade parcial; no teclado,
+## duas teclas juntas fazem a diagonal com o mesmo tamanho de uma.
+static func direcao_tela(direcao_teclas: Vector2) -> Vector2:
+	return direcao_teclas.limit_length(1.0)
+
+
+## Velocidade na tela para andar no [param rumo] (tamanho até 1) com
+## [param rapidez]: a parte vertical vale [member fator_vertical].
+func velocidade_na_tela(rumo: Vector2, rapidez: float) -> Vector2:
+	return Vector2(rumo.x, rumo.y * fator_vertical) * rapidez
+
+
+## Quanto da rapidez sobra andando nesta direção (1 na horizontal,
+## [member fator_vertical] na vertical). Serve para a animação saber se ele
+## corre mesmo subindo.
+func fator_da_direcao(direcao: Vector2) -> float:
+	if direcao.length() < 0.001:
+		return 1.0
+	if movimento_antigo():
+		return 1.0
+	var d := direcao.normalized()
+	# A velocidade do rumo d é (d.x, d.y·f)·rapidez; para um movimento que já
+	# saiu achatado, desfaz o achatamento para achar o rumo original.
+	var original := Vector2(d.x, d.y / fator_vertical).normalized()
+	return Vector2(original.x, original.y * fator_vertical).length()
+
+
+
 func _ao_comecar_dialogo(_recurso: DialogueResource) -> void:
 	em_dialogo = true
 	andando = false
@@ -524,7 +584,8 @@ func _physics_process(delta: float) -> void:
 	if teclas == Vector2.ZERO:
 		# Soltou: apertar de novo na mesma direção já anda.
 		_espera_virar = 0.0
-	if grade and (indo_para_casa() or teclas != Vector2.ZERO or _passo_guardado != Vector2i.ZERO):
+	if anda_em_casas() and (indo_para_casa() or teclas != Vector2.ZERO
+			or _passo_guardado != Vector2i.ZERO):
 		_andar_na_grade(teclas, rapidez, delta)
 		return
 	if teclas != Vector2.ZERO:
@@ -532,16 +593,29 @@ func _physics_process(delta: float) -> void:
 		if andando:
 			andando = false
 			chegou.emit()
-		velocity = direcao_isometrica(teclas) * rapidez
-		direcao_olhar = velocity.normalized()
+		if movimento_antigo():
+			# Andar antigo sem grade (Capítulo 01): teclas nas linhas do
+			# quadriculado, velocidade na hora.
+			velocity = direcao_isometrica(teclas) * rapidez
+		else:
+			var rumo := direcao_tela(teclas)
+			velocity = velocity.move_toward(velocidade_na_tela(rumo, rapidez),
+				rapidez / maxf(tempo_acelerar, 0.001) * delta)
+		direcao_olhar = velocity.normalized() if velocity.length() > 0.001 else direcao_olhar
 		move_and_slide()
 		return
 
 	if not andando:
-		velocity = Vector2.ZERO
+		# Soltou: freia rápido, sem parar seco (no andar antigo, para na hora).
+		if movimento_antigo():
+			velocity = Vector2.ZERO
+			return
+		velocity = velocity.move_toward(Vector2.ZERO, velocidade_andando() / maxf(tempo_frear, 0.001) * delta)
+		if velocity != Vector2.ZERO:
+			move_and_slide()
 		return
 	if agente.is_navigation_finished():
-		if grade and global_position.distance_to(agente.target_position) < 6.0:
+		if anda_em_casas() and global_position.distance_to(agente.target_position) < 6.0:
 			global_position = agente.target_position
 		andando = false
 		velocity = Vector2.ZERO
@@ -724,6 +798,40 @@ func _atualizar_pulo(delta: float) -> void:
 		pulando = false
 		corpo.position.y = 0.0
 		sombra.scale = Vector2.ONE
+
+
+func _ao_mudar_configuracoes() -> void:
+	if anda_em_casas():
+		velocity = Vector2.ZERO
+		return
+	# Saiu do andar em casas: esquece o passo em andamento.
+	if indo_para_casa():
+		GradeOcupacao.liberar(casa_de(_casa_destino), self)
+	_casa_destino = Vector2.INF
+	_passo_guardado = Vector2i.ZERO
+	_pressa = 1.0
+	_golpe_pendente = false
+	_espera_virar = 0.0
+
+
+## Um texto curto que sobe e some acima da cabeça (ao trocar o jeito de andar).
+func _mostrar_aviso(texto: String) -> void:
+	var aviso := Label.new()
+	aviso.name = "AvisoMovimento"
+	aviso.text = texto
+	aviso.add_theme_font_size_override("font_size", 8)
+	aviso.add_theme_color_override("font_color", Color(0.9255, 0.7412, 0.4588))
+	aviso.add_theme_color_override("font_outline_color", Color(0.0196, 0.0471, 0.0784))
+	aviso.add_theme_constant_override("outline_size", 3)
+	aviso.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	aviso.size = Vector2(120, 12)
+	aviso.position = Vector2(-60, -64)
+	aviso.z_index = 20
+	add_child(aviso)
+	var sumir := aviso.create_tween().set_parallel()
+	sumir.tween_property(aviso, "position:y", aviso.position.y - 10.0, 1.2)
+	sumir.tween_property(aviso, "modulate:a", 0.0, 0.5).set_delay(0.8)
+	sumir.chain().tween_callback(aviso.queue_free)
 
 
 func _ao_mudar_equipamento(quem: String, _encaixe: Item.Encaixe, _id: String) -> void:

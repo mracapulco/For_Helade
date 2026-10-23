@@ -7,7 +7,13 @@ var sala: Node2D
 var personagem: PersonagemExploracao
 
 
+func after_each() -> void:
+	Configuracoes.movimento_em_grade = false
+
+
 func before_each() -> void:
+	# Testes do andar antigo, de casa em casa (opção F3 desde 23/10).
+	Configuracoes.movimento_em_grade = true
 	Inventario.limpar()
 	sala = add_child_autofree(load("res://scenes/exploracao/sala_teste.tscn").instantiate())
 	personagem = sala.get_node("Personagem")

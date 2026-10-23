@@ -26,6 +26,7 @@ func before_each() -> void:
 
 
 func after_each() -> void:
+	Configuracoes.movimento_em_grade = false
 	if is_instance_valid(acampamento):
 		acampamento.free()
 	await wait_process_frames(2)
@@ -360,6 +361,8 @@ func test_cada_acampamento_tem_sua_musica(id: String = use_parameters(IDS)) -> v
 
 
 func test_anda_de_casa_em_casa_como_na_sala() -> void:
+	# O andar antigo, de casa em casa (opção F3 desde 23/10).
+	Configuracoes.movimento_em_grade = true
 	await _abrir("oa_acampamento")
 	var personagem := acampamento.get_node("Personagem") as PersonagemExploracao
 	assert_eq(personagem.grade, acampamento.get_node("Chao"))
@@ -377,6 +380,7 @@ func test_anda_de_casa_em_casa_como_na_sala() -> void:
 	await wait_for_signal(personagem.chegou, 5)
 	var casa := personagem.casa_de(personagem.global_position)
 	assert_eq(personagem.global_position, personagem.centro_da_casa(casa), "o toque também para no centro")
+	Configuracoes.movimento_em_grade = false
 
 
 func test_nicholas_no_acampamento_tem_a_idade_da_historia() -> void:

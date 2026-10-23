@@ -38,7 +38,10 @@ func _process(_delta: float) -> void:
 	# Vira para onde o personagem olha (a última direção em que andou), que
 	# é também para onde o golpe sai.
 	olhar_para(personagem.direcao_olhar)
-	var acao := escolher_acao(movimento.length(), personagem.velocidade_andando(), interagindo,
+	# Subindo na tela ele anda mais devagar (fator_vertical): compara com a
+	# velocidade daquela direção para saber se está correndo.
+	var rapidez := movimento.length() / personagem.fator_da_direcao(movimento)
+	var acao := escolher_acao(rapidez, personagem.velocidade_andando(), interagindo,
 		personagem.golpeando)
 	# O equipamento acelera ou atrasa o passo e o golpe.
 	speed_scale = personagem.ritmo() if personagem.golpeando else personagem.ritmo_andar()

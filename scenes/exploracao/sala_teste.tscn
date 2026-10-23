@@ -39,6 +39,7 @@
 [ext_resource type="Texture2D" path="res://assets/art/placeholders/exploracao/anfora.png" id="21_anfora"]
 [ext_resource type="Texture2D" path="res://assets/art/placeholders/exploracao/braseiro.png" id="22_braseiro"]
 [ext_resource type="Script" path="res://scripts/ui/barra_rapida.gd" id="90_barra"]
+[ext_resource type="Script" path="res://scripts/exploracao/paredes_translucidas.gd" id="91_paredes"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_pn2jv"]
 radius = 7.0
@@ -86,6 +87,7 @@ tile_set = ExtResource("1_hwg6f")
 y_sort_enabled = true
 tile_map_data = PackedByteArray("AAAAAAAAAQAAAAAAAAAAAAEAAQAAAAAAAAAAAAIAAQAAAAAAAAAAAAMAAQAAAAAAAAAAAAQAAQAAAAAAAAAAAAUAAQAAAAAAAAAAAAYAAQAAAAAAAAAAAAcAAQAAAAAAAAAAAAgAAQAAAAAAAAAAAAkAAQAAAAAAAAAAAAoAAQAAAAAAAAAAAAsAAQAAAAAAAAAAAAwAAQAAAAAAAAAAAA0AAQAAAAAAAAAAAA4AAQAAAAAAAAAAAA8AAQAAAAAAAAABAAAAAQAAAAAAAAACAAAAAQAAAAAAAAADAAAAAQAAAAAAAAAEAAAAAQAAAAAAAAAFAAAAAQAAAAAAAAAGAAAAAQAAAAAAAAAHAAAAAQAAAAAAAAAIAAAAAQAAAAAAAAAJAAAAAQAAAAAAAAAKAAAAAQAAAAAAAAALAAAAAQAAAAAAAAAMAAAAAQAAAAAAAAANAAAAAQAAAAAAAAAOAAAAAQAAAAAAAAAPAAAAAQAAAAAAAAAEAAQAAQAAAAAAAAAFAAQAAQAAAAAAAAAEAAUAAQAAAAAAAAAKAAcAAQAAAAAAAAAKAAgAAQAAAAAAAAAKAAkAAQAAAAAAAAAHAAsAAQAAAAAAAAA=")
 tile_set = ExtResource("1_hwg6f")
+script = ExtResource("91_paredes")
 
 [node name="Navegacao" type="NavigationRegion2D" parent="." unique_id=1603202086 node_paths=PackedStringArray("chao", "obstaculos")]
 script = ExtResource("3_nav")

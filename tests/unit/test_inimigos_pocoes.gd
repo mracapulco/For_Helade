@@ -11,7 +11,13 @@ var bandido: Inimigo
 var bandido_escudo: Inimigo
 
 
+func after_each() -> void:
+	Configuracoes.movimento_em_grade = false
+
+
 func before_each() -> void:
+	# Testes do andar antigo, de casa em casa (opção F3 desde 23/10).
+	Configuracoes.movimento_em_grade = true
 	Inventario.limpar()
 	Experiencia.limpar()
 	GradeOcupacao.limpar()

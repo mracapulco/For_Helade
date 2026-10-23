@@ -80,7 +80,8 @@ func _input(evento: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 		if aberta():
 			fechar()
-		elif botao_bolsa.visible:
+		elif botao_bolsa.visible and not get_tree().paused:
+			# Pausado: outra tela (o Códice) está aberta.
 			abrir()
 	elif aberta() and evento.is_action_pressed(&"ui_cancel"):
 		get_viewport().set_input_as_handled()

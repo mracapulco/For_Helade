@@ -8,6 +8,8 @@ extends Node
 ##   $> Codice.anotar("atenas")
 
 signal anotado(id: String)
+## Uma entrada foi lida na tela do Códice.
+signal lido(id: String)
 
 const TIPO_OLHAR := "olhar"
 const TIPO_CODICE := "codice"
@@ -30,6 +32,8 @@ const ENTRADAS := {
 
 ## Ids já anotados, na ordem em que foram anotados.
 var anotados: Array[String] = []
+## Ids já abertos na tela do Códice (os outros aparecem como novos).
+var lidos: Array[String] = []
 
 
 ## Anota a entrada. Devolve true se ela ainda não estava anotada.
@@ -46,6 +50,26 @@ func anotar(id: String) -> bool:
 
 func tem(id: String) -> bool:
 	return anotados.has(id)
+
+
+## Anotada e ainda não aberta na tela do Códice.
+func novo(id: String) -> bool:
+	return anotados.has(id) and not lidos.has(id)
+
+
+## Alguma entrada anotada ainda não foi lida (de um tipo, ou de qualquer um).
+func tem_novidade(tipo_da_entrada := "") -> bool:
+	for id in anotados:
+		if novo(id) and (tipo_da_entrada.is_empty() or ENTRADAS[id] == tipo_da_entrada):
+			return true
+	return false
+
+
+## A entrada foi aberta na tela do Códice.
+func marcar_lido(id: String) -> void:
+	if novo(id):
+		lidos.append(id)
+		lido.emit(id)
 
 
 ## Ids anotados de um tipo ("olhar" ou "codice"), na ordem em que foram anotados.
@@ -71,10 +95,11 @@ func texto(id: String) -> String:
 
 func limpar() -> void:
 	anotados.clear()
+	lidos.clear()
 
 
 func para_dados() -> Dictionary:
-	return {"anotados": anotados.duplicate()}
+	return {"anotados": anotados.duplicate(), "lidos": lidos.duplicate()}
 
 
 func de_dados(dados: Dictionary) -> void:
@@ -82,3 +107,6 @@ func de_dados(dados: Dictionary) -> void:
 	for id: String in dados.get("anotados", []):
 		if ENTRADAS.has(id) and not anotados.has(id):
 			anotados.append(id)
+	for id: String in dados.get("lidos", []):
+		if anotados.has(id) and not lidos.has(id):
+			lidos.append(id)

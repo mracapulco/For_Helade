@@ -5,6 +5,7 @@
 [ext_resource type="PackedScene" path="res://scenes/ui/botoes_toque.tscn" id="3_botoes"]
 [ext_resource type="PackedScene" path="res://scenes/ui/aviso_itens.tscn" id="4_aviso"]
 
+[ext_resource type="PackedScene" path="res://scenes/ui/tela_codice.tscn" id="90_codice"]
 [node name="Capitulo01" type="Node2D"]
 texture_filter = 1
 script = ExtResource("1_cap")
@@ -54,3 +55,5 @@ autowrap_mode = 3
 script = ExtResource("2_texto")
 
 [node name="AvisoItens" parent="." instance=ExtResource("4_aviso")]
+
+[node name="TelaCodice" parent="." instance=ExtResource("90_codice")]

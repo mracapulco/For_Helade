@@ -49,7 +49,7 @@ const MESA_XADREZ := Vector2i(FIM_CANTO, 1)
 
 ## Nós da sala de teste que ficam (o resto sai).
 const FICAM := ["Chao", "Obstaculos", "Navegacao", "MarcadorDestino", "Personagem",
-	"PlacaTeste", "Braseiro", "BotoesToque", "TelaBolsa", "AvisoItens", "BarraRapida", "HudVida"]
+	"PlacaTeste", "Braseiro", "BotoesToque", "TelaBolsa", "AvisoItens", "BarraRapida", "HudVida", "TelaCodice"]
 
 
 func _initialize() -> void:

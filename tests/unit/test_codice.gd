@@ -79,3 +79,39 @@ func test_aviso_na_tela_ao_anotar() -> void:
 	Codice.anotar("atenas")
 	assert_has(aviso.textos(), "Olhar de Nicholas: Roupas simples")
 	assert_has(aviso.textos(), "Códice: Atenas")
+
+
+func test_entrada_anotada_e_nova_ate_ser_lida() -> void:
+	assert_false(Codice.tem_novidade())
+	Codice.anotar("atenas")
+	assert_true(Codice.novo("atenas"))
+	assert_true(Codice.tem_novidade())
+	assert_true(Codice.tem_novidade(Codice.TIPO_CODICE))
+	assert_false(Codice.tem_novidade(Codice.TIPO_OLHAR))
+	watch_signals(Codice)
+	Codice.marcar_lido("atenas")
+	Codice.marcar_lido("atenas")
+	assert_signal_emit_count(Codice, "lido", 1)
+	assert_false(Codice.novo("atenas"))
+	assert_false(Codice.tem_novidade())
+
+
+func test_nao_anotada_nao_vira_lida() -> void:
+	Codice.marcar_lido("atenas")
+	assert_eq(Codice.lidos, [] as Array[String])
+
+
+func test_lidos_vao_no_jogo_salvo() -> void:
+	Codice.anotar("atenas")
+	Codice.anotar("roupas_simples")
+	Codice.marcar_lido("atenas")
+	var dados := Codice.para_dados()
+	Codice.limpar()
+	Codice.de_dados(dados)
+	assert_false(Codice.novo("atenas"))
+	assert_true(Codice.novo("roupas_simples"))
+
+
+func test_jogo_salvo_antigo_sem_lidos_mostra_tudo_como_novo() -> void:
+	Codice.de_dados({"anotados": ["atenas"]})
+	assert_true(Codice.novo("atenas"))

@@ -19,9 +19,13 @@ extends Node
 signal visao_comecou(inimigo: Inimigo)
 signal visao_terminou
 
-const SOM := preload("res://assets/audio/sfx/capitulo_01/tic_tac.wav")
-## No som do relógio, o "Tac." vem 1,3 s depois do "Tic.".
-const TAC_NO_SOM := 1.3
+## O tic-tac da visão, escolhido pelo Rafael (23/10). Separado do relógio do
+## sonho do Cap. 01.
+const SOM := preload("res://assets/audio/sfx/combate/tic_tac.wav")
+## Onde o "Tic." começa no arquivo: a visão toca a partir daqui.
+const TIC_NO_SOM := 0.15
+## Quanto depois do "Tic." vem o "Tac." no arquivo (a visão dura isso).
+const TAC_NO_SOM := 0.93
 
 const SOMBRA := """
 shader_type canvas_item;
@@ -238,7 +242,7 @@ func _tocar_relogio() -> void:
 		_som.stream = SOM
 		_som.bus = &"Master"
 		add_child(_som)
-	_som.play()
+	_som.play(TIC_NO_SOM)
 	# Só um tic e um tac: corta antes do próximo tic do som em loop.
 	var corte := get_tree().create_timer(TAC_NO_SOM + 0.6, true, false, true)
 	corte.timeout.connect(func() -> void:

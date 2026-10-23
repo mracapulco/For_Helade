@@ -25,10 +25,18 @@ enum Estado { PARADO, PERSEGUINDO, PREPARANDO, DESCANSANDO, VOLTANDO, MORTO }
 @export var raio_visao := 150.0
 ## ...e desiste quando ele passa desta.
 @export var raio_desistir := 260.0
-## Tempo do aviso antes do golpe (dá para fugir ou bater antes).
-@export var preparo := 0.45
+## Tempo do aviso antes do golpe (dá para fugir ou bater antes). 0,6 s
+## (Rafael, 23/10; P3): o aviso aparece no chão e enche até o golpe.
+@export var preparo := 0.6
 ## Descanso depois de cada golpe.
 @export var intervalo := 1.0
+## Começo do descanso em que ele fica "cansado" (mais escuro): a hora de
+## bater nele.
+@export var cansaco := 0.6
+## Até onde o golpe dele pega, em pixels do chão (o leque do aviso).
+@export var alcance_golpe := 72.0
+## Abertura do golpe dele, em graus.
+@export var arco_golpe := 120.0
 ## Moedas que deixa ao morrer.
 @export var moedas := 0
 ## Experiência que dá a quem o derrota (Experiencia). Lutar é opcional:
@@ -64,6 +72,10 @@ var _andaveis := {}
 var _iteracao_andaveis := -1
 ## Quanto falta para procurar caminho de novo depois de não achar.
 var _espera_caminho := 0.0
+## Aviso no chão do golpe que está preparando (null fora do preparo).
+var aviso_no_chao: AvisoNoChao
+## Para onde vai o golpe que está preparando, no chão (fica fixo no aviso).
+var _direcao_golpe := Vector2.RIGHT
 
 
 func _ready() -> void:
@@ -167,11 +179,17 @@ func _physics_process(delta: float) -> void:
 			if distancia > raio_desistir:
 				estado = Estado.VOLTANDO
 			elif vizinho_do_alvo():
-				_preparar()
+				# Um atacante por vez: espera a vez enquanto outro avisa.
+				if outro_atacando():
+					velocity = Vector2.ZERO
+				else:
+					_preparar()
 			else:
 				_comecar_passo(_casas_em_volta_do_alvo())
 		Estado.PREPARANDO:
 			_tempo += delta
+			if aviso_no_chao:
+				aviso_no_chao.progresso = clampf(_tempo / preparo, 0.0, 1.0)
 			if _tempo >= preparo:
 				_golpear()
 		Estado.DESCANSANDO:
@@ -287,12 +305,43 @@ func _procurar_jogador() -> PersonagemExploracao:
 func _parar() -> void:
 	estado = Estado.PARADO
 	velocity = Vector2.ZERO
+	_tirar_aviso()
+
+
+## Outro inimigo está avisando um golpe agora (um atacante por vez).
+func outro_atacando() -> bool:
+	for no in get_tree().get_nodes_in_group(GRUPO):
+		if no != self and no is Inimigo and (no as Inimigo).estado == Estado.PREPARANDO:
+			return true
+	return false
+
+
+## O golpe que ele prepara agora pega quem está em [param ponto]?
+func golpe_pega(ponto: Vector2) -> bool:
+	return AvisoNoChao.atinge(global_position, _direcao_golpe, ponto, alcance_golpe, arco_golpe)
+
+
+func _tirar_aviso() -> void:
+	if aviso_no_chao:
+		aviso_no_chao.queue_free()
+		aviso_no_chao = null
 
 
 func _preparar() -> void:
 	estado = Estado.PREPARANDO
 	_tempo = 0.0
 	velocity = Vector2.ZERO
+	# O golpe vai para onde o jogador está agora e fica fixo: dá para sair.
+	_direcao_golpe = AvisoNoChao.para_o_chao(alvo.global_position - global_position).normalized()
+	if _direcao_golpe == Vector2.ZERO:
+		_direcao_golpe = Vector2.RIGHT
+	_tirar_aviso()
+	aviso_no_chao = AvisoNoChao.new()
+	aviso_no_chao.name = "AvisoNoChao"
+	aviso_no_chao.raio = alcance_golpe
+	aviso_no_chao.arco = arco_golpe
+	aviso_no_chao.direcao = _direcao_golpe
+	add_child(aviso_no_chao)
 	if visual:
 		# Aviso: clareia e se ergue um pouco antes de bater.
 		_aviso = create_tween().set_process_mode(Tween.TWEEN_PROCESS_PHYSICS).set_parallel()
@@ -307,6 +356,7 @@ func interromper() -> void:
 		return
 	estado = Estado.DESCANSANDO
 	_tempo = 0.0
+	_tirar_aviso()
 	if _aviso:
 		_aviso.kill()
 	if visual:
@@ -318,22 +368,34 @@ func _golpear() -> void:
 	estado = Estado.DESCANSANDO
 	_tempo = 0.0
 	golpeou.emit()
-	var direcao := global_position.direction_to(alvo.global_position)
+	_tirar_aviso()
+	var direcao := AvisoNoChao.para_a_tela(_direcao_golpe).normalized()
 	if visual:
 		var bote := create_tween().set_process_mode(Tween.TWEEN_PROCESS_PHYSICS)
 		bote.tween_property(visual, "modulate", Color.WHITE, 0.0)
 		bote.tween_property(visual, "position", _posicao_visual + direcao * 5.0, 0.06)
 		bote.tween_property(visual, "position", _posicao_visual, 0.15)
-	if vizinho_do_alvo():
+		# Cansado: mais escuro por um instante, a hora de bater nele.
+		bote.tween_property(visual, "modulate", Color(0.65, 0.7, 0.85), 0.05)
+		bote.tween_interval(maxf(cansaco - 0.26, 0.0))
+		bote.tween_property(visual, "modulate", Color.WHITE, 0.15)
+	# O dano só existe agora, na área que o aviso mostrou (Rafael, 23/10; P3).
+	if golpe_pega(alvo.global_position) and not _esquivando(alvo):
 		var reacao_alvo := alvo.get_node_or_null("ReacaoAoGolpe") as ReacaoAoGolpe
 		if reacao_alvo:
-			reacao_alvo.receber_golpe(direcao, int(_atributos.ataque))
+			reacao_alvo.receber_golpe(global_position.direction_to(alvo.global_position), int(_atributos.ataque))
+
+
+## O jogador está invulnerável (no começo da esquiva).
+static func _esquivando(quem: Node) -> bool:
+	return quem.has_method("invulneravel") and quem.invulneravel()
 
 
 func _morrer() -> void:
 	estado = Estado.MORTO
 	velocity = Vector2.ZERO
 	remove_from_group(GRUPO)
+	_tirar_aviso()
 	GradeOcupacao.liberar_tudo(self)
 	if reacao:
 		reacao.remove_from_group(ReacaoAoGolpe.GRUPO)

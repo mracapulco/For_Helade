@@ -35,19 +35,27 @@ func test_botoes_sao_grandes() -> void:
 func test_textos_vem_da_traducao() -> void:
 	TranslationServer.set_locale("pt_BR")
 	assert_eq(tr(botoes.botao_correr.text), "Correr")
-	assert_eq(tr(botoes.botao_pular.text), "Pular")
+	assert_eq(tr(botoes.botao_pular.text), "Esquivar", "o botão de pular virou Esquivar (23/10)")
 
 
-func test_pular_faz_o_personagem_pular() -> void:
+func test_esquivar_faz_o_personagem_esquivar() -> void:
 	botoes.botao_pular.pressed.emit()
 	await wait_process_frames(2)
+	assert_true(personagem.esquivando or personagem.cargas < personagem.cargas_esquiva)
+
+
+func test_no_andar_em_casas_o_botao_pula() -> void:
+	Configuracoes.movimento_em_grade = true
+	botoes.botao_pular.pressed.emit()
+	await wait_process_frames(2)
+	Configuracoes.movimento_em_grade = false
 	assert_true(personagem.pulando)
 
 
-func test_pular_nao_deixa_a_tecla_presa() -> void:
+func test_esquivar_nao_deixa_a_tecla_presa() -> void:
 	botoes.botao_pular.pressed.emit()
 	await wait_process_frames(2)
-	assert_false(Input.is_action_pressed(&"pular"))
+	assert_false(Input.is_action_pressed(&"esquivar"))
 
 
 func test_correr_liga_e_desliga() -> void:

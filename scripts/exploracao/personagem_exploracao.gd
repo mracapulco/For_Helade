@@ -5,8 +5,12 @@ extends CharacterBody2D
 ## terá outro controle depois). Clicar ou tocar num interagível ao alcance
 ## interage com ele. Mouse e toque passam pelo mesmo caminho (o projeto emula
 ## toque com o mouse).
-## Teclado (PC): WASD ou setas para andar, Shift para correr, Espaço para pular,
-## E para interagir com o interagível mais próximo ao alcance.
+## Teclado (PC): WASD ou setas para andar, Shift para correr, Espaço para
+## esquivar (no andar em casas, pular), E para interagir com o interagível
+## mais próximo ao alcance.
+## Esquiva (Rafael, 23/10; P3): um rolamento curto para as teclas apertadas
+## (ou para onde olha), invulnerável no começo, com [member cargas_esquiva]
+## cargas que voltam com o tempo. Corta o golpe em andamento.
 ## Movimento livre pela tela (Rafael, 23/10; planos/jogabilidade-isometrica.md,
 ## P1): W sobe, S desce, A vai para a esquerda e D para a direita na tela, em
 ## qualquer ângulo, como em Hades, Diablo e Tunic. Acelera e freia rápido
@@ -46,6 +50,8 @@ signal golpeou
 signal acertou(alvos: Array[ReacaoAoGolpe])
 ## A vida chegou a zero; ele já voltou ao ponto de entrada.
 signal derrotado
+## Começou uma esquiva.
+signal esquivou
 
 ## As 8 casas vizinhas, no sistema de casas do chão.
 const PASSOS: Array[Vector2i] = [
@@ -101,6 +107,16 @@ const PASSOS: Array[Vector2i] = [
 @export var avanco_golpe := 6.0
 ## Quanto o terceiro golpe empurra mais que os outros.
 @export var empurrao_final := 2.5
+## Quanto dura a esquiva.
+@export var duracao_esquiva := 0.25
+## Quanto a esquiva leva, em pixels (na horizontal da tela).
+@export var distancia_esquiva := 56.0
+## Começo da esquiva em que nenhum golpe pega.
+@export var tempo_invulneravel := 0.18
+## Esquivas seguidas antes de precisar esperar.
+@export var cargas_esquiva := 2
+## Tempo para uma carga de esquiva voltar.
+@export var recarga_esquiva := 0.8
 ## Sem arma, o clique dá soco quando há um inimigo vivo a esta distância.
 @export var raio_combate := 200.0
 ## Com [member grade], parado e em combate: apertar uma direção diferente da
@@ -124,6 +140,9 @@ var pulando := false
 var golpeando := false
 ## Qual golpe do combo está em andamento (1 a 3); 0 fora de combo.
 var golpe_no_combo := 0
+var esquivando := false
+## Cargas de esquiva prontas agora.
+var cargas := 2
 ## Para onde ele olha: a última direção em que andou (começa olhando para
 ## baixo e para a direita, como o desenho).
 var direcao_olhar := Vector2(2, 1).normalized()
@@ -153,6 +172,10 @@ var _golpe_guardado := -1.0
 var _mira_guardada := Vector2.ZERO
 ## Há quanto tempo terminou o último golpe (para o combo).
 var _desde_o_golpe := INF
+var _tempo_esquiva := 0.0
+var _rumo_esquiva := Vector2.ZERO
+## Quanto já recarregou da próxima carga de esquiva.
+var _recarga := 0.0
 ## Pausas de impacto em andamento (uma pode começar antes da outra acabar).
 var _pausas_de_impacto := 0
 ## Quanto falta segurar a tecla, depois de virar, para começar a andar.
@@ -196,6 +219,7 @@ func _ready() -> void:
 	if vida:
 		vida.morreu.connect(_ao_ser_derrotado)
 	_ponto_de_entrada = global_position
+	cargas = cargas_esquiva
 	Configuracoes.mudou.connect(_ao_mudar_configuracoes)
 	_atualizar_vida_maxima()
 	_atualizar_ritmo()
@@ -228,8 +252,12 @@ func _unhandled_input(event: InputEvent) -> void:
 		_mostrar_aviso(tr("AVISO_MOVIMENTO_GRADE") if Configuracoes.movimento_em_grade
 			else tr("AVISO_MOVIMENTO_LIVRE"))
 		get_viewport().set_input_as_handled()
-	elif event.is_action_pressed("pular"):
-		pular()
+	elif event.is_action_pressed("esquivar"):
+		# No andar em casas (o antigo, F3), Espaço continua pulando.
+		if movimento_antigo():
+			pular()
+		else:
+			esquivar()
 		get_viewport().set_input_as_handled()
 	elif event.is_action_pressed("interagir"):
 		var alvo := interagivel_ao_alcance()
@@ -311,6 +339,51 @@ func pular() -> void:
 		return
 	pulando = true
 	_tempo_pulo = 0.0
+
+
+## Esquiva: um rolamento curto para as teclas apertadas (ou para onde ele
+## olha). Corta o golpe em andamento. Devolve false sem carga, em conversa,
+## já esquivando ou no andar em casas.
+func esquivar() -> bool:
+	if em_dialogo or esquivando or cargas < 1 or anda_em_casas():
+		return false
+	var teclas := Input.get_vector("mover_esquerda", "mover_direita", "mover_frente", "mover_tras")
+	_rumo_esquiva = direcao_tela(teclas).normalized() if teclas != Vector2.ZERO else direcao_olhar.normalized()
+	direcao_olhar = _rumo_esquiva
+	golpeando = false
+	golpe_no_combo = 0
+	_golpe_guardado = -1.0
+	andando = false
+	alvo_interacao = null
+	cargas -= 1
+	esquivando = true
+	_tempo_esquiva = 0.0
+	corpo.modulate.a = 0.55
+	esquivou.emit()
+	return true
+
+
+## Nenhum golpe pega agora (o começo da esquiva).
+func invulneravel() -> bool:
+	return esquivando and _tempo_esquiva < tempo_invulneravel
+
+
+func _atualizar_esquiva(delta: float) -> void:
+	if cargas < cargas_esquiva:
+		_recarga += delta
+		if _recarga >= recarga_esquiva:
+			_recarga = 0.0
+			cargas += 1
+	if not esquivando:
+		return
+	_tempo_esquiva += delta
+	if _tempo_esquiva >= tempo_invulneravel:
+		corpo.modulate.a = 1.0
+	if _tempo_esquiva >= duracao_esquiva:
+		esquivando = false
+		corpo.modulate.a = 1.0
+		# Sai do rolamento andando, sem parar seco.
+		velocity = velocidade_na_tela(_rumo_esquiva, velocidade_andando())
 
 
 ## Tem uma arma equipada no Inventario.
@@ -639,6 +712,11 @@ func _physics_process(delta: float) -> void:
 		_tempo_parado += delta
 	_atualizar_pulo(delta)
 	_atualizar_golpe(delta)
+	_atualizar_esquiva(delta)
+	if esquivando and not em_dialogo:
+		velocity = velocidade_na_tela(_rumo_esquiva, distancia_esquiva / duracao_esquiva)
+		move_and_slide()
+		return
 	if golpeando and not em_dialogo and not anda_em_casas() and _tempo_golpe < momento_do_corte / _ritmo:
 		# Avança um pouco até o corte: o golpe leva o corpo junto.
 		velocity = direcao_olhar * avanco_golpe / (momento_do_corte / _ritmo)
@@ -1003,6 +1081,8 @@ func _ao_ser_derrotado() -> void:
 	golpeando = false
 	golpe_no_combo = 0
 	_golpe_guardado = -1.0
+	esquivando = false
+	cargas = cargas_esquiva
 	andando = false
 	pulando = false
 	alvo_interacao = null

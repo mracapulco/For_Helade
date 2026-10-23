@@ -1,9 +1,9 @@
 class_name BotoesToque
 extends CanvasLayer
 ## Botões grandes na tela para quem joga no toque: Correr (liga e desliga),
-## Pular e Golpe (com uma arma na mão, algo para usar na barra rápida ou,
+## Esquivar e Golpe (com uma arma na mão, algo para usar na barra rápida ou,
 ## sem arma, em combate: soco). Fazem o mesmo que Shift, Espaço
-## e o clique esquerdo no PC. Somem durante as conversas.
+## e o clique esquerdo no PC. O botão de pular virou Esquivar (Rafael, 23/10). Somem durante as conversas.
 ## Por padrão só aparecem em aparelhos com tela de toque.
 
 const GRUPO_BLOQUEIA_TOQUE := &"bloqueia_toque"
@@ -22,7 +22,8 @@ const GRUPO_BLOQUEIA_TOQUE := &"bloqueia_toque"
 func _ready() -> void:
 	painel.add_to_group(GRUPO_BLOQUEIA_TOQUE)
 	botao_correr.toggled.connect(_ao_alternar_corrida)
-	botao_pular.pressed.connect(pular)
+	botao_pular.text = "EXPLORACAO_BOTAO_ESQUIVAR"
+	botao_pular.pressed.connect(esquivar)
 	botao_golpe.pressed.connect(golpear)
 	Inventario.equipamento_mudou.connect(_ao_mudar_equipamento)
 	Inventario.selecao_mudou.connect(_ao_mudar_selecao)
@@ -41,6 +42,11 @@ func deve_aparecer() -> bool:
 ## ficaria presa e o próximo toque não contaria como pulo novo.
 func pular() -> void:
 	_apertar_e_soltar(&"pular")
+
+
+## Aperta e solta "esquivar" (Espaço): esquiva (ou pulo, no andar em casas).
+func esquivar() -> void:
+	_apertar_e_soltar(&"esquivar")
 
 
 ## Aperta e solta "golpear": golpe para onde o personagem está olhando.

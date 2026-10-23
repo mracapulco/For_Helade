@@ -37,9 +37,7 @@ func _bandido_ao_lado() -> void:
 	personagem.global_position = personagem.centro_da_casa(personagem.casa_de(Vector2(64, 288)))
 	personagem._sincronizar_casa()
 	var casa := personagem.casa_de(personagem.global_position) + Vector2i(0, -1)
-	GradeOcupacao.liberar_tudo(bandido)
-	bandido.global_position = bandido.centro_da_casa(casa)
-	GradeOcupacao.ocupar(casa, bandido)
+	bandido.global_position = personagem.centro_da_casa(casa)
 	bandido.alvo = personagem
 
 

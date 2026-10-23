@@ -112,7 +112,7 @@ func test_ainda_ocupa_a_casa_onde_esta() -> void:
 	Input.action_release("mover_direita")
 	await wait_seconds(0.2)
 	var casa := personagem.casa_de(personagem.global_position)
-	assert_eq(GradeOcupacao.ocupante(casa), personagem, "para os inimigos, que andam em casas, não entrarem nele")
+	assert_eq(GradeOcupacao.ocupante(casa), personagem, "a casa do Nicholas continua marcada na grade (modo antigo em casas)")
 
 
 func test_correr_subindo_mostra_a_animacao_de_correr() -> void:

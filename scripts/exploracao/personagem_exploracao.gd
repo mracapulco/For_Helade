@@ -37,7 +37,7 @@ extends CharacterBody2D
 ## Tocar num Interagivel: anda até ele e interage ao chegar.
 ## Durante uma conversa o personagem fica parado e ignora toques e teclas.
 ## Com uma [member grade], ele ocupa a casa onde está (GradeOcupacao), para
-## os inimigos, que ainda andam de casa em casa, não entrarem nela.
+## o modo antigo em casas (os inimigos andam livres desde 23/10).
 ## No andar antigo (em casas), ele anda de casa em casa do chão e sempre para
 ## no centro de uma casa; não entra na casa de um inimigo, e o golpe pega só
 ## quem está na casa da frente (a flecha, o primeiro da linha).

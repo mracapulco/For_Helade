@@ -1,0 +1,39 @@
+## Capítulo 01 de "Pelos Olhos Dele", cena 11: a tarde em Atenas (livro,
+## l. ~555-563). O livro resume o passeio num parágrafo; o jogo usa essas
+## frases, na voz de Nicholas como o resto do capítulo, sem acrescentar
+## nada. A ordem das lojas é do jogador (brecha do livro); não muda relação
+## nem influência. Conversar com Ophelia no caminho usa a frase do livro e
+## dá +1 de relação (regra do jogo, Rafael 24/10/2026).
+
+~ frases_passeio
+
+## A tarde começa.
+Depois do desastre da colher, a conversa entre nós três tornou-se mais natural. [ID:CAP1_233]
+Caminhamos por Atenas durante o restante da tarde. [ID:CAP1_234]
+=> END
+
+~ frases_brinquedos
+
+## A primeira das duas lojas de brinquedos.
+Thea nos arrastou para mais duas lojas de brinquedos. [ID:CAP1_235]
+=> END
+
+~ frases_confeitaria
+
+## A confeitaria.
+Thea jurou que precisava entrar, embora mal tivesse tocado nos doces. [ID:CAP1_236]
+=> END
+
+~ frases_ophelia
+
+## Conversa com Ophelia no caminho.
+Thea falava o bastante para preencher qualquer silêncio, Ophelia começava a responder sem medir tanto as palavras. [ID:CAP1_237]
+Pouco a pouco, deixei de esperar que a princesa se ofendesse com tudo o que eu dizia. [ID:CAP1_238]
+Ainda mantinha certo cuidado. Mas já não parecia que carregava uma taça cheia até a borda, prestes a derramá-la ao menor movimento. [ID:CAP1_239]
+=> END
+
+~ frases_sol
+
+## Fim da tarde; segue para a volta à mansão.
+Quando percebemos, o Sol já descia entre os telhados da capital. [ID:CAP1_240]
+=> END

@@ -23,7 +23,7 @@ func test_aparecem_na_sala_de_teste() -> void:
 
 func test_sem_toque_e_sem_sempre_mostrar_ficam_escondidos() -> void:
 	botoes.sempre_mostrar = false
-	var esperado := DisplayServer.is_touchscreen_available() or OS.has_feature("mobile")
+	var esperado := Configuracoes.mostrar_botoes_toque()
 	assert_eq(botoes.deve_aparecer(), esperado)
 
 
@@ -110,3 +110,10 @@ func test_somem_durante_a_conversa() -> void:
 	assert_false(Input.is_action_pressed(&"correr"))
 	DialogueManager.dialogue_ended.emit(null)
 	assert_true(botoes.visible)
+
+
+func test_opcao_desligada_esconde_no_pc() -> void:
+	var antes := Configuracoes.botoes_toque
+	Configuracoes.botoes_toque = false
+	assert_eq(Configuracoes.mostrar_botoes_toque(), OS.has_feature("mobile"))
+	Configuracoes.botoes_toque = antes

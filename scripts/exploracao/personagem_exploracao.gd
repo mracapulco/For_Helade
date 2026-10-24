@@ -150,6 +150,11 @@ var direcao_olhar := Vector2(2, 1).normalized()
 var em_dialogo := false
 ## Interagível para onde o personagem está indo, se houver.
 var alvo_interacao: Interagivel
+## Outro nó o move (empurrando uma caixa, em cima de um bloco): ele não anda
+## pelas teclas nem pula, mas segue contando a casa onde está.
+var controlado := false
+## O clique esquerdo serve para outra coisa (agarrar caixas): não golpeia.
+var sem_golpe := false
 
 var _tempo_pulo := 0.0
 var _tempo_golpe := 0.0
@@ -241,7 +246,7 @@ func _unhandled_input(event: InputEvent) -> void:
 	if toque:
 		tocar(tela_para_mundo(event.position))
 		get_viewport().set_input_as_handled()
-	elif event.is_action_pressed("golpear") and pode_golpear():
+	elif event.is_action_pressed("golpear") and pode_golpear() and not sem_golpe:
 		var mira := Vector2.ZERO
 		if event is InputEventMouseButton and not anda_em_casas():
 			mira = get_global_mouse_position() - global_position
@@ -252,7 +257,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		_mostrar_aviso(tr("AVISO_MOVIMENTO_GRADE") if Configuracoes.movimento_em_grade
 			else tr("AVISO_MOVIMENTO_LIVRE"))
 		get_viewport().set_input_as_handled()
-	elif event.is_action_pressed("esquivar"):
+	elif event.is_action_pressed("esquivar") and not controlado:
 		# Espaço esquiva só em combate (Rafael, 23/10); fora dele, e no
 		# andar em casas (o antigo, F3), pula.
 		if espaco_esquiva():
@@ -739,7 +744,7 @@ func _physics_process(delta: float) -> void:
 		move_and_slide()
 		velocity = Vector2.ZERO
 		return
-	if em_dialogo or golpeando:
+	if em_dialogo or golpeando or controlado:
 		velocity = Vector2.ZERO
 		return
 	var rapidez := velocidade_andando()

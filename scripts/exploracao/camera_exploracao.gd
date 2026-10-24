@@ -27,6 +27,9 @@ var _tremor_restante := 0.0
 
 func _ready() -> void:
 	zoom = Vector2.ONE * ZOOM_PIXEL_ART
+	# Segue o personagem, que anda na física com interpolação: a câmera
+	# também (o Godot faria isso sozinho, com um aviso).
+	process_callback = Camera2D.CAMERA2D_PROCESS_PHYSICS
 	position_smoothing_enabled = true
 	limit_smoothed = true
 	if mapa:

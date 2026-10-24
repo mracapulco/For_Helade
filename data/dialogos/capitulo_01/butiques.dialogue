@@ -1,0 +1,182 @@
+## Capítulo 01 de "Pelos Olhos Dele", cena 9: a Rua das Butiques e a loja
+## de pelúcias (livro, l. ~367-437). Só frases-chave, sem mudar as palavras.
+## Escolha (brecha): como Nicholas responde quando Ophelia lhe mostra a
+## criatura que escolheu. Os rótulos entre colchetes são texto provisório do
+## jogo, NÃO do livro. A escolha só muda a relação com Ophelia e volta para
+## a mesma linha do livro.
+
+~ frases_rua
+
+## A carruagem para; o brasão de Olympia faz as pessoas se afastarem.
+A carruagem parou. Chegamos à Rua das Butiques. [ID:CAP1_153]
+=> END
+
+~ frases_rua_brasao
+
+## Os passantes reconhecem o brasão e se afastam.
+O movimento era constante, até o brasão de Olympia ser reconhecido. As pessoas se afastavam, abrindo espaço. [ID:CAP1_154]
+$> Codice.anotar("rua_das_butiques")
+=> END
+
+~ frases_quatro_guardas
+
+## No alto: Nicholas conta os guardas (Rafael, 21/10/2026).
+Quatro guardas? Isso é insuficiente para os padrões do Duque. [ID:CAP1_155]
+=> END
+
+~ guardas_dois
+
+## Depois que o jogador escolhe os dois guardas (E em dois deles).
+Nicholas: [#retrato=neutro] Dois comigo. [ID:CAP1_156]
+=> END
+
+~ frases_guardas_porta
+
+## No alto: os que não foram escolhidos ficam na porta da loja.
+Os outros dois ficaram na porta. [ID:CAP1_218]
+=> END
+
+## A Althea foge para as vitrines no caminho até a loja. Estas duas frases
+## NÃO são do livro (texto do jogo, Rafael, 21/10/2026).
+
+~ frases_fuga_1
+
+Thea disparou na direção de uma vitrine. [ID:CAP1_222]
+=> END
+
+~ frases_fuga_2
+
+De novo. Hoje ela não ia parar quieta. [ID:CAP1_223]
+=> END
+
+~ frases_loja
+
+## Dentro da loja de pelúcias.
+A loja era familiar. Althea já a conhecia bem, suas pelúcias, feitas sob encomenda a partir de desenhos estranhos e criaturas do Mar de Equidna. [ID:CAP1_158]
+=> END
+
+~ lojistas
+
+## Os donos os recebem e perguntam quem é a moça.
+Lojista: [#retrato=alegre] É uma honra tê-los aqui, filhos de Olympia. Ainda mais em um dia tão especial. [ID:CAP1_159]
+Lojista: [#retrato=surpresa] E quem seria esta bela jovem que está com vocês? Nunca os vimos trazer amigos. [ID:CAP1_160]
+=> END
+
+~ frases_lojistas_silencio
+
+## Ophelia não se apresenta.
+Ophelia não respondeu. [ID:CAP1_161]
+Nenhuma correção. Nenhuma exigência. [ID:CAP1_162]
+=> END
+
+~ nicholas_intervem
+
+## Nicholas intervém; a loja se ajoelha.
+Nicholas: [#retrato=neutro] Não me admira que não a reconheçam. Eu mesmo nunca a havia encontrado pessoalmente até hoje. Ainda assim, sejam mais cordiais com a Princesa legítima do Império de Hélade. [ID:CAP1_163]
+Lojista: [#retrato=triste] Nossos pêsames, Vossa Alteza… [ID:CAP1_164]
+Lojista: [#retrato=triste] Sentimos muito pela Imperatriz… [ID:CAP1_165]
+Lojista: [#retrato=triste] Que os Deuses a recebam… [ID:CAP1_166]
+=> END
+
+~ ophelia_levanta
+
+## Ophelia acalma a loja; Nicholas leva as meninas à sala lateral.
+Ophelia: [#retrato=neutro] Não há necessidade de tanta cordialidade. Por favor, levantem-se. Hoje é o aniversário de Lady Althea. Viemos apenas comprar um presente antes de partirmos para Olympia. [ID:CAP1_167]
+Lojista: [#retrato=medo] C-claro, Vossa Alteza… Podemos reservar uma sala, ou— [ID:CAP1_168]
+Nicholas: [#retrato=neutro] Olharemos sozinhos. Vocês sabem que a Thea prefere escolher seus brinquedos. [ID:CAP1_169]
+Lojista: [#retrato=neutro] Claro, Jovem Mestre. [ID:CAP1_170]
+=> END
+
+~ frases_prateleiras
+
+## Na sala lateral.
+Althea se agachou entre as prateleiras baixas. Ophelia fez o mesmo, sem hesitar. Aquilo me incomodou. [ID:CAP1_171]
+=> END
+
+## Jogo dos desenhos da Thea na sala lateral (E em cada prateleira). Estas
+## frases NÃO são do livro (texto do jogo, Rafael, 21/10/2026): uma por
+## desenho achado, na ordem, sem nomear criaturas novas; e as de errar ou
+## de achar uma parecida.
+
+~ frases_prateleira_1
+
+A Thea já tem um desses. [ID:CAP1_219]
+=> END
+
+~ frases_prateleira_2
+
+Esse também. A Thea já tem um igual. [ID:CAP1_220]
+=> END
+
+~ frases_prateleira_3
+
+Nada aqui que ela ainda não tenha. [ID:CAP1_221]
+=> END
+
+~ frases_pista_1
+
+## Pistas da Thea na sala lateral: texto do jogo, não do livro.
+A Thea jurou ter visto braços saindo de uma cesta. [ID:CAP1_226]
+=> END
+
+~ frases_pista_2
+
+## Texto do jogo, não do livro.
+Agora ela queria a do mar, com barbatanas. Escondida entre os embrulhos. [ID:CAP1_227]
+=> END
+
+~ frases_pista_3
+
+## Texto do jogo, não do livro.
+A última estava lá no alto, longe das mãos dela. [ID:CAP1_228]
+=> END
+
+~ frases_alto_demais
+
+## Texto do jogo, não do livro.
+Alto demais. Eu precisava de algo para subir. [ID:CAP1_230]
+=> END
+
+~ frases_subir
+
+## Texto do jogo, não do livro.
+Subi nas caixas e alcancei a prateleira de cima. [ID:CAP1_231]
+=> END
+
+~ frases_arrumar
+
+## Texto do jogo, não do livro.
+A Ophelia pôs a caixa e o banquinho de volta no lugar. [ID:CAP1_232]
+=> END
+
+~ presente
+
+## Ophelia mostra a criatura longa, entre cobra e enguia. Escolha de tom.
+Ophelia: [#retrato=neutro] O que acha deste… Nicholas? É assim que prefere? [ID:CAP1_172]
+- [Olhar a criatura com atenção] [ID:CAP1_OPC_PRESENTE_ATENCAO]
+	$> Relacoes.ajustar("ophelia", 1)
+	Nicholas: [#retrato=neutro] Ela não tem um desses. É uma boa escolha. [ID:CAP1_173]
+- [Responder sem olhar] [ID:CAP1_OPC_PRESENTE_SECO]
+	$> Relacoes.ajustar("ophelia", -1)
+	Nicholas: [#retrato=neutro] Ela não tem um desses. É uma boa escolha. [ID:CAP1_174]
+=> END
+
+~ frases_presente
+
+## As duas opções voltam aqui.
+Ophelia analisou o brinquedo, então sorriu de leve. Mostrou para Althea, que aprovou com entusiasmo imediato. [ID:CAP1_175]
+=> END
+
+~ sem_titulos
+
+## O pedido de Ophelia: só o nome, sem títulos.
+Ophelia: [#retrato=neutro] Então, quando estivermos só nós, prefiro que use meu nome. Sem títulos. [ID:CAP1_176]
+Nicholas: [#retrato=neutro] Como quiser… Ophelia. [ID:CAP1_177]
+=> END
+
+~ frases_saida
+
+## De volta à carruagem.
+Com a compra feita, retornamos à carruagem. O mesmo ritual nos seguiu. Olhares, reverências e sussurros. [ID:CAP1_179]
+Ao menos, no almoço, estaríamos isolados. [ID:CAP1_180]
+=> END

@@ -31,6 +31,7 @@ OPCOES_TECLAS,"W A S D ou setas: andar · Shift: correr · Espaço: pular (em co
 OPCOES_SECAO_GRAFICOS,Gráficos
 OPCOES_TELA_CHEIA,Tela cheia
 OPCOES_VSYNC,Sincronização vertical (VSync)
+OPCOES_BOTOES_TOQUE,Botões de toque na tela
 OPCOES_SECAO_SOM,Som
 OPCOES_VOLUME_GERAL,Volume geral
 OPCOES_VOLUME_MUSICA,Música
@@ -217,6 +218,16 @@ CODICE_ATENAS_TITULO,Atenas
 CODICE_ATENAS_TEXTO,"Capital do Império de Hélade, fundada para educar os Abençoados."
 CODICE_PALACIO_IMPERIAL_TITULO,Palácio Imperial
 CODICE_PALACIO_IMPERIAL_TEXTO,"Morada do Imperador Varsélios, em Atenas."
+CODICE_OLHOS_DE_OPHELIA_TITULO,Os olhos de Ophelia
+CODICE_OLHOS_DE_OPHELIA_TEXTO,Azuis pálidos. Iguais aos dele.
+CODICE_POUCOS_GUARDAS_TITULO,Poucos guardas
+CODICE_POUCOS_GUARDAS_TEXTO,"Poucos demais para alguém como uma princesa."
+CODICE_ANEXO_VAZIO_TITULO,O anexo vazio
+CODICE_ANEXO_VAZIO_TEXTO,"Os guardas recuaram, em silêncio, para o anexo. Quando Nicholas olhou de novo, estava vazio."
+CODICE_RUA_DAS_BUTIQUES_TITULO,Rua das Butiques
+CODICE_ANO_DOURADO_TITULO,Ano Dourado
+CODICE_ANO_DOURADO_TEXTO,"Há 2.000 anos, os três reinos passaram por um milagre, que até os dias atuais é conhecido por Ano Dourado. Naquele ano nasceram 12 crianças, divididas entre os três reinos, de olhos azuis com a beirada da íris dourada: ao Sol ou ao luar, formava-se nos seus olhos um anel de puro ouro. À medida que cresciam, demonstravam características sobre-humanas; chamavam-se Abençoados. Houve uma trégua milenar, e os três reinos se uniram em Atenas para educá-los. Um Ciclo equivale a 100 anos; agora é o 20º Ciclo do Ano Dourado."
+CODICE_RUA_DAS_BUTIQUES_TEXTO,"Rua de Atenas. Quando o brasão de Olympia é reconhecido, as pessoas se afastam e abrem espaço."
 PAUSA_TITULO,Pausa
 PAUSA_BOTAO,Pausa
 PAUSA_VOLTAR_AO_JOGO,Voltar ao jogo
@@ -257,6 +268,35 @@ LOJA_VAI_DESEQUIPAR,Está equipado: será tirado ao vender.
 LOJA_MERCADOR_KHRONOSSES_NOME,Mercador do acampamento (Khronosses)
 LOJA_MERCADOR_AGAPE_NOME,Mercador do acampamento (Ágape)
 LOJA_MERCADOR_OLYMPIA_NOME,Mercador do acampamento (Olympia)
+OBJ_CAP1_ROUPA,Pegue a roupa no armário
+OBJ_CAP1_ESPELHO,Vista-se diante do espelho
+OBJ_CAP1_SAIR_QUARTO,Saia do quarto
+OBJ_CAP1_PORTA_ALTHEA,Espere o cortejo na porta de Althea
+OBJ_CAP1_OLHAR_PONTAS,Olhe para as duas pontas do corredor
+OBJ_CAP1_ACORDAR,Acorde Althea
+OBJ_CAP1_EMBRULHO,Entregue o embrulho a Althea
+OBJ_CAP1_MESA_CHA,Sente-se com Althea à mesa de chá
+OBJ_CAP1_PATIO,Siga Althea até a fonte
+OBJ_CAP1_EMBARQUE,Ajude as duas a subir na carruagem
+OBJ_CAP1_ANEXO,Lance um último olhar ao anexo
+OBJ_CAP1_GUARDAS_RUA,Escolha dois guardas para entrar com vocês
+OBJ_CAP1_GUARDAS_MAIS_UM,Escolha mais um guarda
+OBJ_CAP1_LOJA,Entre na loja de pelúcias
+OBJ_CAP1_BUSCAR_THEA,Busque a Thea na vitrine
+OBJ_CAP1_PRESENTE,Siga as pistas da Thea pela sala
+OBJ_CAP1_SALA_LATERAL,Siga para a sala lateral
+CALOR_QUENTE,Quente!
+CALOR_MORNO,Morno
+CALOR_FRIO,Frio
+OBJ_CAP1_MESA,Sente-se à mesa
+OBJ_CAP1_COLHER,Pegue uma colher limpa no armário
+OBJ_CAP1_LEVAR_COLHER,Leve a colher limpa para Ophelia
+OBJ_CAP1_PASSEIO,Entre nas lojas com Althea e Ophelia
+SOPA_MEXER,Mexer
+SOPA_SOPRAR,Soprar
+SOPA_PROVAR,Provar
+SOPA_DEVOLVER,Devolver a tigela
+SOPA_DICA,Aperte E quando o anel tocar o dourado
 TIC_TAC_TIC,Tic.
 TIC_TAC_TAC,Tac.
 CODICE_PILHAS_DE_LIVROS_TITULO,Pilhas de livros

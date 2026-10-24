@@ -38,10 +38,11 @@ signal rosto_entrou(nome: String)
 ## Ação que pula a digitação.
 @export var skip_action: StringName = &"ui_cancel"
 
-## Com true, as escolhas aparecem sempre sozinhas, embaixo, sem cobrir a
-## cena (a carruagem do Capítulo 01): uma fala que vem junto com escolhas
+## Com true (o padrão desde 19/10/2026, pedido do Rafael: as escolhas não
+## cobrem mais o Nicholas), as escolhas aparecem sempre sozinhas, embaixo,
+## sem cobrir a cena: uma fala que vem junto com escolhas
 ## aparece primeiro e, depois de Enter ou de um toque, dá lugar a elas.
-static var escolhas_embaixo := false
+static var escolhas_embaixo := true
 
 ## Estados extras repassados ao Dialogue Manager.
 var temporary_game_states: Array = []

@@ -20,7 +20,9 @@ extends Node2D
 ##    Princesa Ophelia; depois Althea e Nicholas mudam os planos do dia.
 ## 6. carruagem: Nicholas olha pelas janelas (códice) e a caminho do Palácio
 ##    Imperial vem a conversa ("Está bravo comigo, Nick?").
-## 7. fim: o palácio (passo 3) ainda não existe, então o jogo volta ao menu.
+## 7. palacio: a manhã termina e o jogo segue para a cena do Palácio Imperial
+##    (scripts/capitulo_01/cena_palacio.gd), que encadeia as seguintes
+##    (ordem em [SequenciaCenas01]).
 ## O que Nicholas encontra vira nota no [code]Codice[/code] ("olhar").
 ## As salas são montadas por código ([SalaMontada]); os textos estão em
 ## data/dialogos/capitulo_01/manha.dialogue.
@@ -29,6 +31,16 @@ signal etapa_mudou(etapa: String)
 
 const ROTEIRO := preload("res://data/dialogos/capitulo_01/manha.dialogue")
 const CENA_JOGADOR := preload("res://scenes/capitulo_01/nicholas_11.tscn")
+const CENA_OBJETIVO := preload("res://scenes/ui/objetivo.tscn")
+## Objetivo na tela de cada etapa jogável (chave de i18n/strings.csv); no
+## quarto ele muda com o que Nicholas já fez ([method _objetivo_da_etapa]).
+const OBJETIVOS := {
+	"corredor": "OBJ_CAP1_PORTA_ALTHEA",
+	"esperando": "OBJ_CAP1_OLHAR_PONTAS",
+	"quarto_althea": "OBJ_CAP1_ACORDAR",
+	"embrulho": "OBJ_CAP1_EMBRULHO",
+	"a_mesa": "OBJ_CAP1_MESA_CHA",
+}
 const QUADROS_PIJAMA := preload("res://assets/art/personagens/nicholas/nicholas_11_pijama_exploracao.tres")
 const QUADROS_VESTIDO := preload("res://assets/art/personagens/nicholas/nicholas_11_exploracao.tres")
 const QUADROS_APOLLON := preload("res://assets/art/personagens/apollon/apollon_exploracao.tres")
@@ -82,7 +94,7 @@ const TEMPO_OLHANDO := 0.5
 ## Falso nos testes: as conversas passam direto, sem abrir a caixa.
 @export var mostrar_dialogos := true
 ## Para onde o jogo vai no fim deste passo.
-@export var cena_depois := "res://scenes/main/main.tscn"
+@export var cena_depois := SequenciaCenas01.CENAS["palacio"]
 
 var etapa := ""
 var sala: SalaMontada
@@ -99,6 +111,8 @@ var viu_espelho := false
 var vestido := false
 ## Extremidades do corredor para onde Nicholas já olhou, esperando o cortejo.
 var extremidades_vistas: Array[String] = []
+## Onde fica o Corpo de Nicholas (x) antes do passo para o lado da espada.
+var _corpo_x := 0.0
 ## Onde fica o desenho de Nicholas sentado (para ele se inclinar e voltar).
 var _offset_sentado_x := 0.0
 ## Brilho das janelas das pontas do corredor, até ele olhar por elas.
@@ -107,6 +121,8 @@ var brilhos := {}
 ## virado para cada extremidade.
 var _olhar_na_porta := Vector2.ZERO
 var _tempo_olhando := {}
+## Nicholas de braços cruzados na porta de Althea (CAP1_030), até se mexer.
+var _bracos_cruzados := false
 ## Quantas vezes Nicholas já tocou Althea na cama.
 var toques_na_cama := 0
 ## A garota do sonho andando até a porta.
@@ -118,6 +134,10 @@ var _passo_fora_do_sonho := Vector2.ZERO
 
 ## Objetos da sala atual que a sequência usa.
 var objetos := {}
+## Marcador "escolheu_..." da última escolha (ver _falar_e_escolher).
+var _escolha := ""
+## A linha do objetivo no alto da tela ([Objetivo]).
+var objetivo: Objetivo
 
 @onready var texto: TextoSolto = %Texto
 @onready var cortina: ColorRect = %Cortina
@@ -128,6 +148,9 @@ func _ready() -> void:
 	jogador.name = "Nicholas"
 	_vestir(QUADROS_PIJAMA)
 	cortina.color.a = 1.0
+	objetivo = CENA_OBJETIVO.instantiate()
+	add_child(objetivo)
+	objetivo.observar(texto)
 	comecar()
 
 
@@ -288,6 +311,7 @@ func pegar_roupas() -> void:
 		return
 	pegou_roupas = true
 	_ativar(objetos["armario"], false)
+	_objetivo_da_etapa()
 	Codice.anotar("roupas_simples")
 
 
@@ -295,8 +319,10 @@ func olhar_espelho() -> void:
 	if etapa != "quarto" or viu_espelho:
 		return
 	if not pegou_roupas:
-		# Sem a roupa, o espelho só mostra o quarto (e ele, pequeno diante dele).
-		_frases("frases_espelho_sem_roupa")
+		# Sem a roupa: "Preciso me arrumar, rápido." (na caixa).
+		_travar(true)
+		await _falar("espelho_sem_roupa")
+		_travar(false)
 		return
 	viu_espelho = true
 	_ativar(objetos["espelho"], false)
@@ -305,10 +331,10 @@ func olhar_espelho() -> void:
 	await _escurecer()
 	_vestir(QUADROS_VESTIDO)
 	vestido = true
+	_objetivo_da_etapa()
 	await _clarear()
 	_travar(false)
 	_ativar(objetos["porta_quarto"], true)
-	await _frases("frases_espelho")
 
 
 func sair_do_quarto() -> void:
@@ -364,7 +390,12 @@ func _physics_process(delta: float) -> void:
 	if etapa == "sonho" and perto_da_garota():
 		chegar_na_garota()
 		return
-	if etapa != "esperando" or jogador.direcao_olhar.is_equal_approx(_olhar_na_porta):
+	if etapa != "esperando":
+		return
+	if _bracos_cruzados and (jogador.velocity.length() > 1.0
+			or not jogador.direcao_olhar.is_equal_approx(_olhar_na_porta)):
+		_descruzar_os_bracos()
+	if jogador.direcao_olhar.is_equal_approx(_olhar_na_porta):
 		return
 	_olhar_na_porta = Vector2.INF
 	for nome: String in RUMO_EXTREMIDADES:
@@ -386,6 +417,8 @@ func esperar_cortejo() -> void:
 	_ativar(objetos["porta_althea"], false)
 	_tingir(TOM_AMANHECER, 6.0)
 	_frases("frases_esperando")
+	# "Cruzei os braços e esperei." (CAP1_030, a primeira frase).
+	_cruzar_os_bracos()
 	for nome: String in EXTREMIDADES:
 		_ativar(objetos[nome], true)
 	# Basta virar para uma ponta (sem ir até lá) para olhar para ela.
@@ -405,6 +438,7 @@ func olhar_extremidade(nome: String) -> void:
 	if etapa != "esperando" or extremidades_vistas.has(nome):
 		return
 	extremidades_vistas.append(nome)
+	_descruzar_os_bracos()
 	_ativar(objetos[nome], false)
 	var janela := "janela_esq" if nome == "extremidade_esq" else "janela_dir"
 	if brilhos.has(janela):
@@ -481,7 +515,6 @@ func montar_quarto_althea() -> void:
 	_ativar(objetos["embrulho"], false)
 	_mudar("quarto_althea")
 	await _clarear()
-	_frases("frases_quarto_althea")
 
 
 ## Primeiro toque: "Ela resmungou e apertou a pelúcia." No segundo, Nicholas
@@ -497,7 +530,7 @@ func acordar_althea() -> void:
 	_mudar("aniversario")
 	_ativar(objetos["cama_althea"], false)
 	_travar(true)
-	await _frases("frases_puxou")
+	await _frases("frases_puxei")
 	await _falar("acordar_althea")
 	await _levantar_althea()
 	# "O embrulho comprido apoiado ao lado da cama": Nicholas o entrega.
@@ -511,7 +544,21 @@ func entregar_embrulho() -> void:
 		return
 	_mudar("espada")
 	_ativar(objetos["embrulho"], false)
-	await _falar("espada")
+	_corpo_x = jogador.get_node("Corpo").position.x
+	await _falar_travado("espada")
+	# A narração vai no alto, entre as partes da conversa.
+	_reagir_na_espada("CAP1_051")
+	await _frases("frases_espada")
+	match await _falar_e_escolher("espada_escolha", true):
+		"escolheu_rendicao":
+			# Sem frase (CAP1_099 saiu, Rafael 21/10/2026): só a pose de rendição.
+			_reagir_na_espada("rendicao")
+			await _esperar(1.2)
+		"escolheu_desvio":
+			_reagir_na_espada("CAP1_100")
+			await _frases("frases_desvio")
+	await _falar("espada_fim")
+	_fim_da_espada()
 	objetos["embrulho"].visible = false
 	_mudar("presentes")
 	Codice.anotar("presentes")
@@ -523,6 +570,87 @@ func entregar_embrulho() -> void:
 	_virar(althea, sala.centro(Vector2i(4, 4)))
 	_ativar(althea, true)
 	_mudar("a_mesa")
+
+
+## Com a espada de madeira: Althea golpeia o ar na direção de Nicholas
+## (enquanto Nicholas adulto narra o presente); ele finge rendição (as mãos para cima) ou desvia com um
+## passo curto para o lado enquanto ela golpeia de novo.
+func _reagir_na_espada(id: String) -> void:
+	match id:
+		"CAP1_051":
+			_golpe_de_althea()
+		"rendicao":
+			_pose_de_nicholas(&"rendicao")
+		"CAP1_100":
+			_golpe_de_althea()
+			# o passo é para o lado contrário ao dela
+			var lado := 1.0 if jogador.position.x >= objetos["althea"].position.x else -1.0
+			_mover_suave(jogador.get_node("Corpo"), "position:x", _corpo_x + lado * 6.0)
+
+
+## Althea golpeia algumas vezes na direção de Nicholas, com um avanço curto
+## a cada golpe: o desenho do golpe tem só 3 quadros (0,25 s) e, sozinho,
+## passava despercebido enquanto a frase aparecia no alto.
+func _golpe_de_althea(vezes := 3) -> void:
+	var althea: Node2D = objetos.get("althea")
+	if althea == null:
+		return
+	var visual: AnimatedSprite2D = althea.get_node("Visual")
+	var etapa_do_golpe := etapa
+	for i in vezes:
+		if not is_instance_valid(visual) or etapa != etapa_do_golpe:
+			return
+		visual.play(&"golpe_frente")
+		_virar(althea, jogador.position)
+		visual.frame = 0
+		visual.play()
+		if escala_tempo <= 0.0:
+			return
+		var lado := signf(jogador.position.x - althea.position.x)
+		var avanco := create_tween()
+		avanco.tween_property(visual, "position:x", lado * 5.0, 0.12)
+		avanco.tween_property(visual, "position:x", 0.0, 0.2)
+		await visual.animation_finished
+		await _esperar(0.35)
+	if is_instance_valid(visual) and etapa == etapa_do_golpe:
+		visual.play("parado_%s" % visual.animation.get_slice("_", 1))
+
+
+## Na porta de Althea: braços cruzados enquanto espera; ao se mexer (andar
+## ou virar para uma ponta do corredor), o desenho volta a seguir o movimento.
+func _cruzar_os_bracos() -> void:
+	_bracos_cruzados = true
+	# Virado para a câmera (Rafael, 21/10/2026).
+	_pose_de_nicholas(&"bracos_cruzados", "frente")
+
+
+func _descruzar_os_bracos() -> void:
+	if not _bracos_cruzados:
+		return
+	_bracos_cruzados = false
+	jogador.get_node("Corpo/Visual").set_process(true)
+
+
+## Nicholas numa pose fora das que o desenho escolhe sozinho (a animação do
+## jogador fica parada até [method _fim_da_espada]).
+func _pose_de_nicholas(acao: StringName, lado := "") -> void:
+	var visual: AnimatedSprite2D = jogador.get_node("Corpo/Visual")
+	visual.set_process(false)
+	if lado == "":
+		lado = visual.animation.get_slice("_", 1)
+	visual.play("%s_%s" % [acao, lado])
+
+
+## Fim da conversa: todos voltam ao parado (e Nicholas ao lugar).
+func _fim_da_espada() -> void:
+	var visual: AnimatedSprite2D = jogador.get_node("Corpo/Visual")
+	visual.set_process(true)
+	visual.play("parado_%s" % visual.animation.get_slice("_", 1))
+	_mover_suave(jogador.get_node("Corpo"), "position:x", _corpo_x)
+	var althea: Node2D = objetos.get("althea")
+	if althea:
+		var dela: AnimatedSprite2D = althea.get_node("Visual")
+		dela.play("parado_%s" % dela.animation.get_slice("_", 1))
 
 
 ## Althea se senta na cama, pula para o chão e vai até o embrulho.
@@ -683,6 +811,24 @@ func _falar_travado(marcador: String) -> void:
 	_travar(true)
 
 
+## Conversa com escolha: devolve o marcador "escolheu_..." por onde a opção
+## passou ("" sem caixa), para a narração da escolha ir no alto depois.
+func _falar_e_escolher(marcador: String, travado: bool) -> String:
+	_escolha = ""
+	DialogueManager.passed_cue.connect(_ao_passar_marcador)
+	if travado:
+		await _falar_travado(marcador)
+	else:
+		await _falar(marcador)
+	DialogueManager.passed_cue.disconnect(_ao_passar_marcador)
+	return _escolha
+
+
+func _ao_passar_marcador(marcador: String) -> void:
+	if marcador.begins_with("escolheu_"):
+		_escolha = marcador
+
+
 func _casa_de(no: Node2D) -> Vector2i:
 	return sala.chao.local_to_map(no.position)
 
@@ -743,7 +889,7 @@ func sentar_a_mesa() -> void:
 	_mudar("mesa")
 	_travar(true)
 	await _frases("frases_mesa")
-	await _frases("frases_duque")
+	await _falar_travado("anuncio_do_duque")
 	await chegada_do_duque()
 
 
@@ -758,7 +904,18 @@ func chegada_do_duque() -> void:
 	await create_tween().tween_property(apollon, "modulate:a", 1.0, maxf(0.4 * escala_tempo, 0.01)).finished
 	await _caminhar(apollon, sala.centro(_casa_livre_perto(_casa_de(jogador), Vector2i(5, 1))), 1.4)
 	_virar(apollon, jogador.position)
-	await _falar_travado("duque")
+	_pose_de_althea(&"espada_colo")
+	DialogueManager.got_dialogue.connect(_ao_ver_fala_do_duque)
+	var escolha := await _falar_e_escolher("duque", true)
+	DialogueManager.got_dialogue.disconnect(_ao_ver_fala_do_duque)
+	match escolha:
+		"escolheu_olhar_althea":
+			_pose_de_althea(&"abraca_espada")
+			await _frases("frases_olhar_althea")
+		"escolheu_encarar":
+			await _frases("frases_encarar")
+	await _falar_travado("duque_tarefa")
+	_pose_de_althea(&"parado")
 	# O duque parte quase tão depressa quanto chegou.
 	await _caminhar(apollon, sala.centro(Vector2i(5, 1)), 1.4)
 	await create_tween().tween_property(apollon, "modulate:a", 0.0, maxf(0.4 * escala_tempo, 0.01)).finished
@@ -768,6 +925,23 @@ func chegada_do_duque() -> void:
 	await _frases("frases_por_que")
 	await _escurecer()
 	await montar_carruagem()
+
+
+## À mesa, Althea segura a espada de madeira no colo enquanto o duque fala;
+## no "P-parem de brigar...", aperta o punho da espada contra o peito.
+func _ao_ver_fala_do_duque(linha: DialogueLine) -> void:
+	if linha.static_id == "CAP1_070":
+		_pose_de_althea(&"abraca_espada")
+
+
+## Althea numa pose, virada para o mesmo lado (frente ou costas).
+func _pose_de_althea(acao: StringName) -> void:
+	var althea: Node2D = objetos.get("althea")
+	if althea == null or not althea.has_node("Visual"):
+		return
+	var visual: AnimatedSprite2D = althea.get_node("Visual")
+	var lado := "costas" if visual.animation.ends_with("costas") else "frente"
+	visual.play("%s_%s" % [acao, lado])
 
 
 # --- 6. a carruagem ----------------------------------------------------------
@@ -821,10 +995,7 @@ func montar_carruagem() -> void:
 	# Antes da conversa, Nicholas olha pelas janelas (até se voltar para Althea).
 	_offset_sentado_x = objetos["nicholas_sentado"].offset.x
 	DialogueManager.got_dialogue.connect(_ao_ver_fala_na_carruagem)
-	# As escolhas das janelas ficam sempre embaixo, para ver a carruagem.
-	CaixaDialogo.escolhas_embaixo = true
 	await _falar_travado("janela")
-	CaixaDialogo.escolhas_embaixo = false
 	DialogueManager.got_dialogue.disconnect(_ao_ver_fala_na_carruagem)
 	await _voltar_para_althea()
 	await _falar_travado("carruagem")
@@ -836,8 +1007,8 @@ func montar_carruagem() -> void:
 	camera.zoom = zoom_antes
 	jogador.get_node("Corpo").visible = true
 	jogador.get_node("Sombra").visible = true
-	_mudar("fim")
-	await _frases_soltas([tr("CAP1_PROVISORIO_CONTINUA")])
+	# Encadeia: a manhã termina e o Palácio Imperial (cena_palacio.gd) começa.
+	_mudar("palacio")
 	cena_pedida = cena_depois
 	if trocar_de_cena:
 		TrocaCena.ir_para(cena_depois)
@@ -911,7 +1082,22 @@ func _parte_do_carro(nome: String, arquivo: String, quadros: int) -> Sprite2D:
 
 func _mudar(nova: String) -> void:
 	etapa = nova
+	_objetivo_da_etapa()
 	etapa_mudou.emit(nova)
+
+
+## Chave do objetivo agora ("" quando não há o que fazer: cenas e conversas).
+func chave_do_objetivo() -> String:
+	if etapa == "quarto":
+		if vestido:
+			return "OBJ_CAP1_SAIR_QUARTO"
+		return "OBJ_CAP1_ESPELHO" if pegou_roupas else "OBJ_CAP1_ROUPA"
+	return OBJETIVOS.get(etapa, "")
+
+
+func _objetivo_da_etapa() -> void:
+	if objetivo:
+		objetivo.definir(chave_do_objetivo())
 
 
 func _nova_sala(largura: int, profundidade: int, tom: Color) -> void:

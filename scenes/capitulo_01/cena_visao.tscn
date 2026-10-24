@@ -1,0 +1,56 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/capitulo_01/cena_visao.gd" id="1_cap"]
+[ext_resource type="Script" path="res://scripts/prologo/texto_solto.gd" id="2_texto"]
+[ext_resource type="PackedScene" path="res://scenes/ui/botoes_toque.tscn" id="3_botoes"]
+[ext_resource type="PackedScene" path="res://scenes/ui/aviso_itens.tscn" id="4_aviso"]
+
+[node name="CenaVisao" type="Node2D"]
+texture_filter = 1
+script = ExtResource("1_cap")
+
+[node name="Fundo" type="CanvasLayer" parent="."]
+layer = -10
+
+[node name="Cor" type="ColorRect" parent="Fundo"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+color = Color(0.0196, 0.0471, 0.0784, 1)
+
+[node name="BotoesToque" parent="." instance=ExtResource("3_botoes")]
+
+[node name="Escuro" type="CanvasLayer" parent="."]
+layer = 10
+
+[node name="Cortina" type="ColorRect" parent="Escuro"]
+unique_name_in_owner = true
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+color = Color(0, 0, 0, 1)
+
+[node name="Frases" type="CanvasLayer" parent="."]
+layer = 20
+
+[node name="Texto" type="Label" parent="Frases"]
+unique_name_in_owner = true
+anchors_preset = -1
+anchor_top = 0.08
+anchor_right = 1.0
+anchor_bottom = 0.3
+offset_left = 80.0
+offset_right = -80.0
+mouse_filter = 2
+theme_override_font_sizes/font_size = 30
+theme_override_colors/font_color = Color(0.97, 0.92, 0.8, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.85)
+theme_override_constants/outline_size = 10
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+script = ExtResource("2_texto")
+
+[node name="AvisoItens" parent="." instance=ExtResource("4_aviso")]

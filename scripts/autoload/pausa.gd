@@ -133,7 +133,7 @@ func _fechar_opcoes() -> void:
 
 
 func _tem_toque() -> bool:
-	return OS.has_feature("mobile") or DisplayServer.is_touchscreen_available()
+	return Configuracoes.mostrar_botoes_toque()
 
 
 func _botao(chave: String, ao_apertar: Callable) -> Button:

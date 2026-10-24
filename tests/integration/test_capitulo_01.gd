@@ -124,13 +124,13 @@ func test_a_manha_inteira_na_ordem() -> void:
 	var na_mesa: Vector2i = capitulo.sala.chao.local_to_map(capitulo.objetos["althea"].position)
 	assert_eq(na_mesa, Vector2i(3, 4), "Althea espera à mesa de chá")
 	_interagir("althea")
-	await _esperar_etapa("fim")
+	await _esperar_etapa("palacio")
 	assert_true(Codice.tem("imperatriz_callie"))
 	for i in 10:
 		if capitulo.cena_pedida != "":
 			break
 		await wait_physics_frames(1)
-	assert_eq(capitulo.cena_pedida, "res://scenes/main/main.tscn")
+	assert_eq(capitulo.cena_pedida, "res://scenes/capitulo_01/cena_palacio.tscn")
 
 
 func test_fora_de_ordem_nao_avanca() -> void:
@@ -158,7 +158,8 @@ func test_corredor_tem_oito_passos_entre_as_portas() -> void:
 
 func test_falas_estao_no_elenco() -> void:
 	# Todos os caminhos de todas as conversas (cada opção de cada escolha).
-	for marcador in ["cortejo", "acordar_althea", "espada", "duque", "planos", "janela", "carruagem"]:
+	for marcador in ["espelho_sem_roupa", "cortejo", "acordar_althea", "espada", "espada_escolha",
+			"espada_fim", "anuncio_do_duque", "duque", "duque_tarefa", "planos", "janela", "carruagem"]:
 		var pendentes: Array[String] = [marcador]
 		var vistos := {}
 		while not pendentes.is_empty():
@@ -183,15 +184,27 @@ func test_falas_estao_no_elenco() -> void:
 
 
 func test_cada_escolha_volta_para_a_linha_principal() -> void:
+	for opcao in 2:
+		var ids := await _percorrer("cortejo", [opcao] as Array[int])
+		assert_has(ids, "CAP1_040", "cortejo, opção %d" % opcao)
+	# Na espada e no duque, a escolha só marca qual frase vem no alto; depois o
+	# script segue para a linha principal (espada_fim, duque_tarefa).
+	var marcas: Array[String] = []
+	var anotar := func(marca: String) -> void: marcas.append(marca)
+	DialogueManager.passed_cue.connect(anotar)
 	var caminhos := {
-		"cortejo": "CAP1_040",
-		"espada": "CAP1_054",
-		"duque": "CAP1_071",
+		"espada_escolha": ["escolheu_rendicao", "escolheu_desvio"],
+		"duque": ["escolheu_olhar_althea", "escolheu_encarar"],
 	}
 	for marcador: String in caminhos:
 		for opcao in 2:
-			var ids := await _percorrer(marcador, [opcao] as Array[int])
-			assert_has(ids, caminhos[marcador], "%s, opção %d" % [marcador, opcao])
+			marcas.clear()
+			await _percorrer(marcador, [opcao] as Array[int])
+			assert_has(marcas, caminhos[marcador][opcao], "%s, opção %d" % [marcador, opcao])
+	DialogueManager.passed_cue.disconnect(anotar)
+	assert_has(await _percorrer("espada_fim", [] as Array[int]), "CAP1_054")
+	assert_has(await _percorrer("duque_tarefa", [] as Array[int]), "CAP1_071")
+	Relacoes.limpar()
 
 
 func test_escolhas_mudam_so_o_tom() -> void:
@@ -201,10 +214,10 @@ func test_escolhas_mudam_so_o_tom() -> void:
 	await _percorrer("cortejo", [1] as Array[int])
 	assert_eq(Relacoes.valor("pany"), 1, "deixar para lá")
 	Relacoes.limpar()
-	await _percorrer("espada", [0] as Array[int])
+	await _percorrer("espada_escolha", [0] as Array[int])
 	assert_eq(Relacoes.valor("althea"), 1, "fingir rendição")
 	Relacoes.limpar()
-	await _percorrer("espada", [1] as Array[int])
+	await _percorrer("espada_escolha", [1] as Array[int])
 	assert_eq(Relacoes.valor("althea"), 0, "desviar, rindo")
 	await _percorrer("duque", [0] as Array[int])
 	assert_eq(Relacoes.valor("althea"), 1, "olhar para Althea")
@@ -357,7 +370,7 @@ func test_o_duque_entra_e_depois_a_carruagem() -> void:
 	capitulo.etapa_mudou.connect(_anotar_carruagem)
 	_interagir("althea")
 	await _esperar_etapa("duque")
-	await _esperar_etapa("fim")
+	await _esperar_etapa("palacio")
 	assert_false(na_carruagem.is_empty(), "passou pela carruagem")
 	assert_false(na_carruagem.get("apollon", true), "o duque já partiu")
 	assert_true(na_carruagem.get("carro", false), "a carruagem na rua")
@@ -418,3 +431,37 @@ func test_no_sonho_nicholas_anda_devagar_ao_som_do_relogio() -> void:
 	capitulo.chegar_na_garota()
 	await _esperar_etapa("quarto")
 	assert_gt(capitulo.jogador.velocidade, Capitulo01.VELOCIDADE_NO_SONHO, "acordado, volta ao passo normal")
+
+
+func test_na_porta_de_althea_nicholas_cruza_os_bracos_ate_se_mexer() -> void:
+	var quadros: SpriteFrames = load("res://assets/art/personagens/nicholas/nicholas_11_exploracao.tres")
+	for lado in ["frente", "costas"]:
+		assert_true(quadros.has_animation("bracos_cruzados_%s" % lado), "bracos_cruzados_%s" % lado)
+	await _ate_o_corredor()
+	_interagir("porta_althea")
+	await _esperar_etapa("esperando")
+	var visual: AnimatedSprite2D = capitulo.jogador.get_node("Corpo/Visual")
+	assert_string_starts_with(visual.animation, "bracos_cruzados_", "\"Cruzei os braços e esperei.\"")
+	await wait_physics_frames(3)
+	assert_string_starts_with(visual.animation, "bracos_cruzados_", "parado, continua de braços cruzados")
+	capitulo.jogador.direcao_olhar = Vector2(1, -1).normalized()
+	await wait_physics_frames(3)
+	assert_true(visual.is_processing(), "ao se mexer, o desenho volta a seguir o movimento")
+	assert_false(String(visual.animation).begins_with("bracos_cruzados_"), "e descruza os braços")
+
+
+func test_com_o_duque_althea_segura_a_espada_e_a_aperta_no_peito() -> void:
+	var quadros: SpriteFrames = load("res://assets/art/personagens/althea/althea_6_exploracao.tres")
+	for pose in ["espada_colo", "abraca_espada"]:
+		for lado in ["frente", "costas"]:
+			assert_true(quadros.has_animation("%s_%s" % [pose, lado]), "%s_%s" % [pose, lado])
+	await _ate_o_corredor()
+	await _esperar_o_cortejo()
+	await _acordar_e_entregar()
+	var visual: AnimatedSprite2D = capitulo.objetos["althea"].get_node("Visual")
+	capitulo._pose_de_althea(&"espada_colo")
+	assert_string_starts_with(visual.animation, "espada_colo_", "no colo enquanto o duque fala")
+	var linha := DialogueLine.new()
+	linha.static_id = "CAP1_070"
+	capitulo._ao_ver_fala_do_duque(linha)
+	assert_string_starts_with(visual.animation, "abraca_espada_", "\"P-parem de brigar...\"")

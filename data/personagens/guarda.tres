@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="Personagem" format=3]
+
+[ext_resource type="Script" path="res://scripts/systems/personagem.gd" id="1_personagem"]
+
+[resource]
+script = ExtResource("1_personagem")
+nome_no_roteiro = "Guarda"
+cor_provisoria = Color(0.6, 0.2, 0.2, 1)
+pixel_art = true
+id_retratos = "guarda"

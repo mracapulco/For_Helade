@@ -67,6 +67,7 @@ CAB_OLYMPIA = dict(luz='#FBF3D6', base='#E8DBA6', sombra='#C4B07A', funda='#9C8A
 CAB_APOLLON = dict(luz='#F2EAD0', base='#DACFA8', sombra='#B4A67E', funda='#8E8160')
 CAB_ESCURO = dict(luz='#6A4C3A', base='#3A2820', sombra='#24170F', funda='#170E09')
 CAB_JANET = dict(luz='#4A3426', base='#2A1C14', sombra='#180F0A', funda='#0C0705')
+CAB_LOJISTA = dict(luz='#9A8266', base='#7A6450', sombra='#554434', funda='#3A2B22')
 CAB_GRISALHO = dict(luz='#E4E2DE', base='#B8B4AE', sombra='#8C8882', funda='#64605C')
 
 LINHA = '#3A2620'
@@ -491,6 +492,14 @@ ELENCO = {
         '': dict(pele=PELE_MADURA, geometria='adulto', cabelo='penteado', cabelo_cores=CAB_ESCURO,
                  olhos=CASTANHO,
                  roupa=dict(estilo='uniforme', base='#A8232B', sombra='#6E1219', luz='#C83A40')),
+    },
+    # Dono da loja de pelúcias (falante "Lojista" do Capítulo 01). DO LIVRO: só
+    # "o homem do casal" de donos. INFERÊNCIA, como na folha da exploração:
+    # artesão maduro, cabelo castanho, camisa clara e colete marrom.
+    'lojista': {
+        '': dict(pele=PELE_MADURA, geometria='adulto', cabelo='penteado', cabelo_cores=CAB_LOJISTA,
+                 olhos=CASTANHO, ruga=True,
+                 roupa=dict(estilo='colete', base='#6B5A3A', sombra='#4A3E28', luz='#8A7650')),
     },
     'janet': {
         '': dict(pele=PELE_ESCURA, geometria='adulta', cabelo='bandana', cabelo_cores=CAB_JANET,

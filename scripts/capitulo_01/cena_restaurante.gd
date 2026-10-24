@@ -110,7 +110,6 @@ func _almoco() -> void:
 	await _falar_travado("colher")
 	await _frases("frases_silencio")
 	await _falar_travado("desculpas")
-	await _frases("frases_idiota")
 	await _falar_travado("ophelia_toma")
 	await _falar_travado("ophelia_toma_fim")
 	await _caminhar(objetos["garcom"], [sala.centro(CASA_GARCOM)], 1.2)

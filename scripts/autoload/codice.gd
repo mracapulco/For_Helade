@@ -30,6 +30,8 @@ const ENTRADAS := {
 	"olhos_de_ophelia": TIPO_OLHAR,
 	"anexo_vazio": TIPO_OLHAR,
 	"rua_das_butiques": TIPO_CODICE,
+	# Capítulo 01, cena 11: o passeio (livraria; texto do pré-textual do V1).
+	"ano_dourado": TIPO_CODICE,
 	# Biblioteca do Castelo Olympia (sala de desafio, P5; V1 P1 c05).
 	"pilhas_de_livros": TIPO_OLHAR,
 	"mesa_de_xadrez": TIPO_OLHAR,

@@ -3,14 +3,14 @@ extends RefCounted
 ## Ordem das cenas do Capítulo 01 depois da manhã (cenas 7 a 10 do plano) e
 ## qual cena jogável abre cada etapa. Cada cena termina na etapa seguinte e
 ## chama a próxima cena que existir; etapas sem cena ainda (a visão da
-## carruagem e o passeio) são puladas. Quando não há mais cena, volta ao menu.
+## carruagem, a volta à mansão) são puladas. Quando não há mais cena, volta ao menu.
 ## Para plugar a visão da carruagem, basta pôr o caminho da cena dela em
 ## [constant CENAS] com a chave "visao_carruagem".
 
 const MENU := "res://scenes/main/main.tscn"
 
 ## Etapas na ordem em que acontecem.
-const ETAPAS: Array[String] = ["palacio", "visao_carruagem", "butiques", "restaurante", "passeio"]
+const ETAPAS: Array[String] = ["palacio", "visao_carruagem", "butiques", "restaurante", "passeio", "volta"]
 
 ## Etapa -> cena jogável (as que ainda não existem não aparecem aqui).
 const CENAS := {
@@ -18,6 +18,7 @@ const CENAS := {
 	"visao_carruagem": "res://scenes/capitulo_01/cena_visao.tscn",
 	"butiques": "res://scenes/capitulo_01/cena_butiques.tscn",
 	"restaurante": "res://scenes/capitulo_01/cena_restaurante.tscn",
+	"passeio": "res://scenes/capitulo_01/cena_passeio.tscn",
 }
 
 

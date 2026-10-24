@@ -273,8 +273,31 @@ func test_restaurante_da_mesa_ao_passeio() -> void:
 	cena.entregar_colher()
 	await _esperar_pedido()
 	assert_eq(cena.etapa, "passeio")
-	assert_eq(cena.cena_pedida, SequenciaCenas01.MENU)
+	assert_eq(cena.cena_pedida, SequenciaCenas01.CENAS["passeio"])
 	assert_eq(Relacoes.valor("ophelia"), 1)
+
+
+func test_passeio_quatro_lojas_na_ordem_do_jogador() -> void:
+	await _abrir("res://scenes/capitulo_01/cena_passeio.tscn", "passeio")
+	var passeio := cena as CenaPasseio
+	await wait_physics_frames(3)
+	assert_ne(cena._casa_de(cena.objetos["althea"]), CenaPasseio.CASA_ALTHEA, "a Thea corre na frente")
+	passeio.conversar_com_ophelia()
+	passeio.conversar_com_ophelia()
+	assert_eq(Relacoes.valor("ophelia"), 1, "conversar dá +1, uma vez só")
+	var tom_antes: Color = cena.sala.ambiente.color
+	for loja: String in ["confeitaria", "livraria", "brinquedos_2"]:
+		await passeio.entrar(loja)
+	assert_eq(passeio.visitadas, ["confeitaria", "livraria", "brinquedos_2"] as Array[String])
+	assert_true(Codice.tem("ano_dourado"), "a livraria abre o Ano Dourado no Códice")
+	assert_ne(cena.sala.ambiente.color, tom_antes, "a tarde passa")
+	await passeio.entrar("livraria")
+	assert_eq(passeio.visitadas.size(), 3, "loja visitada não conta de novo")
+	assert_eq(passeio.proxima_da_althea(), "brinquedos_1")
+	passeio.entrar("brinquedos_1")
+	await _esperar_pedido()
+	assert_eq(cena.etapa, "volta")
+	assert_eq(cena.cena_pedida, SequenciaCenas01.MENU)
 
 
 func test_visao_da_varanda_leva_as_butiques() -> void:

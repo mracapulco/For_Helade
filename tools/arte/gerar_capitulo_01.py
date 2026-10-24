@@ -1228,7 +1228,10 @@ def portal_anexo():
 def vitrine(conteudo='pelucias'):
     """Vitrine de butique. conteudo: 'pelucias' (a loja da cena, com luz
     quente por dentro para chamar o olho), 'chapeus', 'vestidos', 'joias' ou
-    'perfumes' (as outras lojas da rua; mercadorias por inferência)."""
+    'perfumes' (as outras lojas da rua; mercadorias por inferência). Passeio
+    da tarde (livro: "mais duas lojas de brinquedos, uma livraria e uma
+    confeitaria"): 'brinquedos' (piões e cavalinhos de madeira), 'livros' e
+    'doces' (mercadorias por inferência)."""
     q = Q(26, 18)
     q.r(0, 0, 25, 17, 'madeira_sombra')
     q.r(2, 2, 23, 13, 'vela' if conteudo == 'pelucias' else 'vidro')
@@ -1252,6 +1255,25 @@ def vitrine(conteudo='pelucias'):
         elif conteudo == 'perfumes':
             cor = ('cura', 'flor', 'ouro_luz', 'azul_luz')[k]
             q.r(x - 1, 10, x + 1, 13, cor); q.p(x, 9, 'ouro'); q.p(x, 8, 'ouro_luz'); q.p(x - 1, 11, 'vidro_luz')
+        elif conteudo == 'brinquedos':
+            if k % 2 == 0:
+                q.linha(10, x - 2, x + 2, ('lona', 'oliva')[k // 2]); q.linha(11, x - 1, x + 1, 'madeira_luz')
+                q.p(x, 12, 'madeira_sombra'); q.p(x, 9, 'ouro')
+            else:
+                q.r(x - 2, 9, x + 1, 11, 'madeira_luz'); q.p(x + 2, 8, 'madeira_luz'); q.p(x + 2, 9, 'madeira_luz')
+                q.linha(12, x - 3, x + 2, 'lona'); q.p(x - 1, 9, 'noite')
+        elif conteudo == 'livros':
+            for i in range(4):
+                cor = ('veludo', 'oliva', 'azul_luz', 'lona', 'creme')[(k + i) % 5]
+                q.r(x - 2 + i, 7 + (i % 2), x - 2 + i, 13, cor)
+            q.p(x - 1, 9, 'ouro'); q.p(x + 1, 10, 'ouro')
+        elif conteudo == 'doces':
+            q.r(x - 2, 12, x + 2, 13, 'perola')
+            if k % 2 == 0:
+                q.r(x - 2, 9, x + 2, 11, 'bolo'); q.linha(9, x - 2, x + 2, 'bolo_luz'); q.p(x, 8, 'flor')
+            else:
+                for dx in (-2, 0, 2):
+                    q.p(x + dx, 11, ('flor', 'cura', 'bolo_luz')[(dx + 2) // 2]); q.p(x + dx, 10, 'creme')
     q.r(0, 14, 25, 17, 'madeira'); q.linha(14, 0, 25, 'madeira_luz')
     return q.im
 
@@ -1288,6 +1310,12 @@ def placa_butique(tipo='pelucias'):
         q.elipse(6, 8, 3, 3, 'ouro'); q.elipse(6, 8, 1, 1, 'madeira'); q.p(6, 4, 'perola'); q.p(6, 5, 'cura')
     elif tipo == 'perfumes':
         q.r(5, 7, 8, 12, 'cura'); q.r(6, 5, 7, 6, 'ouro'); q.p(5, 8, 'vidro_luz')
+    elif tipo == 'brinquedos':
+        q.linha(8, 3, 10, 'lona'); q.linha(9, 4, 9, 'lona_luz'); q.r(5, 10, 8, 10, 'madeira_luz'); q.p(6, 11, 'madeira_sombra'); q.p(7, 11, 'madeira_sombra'); q.p(6, 7, 'ouro'); q.p(7, 7, 'ouro')
+    elif tipo == 'livros':
+        q.r(3, 6, 6, 12, 'veludo'); q.r(7, 6, 10, 12, 'oliva'); q.coluna(6, 6, 12, 'creme'); q.coluna(7, 6, 12, 'creme'); q.p(4, 8, 'ouro'); q.p(9, 8, 'ouro')
+    elif tipo == 'doces':
+        q.r(3, 9, 10, 12, 'bolo'); q.linha(9, 3, 10, 'bolo_luz'); q.r(5, 7, 8, 8, 'creme'); q.p(6, 6, 'flor'); q.p(7, 6, 'flor')
     return q.im
 
 
@@ -1830,6 +1858,12 @@ ARTES = {
     'parede/placa_perfumes_esq.png': lambda: na_face(placa_butique('perfumes'), 'esq', 9, 4),
     'parede/vitrine_perfumes_dir.png': lambda: na_face(vitrine('perfumes'), 'dir', 3, 13),
     'parede/placa_perfumes_dir.png': lambda: na_face(placa_butique('perfumes'), 'dir', 9, 4),
+    'parede/vitrine_brinquedos_esq.png': lambda: na_face(vitrine('brinquedos'), 'esq', 3, 13),
+    'parede/placa_brinquedos_esq.png': lambda: na_face(placa_butique('brinquedos'), 'esq', 9, 4),
+    'parede/vitrine_livros_esq.png': lambda: na_face(vitrine('livros'), 'esq', 3, 13),
+    'parede/placa_livros_esq.png': lambda: na_face(placa_butique('livros'), 'esq', 9, 4),
+    'parede/vitrine_doces_esq.png': lambda: na_face(vitrine('doces'), 'esq', 3, 13),
+    'parede/placa_doces_esq.png': lambda: na_face(placa_butique('doces'), 'esq', 9, 4),
     'parede/vitrine_pelucias_esq.png': lambda: na_face(vitrine('pelucias'), 'esq', 3, 13),
     'parede/placa_pelucias_esq.png': lambda: na_face(placa_butique('pelucias'), 'esq', 9, 4),
     'parede/vitrine_pelucias_dir.png': lambda: na_face(vitrine('pelucias'), 'dir', 3, 13),

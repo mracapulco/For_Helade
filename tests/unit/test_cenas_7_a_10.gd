@@ -5,6 +5,7 @@ extends GutTest
 const PALACIO: DialogueResource = preload("res://data/dialogos/capitulo_01/palacio.dialogue")
 const BUTIQUES: DialogueResource = preload("res://data/dialogos/capitulo_01/butiques.dialogue")
 const RESTAURANTE: DialogueResource = preload("res://data/dialogos/capitulo_01/restaurante.dialogue")
+const PASSEIO: DialogueResource = preload("res://data/dialogos/capitulo_01/passeio.dialogue")
 
 
 func before_each() -> void:
@@ -21,11 +22,12 @@ func after_each() -> void:
 
 func test_ordem_das_etapas() -> void:
 	assert_eq(SequenciaCenas01.ETAPAS,
-		["palacio", "visao_carruagem", "butiques", "restaurante", "passeio"] as Array[String])
+		["palacio", "visao_carruagem", "butiques", "restaurante", "passeio", "volta"] as Array[String])
 	assert_eq(SequenciaCenas01.proxima_etapa("palacio"), "visao_carruagem")
 	assert_eq(SequenciaCenas01.proxima_etapa("butiques"), "restaurante")
 	assert_eq(SequenciaCenas01.proxima_etapa("restaurante"), "passeio")
-	assert_eq(SequenciaCenas01.proxima_etapa("passeio"), "")
+	assert_eq(SequenciaCenas01.proxima_etapa("passeio"), "volta")
+	assert_eq(SequenciaCenas01.proxima_etapa("volta"), "")
 	assert_eq(SequenciaCenas01.proxima_etapa("nao_existe"), "")
 
 
@@ -35,8 +37,9 @@ func test_cada_cena_chama_a_proxima_pulando_etapas_sem_cena() -> void:
 	assert_eq(SequenciaCenas01.cena_depois("butiques"), SequenciaCenas01.CENAS["restaurante"])
 
 
-func test_o_restaurante_volta_ao_menu_por_enquanto() -> void:
-	assert_eq(SequenciaCenas01.cena_depois("restaurante"), SequenciaCenas01.MENU)
+func test_o_passeio_volta_ao_menu_por_enquanto() -> void:
+	assert_eq(SequenciaCenas01.cena_depois("restaurante"), SequenciaCenas01.CENAS["passeio"])
+	assert_eq(SequenciaCenas01.cena_depois("passeio"), SequenciaCenas01.MENU)
 	assert_eq(SequenciaCenas01.cena_depois("desconhecida"), SequenciaCenas01.MENU)
 
 
@@ -44,7 +47,7 @@ func test_as_cenas_existem_e_a_manha_chama_o_palacio() -> void:
 	for etapa: String in SequenciaCenas01.CENAS:
 		assert_true(ResourceLoader.exists(SequenciaCenas01.CENAS[etapa]), etapa)
 		assert_true(SequenciaCenas01.ETAPAS.has(etapa), etapa)
-	assert_eq(SequenciaCenas01.cena_da_etapa("passeio"), "")
+	assert_eq(SequenciaCenas01.cena_da_etapa("volta"), "")
 	var manha := Capitulo01.new()
 	assert_eq(manha.cena_depois, SequenciaCenas01.CENAS["palacio"])
 	manha.free()
@@ -113,7 +116,7 @@ func test_sopa_ajusta_a_relacao_com_ophelia() -> void:
 # --- elenco -------------------------------------------------------------------
 
 func test_quem_fala_esta_no_elenco() -> void:
-	for roteiro: DialogueResource in [PALACIO, BUTIQUES, RESTAURANTE]:
+	for roteiro: DialogueResource in [PALACIO, BUTIQUES, RESTAURANTE, PASSEIO]:
 		for marcador: String in _marcadores(roteiro):
 			var pendentes: Array[String] = [marcador]
 			var vistos := {}

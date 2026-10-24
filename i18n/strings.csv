@@ -225,6 +225,8 @@ CODICE_POUCOS_GUARDAS_TEXTO,"Poucos demais para alguém como uma princesa."
 CODICE_ANEXO_VAZIO_TITULO,O anexo vazio
 CODICE_ANEXO_VAZIO_TEXTO,"Os guardas recuaram, em silêncio, para o anexo. Quando Nicholas olhou de novo, estava vazio."
 CODICE_RUA_DAS_BUTIQUES_TITULO,Rua das Butiques
+CODICE_ANO_DOURADO_TITULO,Ano Dourado
+CODICE_ANO_DOURADO_TEXTO,"Há 2.000 anos, os três reinos passaram por um milagre, que até os dias atuais é conhecido por Ano Dourado. Naquele ano nasceram 12 crianças, divididas entre os três reinos, de olhos azuis com a beirada da íris dourada: ao Sol ou ao luar, formava-se nos seus olhos um anel de puro ouro. À medida que cresciam, demonstravam características sobre-humanas; chamavam-se Abençoados. Houve uma trégua milenar, e os três reinos se uniram em Atenas para educá-los. Um Ciclo equivale a 100 anos; agora é o 20º Ciclo do Ano Dourado."
 CODICE_RUA_DAS_BUTIQUES_TEXTO,"Rua de Atenas. Quando o brasão de Olympia é reconhecido, as pessoas se afastam e abrem espaço."
 PAUSA_TITULO,Pausa
 PAUSA_BOTAO,Pausa
@@ -289,6 +291,7 @@ CALOR_FRIO,Frio
 OBJ_CAP1_MESA,Sente-se à mesa
 OBJ_CAP1_COLHER,Pegue uma colher limpa no armário
 OBJ_CAP1_LEVAR_COLHER,Leve a colher limpa para Ophelia
+OBJ_CAP1_PASSEIO,Entre nas lojas com Althea e Ophelia
 SOPA_MEXER,Mexer
 SOPA_SOPRAR,Soprar
 SOPA_PROVAR,Provar

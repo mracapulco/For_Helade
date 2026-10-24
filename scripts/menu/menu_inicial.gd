@@ -10,13 +10,14 @@ extends Control
 const CENAS := {
 	"prologo": "res://scenes/prologo/prologo.tscn",
 	"capitulo_1": "res://scenes/capitulo_01/capitulo_01.tscn",
-	# Cenas 7 a 10 do Capítulo 1 (as mesmas de SequenciaCenas01.CENAS): um jogo
+	# Cenas 7 a 11 do Capítulo 1 (as mesmas de SequenciaCenas01.CENAS): um jogo
 	# salvo com uma destas etapas, ou `--etapa=<nome>` (ver abrir_etapa), abre
 	# a cena sozinha para testar.
 	"palacio": "res://scenes/capitulo_01/cena_palacio.tscn",
 	"visao_carruagem": "res://scenes/capitulo_01/cena_visao.tscn",
 	"butiques": "res://scenes/capitulo_01/cena_butiques.tscn",
 	"restaurante": "res://scenes/capitulo_01/cena_restaurante.tscn",
+	"passeio": "res://scenes/capitulo_01/cena_passeio.tscn",
 }
 const CENA_MAPA := "res://scenes/mapa/mapa_helade.tscn"
 const CENA_NOVO_JOGO := "res://scenes/prologo/prologo.tscn"

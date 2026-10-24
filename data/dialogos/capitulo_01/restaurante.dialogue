@@ -1,5 +1,8 @@
 ## Capítulo 01 de "Pelos Olhos Dele", cena 10: o restaurante, a sopa e a
-## colher (livro, l. ~443-553). Só frases-chave, sem mudar as palavras
+## colher (livro, l. ~443-553). Mais curto desde 24/10 (Rafael pediu cortar
+## metade das falas): a sopa é jogada (SopaNoRitmo) em vez de narrada, e
+## pegar e levar a colher limpa são feitos pelo jogador. Só frases-chave,
+## sem mudar as palavras
 ## (a fala longa de desculpas do Nicholas termina em "Ou outra sopa."; o
 ## livro continua depois disso). Escolha (brecha): o tom com que Nicholas
 ## insiste que Ophelia coma. Os rótulos entre colchetes são texto provisório
@@ -10,8 +13,6 @@
 
 ## A mesa redonda.
 A mesa redonda era pequena o bastante para que as três crianças se acomodassem sem dificuldade. [ID:CAP1_181]
-O restaurante era outro dos estabelecimentos que nós, os irmãos Olympia, frequentávamos em Atenas. [ID:CAP1_182]
-Quando gostava de um lugar, voltava. Quando confiava em alguém, continuava confiando. [ID:CAP1_183]
 => END
 
 ~ frases_prato
@@ -25,8 +26,6 @@ Thea recebeu seu prato com um sorriso. Ophelia não tocou no dela. [ID:CAP1_184]
 ## Ophelia não toca no prato (a frase do alto vem em frases_prato).
 Nicholas: [#retrato=neutro] Os pratos que escolhi não são de seu agrado? Há outras opções. Tenho certeza de que podem preparar algo de que goste, Princesa. [ID:CAP1_185]
 Ophelia: [#retrato=neutro] Eu... Não comerei nada, obrigada. [ID:CAP1_186]
-Althea: [#retrato=neutro] Mas você precisa comer! Para crescer bem e forte. Nick sempre me obriga a comer saladas e outras coisas estranhas porque diz que fazem bem. O almoço é a refeição mais importante do dia. [ID:CAP1_187]
-Ophelia: [#retrato=neutro] Você é uma garota muito esperta, Lady Althea. Mas não precisam se preocupar. Eu apenas não estou com apetite. [ID:CAP1_188]
 => END
 
 ~ insistir
@@ -40,20 +39,6 @@ Ophelia: [#retrato=neutro] Você é uma garota muito esperta, Lady Althea. Mas n
 	Nicholas: [#retrato=neutro] Faço questão de que coma alguma coisa. Terei sérios problemas com o Duque se ele descobrir que a trouxe até aqui e a deixei passar fome. [ID:CAP1_190]
 => END
 
-~ frases_pedido
-
-## As duas opções voltam aqui.
-Fiz o pedido em voz baixa. [ID:CAP1_191]
-=> END
-
-~ insistir_thea
-
-## Althea comenta.
-Althea: [#retrato=neutro] Lia, se você pedir com jeitinho, talvez Nick deixe você comer apenas a sobremesa. [ID:CAP1_192]
-Nicholas: [#retrato=neutro] Eu ouvi isso. [ID:CAP1_193]
-Althea: [#retrato=neutro] Não ouviu, não. [ID:CAP1_194]
-=> END
-
 ~ frases_sopa
 
 ## A sopa chega, quente demais.
@@ -64,17 +49,15 @@ Uma pequena tigela de sopa ainda soltava fios de vapor. [ID:CAP1_195]
 
 ## Ophelia recusa a sopa.
 Ophelia: [#retrato=neutro] Você é muito gentil. Embora às vezes seja tão estúpido quanto um coice. Mas isso não apaga sua gentileza. [ID:CAP1_196]
-Nicholas: [#retrato=neutro] Como? Eu não... [ID:CAP1_197]
 Ophelia: [#retrato=neutro] Já disse que não estou com fome. E a sopa está quente. Não consigo comer depressa. [ID:CAP1_198]
 Nicholas: [#retrato=neutro] Pelo amor de Afrodite! É apenas sopa. Como alguém pode não gostar de sopa? [ID:CAP1_199]
-Althea: [#retrato=neutro] Lia tem razão. Você está sendo muito grosseiro, Nicholas. [ID:CAP1_200]
 => END
 
 ~ frases_colher
 
-## Nicholas prova a sopa com a própria colher.
+## Nicholas puxa a tigela; mexer, soprar, provar e devolver são a ação
+## da sopa (SopaNoRitmo), sem texto.
 Sem pensar, puxei a tigela para perto de mim. [ID:CAP1_201]
-Mexi a sopa com a colher, soprei algumas vezes e levei uma pequena porção à boca para testar a temperatura. [ID:CAP1_202]
 => END
 
 ~ colher
@@ -86,7 +69,6 @@ Nicholas: [#retrato=neutro] Pronto. Não está mais quente. [ID:CAP1_203]
 ~ frases_silencio
 
 ## E percebe o que fez.
-Foi então que percebi o silêncio ao redor. [ID:CAP1_204]
 Olhei para a colher ainda dentro da tigela. A colher que acabara de colocar na própria boca. [ID:CAP1_205]
 => END
 
@@ -108,12 +90,6 @@ Idiota. [ID:CAP1_207]
 Ophelia: [#retrato=neutro] Está tudo bem. [ID:CAP1_208]
 => END
 
-~ frases_sobressalto
-
-## A mesa reage.
-Todos ao redor da mesa tiveram um sobressalto. [ID:CAP1_209]
-=> END
-
 ~ ophelia_toma_fim
 
 ## A colher e o garçom.
@@ -128,21 +104,9 @@ Nicholas: [#retrato=neutro] Podem nos deixar. [ID:CAP1_212]
 A porta mal havia se fechado quando nós três começamos a rir. [ID:CAP1_213]
 => END
 
-~ risos
-
-## Althea comenta.
-Althea: [#retrato=neutro] Que bom que seu apetite voltou, Lia! [ID:CAP1_214]
-=> END
-
-~ frases_colher_limpa
-
-## Nicholas pega uma colher limpa.
-Levantei-me, fui até o armário onde o restaurante guardava parte da louça e retirei uma colher limpa. [ID:CAP1_215]
-=> END
-
 ~ estranha
 
-## Nicholas entrega a colher.
+## Nicholas entrega a colher limpa (levada pelo jogador até Ophelia).
 Nicholas: [#retrato=neutro] Você é... Estranha. [ID:CAP1_216]
 => END
 

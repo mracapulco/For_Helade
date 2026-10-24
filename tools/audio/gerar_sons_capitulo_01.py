@@ -11,6 +11,11 @@
 # subir.wav: o pé que pisa em cima da caixa (toque de madeira oca).
 # descer.wav: o pulo de volta para o chão (baque abafado).
 # achou.wav: três notas suaves subindo, quando acha uma pelúcia.
+# Restaurante, a sopa no ritmo:
+# colher.wav: a colher tilinta na tigela de louça (mexer e provar).
+# soprar.wav: um sopro curto de ar sobre a sopa.
+# tigela.wav: a tigela desliza na toalha de volta para Ophelia.
+# fora_do_ritmo.wav: um toque abafado e baixo quando erra o tempo.
 # Sintetizado, mono, 16 bits, 22050 Hz. Semente fixa: rodar de novo gera o
 # mesmo arquivo. Provisório até vir o som de verdade.
 # Uso: python3 tools/audio/gerar_sons_capitulo_01.py   (rodar na raiz do projeto)
@@ -181,6 +186,45 @@ def achou():
     return som
 
 
+def colher():
+    sorte = np.random.default_rng(1710)
+    som = batida(2100, dur=0.35, brilho=0.6, sorte=sorte) * 0.6
+    t = np.arange(len(som)) / SR
+    som += np.sin(2 * np.pi * 3150 * t) * np.exp(-t * 14) * 0.25
+    som /= np.max(np.abs(som)) / 0.4
+    return som
+
+
+def soprar():
+    sorte = np.random.default_rng(1711)
+    n = int(0.4 * SR)
+    t = np.arange(n) / SR
+    ar = np.convolve(sorte.standard_normal(n), np.ones(9) / 9, mode='same')
+    env = np.sin(np.pi * t / 0.4) ** 2
+    som = ar * env
+    som /= np.max(np.abs(som)) / 0.35
+    return som
+
+
+def tigela():
+    sorte = np.random.default_rng(1712)
+    n = int(0.3 * SR)
+    t = np.arange(n) / SR
+    raspa = np.convolve(sorte.standard_normal(n), np.ones(3) / 3, mode='same')
+    env = np.minimum(1, t / 0.03) * np.minimum(1, (0.3 - t) / 0.1)
+    som = raspa * env * 0.5 + batida(900, dur=0.3, brilho=0.3, sorte=sorte)[:n] * 0.4
+    som /= np.max(np.abs(som)) / 0.35
+    return som
+
+
+def fora_do_ritmo():
+    n = int(0.15 * SR)
+    t = np.arange(n) / SR
+    som = np.sin(2 * np.pi * 140 * t) * np.exp(-t * 30)
+    som /= np.max(np.abs(som)) / 0.3
+    return som
+
+
 def salvar(nome, som):
     os.makedirs(PASTA, exist_ok=True)
     dados = (np.clip(som, -1, 1) * 32767).astype('<i2')
@@ -197,6 +241,7 @@ if __name__ == '__main__':
     salvar('vento_leve.wav', vento_leve())
     salvar('queda.wav', queda())
     for nome, gerar in (('agarrar', agarrar), ('arrastar', arrastar), ('subir', subir), ('descer', descer),
-                        ('achou', achou)):
+                        ('achou', achou), ('colher', colher), ('soprar', soprar), ('tigela', tigela),
+                        ('fora_do_ritmo', fora_do_ritmo)):
         salvar(nome + '.wav', gerar())
     print('ok:', PASTA)

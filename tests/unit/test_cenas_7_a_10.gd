@@ -107,7 +107,7 @@ func test_sopa_ajusta_a_relacao_com_ophelia() -> void:
 	var firme := await _percorrer(RESTAURANTE, "insistir", [1] as Array[int])
 	assert_eq(Relacoes.valor("ophelia"), -1)
 	assert_eq(calma.size(), firme.size())
-	assert_has(await _percorrer(RESTAURANTE, "insistir_thea", []), "CAP1_193")
+	assert_has(await _percorrer(RESTAURANTE, "colher", []), "CAP1_203")
 
 
 # --- elenco -------------------------------------------------------------------

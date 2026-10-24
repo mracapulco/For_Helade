@@ -288,6 +288,12 @@ CALOR_MORNO,Morno
 CALOR_FRIO,Frio
 OBJ_CAP1_MESA,Sente-se à mesa
 OBJ_CAP1_COLHER,Pegue uma colher limpa no armário
+OBJ_CAP1_LEVAR_COLHER,Leve a colher limpa para Ophelia
+SOPA_MEXER,Mexer
+SOPA_SOPRAR,Soprar
+SOPA_PROVAR,Provar
+SOPA_DEVOLVER,Devolver a tigela
+SOPA_DICA,Aperte E quando o anel tocar o dourado
 TIC_TAC_TIC,Tic.
 TIC_TAC_TAC,Tac.
 CODICE_PILHAS_DE_LIVROS_TITULO,Pilhas de livros

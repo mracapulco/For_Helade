@@ -160,6 +160,9 @@ func cobre(objeto: Node2D, jogador: Node2D) -> bool:
 	var pes := to_local(jogador.global_position)
 	if objeto.position.y <= pes.y or objeto.z_index < 0:
 		return false
+	var visivel := jogador.get_node_or_null("Corpo") as CanvasItem
+	if not jogador.is_visible_in_tree() or (visivel and not visivel.visible):
+		return false   # escondido (sentado à mesa, por exemplo)
 	var corpo := jogador.get_node_or_null("Corpo/Visual") as Node2D
 	if corpo:
 		pes.y += corpo.position.y   # em cima de um bloco, o desenho sobe

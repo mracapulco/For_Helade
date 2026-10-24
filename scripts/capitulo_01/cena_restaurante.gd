@@ -5,16 +5,20 @@ extends CenaCapitulo01
 ## 1. mesa: Nicholas entra, olha o lugar e senta à mesa redonda (E na mesa);
 ##    Ophelia e Althea sentam também; o garçom serve.
 ## 2. almoco: o prato intocado, a escolha de tom ao insistir (só muda a
-##    relação com Ophelia), a sopa, a colher e as desculpas; Ophelia prova a
-##    sopa e o garçom se retira.
+##    relação com Ophelia), a sopa jogada no ritmo ([SopaNoRitmo]), a colher
+##    e as desculpas; Ophelia prova a sopa, o garçom se retira e os três riem.
 ## 3. armario: Nicholas se levanta e pega uma colher limpa (E no armário de
-##    louça); as risadas e o fim do almoço.
+##    louça).
+## 4. colher: leva a colher a Ophelia (E nela); "Estranha" e o fim do almoço.
 ## Ao terminar a etapa vira "passeio" (cena 11, ainda não implementada): por
 ## enquanto o jogo volta ao menu.
 ## Textos: data/dialogos/capitulo_01/restaurante.dialogue.
 
 const ROTEIRO := preload("res://data/dialogos/capitulo_01/restaurante.dialogue")
 const QUADROS_GARCOM := preload("res://assets/art/personagens/garcom/garcom_exploracao.tres")
+## A tigela em cima da mesa (pixels a partir do chão entre a mesa e o
+## Nicholas).
+const POSICAO_TIGELA := Vector2(0, -16)
 ## Cadeiras (casas): Nicholas, Ophelia e Althea (esta de costas para nós).
 const CADEIRA_NICHOLAS := Vector2i(3, 4)
 const CADEIRA_OPHELIA := Vector2i(4, 3)
@@ -27,11 +31,12 @@ const CASA_SERVIR := Vector2i(5, 5)
 ## Quem está sentado (nome do objeto -> imagem sentada na sala).
 var sentados := {}
 var pegou_colher := false
+var sopa: SopaNoRitmo
 
 
 func _init() -> void:
 	roteiro = ROTEIRO
-	objetivos = {"mesa": "OBJ_CAP1_MESA", "armario": "OBJ_CAP1_COLHER"}
+	objetivos = {"mesa": "OBJ_CAP1_MESA", "armario": "OBJ_CAP1_COLHER", "colher": "OBJ_CAP1_LEVAR_COLHER"}
 
 
 func id_da_cena() -> String:
@@ -63,7 +68,10 @@ func montar_restaurante() -> void:
 	_ativar(objetos["mesa"], false)
 	_ativar(objetos["armario"], false)
 	_ao_interagir("mesa", sentar_a_mesa)
+	_ponto("ophelia_mesa", CADEIRA_OPHELIA)
+	_ativar(objetos["ophelia_mesa"], false)
 	_ao_interagir("armario", pegar_colher_limpa)
+	_ao_interagir("ophelia_mesa", entregar_colher)
 	_mudar("restaurante")
 
 
@@ -95,21 +103,33 @@ func _almoco() -> void:
 	await _frases("frases_prato")
 	await _falar_travado("prato_intocado")
 	await _falar_travado("insistir")
-	await _frases("frases_pedido")
-	await _falar_travado("insistir_thea")
 	await _frases("frases_sopa")
 	await _falar_travado("sopa")
 	await _frases("frases_colher")
+	await tomar_a_sopa()
 	await _falar_travado("colher")
 	await _frases("frases_silencio")
 	await _falar_travado("desculpas")
 	await _frases("frases_idiota")
 	await _falar_travado("ophelia_toma")
-	await _frases("frases_sobressalto")
 	await _falar_travado("ophelia_toma_fim")
 	await _caminhar(objetos["garcom"], [sala.centro(CASA_GARCOM)], 1.2)
 	await _sumir(objetos["garcom"])
+	await _frases("frases_risos")
 	await levantar_nicholas()
+
+
+## A sopa no ritmo, na tigela em frente ao Nicholas (Rafael, 19/10: a sopa
+## vira ação).
+func tomar_a_sopa() -> void:
+	sopa = SopaNoRitmo.new()
+	sopa.name = "Sopa"
+	sopa.escala_tempo = escala_tempo
+	sopa.position = sala.centro(Vector2i(4, 4)).lerp(sala.centro(CADEIRA_NICHOLAS), 0.2) + POSICAO_TIGELA
+	sala.add_child(sopa)
+	await sopa.comecar()
+	await _esperar(0.4)
+	sopa.queue_free()
 
 
 # --- 3. o armário e o fim -----------------------------------------------------
@@ -126,16 +146,23 @@ func levantar_nicholas() -> void:
 	_ativar(objetos["armario"], true)
 
 
-## "Retirou uma colher limpa"; as risadas e o fim do almoço.
+## "Retirei uma colher limpa": leva até Ophelia.
 func pegar_colher_limpa() -> void:
 	if etapa != "armario" or pegou_colher:
 		return
 	pegou_colher = true
 	_ativar(objetos["armario"], false)
+	_mudar("colher")
+	_ativar(objetos["ophelia_mesa"], true)
+
+
+## Entrega a colher limpa: "Estranha" e o fim do almoço.
+func entregar_colher() -> void:
+	if etapa != "colher":
+		return
+	_ativar(objetos["ophelia_mesa"], false)
 	_travar(true)
-	await _frases("frases_risos")
-	await _falar_travado("risos")
-	await _frases("frases_colher_limpa")
+	jogador.direcao_olhar = (sala.centro(CADEIRA_OPHELIA) - jogador.position).normalized()
 	await _falar_travado("estranha")
 	await _frases("frases_fim_almoco")
 	await terminar()

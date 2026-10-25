@@ -21,6 +21,15 @@
 #   cap01_loja         - a loja de pelúcias e a procura nas prateleiras: pizzicato e
 #                        caixinha, brincalhão, com o chamado em maior pulando de voz em voz.
 #   cap01_restaurante  - o restaurante: valsa calma (3/4) do tema na flauta, harpa.
+#   cap01_passeio      - a tarde pelas lojas de Atenas, a luz ficando dourada: harpa e
+#                        alaúde leves, o chamado em maior e depois a frase de Ophelia na
+#                        flauta, sem pressa; sinos baixos como o sol entre os telhados.
+#   cap01_danica       - a volta à mansão ao anoitecer, Danica no pátio: Ré grave parado,
+#                        cordas em tremolo com Mi bemol roçando o Ré (frio), o chamado no
+#                        clarinete que desce em vez de subir, um pulso surdo como sangue.
+#   cap01_antessala    - a porta fechada com o duque: coral grave de cordas, o chamado lento
+#                        no clarinete; na segunda metade a frase que sobe ao Lá agudo (Ophelia,
+#                        uma dos Doze) aparece baixinho na flauta, sem resolver.
 # Mesmos blocos de síntese das músicas dos acampamentos e do mapa; mono, 16 bits, 22050 Hz,
 # ~-6 dBFS, loop sem costura (caudas e reverb voltam para o começo). Semente fixa.
 # Também grava o .import de cada uma com loop ligado (edit/loop_mode=2).
@@ -354,8 +363,103 @@ def restaurante(rng):
     return lp.fechar(resposta_reverb(2.2, 1.0, 4300), 0.4)
 
 
+def passeio(rng):
+    """84 bpm, 16 compassos: a tarde pelas lojas. Harpa em arpejo largo, alaúde nos
+    contratempos, o chamado em maior na flauta e depois a frase do tema que sobe ao Lá
+    agudo (a de Ophelia), como a conversa ficando mais natural. Sino baixo a cada frase."""
+    lp = Loop(84, 4, 16, rng)
+    a = [(0, 0, 4, FA, 'M'), (1, 0, 4, T - 4, 'M'), (2, 0, 4, FA + 7, 'M'), (3, 0, 4, FA, 'M')]
+    b = [(c, bb, d, r, tp) for (c, bb, d, r, tp) in tema.acordes() if c >= 4]
+    acs = []
+    for v in range(2):
+        acs += [(c + 8 * v, bb, d, r, tp) for (c, bb, d, r, tp) in a + b]
+    arpejo_harpa(lp, acs, 0, 0.5, 0.13, rng, brilho=0.35, padrao=[0, 2, 4, 5, 4, 2])
+    baixo(lp, acs, 0, 0.20, rng, batidas=(0,))
+    for (c, bb, d, r, tp) in acs:                    # alaúde nos contratempos, bem leve
+        ns = tema.notas_acorde(r, tp, T - 2)
+        for k in range(int(d)):
+            lp.por(pincado(hz(ns[k % 3]), 1.0, 0.5, 0.5, 0.15, rng=rng), lp.t(c, bb + k + 0.5, 0.008), 0.06)
+        if v_segunda(c):
+            ps = tema.notas_acorde(r, tp, T - 12)
+            lp.por(pad([hz(n) for n in ps], d * lp.spb + 1.2, 1.0, 1.6, 4, 6, 2.4, rng), lp.t(c, bb), 0.08)
+    fl = lambda f, d: flauta(f, d, rng, 0.004, 0.05)
+    ce = lambda f, d: celesta(f, d, rng)
+    mel = chamado_maior(0) + [(1, 0, 1, FA + 14), (1, 1, 1, FA + 12), (1, 2, 2, FA + 9)] \
+        + chamado_maior(2) + [(3, 0, 4, FA + 12)]
+    ophelia_frase = [n for n in tema.melodia() if n[0] >= 4]
+    tocar(lp, mel, 0, fl, 0.34, 0.012, extra=0.06)
+    tocar(lp, ophelia_frase, 0, fl, 0.34, 0.012, extra=0.08)
+    tocar(lp, [(c, bb, d, m + 12) for (c, bb, d, m) in mel], 8, ce, 0.26, 0.008)
+    tocar(lp, ophelia_frase, 8, lambda f, d: cordas(f, d, rng), 0.26, extra=0.15)
+    tocar(lp, [(c, bb, d, m + 12) for (c, bb, d, m) in ophelia_frase], 8, fl, 0.14, 0.012)
+    for c in (0, 4, 8, 12):
+        lp.por(sino(hz(FA - 12 if c % 8 else FA), 4.0, SINO_ALTO, rng), lp.t(c), 0.07)
+    return lp.fechar(resposta_reverb(2.6, 1.1, 4200), 0.5)
+
+
+def v_segunda(c):
+    """Na segunda volta do passeio entra um colchão de cordas por baixo."""
+    return c >= 8
+
+
+def danica(rng):
+    """50 bpm, 8 compassos: o pátio ao anoitecer e Danica ali. Ré grave parado, cordas em
+    tremolo com o Mi bemol roçando o Ré, o chamado no clarinete que, em vez de subir ao Fá,
+    afunda (Lá Ré Mi Mi bemol Ré). Um fio agudo frio e um pulso surdo, como o sangue."""
+    lp = Loop(50, 4, 8, rng)
+    total = 8 * 4 * lp.spb
+    lp.por(pad([hz(T - 24), hz(T - 17)], total + 3.0, 4.0, 4.0, 5, 5, 2.2, rng), lp.t(0), 0.26)
+    lp.por(pad([hz(T + 19), hz(T + 24)], total + 3.0, 6.0, 6.0, 2, 9, 3.0, rng), lp.t(0), 0.04)
+    acs = [(0, T, 'm'), (1, T + 1, 'M'), (2, T, 'm'), (3, T - 4, 'M'),
+           (4, T, 'm'), (5, T + 1, 'M'), (6, T - 5, 'm'), (7, T + 7, 'M')]
+    for (c, r, tp) in acs:
+        for n in tema.notas_acorde(r, tp, T - 12):
+            lp.por(bordas(tremolo(hz(n), 4 * lp.spb, rng, 7.0), 1.5, 1.5), lp.t(c), 0.05)
+    pa = lambda f, d: palheta(f, d, rng)
+    mel = [(0, 0, 1.5, T - 5), (0, 1.5, 0.5, T), (0, 2, 1, T + 2), (0, 3, 1, T + 1),
+           (1, 0, 4, T),
+           (2, 0, 1.5, T - 5), (2, 1.5, 0.5, T), (2, 2, 1, T + 2), (2, 3, 1, T + 3),
+           (3, 0, 2, T + 2), (3, 2, 2, T + 1)]
+    tocar(lp, mel, 0, pa, 0.36, 0.02, extra=0.15)
+    tocar(lp, [(c + 4, bb, d, m - 12) for (c, bb, d, m) in mel], 0, lambda f, d: cordas(f, d, rng),
+          0.38, extra=0.25)
+    for c in range(8):                               # tum-tum . . (como o coração)
+        lp.por(tambor(0.6, 62, 42, 0.18, 0.03, rng), lp.t(c, 0, 0.003), 0.26)
+        lp.por(tambor(0.5, 58, 40, 0.14, 0.03, rng), lp.t(c, 0.45, 0.003), 0.16)
+    for c in (0, 4):
+        lp.por(sino(hz(T - 12), 6.0, SINO_ALTO, rng), lp.t(c, 2), 0.05)
+    return lp.fechar(resposta_reverb(3.4, 1.4, 2600), 0.6)
+
+
+def antessala(rng):
+    """56 bpm, 12 compassos: a porta fechada com o duque. Coral grave de cordas em Ré
+    menor, o chamado lento no clarinete; na segunda metade a frase do tema que sobe ao
+    Lá agudo (Ophelia, uma dos Doze) na flauta, baixinho, e o fim fica no Lá, sem resolver."""
+    lp = Loop(56, 4, 12, rng)
+    acs = [(0, T, 'm'), (1, T - 4, 'M'), (2, T + 5, 'm'), (3, T + 7, 'M'),
+           (4, T, 'm'), (5, T + 3, 'M'), (6, T - 4, 'M'), (7, T + 7, 'M'),
+           (8, T, 'm'), (9, T + 5, 'M'), (10, T - 4, 'M'), (11, T + 7, 'M')]
+    for (c, r, tp) in acs:
+        ns = tema.notas_acorde(r, tp, T - 19)
+        lp.por(pad([hz(n) for n in ns], 4 * lp.spb + 2.0, 1.6, 2.2, 6, 4, 1.8, rng), lp.t(c), 0.18)
+        lp.por(pincado(hz(tema.notas_acorde(r, tp, T - 29)[0]), 4.0, 0.12, 2.8, 0.25, rng=rng), lp.t(c), 0.18)
+    pa = lambda f, d: palheta(f, d, rng)
+    fl = lambda f, d: flauta(f, d, rng, 0.003, 0.06)
+    chamado = [(0, 0, 2, T - 5), (0, 2, 1, T), (0, 3, 1, T + 2), (1, 0, 3, T + 3), (1, 3, 1, T + 2),
+               (2, 0, 2, T), (2, 2, 2, T - 2), (3, 0, 4, T + 1)]
+    tocar(lp, chamado, 0, pa, 0.34, 0.03, extra=0.2)
+    tocar(lp, chamado, 4, lambda f, d: cordas(f, d, rng), 0.34, extra=0.25)
+    subida = [(8, 0, 1.5, T + 12), (8, 1.5, 0.5, T + 14), (8, 2, 1, T + 15), (8, 3, 1, T + 19),
+              (9, 0, 1.5, T + 17), (9, 1.5, 0.5, T + 15), (9, 2, 2, T + 14),
+              (10, 0, 2, T + 12), (10, 2, 2, T + 10), (11, 0, 4, T + 7)]
+    tocar(lp, subida, 0, fl, 0.30, 0.02, extra=0.15)
+    for c in range(0, 12, 2):
+        lp.por(tambor(0.9, 58, 38, 0.3, 0.02, rng), lp.t(c, 0, 0.003), 0.14)
+    return lp.fechar(resposta_reverb(1.8, 0.9, 2600), 0.5)
+
+
 PECAS = [sonho, madrugada, cortejo, aniversario, duque, carruagem, palacio, ophelia,
-         butiques, loja, restaurante]
+         butiques, loja, restaurante, passeio, danica, antessala]
 
 
 def gravar(nome, x):

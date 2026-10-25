@@ -265,6 +265,8 @@ func subir_a_escadaria() -> void:
 	await _esperar(0.6)
 	await _caminhar(ophelia, [ate_a_carruagem + Vector2(-12, 6)], 1.2)
 	await _escurecer()
+	# No escuro, a música troca para a da antessala (data/musica/cenas.cfg).
+	_mudar("antessala")
 	montar_antessala()
 	await _clarear()
 	await _frases("frases_antessala")

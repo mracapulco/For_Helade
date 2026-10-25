@@ -7,6 +7,8 @@ ambiente), conforme data/musica/cenas.cfg:
   rua_butiques.ogg   - a Rua das Butiques: burburinho de gente, passos no calçamento,
                        cascos e rodas passando ao longe.
   restaurante.ogg    - o restaurante: conversa baixa nas outras mesas e talheres na louça.
+  anoitecer_mansao.ogg - o pátio da Mansão Olympia ao anoitecer, na volta: grilos, vento
+                       frio e, de vez em quando, os arreios dos cavalos das carruagens paradas.
 
 Laços sem emenda (filtros no espectro e sons que passam do fim voltam ao começo).
 Reaproveita as ferramentas de tools/audio/gerar_sons_prologo.py.
@@ -121,6 +123,29 @@ def restaurante() -> np.ndarray:
     return s.normalizar(s.eco(trilha, 1.0, 0.3), 0.45)
 
 
+def arreios() -> np.ndarray:
+    """Cavalo parado mexendo a cabeça: argolas de metal tilintando um pouco."""
+    m = s.amostras(1.2)
+    x = np.zeros(m)
+    for k in range(s.rng.integers(3, 6)):
+        n = s.amostras(0.5)
+        t = s.tempo(n)
+        f = s.rng.uniform(2600, 4200)
+        tim = (np.sin(2 * np.pi * f * t) + 0.5 * np.sin(2 * np.pi * f * 2.76 * t)) * np.exp(-t / 0.08)
+        s.colocar(x, tim, s.amostras(k * s.rng.uniform(0.08, 0.16)), s.rng.uniform(0.5, 1.0))
+    return x
+
+
+def anoitecer_mansao() -> np.ndarray:
+    n = s.amostras(24)
+    trilha = 0.7 * np.concatenate([s.grilos(), s.grilos()])[:n]
+    vento = s.faixa(s.rosa(n), 120, 700, 1.0) * s.oscilacao(n, [(2, 0.45), (5, 0.2)], 1.0)
+    trilha += 0.22 * s.normalizar(vento)
+    for inicio in (5.0, 16.5):
+        s.colocar(trilha, s.normalizar(arreios(), 1.0), s.amostras(inicio + s.rng.uniform(-1, 1)), 0.06)
+    return s.normalizar(s.eco(trilha, 1.2, 0.25), 0.4)
+
+
 def gravar(x: np.ndarray, nome: str) -> None:
     s.salvar(x, PASTA / nome)
     (PASTA / (nome + ".import")).write_text(IMPORT.format(nome=nome))
@@ -130,3 +155,4 @@ if __name__ == "__main__":
     gravar(fonte_palacio(), "fonte_palacio.ogg")
     gravar(rua_butiques(), "rua_butiques.ogg")
     gravar(restaurante(), "restaurante.ogg")
+    gravar(anoitecer_mansao(), "anoitecer_mansao.ogg")

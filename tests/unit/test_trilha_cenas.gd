@@ -31,12 +31,28 @@ func test_todo_arquivo_da_lista_existe() -> void:
 
 func test_musicas_do_capitulo_em_loop() -> void:
 	for nome in ["sonho", "madrugada", "cortejo", "aniversario", "duque", "carruagem", "palacio",
-			"ophelia", "butiques", "loja", "restaurante"]:
+			"ophelia", "butiques", "loja", "restaurante", "passeio", "danica", "antessala"]:
 		var musica: AudioStreamWAV = load(MUSICAS + "cap01_%s.wav" % nome)
 		assert_eq(musica.loop_mode, AudioStreamWAV.LOOP_FORWARD, "%s em loop" % nome)
-	for nome in ["fonte_palacio", "rua_butiques", "restaurante"]:
+	for nome in ["fonte_palacio", "rua_butiques", "restaurante", "anoitecer_mansao"]:
 		var ambiente: AudioStreamOggVorbis = load(AMBIENTES + nome + ".ogg")
 		assert_true(ambiente.loop, "%s em loop" % nome)
+
+
+## Toda cena do capítulo tem música (as que só entram dentro de outra ficam de fora).
+func test_toda_cena_do_capitulo_tem_musica() -> void:
+	var t := TrilhaDasCenas.carregar()
+	for arquivo in DirAccess.get_files_at("res://scenes/capitulo_01/"):
+		if arquivo.ends_with(".tscn") and arquivo not in ["nicholas_11.tscn", "visao_varanda.tscn"]:
+			assert_true(t.tem("res://scenes/capitulo_01/" + arquivo), "%s tem música" % arquivo)
+
+
+func test_volta_troca_para_a_antessala() -> void:
+	var volta := "res://scenes/capitulo_01/cena_volta.tscn"
+	Trilha.na_etapa(volta, TrilhaDasCenas.INICIO)
+	assert_eq(Trilha.atual, MUSICAS + "cap01_danica.wav")
+	Trilha.na_etapa(volta, "antessala")
+	assert_eq(Trilha.atual, MUSICAS + "cap01_antessala.wav")
 
 
 func test_etapa_troca_a_musica() -> void:

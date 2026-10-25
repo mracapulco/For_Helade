@@ -162,7 +162,8 @@ func _varanda() -> void:
 	# para a parede de trás e a garota some.
 	var giro := _camera.rotation.y
 	movimento.tween_property(_camera, "rotation:y", giro + deg_to_rad(-3.0), _t(15.0)).from(giro + deg_to_rad(3.5))
-	movimento.tween_property(_camera, "rotation:x", deg_to_rad(0.5), _t(15.0))
+	# Começa olhando um pouco para baixo (o banco de pedra no centro) e ergue os olhos para ela.
+	movimento.tween_property(_camera, "rotation:x", _camera.rotation.x + deg_to_rad(5.0), _t(15.0))
 	_tween_escuro(0.0, _t(2.5))
 
 	await _esperar(0.6)

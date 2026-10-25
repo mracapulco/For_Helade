@@ -1,0 +1,25 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://d056agw5yv63j"
+path="res://.godot/imported/roseiras_flores.obj-32c179abdea66540c0b0c3b67794d196.mesh"
+
+[deps]
+
+files=["res://.godot/imported/roseiras_flores.obj-32c179abdea66540c0b0c3b67794d196.mesh"]
+
+source_file="res://assets/art/capitulo_01/visao/roseiras_flores.obj"
+dest_files=["res://.godot/imported/roseiras_flores.obj-32c179abdea66540c0b0c3b67794d196.mesh", "res://.godot/imported/roseiras_flores.obj-32c179abdea66540c0b0c3b67794d196.mesh"]
+
+[params]
+
+generate_tangents=true
+generate_lods=true
+generate_shadow_mesh=true
+generate_lightmap_uv2=false
+generate_lightmap_uv2_texel_size=0.2
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+force_disable_mesh_compression=false

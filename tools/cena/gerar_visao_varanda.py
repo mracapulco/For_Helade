@@ -39,7 +39,8 @@ MUNDO = "Mundo"
 VIEW = "Mundo/Viewport"
 CEN = "Mundo/Viewport/Cenario"
 Z_CORRIMAO = 4.4
-LARGURA = 3.2          # meia largura da varanda
+LARGURA = 1.9          # meia largura da sacada ("a varanda pareceu pequena demais", V2 c04)
+Z_FUNDO = -1.3         # a parede com a porta, atrás de quem olha
 
 
 def pleno(c: Cena, nome, tipo, pai, **props):
@@ -96,10 +97,14 @@ def garota(c: Cena, pai) -> None:
 # ------------------------------------------------------------ varanda
 
 def varanda(c: Cena, pai) -> None:
-    # laje de mármore frio e a parede de pedra atrás da câmera
-    bloco(c, "Chao", pai, (-LARGURA, -0.3, -3.0), (LARGURA, 0, Z_CORRIMAO + 0.1), "marmore_varanda", colisao=False)
-    bloco(c, "ParedeFundo", pai, (-LARGURA - 0.5, -0.3, -3.5), (LARGURA + 0.5, 4.5, -3.0), "parede_pedra", colisao=False)
-    bloco(c, "BeiralTeto", pai, (-LARGURA - 0.5, 4.5, -3.5), (LARGURA + 0.5, 4.8, 0.2), "parede_pedra", colisao=False)
+    """A sacada do Palácio Imperial (V2 c04-c05): pequena, de mármore frio, um pequeno banco
+    de pedra no centro e roseiras caindo pelo guarda-corpo (tools/arte/gerar_roseiras_visao.py)."""
+    # laje de mármore frio e a parede (com a porta, atrás da câmera)
+    bloco(c, "Chao", pai, (-LARGURA, -0.3, Z_FUNDO), (LARGURA, 0, Z_CORRIMAO + 0.1), "marmore_varanda", colisao=False)
+    bloco(c, "ParedeFundo", pai, (-LARGURA - 0.5, -0.3, Z_FUNDO - 0.5), (LARGURA + 0.5, 4.5, Z_FUNDO),
+          "parede_pedra", colisao=False)
+    bloco(c, "BeiralTeto", pai, (-LARGURA - 0.5, 4.5, Z_FUNDO - 0.5), (LARGURA + 0.5, 4.8, 0.2), "parede_pedra",
+          colisao=False)
     # corrimão e balaústres na frente e nos lados
     bloco(c, "Corrimao", pai, (-LARGURA, 0.88, Z_CORRIMAO - 0.07), (LARGURA, 0.98, Z_CORRIMAO + 0.07),
           "marmore_varanda", colisao=False)
@@ -109,15 +114,34 @@ def varanda(c: Cena, pai) -> None:
     for i in range(n):
         x = -LARGURA + (i + 0.5) * (2 * LARGURA / n)
         cilindro(c, "Balaustre", pai, (x, 0.49, Z_CORRIMAO), 0.05, 0.78, "marmore_varanda", raio_topo=0.035, lados=8)
+    lado_n = int((Z_CORRIMAO - Z_FUNDO) / 0.3)
     for lado in (-1, 1):
-        bloco(c, "CorrimaoLado", pai, (lado * LARGURA - 0.07, 0.88, -3.0), (lado * LARGURA + 0.07, 0.98, Z_CORRIMAO),
+        bloco(c, "CorrimaoLado", pai, (lado * LARGURA - 0.07, 0.88, Z_FUNDO), (lado * LARGURA + 0.07, 0.98, Z_CORRIMAO),
+              "marmore_varanda", colisao=False)
+        bloco(c, "RodapeLado", pai, (lado * LARGURA - 0.07, 0, Z_FUNDO), (lado * LARGURA + 0.07, 0.1, Z_CORRIMAO),
               "marmore_varanda", colisao=False)
         bloco(c, "Pilar", pai, (lado * LARGURA - 0.14, 0, Z_CORRIMAO - 0.14),
               (lado * LARGURA + 0.14, 1.25, Z_CORRIMAO + 0.14), "marmore_varanda", colisao=False)
-        for i in range(8):
-            z = -2.6 + i * 0.85
+        for i in range(lado_n):
+            z = Z_FUNDO + (i + 0.5) * (Z_CORRIMAO - Z_FUNDO) / lado_n
             cilindro(c, "Balaustre", pai, (lado * LARGURA, 0.49, z), 0.05, 0.78, "marmore_varanda",
                      raio_topo=0.035, lados=8)
+    # "no centro da varanda havia um pequeno banco de pedra" ("o banco era minúsculo")
+    zc = (Z_FUNDO + Z_CORRIMAO) / 2
+    bloco(c, "BancoAssento", pai, (-0.48, 0.38, zc - 0.19), (0.48, 0.46, zc + 0.19), "marmore_varanda", colisao=False)
+    for lado in (-1, 1):
+        bloco(c, "BancoPe", pai, (lado * 0.36 - 0.07, 0, zc - 0.15), (lado * 0.36 + 0.07, 0.38, zc + 0.15),
+              "marmore_varanda", colisao=False)
+    roseiras(c, pai)
+
+
+def roseiras(c: Cena, pai) -> None:
+    ramo = material(c, (0.2, 0.2, 0.1), 0.9)
+    folha = c.s("StandardMaterial3D", albedo_color=cor(0.13, 0.32, 0.13), roughness=num(0.6), cull_mode="2")
+    flor = c.s("StandardMaterial3D", albedo_color=cor(0.62, 0.05, 0.09), roughness=num(0.7),
+               rim_enabled="true", rim=num(0.3), rim_tint=num(0.3))
+    for nome, mat in (("ramos", ramo), ("folhas", folha), ("flores", flor)):
+        malha(c, "Roseiras" + nome.capitalize(), pai, c.e("ArrayMesh", f"{GAROTA}roseiras_{nome}.obj"), mat)
 
 
 def horizonte(c: Cena, pai, sorte) -> None:
@@ -174,7 +198,7 @@ def montar() -> Cena:
     # contorno: luz fraca vinda do céu à frente, para a silhueta (cabelo, ombros) não sumir no escuro
     c.no("LuzContorno", "DirectionalLight3D", CEN, transform=transform(rot=(-15, 0, 0)),
          light_color=cor(0.55, 0.65, 1.0), light_energy="0.7", light_cull_mask="2")
-    c.no("Camera", "Camera3D", CEN, transform=transform((0, 1.72, -0.6), (-1.5, 180, 0)), current="true",
+    c.no("Camera", "Camera3D", CEN, transform=transform((0, 1.72, -0.6), (-11, 180, 0)), current="true",
          fov="58.0", unique_name_in_owner="true")
     varanda(c, CEN)
     garota(c, CEN)

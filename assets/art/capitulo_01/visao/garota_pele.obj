@@ -1,4 +1,4 @@
-# garota_pele.obj: gerado por tools/arte/gerar_garota_visao.py
+# garota_pele.obj: gerado por código (tools/arte/gerar_*_visao.py)
 o garota_pele
 v 0.0000 1.2700 0.1077
 v 0.0200 1.2700 0.1067

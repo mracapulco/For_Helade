@@ -1,4 +1,4 @@
-# garota_vestido.obj: gerado por tools/arte/gerar_garota_visao.py
+# garota_vestido.obj: gerado por código (tools/arte/gerar_*_visao.py)
 o garota_vestido
 v 0.0000 0.0120 0.3740
 v 0.0558 0.0120 0.3817

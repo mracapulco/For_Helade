@@ -93,7 +93,7 @@ class Malha:
     def salvar(self, nome: str) -> None:
         PASTA.mkdir(parents=True, exist_ok=True)
         ns = self.normais()
-        linhas = [f"# {nome}: gerado por tools/arte/gerar_garota_visao.py", f"o {Path(nome).stem}"]
+        linhas = [f"# {nome}: gerado por código (tools/arte/gerar_*_visao.py)", f"o {Path(nome).stem}"]
         linhas += [f"v {x:.4f} {y:.4f} {z:.4f}" for x, y, z in self.v]
         linhas += [f"vn {x:.4f} {y:.4f} {z:.4f}" for x, y, z in ns]
         # faces em sentido anti-horário vistas de fora (o importador do Godot vira)

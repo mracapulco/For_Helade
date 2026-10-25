@@ -1637,6 +1637,15 @@ def caixote_pesado():
     return q.contornar()
 
 
+def degrau_mansao(altura):
+    """Degrau da escadaria da frente da Mansão Olympia em Atenas (pedra clara
+    das paredes da família; inferência: o livro só diz "o alto da
+    escadaria"). Uma casa inteira; três alturas fazem a escada."""
+    q, frente, lado = caixa_iso(-0.5, 0.5, -0.5, 0.5, altura, 'pedra_parede', 'pedra_parede_sombra', 'pedra_parede_luz')
+    _riscar(frente, 0.0, 1.0, 0.96, 0.96, 'pedra_parede_luz')
+    return q.contornar()
+
+
 def tapete_loja():
     """Tapete redondo de brincar, deitado no chão (2×2 casas, 128×64), sem
     bloquear. Fica no chão: z_index abaixo de quem anda."""
@@ -1837,6 +1846,9 @@ ARTES = {
     'loja/caixas_presente.png': caixas_presente,
     'loja/cavalinho.png': cavalinho,
     'loja/banquinho.png': banquinho,
+    'mansao/degrau_1.png': lambda: degrau_mansao(6),
+    'mansao/degrau_2.png': lambda: degrau_mansao(12),
+    'mansao/degrau_3.png': lambda: degrau_mansao(18),
     'loja/caixa_madeira.png': caixa_madeira,
     'loja/caixote_pesado.png': caixote_pesado,
     'loja/tapete_loja.png': tapete_loja,

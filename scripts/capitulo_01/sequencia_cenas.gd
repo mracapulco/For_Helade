@@ -19,6 +19,7 @@ const CENAS := {
 	"butiques": "res://scenes/capitulo_01/cena_butiques.tscn",
 	"restaurante": "res://scenes/capitulo_01/cena_restaurante.tscn",
 	"passeio": "res://scenes/capitulo_01/cena_passeio.tscn",
+	"volta": "res://scenes/capitulo_01/cena_volta.tscn",
 }
 
 

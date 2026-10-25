@@ -297,7 +297,7 @@ func test_passeio_quatro_lojas_na_ordem_do_jogador() -> void:
 	passeio.entrar("brinquedos_1")
 	await _esperar_pedido()
 	assert_eq(cena.etapa, "volta")
-	assert_eq(cena.cena_pedida, SequenciaCenas01.MENU)
+	assert_eq(cena.cena_pedida, SequenciaCenas01.CENAS["volta"])
 
 
 func test_visao_da_varanda_leva_as_butiques() -> void:
@@ -311,3 +311,27 @@ func test_visao_da_varanda_leva_as_butiques() -> void:
 	await _esperar_pedido()
 	assert_eq(cena.etapa, "butiques")
 	assert_eq(cena.cena_pedida, SequenciaCenas01.CENAS["butiques"])
+
+
+func test_volta_olhar_da_danica_perguntas_e_mapa() -> void:
+	var etapa_antes := Progresso.etapa
+	var local_antes := Mundo.local_no_mapa
+	await _abrir("res://scenes/capitulo_01/cena_volta.tscn", "seguir")
+	var volta := cena as CenaVolta
+	assert_false(cena.objetos.has("apollon") and cena.objetos["apollon"].visible, "o Duque entrou")
+	# Parado perto de Danica, olhando para ela: ela desvia o olhar (Códice).
+	cena.jogador.position = cena.objetos["danica"].position + Vector2(0, 40)
+	cena.jogador.direcao_olhar = Vector2(0, -1)
+	await wait_seconds(CenaVolta.OLHAR_TEMPO + 0.3)
+	assert_true(volta.olhou_danica)
+	assert_true(Codice.tem("danica_desvia_o_olhar"))
+	volta.subir_a_escadaria()
+	await _esperar_pedido()
+	for entrada in CenaVolta.ENTRADAS_DAS_PERGUNTAS:
+		assert_true(Codice.tem(entrada), entrada)
+	assert_eq(cena.etapa, CenaVolta.ETAPA_DEPOIS)
+	assert_eq(cena.cena_pedida, CenaVolta.MAPA)
+	assert_eq(Mundo.local_no_mapa, "atenas")
+	assert_true(preload("res://scripts/systems/fases_historia.gd").da_etapa(CenaVolta.ETAPA_DEPOIS).is_empty(), "o mapa fica livre")
+	Progresso.etapa = etapa_antes
+	Mundo.local_no_mapa = local_antes

@@ -37,9 +37,10 @@ func test_cada_cena_chama_a_proxima_pulando_etapas_sem_cena() -> void:
 	assert_eq(SequenciaCenas01.cena_depois("butiques"), SequenciaCenas01.CENAS["restaurante"])
 
 
-func test_o_passeio_volta_ao_menu_por_enquanto() -> void:
+func test_o_passeio_chama_a_volta_e_a_volta_o_menu() -> void:
 	assert_eq(SequenciaCenas01.cena_depois("restaurante"), SequenciaCenas01.CENAS["passeio"])
-	assert_eq(SequenciaCenas01.cena_depois("passeio"), SequenciaCenas01.MENU)
+	assert_eq(SequenciaCenas01.cena_depois("passeio"), SequenciaCenas01.CENAS["volta"])
+	assert_eq(SequenciaCenas01.cena_depois("volta"), SequenciaCenas01.MENU)
 	assert_eq(SequenciaCenas01.cena_depois("desconhecida"), SequenciaCenas01.MENU)
 
 
@@ -47,7 +48,7 @@ func test_as_cenas_existem_e_a_manha_chama_o_palacio() -> void:
 	for etapa: String in SequenciaCenas01.CENAS:
 		assert_true(ResourceLoader.exists(SequenciaCenas01.CENAS[etapa]), etapa)
 		assert_true(SequenciaCenas01.ETAPAS.has(etapa), etapa)
-	assert_eq(SequenciaCenas01.cena_da_etapa("volta"), "")
+	assert_eq(SequenciaCenas01.cena_da_etapa("capitulo_2"), "")
 	var manha := Capitulo01.new()
 	assert_eq(manha.cena_depois, SequenciaCenas01.CENAS["palacio"])
 	manha.free()

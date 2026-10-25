@@ -1,0 +1,98 @@
+## Capítulo 01 de "Pelos Olhos Dele", cenas 12 e 13: a volta à mansão e a
+## antessala com o Duque, fim do capítulo (livro, l. ~565-739). Só
+## frases-chave, sem mudar as palavras (a narração na voz de Nicholas, como
+## o resto do capítulo). Os rótulos entre colchetes das perguntas são texto
+## do jogo, NÃO do livro: o jogador escolhe a ordem das perguntas de
+## Nicholas (duelo de perguntas, Rafael 25/10/2026); cada resposta anota o
+## Códice e as palavras de cada um são as do livro.
+
+~ frases_chegada
+
+## As carruagens e a escadaria.
+As carruagens já nos aguardavam quando retornamos à mansão da família em Atenas. [ID:CAP1_241]
+O duque Apollon aguardava no alto da escadaria. Uma mulher estava ao lado dele. [ID:CAP1_242]
+Danica existia. E estava ali. [ID:CAP1_243]
+=> END
+
+~ apollon_recebe
+
+## Apollon desce e recebe Ophelia.
+Apollon: [#retrato=neutro] Princesa Ophelia, é um prazer recebê-la sob os cuidados de nossa casa. [ID:CAP1_244]
+Ophelia: [#retrato=neutro] Duque de Olympia, a honra é minha. Agradeço por me receber. [ID:CAP1_245]
+Apollon: [#retrato=neutro] Princesa Ophelia, Althea, acompanhem Danica até a carruagem. Partiremos em breve. [ID:CAP1_246]
+Apollon: [#retrato=neutro] Nicholas, preciso de uma última palavra a sós. Venha comigo. [ID:CAP1_247]
+Nicholas: [#retrato=neutro] Sim, Duque. [ID:CAP1_248]
+=> END
+
+~ frases_olhar_danica
+
+## Opcional: Nicholas encara Danica.
+Ela não tentou se aproximar. Nem mesmo sustentou meu olhar por muito tempo. [ID:CAP1_249]
+=> END
+
+~ frases_danica
+
+## Danica leva Althea; Nicholas vai atrás do pai.
+Danica estendeu a mão para Thea com cuidado, como se temesse assustá-la. [ID:CAP1_250]
+Senti o sangue ferver. [ID:CAP1_251]
+=> END
+
+~ frases_antessala
+
+## A porta fechada.
+Conversas que exigiam portas fechadas raramente traziam algo bom. [ID:CAP1_252]
+=> END
+
+~ ensinar
+
+## O pedido.
+Apollon: [#retrato=neutro] Nicholas, serei direto. Durante o período em que a Princesa estiver em nossa casa, quero que lhe ensine tudo o que puder. [ID:CAP1_253]
+Nicholas: [#retrato=neutro] Tudo o quê? [ID:CAP1_254]
+Apollon: [#retrato=neutro] Finanças. Gestão de propriedades. Comércio. Relações entre as Casas. Tudo o que seus tutores já lhe ensinaram e tudo o que aprendeu comigo. [ID:CAP1_255]
+=> END
+
+~ perguntas
+
+## O duelo de perguntas: a ordem é do jogador (algumas só depois de outras).
+- [Por que eu?] [if not Codice.tem("elogio_do_duque") /] [ID:CAP1_OPC_PERGUNTA_EU]
+	Nicholas: [#retrato=neutro] Há bons tutores em Olympia. Por que deveria ser eu? [ID:CAP1_256]
+	Apollon: [#retrato=neutro] Porque você é excepcional. [ID:CAP1_257]
+	Apollon: [#retrato=neutro] Você está à frente de outras crianças da sua idade. Compreende assuntos que muitos adultos preferem ignorar. E preciso que use isso para ajudá-la. [ID:CAP1_258]
+	$> Codice.anotar("elogio_do_duque")
+- [Por quê?] [if not Codice.tem("decisao_do_imperador") /] [ID:CAP1_OPC_PERGUNTA_POR_QUE]
+	Nicholas: [#retrato=neutro] Por quê? [ID:CAP1_259]
+	Apollon: [#retrato=neutro] O Imperador Varsélios tomou uma decisão controversa. Neste Ciclo, os Abençoados não receberão a mesma educação. As meninas ficarão em desvantagem. [ID:CAP1_260]
+	Nicholas: [#retrato=neutro] Isso é absurdo. [ID:CAP1_261]
+	Apollon: [#retrato=neutro] Sim. [ID:CAP1_262]
+	$> Codice.anotar("decisao_do_imperador")
+- [E a Princesa?] [if Codice.tem("decisao_do_imperador") and not Codice.tem("ophelia_abencoada") /] [ID:CAP1_OPC_PERGUNTA_PRINCESA]
+	Nicholas: [#retrato=neutro] Mas o que a Princesa tem a ver com isso? [ID:CAP1_263]
+	Apollon: [#retrato=neutro] Ophelia também é uma Abençoada. [ID:CAP1_264]
+	Doze crianças para o Vigésimo Ciclo. E Ophelia era uma delas. [ID:CAP1_265]
+	Apollon: [#retrato=neutro] Ainda há mais. Varsélios não declarou quem herdará o trono. Ophelia é a única princesa legítima do Império, a única filha da Imperatriz Callie. [ID:CAP1_279]
+	$> Codice.anotar("ophelia_abencoada")
+- [E o trono?] [if Codice.tem("ophelia_abencoada") and not Codice.tem("tristan") /] [ID:CAP1_OPC_PERGUNTA_TRONO]
+	Nicholas: [#retrato=neutro] Se Ophelia é a única Princesa legítima, por que simplesmente não assume o trono quando o Imperador... Quando chegar o momento? [ID:CAP1_266]
+	Apollon: [#retrato=neutro] Existe um Príncipe. Filho de uma das concubinas de Varsélios. [ID:CAP1_267]
+	Nicholas: [#retrato=neutro] Legítimo? [ID:CAP1_268]
+	Apollon: [#retrato=neutro] Não. [ID:CAP1_269]
+	Nicholas: [#retrato=neutro] Então ele não deveria importar. [ID:CAP1_280]
+	Apollon: [#retrato=neutro] Dever e poder raramente significam a mesma coisa, Nicholas. O garoto se chama Tristan e deve ter a idade de Althea. [ID:CAP1_281]
+	Nicholas: [#retrato=neutro] E o Imperador? [ID:CAP1_270]
+	Apollon: [#retrato=neutro] Ainda não escolheu. [ID:CAP1_271]
+	$> Codice.anotar("tristan")
+- [E nós?] [if Codice.tem("tristan") and not Codice.tem("apoio_de_olympia") /] [ID:CAP1_OPC_PERGUNTA_NOS]
+	Nicholas: [#retrato=neutro] E o que isso tem a ver conosco? [ID:CAP1_272]
+	Apollon: [#retrato=neutro] Olympia é uma das Casas mais poderosas de Hélade. Quando chegar o momento, nosso apoio terá peso. E nós apoiaremos a ascensão da princesa Ophelia. [ID:CAP1_273]
+	$> Codice.anotar("apoio_de_olympia")
+=> END
+
+~ fim_da_conversa
+
+## O fim do capítulo.
+Nicholas: [#retrato=neutro] Então, quer que eu a ensine para transformá-la em Imperatriz? [ID:CAP1_274]
+Apollon: [#retrato=neutro] Quero que lhe dê uma chance de se tornar uma. [ID:CAP1_275]
+Nicholas: [#retrato=neutro] Está bem. Ensinarei tudo o que puder. Ninguém merece um destino tão terrível quanto depender de você como tutor. [ID:CAP1_276]
+Nicholas: [#retrato=neutro] Mas não espere que eu me torne amigo dela. [ID:CAP1_277]
+Apollon: [#retrato=neutro] Naturalmente. Jamais esperaria isso. [ID:CAP1_278]
+=> END

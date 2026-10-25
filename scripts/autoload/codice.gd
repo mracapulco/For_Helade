@@ -32,6 +32,13 @@ const ENTRADAS := {
 	"rua_das_butiques": TIPO_CODICE,
 	# Capítulo 01, cena 11: o passeio (livraria; texto do pré-textual do V1).
 	"ano_dourado": TIPO_CODICE,
+	# Capítulo 01, cenas 12 e 13: a volta à mansão e a antessala.
+	"danica_desvia_o_olhar": TIPO_OLHAR,
+	"elogio_do_duque": TIPO_OLHAR,
+	"decisao_do_imperador": TIPO_CODICE,
+	"ophelia_abencoada": TIPO_CODICE,
+	"tristan": TIPO_CODICE,
+	"apoio_de_olympia": TIPO_CODICE,
 	# Biblioteca do Castelo Olympia (sala de desafio, P5; V1 P1 c05).
 	"pilhas_de_livros": TIPO_OLHAR,
 	"mesa_de_xadrez": TIPO_OLHAR,

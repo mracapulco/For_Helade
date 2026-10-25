@@ -320,7 +320,7 @@ func _frases(marcador: String) -> void:
 
 
 ## Conversa na caixa de diálogo; volta quando ela fecha. Sem caixa (testes),
-## percorre o marcador pela linha principal (a primeira opção) para valer
+## percorre o marcador pela linha principal (a primeira opção permitida) para valer
 ## os ajustes de relação e as notas do códice.
 func _falar(marcador: String) -> void:
 	if not mostrar_dialogos:
@@ -329,7 +329,12 @@ func _falar(marcador: String) -> void:
 			if linha.responses.is_empty():
 				linha = await roteiro.get_next_dialogue_line(linha.next_id)
 			else:
-				linha = await roteiro.get_next_dialogue_line(linha.responses[0].next_id)
+				var opcao: DialogueResponse = linha.responses[0]
+				for resposta: DialogueResponse in linha.responses:
+					if resposta.is_allowed:
+						opcao = resposta
+						break
+				linha = await roteiro.get_next_dialogue_line(opcao.next_id)
 		return
 	DialogueManager.show_dialogue_balloon(roteiro, marcador)
 	await DialogueManager.dialogue_ended

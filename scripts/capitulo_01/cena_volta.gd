@@ -249,6 +249,8 @@ func subir_a_escadaria() -> void:
 		return
 	_subindo = true
 	_travar(true)
+	# O objetivo já foi cumprido: some de vez (senão volta entre as frases).
+	_mudar("subindo")
 	var danica: Node2D = objetos["danica"]
 	var althea: Node2D = objetos["althea"]
 	var ophelia: Node2D = objetos["ophelia"]

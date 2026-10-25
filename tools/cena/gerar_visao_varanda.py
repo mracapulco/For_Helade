@@ -184,7 +184,7 @@ def montar() -> Cena:
     # luz fria vinda de trás da câmera, tocando as costas da garota
     c.no("LuzFria", "DirectionalLight3D", CEN, transform=transform(rot=(-30, 180, 0)),
          light_color=cor(0.62, 0.72, 1.0), light_energy="0.7")
-    c.no("Camera", "Camera3D", CEN, transform=transform((0, 1.72, -0.6), (-1.5, 0, 0)), current="true",
+    c.no("Camera", "Camera3D", CEN, transform=transform((0, 1.72, -0.6), (-1.5, 180, 0)), current="true",
          fov="58.0", unique_name_in_owner="true")
     varanda(c, CEN)
     garota(c, CEN)

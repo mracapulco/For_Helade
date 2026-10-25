@@ -158,7 +158,10 @@ func _varanda() -> void:
 	# Aproximação lenta e uma leve virada: Nicholas não anda, só olha.
 	var movimento := create_tween().set_parallel().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	movimento.tween_property(_camera, "position:z", _camera_inicio.z + 1.1, _t(15.0))
-	movimento.tween_property(_camera, "rotation:y", deg_to_rad(-3.0), _t(15.0)).from(deg_to_rad(3.5))
+	# Relativo ao giro do .tscn (a câmera olha para +z: 180°), senão ela vira
+	# para a parede de trás e a garota some.
+	var giro := _camera.rotation.y
+	movimento.tween_property(_camera, "rotation:y", giro + deg_to_rad(-3.0), _t(15.0)).from(giro + deg_to_rad(3.5))
 	movimento.tween_property(_camera, "rotation:x", deg_to_rad(0.5), _t(15.0))
 	_tween_escuro(0.0, _t(2.5))
 

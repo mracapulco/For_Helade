@@ -28,20 +28,22 @@ const ETAPA_DEPOIS := "capitulo_2"
 const LOCAL_NO_MAPA := "atenas"
 const LARGURA := 20
 const PROFUNDIDADE := 13
-## A escadaria (um desenho só, com a porta lá em cima): x 6 a 8, do
-## patamar na linha 0 ao último degrau na linha 3; o desenho se apoia na
-## casa da frente. ALTURAS: quanto cada linha sobe (pixels).
+## A entrada (um desenho só): o pórtico com a porta no lugar da parede
+## (x 6 a 8 da linha 0) e a escadaria do patamar na linha 1 ao último degrau
+## na linha 4; o desenho se apoia na casa da frente. ALTURAS: quanto cada
+## linha sobe (pixels), da [constant LINHA_PATAMAR] em diante.
 const CASA_PORTA := Vector2i(7, 0)
 const ESCADA_X := Vector2i(6, 8)
-const ALTURAS := [24.0, 18.0, 12.0, 6.0]
-const CASA_DESENHO_ESCADA := Vector2i(7, 3)
+const LINHA_PATAMAR := 1
+const ALTURAS := [16.0, 12.0, 8.0, 4.0]
+const CASA_DESENHO_ESCADA := Vector2i(7, 4)
 const PE_ESCADA := 33.0
-## Ao chegar ao pé da escadaria (linha 4, x 6 a 8), Nicholas sobe sozinho
+## Ao chegar ao pé da escadaria (linha 5, x 6 a 8), Nicholas sobe sozinho
 ## atrás do Duque, sem círculo de ação (Rafael, 25/10/2026).
-const LINHA_PE_DA_ESCADA := 4
-const CASA_DANICA_EMBAIXO := Vector2i(9, 4)
-const CASA_APOLLON := Vector2i(6, 0)
-const CASA_DANICA := Vector2i(8, 0)
+const LINHA_PE_DA_ESCADA := 5
+const CASA_DANICA_EMBAIXO := Vector2i(9, 5)
+const CASA_APOLLON := Vector2i(6, 1)
+const CASA_DANICA := Vector2i(8, 1)
 const CASA_CARRUAGEM := Vector2i(14, 8)
 const CASA_CARGA := Vector2i(3, 8)
 const CASA_JOGADOR := Vector2i(9, 8)
@@ -92,13 +94,13 @@ func montar_frente() -> void:
 		["brasao_olympia_esq", Vector2i(5, 0)], ["brasao_olympia_esq", Vector2i(9, 0)],
 		["janela_alta_esq", Vector2i(10, 0)], ["janela_alta_esq", Vector2i(12, 0)],
 		["janela_alta_esq", Vector2i(16, 0)], ["janela_alta_esq", Vector2i(18, 0)]])
-	for casa: Vector2i in [Vector2i(5, 4), Vector2i(9, 3)]:
+	for casa: Vector2i in [Vector2i(5, 5), Vector2i(9, 4)]:
 		_objeto("lampiao_%d" % casa.x, "rua/lampiao", casa)
-	for casa: Vector2i in [Vector2i(5, 2), Vector2i(9, 1)]:
+	for casa: Vector2i in [Vector2i(5, 2), Vector2i(9, 2)]:
 		_objeto("vaso_%d_%d" % [casa.x, casa.y], "rua/vaso_flor", casa)
 	_objeto("escadaria_desenho", "mansao/escadaria", CASA_DESENHO_ESCADA, false, PE_ESCADA, false)
 	objetos["escadaria_desenho"].remove_meta(SalaMontada.META_TRANSLUCIDO)
-	for y in ALTURAS.size():
+	for y in range(LINHA_PATAMAR, LINHA_PATAMAR + ALTURAS.size()):
 		for x in range(ESCADA_X.x, ESCADA_X.y + 1):
 			_bloqueio("escada_%d_%d" % [x, y], Vector2i(x, y))
 	_objeto("carruagem", "rua/carruagem_parada", CASA_CARRUAGEM, false, CenaButiques.PE_CARRUAGEM)
@@ -131,11 +133,11 @@ func apollon_recebe() -> void:
 	await _falar_travado("apollon_recebe")
 	# Danica fica alguns passos atrás; Apollon volta para a mansão.
 	_danica_desce()
-	await _caminhar(apollon, [sala.centro(Vector2i(6, 4))], 0.9)
+	await _caminhar(apollon, [sala.centro(Vector2i(6, LINHA_PE_DA_ESCADA))], 0.9)
 	apollon.z_index = 1
 	var subir := _descer(6)
 	subir.reverse()
-	await _caminhar(apollon, subir.slice(1) + [_no_patamar(CASA_PORTA)], 0.3)
+	await _caminhar(apollon, subir.slice(1) + [_no_patamar(Vector2i(7, LINHA_PATAMAR))], 0.3)
 	await _sumir(apollon)
 
 
@@ -155,15 +157,16 @@ func _no_alto(pessoa: Node2D, casa: Vector2i) -> void:
 ## O ponto da casa [param casa] em cima do degrau (ou no chão, fora da escada).
 func _no_patamar(casa: Vector2i) -> Vector2:
 	var altura := 0.0
-	if casa.y >= 0 and casa.y < ALTURAS.size() and casa.x >= ESCADA_X.x and casa.x <= ESCADA_X.y:
-		altura = ALTURAS[casa.y]
+	var linha := casa.y - LINHA_PATAMAR
+	if linha >= 0 and linha < ALTURAS.size() and casa.x >= ESCADA_X.x and casa.x <= ESCADA_X.y:
+		altura = ALTURAS[linha]
 	return sala.centro(casa) - Vector2(0, altura)
 
 
 ## Os pontos da escada na coluna [param x], do patamar até o chão da frente.
 func _descer(x: int) -> Array:
 	var pontos := []
-	for y in range(ALTURAS.size() + 1):
+	for y in range(LINHA_PATAMAR, LINHA_PATAMAR + ALTURAS.size() + 1):
 		pontos.append(_no_patamar(Vector2i(x, y)))
 	return pontos
 
@@ -238,18 +241,19 @@ func montar_antessala() -> void:
 	# "Antessala de ornamentos dourados com grande janela para o Palácio"
 	# (livro/descricao-lugares.md); a escrivaninha, a poltrona, o tapete e o
 	# armário são inferência (Rafael pediu algo como um escritório, 25/10).
-	_nova_sala(7, 5, TOM_DENTRO, "assoalho", "reboco")
-	_pendurar([["arandela_esq", Vector2i(1, 0)], ["janela_alta_esq", Vector2i(2, 0)],
-		["janela_alta_esq", Vector2i(4, 0)], ["arandela_esq", Vector2i(5, 0)],
-		["quadro_olympia_dir", Vector2i(0, 1)], ["brasao_olympia_dir", Vector2i(0, 2)],
-		["arandela_dir", Vector2i(0, 3)]])
-	var tapete := _objeto("tapete", "mansao/tapete_antessala", Vector2i(3, 2), false, 32.0, false)
+	_nova_sala(8, 6, TOM_DENTRO, "assoalho", "reboco")
+	_pendurar([["arandela_esq", Vector2i(2, 0)], ["janela_alta_esq", Vector2i(3, 0)],
+		["janela_alta_esq", Vector2i(5, 0)], ["arandela_esq", Vector2i(6, 0)],
+		["quadro_olympia_dir", Vector2i(0, 2)], ["brasao_olympia_dir", Vector2i(0, 3)],
+		["arandela_dir", Vector2i(0, 4)]])
+	var tapete := _objeto("tapete", "mansao/tapete_antessala", Vector2i(4, 3), false, 32.0, false)
 	tapete.z_index = -1
-	_objeto("poltrona", "mansao/poltrona", Vector2i(3, 0))
-	_objeto("escrivaninha", "mansao/escrivaninha", Vector2i(3, 1))
-	_objeto("armario", "armario", Vector2i(6, 0))
-	_pessoa("apollon", QUADROS_APOLLON, Vector2i(4, 2))
-	_entrar(Vector2i(1, 3))
+	# A primeira casa livre é a linha/coluna 1 (a 0 é a parede).
+	_objeto("poltrona", "mansao/poltrona", Vector2i(4, 1))
+	_objeto("escrivaninha", "mansao/escrivaninha", Vector2i(4, 2))
+	_objeto("armario", "armario", Vector2i(7, 1))
+	_pessoa("apollon", QUADROS_APOLLON, Vector2i(5, 3))
+	_entrar(Vector2i(2, 4))
 	jogador.direcao_olhar = (objetos["apollon"].position - jogador.position).normalized()
 	_virar(objetos["apollon"], jogador.position)
 

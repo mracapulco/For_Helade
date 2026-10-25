@@ -1638,15 +1638,17 @@ def caixote_pesado():
 
 
 def escadaria_mansao():
-    """Escadaria da frente da Mansão Olympia em Atenas com a porta lá em cima
-    (Rafael, 25/10/2026). O livro: "escadaria e antessala de ornamentos
-    dourados" (livro/descricao-lugares.md); colunas, frontão, passadeira azul
-    e dourada (as cores da carruagem de Olympia) e balaústres são inferência.
-    Patamar encostado na parede (linha y 0, alto 24 px) e três degraus (18,
-    12, 6) até a linha y 3, três casas de largura (x 6 a 8). O ponto de apoio
-    é o centro da casa (7, 3) no chão: linha 170, meio da largura (pé 33)."""
+    """Entrada da Mansão Olympia em Atenas: um pórtico de mármore mais alto
+    que as paredes (no lugar delas, x 6 a 8 da linha y 0), com frontão,
+    colunas e a porta dupla, e a escadaria na frente (Rafael, 25/10/2026). O
+    livro: "escadaria e antessala de ornamentos dourados"
+    (livro/descricao-lugares.md); pórtico, colunas, passadeira azul e
+    dourada (as cores da carruagem de Olympia) e balaústres são inferência.
+    Patamar na linha y 1 (16 px) e três degraus (12, 8, 4) até a linha y 4.
+    O ponto de apoio é o centro da casa (7, 4) no chão: linha 200, meio da
+    largura (pé 33)."""
     from PIL import ImageDraw
-    largura, altura, cx, oy = 320, 203, 160, 170
+    largura, altura, cx, oy = 384, 233, 192, 200
     q = Q(largura, altura)
     d = ImageDraw.Draw(q.im)
     t = lambda a, b, z: (cx + 32 * (a - b), oy + 16 * (a + b) - z)
@@ -1656,28 +1658,32 @@ def escadaria_mansao():
         d.polygon([t(a1, b0, z0), t(a1, b1, z0), t(a1, b1, z1), t(a1, b0, z1)], fill=C[lado])
         d.polygon([t(a0, b0, z1), t(a1, b0, z1), t(a1, b1, z1), t(a0, b1, z1)], fill=C[topo])
 
-    alturas = [24, 18, 12, 6]                 # linha 0 (patamar) até a linha 3
-    # Na parede (plano b = -3,5): frontão com ornamento dourado e porta dupla.
-    b = -3.5
-    d.polygon([t(-1.0, b, 88), t(1.0, b, 88), t(0, b, 110)], fill=C['marmore'])
-    d.line([t(-1.0, b, 88), t(0, b, 110), t(1.0, b, 88), t(-1.0, b, 88)], fill=C['ouro'], width=2)
-    x, y = t(0, b, 96)
+    # O pórtico (a casa da parede, linha 0 = b de -4,5 a -3,5).
+    topo = 96
+    caixa(-1.5, 1.5, -4.5, -3.5, 0, topo, 'marmore', 'marmore_sombra', 'pedra_parede_sombra')
+    b = -3.5                                  # a face da frente
+    d.line([t(-1.5, b, topo), t(1.5, b, topo), t(1.5, -4.5, topo)], fill=C['ouro'], width=2)
+    d.line([t(-1.5, b, topo - 4), t(1.5, b, topo - 4)], fill=C['ouro_sombra'], width=1)
+    d.polygon([t(-1.1, b, 74), t(1.1, b, 74), t(0, b, 90)], fill=C['marmore_luz'])
+    d.line([t(-1.1, b, 74), t(0, b, 90), t(1.1, b, 74), t(-1.1, b, 74)], fill=C['ouro'], width=2)
+    x, y = t(0, b, 80)
     d.ellipse([x - 3, y - 3, x + 3, y + 3], fill=C['ouro'], outline=C['ouro_sombra'])
-    a0, a1, z0, z1 = -0.62, 0.62, 24, 82
-    d.polygon([t(a0 - 0.1, b, z0), t(a1 + 0.1, b, z0), t(a1 + 0.1, b, z1 + 6), t(a0 - 0.1, b, z1 + 6)],
+    a0, a1, z0, z1 = -0.55, 0.55, 16, 64
+    d.polygon([t(a0 - 0.1, b, z0), t(a1 + 0.1, b, z0), t(a1 + 0.1, b, z1 + 5), t(a0 - 0.1, b, z1 + 5)],
               fill=C['ouro_sombra'])
     d.polygon([t(a0, b, z0), t(a1, b, z0), t(a1, b, z1), t(a0, b, z1)], fill=C['madeira'])
-    for k in (-0.31, 0.31):                   # almofadas das duas folhas
-        for (p0, p1) in ((z0 + 6, z0 + 24), (z0 + 30, z1 - 6)):
-            d.polygon([t(k - 0.22, b, p0), t(k + 0.22, b, p0), t(k + 0.22, b, p1), t(k - 0.22, b, p1)],
+    for k in (-0.27, 0.27):                   # almofadas das duas folhas
+        for (p0, p1) in ((z0 + 5, z0 + 19), (z0 + 24, z1 - 5)):
+            d.polygon([t(k - 0.19, b, p0), t(k + 0.19, b, p0), t(k + 0.19, b, p1), t(k - 0.19, b, p1)],
                       fill=C['madeira_luz'])
     d.line([t(0, b, z0), t(0, b, z1)], fill=C['madeira_sombra'], width=1)
-    d.line([t(a0 - 0.1, b, z1 + 6), t(a1 + 0.1, b, z1 + 6)], fill=C['ouro_luz'], width=2)
+    d.line([t(a0 - 0.1, b, z1 + 5), t(a1 + 0.1, b, z1 + 5)], fill=C['ouro_luz'], width=2)
     for k in (-0.07, 0.07):                   # puxadores
-        x, y = t(k, b, z0 + 28)
+        x, y = t(k, b, z0 + 22)
         d.rectangle([x - 1, y - 1, x, y], fill=C['ouro'])
     # Patamar e degraus, de trás para a frente, com a passadeira e os
     # balaústres de mármore com o remate dourado dos dois lados.
+    alturas = [16, 12, 8, 4]                  # linha 1 (patamar) até a linha 4
     for linha, h in enumerate(alturas):
         b0, b1 = linha - 3.5, linha - 2.5
         caixa(-1.5, 1.5, b0, b1, 0, h, 'pedra_parede', 'pedra_parede_sombra', 'pedra_parede_luz')
@@ -1687,12 +1693,12 @@ def escadaria_mansao():
             d.line([t(k, b0, h), t(k, b1, h), t(k, b1, 0)], fill=C['ouro'], width=1)
         d.line([t(-1.5, b1, h), t(1.5, b1, h)], fill=C['ouro_sombra'], width=1)
         for a_ in (-1.5, 1.3):
-            caixa(a_, a_ + 0.2, b0, b1, 0, h + 12, 'marmore', 'marmore_sombra', 'marmore_luz')
-            d.line([t(a_, b0, h + 12), t(a_, b1, h + 12), t(a_ + 0.2, b1, h + 12)], fill=C['ouro'], width=1)
-    # Colunas no patamar, dos dois lados da porta.
-    for k in (-0.95, 0.95):
-        xb, yb = t(k, -3.25, 24)
-        xt, yt = t(k, -3.25, 100)
+            caixa(a_, a_ + 0.2, b0, b1, 0, h + 10, 'marmore', 'marmore_sombra', 'marmore_luz')
+            d.line([t(a_, b0, h + 10), t(a_, b1, h + 10), t(a_ + 0.2, b1, h + 10)], fill=C['ouro'], width=1)
+    # Colunas no patamar, dos dois lados da porta, sustentando o frontão.
+    for k in (-1.0, 1.0):
+        xb, yb = t(k, -3.25, 16)
+        _, yt = t(k, -3.25, 74)
         d.rectangle([xb - 4, yt, xb + 4, yb], fill=C['marmore'])
         d.rectangle([xb + 2, yt, xb + 4, yb], fill=C['marmore_sombra'])
         d.rectangle([xb - 3, yt, xb - 2, yb], fill=C['marmore_luz'])

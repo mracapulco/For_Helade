@@ -1661,6 +1661,9 @@ def escadaria_mansao():
     # O pórtico (a casa da parede, linha 0 = b de -4,5 a -3,5).
     topo = 112
     caixa(-1.5, 1.5, -4.5, -3.5, 0, topo, 'marmore', 'marmore_sombra', 'pedra_parede_sombra')
+    # A lateral direita encosta na parede vizinha (x 9, 80 px de altura):
+    # até essa altura ela fica escondida atrás da parede, então apaga.
+    d.polygon([t(1.5, -4.5, 0), t(1.5, -3.5, 0), t(1.5, -3.5, 80), t(1.5, -4.5, 80)], fill=(0, 0, 0, 0))
     b = -3.5                                  # a face da frente
     d.line([t(-1.5, b, topo), t(1.5, b, topo), t(1.5, -4.5, topo)], fill=C['ouro'], width=2)
     d.line([t(-1.5, b, topo - 4), t(1.5, b, topo - 4)], fill=C['ouro_sombra'], width=1)

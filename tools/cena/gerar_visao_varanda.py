@@ -77,17 +77,20 @@ def haste(c: Cena, nome, pai, pos, raio, altura, mat, rot=(0, 0, 0), raio_baixo=
 # ------------------------------------------------------------ garota
 
 def garota(c: Cena, pai) -> None:
-    """Malhas de tools/arte/gerar_garota_visao.py (corpo, vestido, mangas, pele, cabelo)."""
-    pele = material(c, (0.82, 0.68, 0.6), 0.7)
-    vestido = material(c, (0.6, 0.63, 0.78), 0.85)
-    cabelo = c.s("StandardMaterial3D", albedo_color=cor(0.085, 0.06, 0.06), roughness=num(0.38),
+    """Ophelia adulta, de costas (malhas de tools/arte/gerar_garota_visao.py): pele cor de
+    caramelo, veludo vermelho de ombros nus, pérolas e cabelo escuro cacheado (V2 c01, c04)."""
+    pele = material(c, (0.56, 0.37, 0.25), 0.6)
+    veludo = c.s("StandardMaterial3D", albedo_color=cor(0.42, 0.035, 0.05), roughness=num(0.95),
+                 rim_enabled="true", rim=num(0.55), rim_tint=num(0.15))
+    perola = c.s("StandardMaterial3D", albedo_color=cor(0.94, 0.91, 0.86), roughness=num(0.22),
+                 metallic_specular=num(0.8))
+    cabelo = c.s("StandardMaterial3D", albedo_color=cor(0.06, 0.04, 0.035), roughness=num(0.38),
                  cull_mode="2", rim_enabled="true", rim=num(0.35), rim_tint=num(0.6))
     g = c.no("Garota", "Node3D", pai, transform=transform((0, 0, 3.9)))
-    for nome, mat in (("vestido", vestido), ("mangas", vestido), ("pele", pele), ("cabelo", cabelo)):
+    for nome, mat in (("vestido", veludo), ("pele", pele), ("perolas", perola), ("cabelo", cabelo)):
         mesh = c.e("ArrayMesh", f"{GAROTA}garota_{nome}.obj")
-        no = malha(c, nome.capitalize(), g, mesh, mat)
+        malha(c, nome.capitalize(), g, mesh, mat)
         c.nos[-1][3]["layers"] = "3"                       # camada 2: só ela recebe o contorno
-        del no
 
 
 # ------------------------------------------------------------ varanda

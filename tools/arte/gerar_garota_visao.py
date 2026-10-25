@@ -3,19 +3,27 @@
 "A garota estava de costas para mim. Parada na varanda fria." / "Seus cabelos
 longos, ondulados, escuros, descendo pelas costas e abraçando sua cintura."
 
+A garota é Ophelia adulta (Rafael, 25/10/2026): a visão antecipa a sacada do
+Palácio Imperial no aniversário de 17 anos dela (V2 c04). Como o livro a
+descreve nessa noite (V2 c01 e c03 a c04, fichas-personagens): pequena, pele
+escura cor de caramelo; cabelos escuros cacheados que "rodopiavam desde o
+topo da sua cabeça, caindo pelos ombros e abraçando sua cintura", parte presa
+atrás da cabeça e duas mechas moldando o rosto; pérolas no pescoço e nas
+orelhas; vestido de veludo vermelho com os ombros nus.
+
 No lugar do boneco de formas do Godot (cone, esferas, cilindros), malhas feitas
 por código e gravadas em .obj (o Godot importa cada uma como Mesh):
-  garota_vestido.obj - corpo e vestido longo num torno de seção oval: cintura
-                       fina, ombros, saia que abre até o chão com pregas
-                       que somem para cima.
-  garota_mangas.obj  - braços até o cotovelo (mesma cor do vestido).
-  garota_pele.obj    - pescoço, antebraços, mãos e cabeça.
-  garota_cabelo.obj  - a coroa e a cascata de cabelo: mechas onduladas que
-                       descem pelas costas até a cintura e se abrem para os
-                       lados, com pontas desiguais.
+  garota_vestido.obj - o vestido longo num torno de seção oval: corpete reto
+                       abaixo dos ombros, cintura fina, saia pesada que abre
+                       até o chão com pregas que somem para cima.
+  garota_pele.obj    - ombros e colo, braços, mãos, pescoço e cabeça.
+  garota_perolas.obj - o colar e os brincos de pérola.
+  garota_cabelo.obj  - a coroa, o coque que prende parte do cabelo atrás, as
+                       duas mechas do rosto e a cascata de cachos que desce
+                       pelas costas até a cintura, com pontas desiguais.
 A garota está de costas para a câmera, de frente para +z (o corrimão), com os
 pés na origem e as mãos no corrimão (z 0,43). Metros; y para cima.
-Vestido e cores são inferência do jogo (o livro não descreve a roupa).
+O corte exato do vestido e do coque é inferência do jogo.
 
 Uso: python3 tools/arte/gerar_garota_visao.py   (rodar na raiz do projeto)
 """
@@ -24,6 +32,7 @@ from pathlib import Path
 
 PASTA = Path(__file__).resolve().parents[2] / "assets/art/capitulo_01/visao"
 VOLTAS = 48            # divisões em volta do torno
+CORPETE = 1.30         # altura da borda de cima do vestido
 
 # (altura, meia largura x, meia profundidade z) do corpo com o vestido
 PERFIL_VESTIDO = [
@@ -135,9 +144,11 @@ def pregas_da_saia(y, th):
 
 def vestido() -> Malha:
     m = Malha()
-    ys = [0.012] + [i * 0.03 for i in range(1, 48)] + [1.44, 1.445]
-    ys = sorted(set(y for y in ys if y <= 1.445))
-    torno(m, PERFIL_VESTIDO, ys, pregas=pregas_da_saia)
+    # um pouco por fora do corpo, e só até o corpete (ombros nus)
+    perfil = [(y, rx + 0.005, rz + 0.005) for (y, rx, rz) in PERFIL_VESTIDO]
+    ys = [0.012] + [i * 0.03 for i in range(1, 44)] + [CORPETE]
+    ys = sorted(set(y for y in ys if y <= CORPETE))
+    torno(m, perfil, ys, pregas=pregas_da_saia)
     return m
 
 
@@ -186,30 +197,38 @@ def braco(lado):
     return ombro, cotovelo, pulso
 
 
-def mangas() -> Malha:
+def pele() -> Malha:
     m = Malha()
+    # ombros e colo, do corpete para cima
+    ys = [CORPETE - 0.03 + i * 0.015 for i in range(11)] + [1.445]
+    torno(m, PERFIL_VESTIDO, sorted(set(y for y in ys if y <= 1.445)))
     for lado in (-1, 1):
-        ombro, cotovelo, _ = braco(lado)
-        meio = tuple((ombro[k] + cotovelo[k]) / 2 + (0.012 * lado if k == 0 else 0) for k in range(3))
-        tubo(m, (ombro, meio, cotovelo), (0.052, 0.043))
-        elipsoide(m, ombro, (0.058, 0.05, 0.055))
+        ombro, cotovelo, pulso = braco(lado)
+        meio = tuple((ombro[k] + cotovelo[k]) / 2 + (0.01 * lado if k == 0 else 0) for k in range(3))
+        tubo(m, (ombro, meio, cotovelo), (0.042, 0.035))
+        elipsoide(m, ombro, (0.046, 0.042, 0.044))
+        meio = tuple((cotovelo[k] + pulso[k]) / 2 for k in range(3))
+        tubo(m, (cotovelo, meio, pulso), (0.034, 0.025))
+        elipsoide(m, (pulso[0], 0.99, 0.43), (0.03, 0.019, 0.048))
+    tubo(m, ((0, 1.42, -0.005), (0, 1.50, -0.01), (0, 1.57, 0.0)), (0.041, 0.038))
+    elipsoide(m, (0, 1.64, 0.008), (0.086, 0.11, 0.098))
     return m
 
 
-def pele() -> Malha:
+def perolas() -> Malha:
+    """Colar de pérolas rente ao pescoço e um brinco em cada orelha."""
     m = Malha()
+    for i in range(26):
+        th = 2 * math.pi * i / 26
+        y = 1.452 - 0.012 * max(0.0, math.cos(th))      # cai um pouco na frente
+        elipsoide(m, (0.052 * math.sin(th), y, -0.006 + 0.05 * math.cos(th)), (0.0085,) * 3, 6, 8)
     for lado in (-1, 1):
-        _, cotovelo, pulso = braco(lado)
-        meio = tuple((cotovelo[k] + pulso[k]) / 2 for k in range(3))
-        tubo(m, (cotovelo, meio, pulso), (0.036, 0.026))
-        elipsoide(m, (pulso[0], 0.99, 0.43), (0.032, 0.02, 0.05))
-    tubo(m, ((0, 1.42, -0.005), (0, 1.50, -0.01), (0, 1.57, 0.0)), (0.043, 0.04))
-    elipsoide(m, (0, 1.64, 0.008), (0.088, 0.112, 0.1))
+        elipsoide(m, (lado * 0.09, 1.595, 0.012), (0.011,) * 3, 8, 10)
     return m
 
 
 def cabelo() -> Malha:
-    """Coroa por cima da cabeça e a cascata pelas costas, de mechas onduladas."""
+    """Coroa, coque, as duas mechas do rosto e a cascata de cachos pelas costas."""
     m = Malha()
     # coroa: um pouco maior que a cabeça, aberta embaixo na frente (o rosto)
     pontos = []
@@ -226,8 +245,17 @@ def cabelo() -> Malha:
                           0.0 + 0.112 * r * math.sin(f) * math.cos(th)))
         pontos.append(linha)
     m.grade(pontos, fechar_u=True)
-    # cascata: mechas lado a lado, cada uma uma fita grossa ondulando
-    mechas = 21
+    # parte do cabelo presa atrás da cabeça: um coque baixo, enrolado
+    elipsoide(m, (0, 1.665, -0.112), (0.052, 0.042, 0.036))
+    for k in range(5):
+        a = 2 * math.pi * k / 5
+        elipsoide(m, (0.03 * math.cos(a), 1.665 + 0.024 * math.sin(a), -0.135), (0.024, 0.02, 0.018), 8, 10)
+    # as duas mechas que moldam o rosto, na frente das orelhas
+    for lado in (-1, 1):
+        tubo(m, ((lado * 0.088, 1.70, 0.05), (lado * 0.112, 1.58, 0.075), (lado * 0.09, 1.49, 0.065)),
+             (0.014, 0.004), lados=8, passos=14)
+    # cascata: mechas lado a lado, cada uma uma fita grossa que cacheia
+    mechas = 27
     for k in range(mechas):
         u = -1.0 + 2.0 * k / (mechas - 1)                  # -1 esquerda .. 1 direita
         ang = u * 1.25                                     # posição em volta das costas
@@ -235,7 +263,7 @@ def cabelo() -> Malha:
         if abs(u) > 0.8:
             fim += 0.12                                    # as de fora param mais alto
         fase = k * 1.7
-        passos = 26
+        passos = 44
         pontos = []
         for i in range(passos + 1):
             t = i / passos
@@ -250,18 +278,20 @@ def cabelo() -> Malha:
             prof = max(hr * 1.08, 0.12) * (1 - mistura) + (rz + 0.03) * mistura
             # abaixo da nuca o cabelo fica solto, um pouco afastado das costas
             prof += 0.02 * mistura * math.sin(t * math.pi)
-            onda = 0.018 * math.sin(t * 9.0 + fase) * min(1.0, t * 3)
+            onda = 0.012 * math.sin(t * 6.0 + fase) * min(1.0, t * 3)
             a = ang + onda * 2.2
             cx = larg * math.sin(a)
             cz = -prof * math.cos(a)
             # normal para fora e a tangente lateral da fita
             nx, nz = math.sin(a), -math.cos(a)
             tx, tz = math.cos(a), math.sin(a)
-            meia = 0.02 * (1.0 - 0.9 * t ** 2.5) + 0.002       # afina até a ponta
+            meia = 0.026 * (1.0 - 0.85 * t ** 2.5) + 0.002      # afina até a ponta
             esp = 0.012 * (1.0 - 0.8 * t)
-            volume = 0.012 * math.sin(t * 7.0 + fase * 0.7)    # cachos para fora e para dentro
-            cx += nx * volume
-            cz += nz * volume
+            # cachos: a mecha gira em espiral, mais aberta para as pontas
+            giro = 2 * math.pi * 4.5 * t + fase
+            raio = (0.006 + 0.016 * t) * min(1.0, t * 4)
+            cx += nx * raio * math.sin(giro) + tx * raio * math.cos(giro)
+            cz += nz * raio * math.sin(giro) + tz * raio * math.cos(giro)
             secao = []
             for (s, e) in ((-1, 0), (0, 1), (1, 0), (0, -1)):
                 secao.append((cx + tx * meia * s + nx * esp * e, y, cz + tz * meia * s + nz * esp * e))
@@ -272,6 +302,6 @@ def cabelo() -> Malha:
 
 if __name__ == "__main__":
     vestido().salvar("garota_vestido.obj")
-    mangas().salvar("garota_mangas.obj")
+    perolas().salvar("garota_perolas.obj")
     pele().salvar("garota_pele.obj")
     cabelo().salvar("garota_cabelo.obj")

@@ -10,13 +10,14 @@ extends CenaCapitulo01
 ##    Nicholas): parado perto de Danica, olhando para ela, ela desvia o
 ##    olhar ("Nem mesmo sustentou meu olhar por muito tempo"; Códice).
 ##    Ao subir, Danica leva Althea pela mão, Ophelia vai atrás.
-## 3. perguntas: na antessala, o pedido do Duque e o duelo de perguntas
-##    (o jogador escolhe a ordem; cada resposta anota o Códice; Rafael,
-##    25/10/2026); depois, o fim da conversa.
+## 3. conversa: na antessala, a conversa com o Duque em sequência, duas
+##    opções por vez, como em Skyrim (Rafael, 25/10/2026): o tom e o silêncio
+##    mudam a relação com o Duque, nunca o rumo; as revelações anotam o
+##    Códice.
 ## No fim, a etapa vira [constant ETAPA_DEPOIS] (salva) e abre o mapa de
 ## Hélade, livre, com Nicholas em Atenas: a estrada para Olympia é o
 ## caminho do Capítulo 2.
-## Os criados usam a arte dos transeuntes (provisório). Textos:
+## Os criados usam a arte dos transeuntes e a escadaria é provisória. Textos:
 ## data/dialogos/capitulo_01/volta.dialogue.
 
 const ROTEIRO := preload("res://data/dialogos/capitulo_01/volta.dialogue")
@@ -27,13 +28,17 @@ const ETAPA_DEPOIS := "capitulo_2"
 const LOCAL_NO_MAPA := "atenas"
 const LARGURA := 20
 const PROFUNDIDADE := 13
-## A porta da mansão e a escadaria na frente dela (do alto para baixo).
+## A escadaria (um desenho só, com a porta lá em cima): x 6 a 8, do
+## patamar na linha 0 ao último degrau na linha 3; o desenho se apoia na
+## casa da frente. ALTURAS: quanto cada linha sobe (pixels).
 const CASA_PORTA := Vector2i(7, 0)
-const DEGRAUS := [[Vector2i(7, 1), "mansao/degrau_3"], [Vector2i(7, 2), "mansao/degrau_2"],
-	[Vector2i(7, 3), "mansao/degrau_1"]]
+const ESCADA_X := Vector2i(6, 8)
+const ALTURAS := [24.0, 18.0, 12.0, 6.0]
+const CASA_DESENHO_ESCADA := Vector2i(7, 3)
+const PE_ESCADA := 33.0
 const CASA_ESCADARIA := Vector2i(7, 4)
-const CASA_APOLLON := Vector2i(6, 1)
-const CASA_DANICA := Vector2i(8, 1)
+const CASA_APOLLON := Vector2i(6, 0)
+const CASA_DANICA := Vector2i(8, 0)
 const CASA_CARRUAGEM := Vector2i(14, 8)
 const CASA_CARGA := Vector2i(3, 8)
 const CASA_JOGADOR := Vector2i(9, 8)
@@ -47,7 +52,7 @@ const CRIADOS := [["moco", Vector2i(5, 3)], ["moca", Vector2i(5, 4)], ["moco", V
 const OLHAR_DISTANCIA := 96.0
 const OLHAR_DE_FRENTE := 0.8
 const OLHAR_TEMPO := 1.2
-## Cada pergunta anota uma entrada; a última fecha o duelo.
+## O que a conversa com o Duque anota no Códice.
 const ENTRADAS_DAS_PERGUNTAS: Array[String] = ["elogio_do_duque", "decisao_do_imperador",
 	"ophelia_abencoada", "tristan", "apoio_de_olympia"]
 const TOM_FIM_DE_TARDE := Color(1.0, 0.85, 0.68)
@@ -59,7 +64,7 @@ var _subindo := false
 
 func _init() -> void:
 	roteiro = ROTEIRO
-	objetivos = {"seguir": "OBJ_CAP1_SEGUIR_DUQUE", "perguntas": "OBJ_CAP1_PERGUNTAS"}
+	objetivos = {"seguir": "OBJ_CAP1_SEGUIR_DUQUE"}
 
 
 func id_da_cena() -> String:
@@ -80,9 +85,11 @@ func comecar() -> void:
 
 func montar_frente() -> void:
 	_nova_sala(LARGURA, PROFUNDIDADE, TOM_FIM_DE_TARDE, "pedra", "fachada")
-	_pendurar([["porta_esq", CASA_PORTA]])
-	for degrau: Array in DEGRAUS:
-		_objeto("degrau_%d" % degrau[0].y, degrau[1], degrau[0], false, PE_CAIXA)
+	_objeto("escadaria_desenho", "mansao/escadaria", CASA_DESENHO_ESCADA, false, PE_ESCADA, false)
+	objetos["escadaria_desenho"].remove_meta(SalaMontada.META_TRANSLUCIDO)
+	for y in ALTURAS.size():
+		for x in range(ESCADA_X.x, ESCADA_X.y + 1):
+			_bloqueio("escada_%d_%d" % [x, y], Vector2i(x, y))
 	_objeto("carruagem", "rua/carruagem_parada", CASA_CARRUAGEM, false, CenaButiques.PE_CARRUAGEM)
 	for i in CenaButiques.CASAS_DA_CARRUAGEM.size():
 		_bloqueio("junto_da_carruagem_%d" % i, CASA_CARRUAGEM + CenaButiques.CASAS_DA_CARRUAGEM[i])
@@ -94,8 +101,8 @@ func montar_frente() -> void:
 			% CRIADOS[i][0])
 		var criado := _pessoa("criado_%d" % (i + 1), quadros, CRIADOS[i][1])
 		_virar(criado, sala.centro(Vector2i(7, CRIADOS[i][1].y)))
-	_pessoa("apollon", QUADROS_APOLLON, CASA_APOLLON)
-	_pessoa("danica", QUADROS_DANICA, CASA_DANICA)
+	_no_alto(_pessoa("apollon", QUADROS_APOLLON, CASA_APOLLON), CASA_APOLLON)
+	_no_alto(_pessoa("danica", QUADROS_DANICA, CASA_DANICA), CASA_DANICA)
 	_pessoa("althea", QUADROS_ALTHEA, CASA_ALTHEA)
 	_pessoa("ophelia", QUADROS_OPHELIA, CASA_OPHELIA)
 	_ponto("escadaria", CASA_ESCADARIA)
@@ -108,14 +115,48 @@ func montar_frente() -> void:
 ## O Duque desce, recebe a Princesa, chama Nicholas e volta para dentro.
 func apollon_recebe() -> void:
 	var apollon: Node2D = objetos["apollon"]
-	await _caminhar(apollon, [sala.centro(Vector2i(6, 5)), sala.centro(Vector2i(8, 6))], 0.9)
+	await _caminhar(apollon, _descer(6), 0.3)
+	apollon.z_index = 0
+	await _caminhar(apollon, [sala.centro(Vector2i(8, 6))], 0.9)
 	_virar(apollon, objetos["ophelia"].position)
 	_virar(objetos["ophelia"], apollon.position)
 	await _falar_travado("apollon_recebe")
 	# Danica fica alguns passos atrás; Apollon volta para a mansão.
-	_caminhar(objetos["danica"], [sala.centro(Vector2i(8, 2)), sala.centro(Vector2i(8, 5))], 0.9)
-	await _caminhar(apollon, [sala.centro(Vector2i(6, 5)), sala.centro(CASA_APOLLON)], 0.9)
+	_danica_desce()
+	await _caminhar(apollon, [sala.centro(Vector2i(6, 4))], 0.9)
+	apollon.z_index = 1
+	var subir := _descer(6)
+	subir.reverse()
+	await _caminhar(apollon, subir.slice(1) + [_no_patamar(CASA_PORTA)], 0.3)
 	await _sumir(apollon)
+
+
+func _danica_desce() -> void:
+	var danica: Node2D = objetos["danica"]
+	await _caminhar(danica, _descer(8), 0.35)
+	danica.z_index = 0
+
+
+## Na escadaria a pessoa fica mais alta na tela e na frente do desenho dela.
+func _no_alto(pessoa: Node2D, casa: Vector2i) -> void:
+	pessoa.position = _no_patamar(casa)
+	pessoa.z_index = 1
+
+
+## O ponto da casa [param casa] em cima do degrau (ou no chão, fora da escada).
+func _no_patamar(casa: Vector2i) -> Vector2:
+	var altura := 0.0
+	if casa.y >= 0 and casa.y < ALTURAS.size() and casa.x >= ESCADA_X.x and casa.x <= ESCADA_X.y:
+		altura = ALTURAS[casa.y]
+	return sala.centro(casa) - Vector2(0, altura)
+
+
+## Os pontos da escada na coluna [param x], do patamar até o chão da frente.
+func _descer(x: int) -> Array:
+	var pontos := []
+	for y in range(ALTURAS.size() + 1):
+		pontos.append(_no_patamar(Vector2i(x, y)))
+	return pontos
 
 
 func _physics_process(delta: float) -> void:
@@ -171,10 +212,11 @@ func subir_a_escadaria() -> void:
 	montar_antessala()
 	await _clarear()
 	await _frases("frases_antessala")
-	await _falar_travado("ensinar")
-	_mudar("perguntas")
-	await duelo_de_perguntas()
-	await _falar_travado("fim_da_conversa")
+	_mudar("conversa")
+	await _falar_travado("conversa")
+	# A narração vai no texto de cima, não na caixa (Rafael, 25/10/2026).
+	await _frases("frases_doze")
+	await _falar_travado("conversa_fim")
 	await fim_do_capitulo()
 
 
@@ -186,22 +228,6 @@ func montar_antessala() -> void:
 	_entrar(Vector2i(1, 2))
 	jogador.direcao_olhar = (objetos["apollon"].position - jogador.position).normalized()
 	_virar(objetos["apollon"], jogador.position)
-
-
-## O jogador escolhe a próxima pergunta até fazer todas.
-func duelo_de_perguntas() -> void:
-	for i in ENTRADAS_DAS_PERGUNTAS.size() * 2:
-		if perguntas_feitas() >= ENTRADAS_DAS_PERGUNTAS.size():
-			return
-		await _falar_travado("perguntas")
-
-
-func perguntas_feitas() -> int:
-	var feitas := 0
-	for entrada in ENTRADAS_DAS_PERGUNTAS:
-		if Codice.tem(entrada):
-			feitas += 1
-	return feitas
 
 
 ## Fim do capítulo: salva a etapa seguinte e abre o mapa, com Nicholas em

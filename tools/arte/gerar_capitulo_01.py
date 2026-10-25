@@ -1637,12 +1637,43 @@ def caixote_pesado():
     return q.contornar()
 
 
-def degrau_mansao(altura):
-    """Degrau da escadaria da frente da Mansão Olympia em Atenas (pedra clara
-    das paredes da família; inferência: o livro só diz "o alto da
-    escadaria"). Uma casa inteira; três alturas fazem a escada."""
-    q, frente, lado = caixa_iso(-0.5, 0.5, -0.5, 0.5, altura, 'pedra_parede', 'pedra_parede_sombra', 'pedra_parede_luz')
-    _riscar(frente, 0.0, 1.0, 0.96, 0.96, 'pedra_parede_luz')
+def escadaria_mansao():
+    """Escadaria da frente da Mansão Olympia em Atenas com a porta lá em cima
+    (Rafael, 25/10/2026; o livro só diz "o alto da escadaria"): patamar
+    encostado na parede (linha y 0, alto 24 px) e três degraus (18, 12, 6)
+    descendo até a linha y 3, três casas de largura (x 6 a 8). O ponto de
+    apoio é o centro da casa (7, 3) no chão: fica na linha 150 e no meio da
+    largura (pé 33 na cena)."""
+    from PIL import ImageDraw
+    largura, altura, cx, oy = 320, 183, 160, 150
+    q = Q(largura, altura)
+    d = ImageDraw.Draw(q.im)
+    t = lambda a, b, z: (cx + 32 * (a - b), oy + 16 * (a + b) - z)
+    alturas = [24, 18, 12, 6]                 # linha 0 (patamar) até a linha 3
+    # Porta dupla na parede, de pé sobre o patamar (plano b = -3,5).
+    b = -3.5
+    a0, a1, z0, z1 = -0.62, 0.62, 24, 82
+    d.polygon([t(a0 - 0.08, b, z0), t(a1 + 0.08, b, z0), t(a1 + 0.08, b, z1 + 6), t(a0 - 0.08, b, z1 + 6)],
+              fill=C['pedra_parede_sombra'])
+    d.polygon([t(a0, b, z0), t(a1, b, z0), t(a1, b, z1), t(a0, b, z1)], fill=C['madeira'])
+    for k in (-0.31, 0.31):                   # almofadas das duas folhas
+        d.polygon([t(k - 0.22, b, z0 + 30), t(k + 0.22, b, z0 + 30), t(k + 0.22, b, z1 - 6), t(k - 0.22, b, z1 - 6)],
+                  fill=C['madeira_luz'])
+        d.polygon([t(k - 0.22, b, z0 + 6), t(k + 0.22, b, z0 + 6), t(k + 0.22, b, z0 + 24), t(k - 0.22, b, z0 + 24)],
+                  fill=C['madeira_luz'])
+    d.line([t(0, b, z0), t(0, b, z1)], fill=C['madeira_sombra'], width=1)
+    d.line([t(a0, b, z1 + 3), t(a1, b, z1 + 3)], fill=C['ouro'], width=2)
+    for k in (-0.06, 0.06):
+        x, y = t(k, b, z0 + 26)
+        d.point((x, y), fill=C['ouro'])
+    # Patamar e degraus, de trás para a frente.
+    for linha, h in enumerate(alturas):
+        b0, b1 = linha - 3.5, linha - 2.5
+        d.polygon([t(-1.5, b1, 0), t(1.5, b1, 0), t(1.5, b1, h), t(-1.5, b1, h)], fill=C['pedra_parede'])
+        d.polygon([t(1.5, b0, 0), t(1.5, b1, 0), t(1.5, b1, h), t(1.5, b0, h)], fill=C['pedra_parede_sombra'])
+        d.polygon([t(-1.5, b0, h), t(1.5, b0, h), t(1.5, b1, h), t(-1.5, b1, h)], fill=C['pedra_parede_luz'])
+        d.line([t(-1.5, b1, h), t(1.5, b1, h)], fill=C['pedra_parede_sombra'], width=1)
+    q.px = q.im.load()
     return q.contornar()
 
 
@@ -1846,9 +1877,7 @@ ARTES = {
     'loja/caixas_presente.png': caixas_presente,
     'loja/cavalinho.png': cavalinho,
     'loja/banquinho.png': banquinho,
-    'mansao/degrau_1.png': lambda: degrau_mansao(6),
-    'mansao/degrau_2.png': lambda: degrau_mansao(12),
-    'mansao/degrau_3.png': lambda: degrau_mansao(18),
+    'mansao/escadaria.png': escadaria_mansao,
     'loja/caixa_madeira.png': caixa_madeira,
     'loja/caixote_pesado.png': caixote_pesado,
     'loja/tapete_loja.png': tapete_loja,

@@ -1645,10 +1645,10 @@ def escadaria_mansao():
     (livro/descricao-lugares.md); pórtico, colunas, passadeira azul e
     dourada (as cores da carruagem de Olympia) e balaústres são inferência.
     Patamar na linha y 1 (16 px) e três degraus (12, 8, 4) até a linha y 4.
-    O ponto de apoio é o centro da casa (7, 4) no chão: linha 200, meio da
-    largura (pé 33)."""
+    O ponto de apoio é o centro da casa (7, 4) no chão: linha 210, meio da
+    largura (pé 33). Mais alto que a [fachada_alta] em volta."""
     from PIL import ImageDraw
-    largura, altura, cx, oy = 384, 233, 192, 200
+    largura, altura, cx, oy = 384, 243, 192, 210
     q = Q(largura, altura)
     d = ImageDraw.Draw(q.im)
     t = lambda a, b, z: (cx + 32 * (a - b), oy + 16 * (a + b) - z)
@@ -1659,16 +1659,16 @@ def escadaria_mansao():
         d.polygon([t(a0, b0, z1), t(a1, b0, z1), t(a1, b1, z1), t(a0, b1, z1)], fill=C[topo])
 
     # O pórtico (a casa da parede, linha 0 = b de -4,5 a -3,5).
-    topo = 96
+    topo = 112
     caixa(-1.5, 1.5, -4.5, -3.5, 0, topo, 'marmore', 'marmore_sombra', 'pedra_parede_sombra')
     b = -3.5                                  # a face da frente
     d.line([t(-1.5, b, topo), t(1.5, b, topo), t(1.5, -4.5, topo)], fill=C['ouro'], width=2)
     d.line([t(-1.5, b, topo - 4), t(1.5, b, topo - 4)], fill=C['ouro_sombra'], width=1)
-    d.polygon([t(-1.1, b, 74), t(1.1, b, 74), t(0, b, 90)], fill=C['marmore_luz'])
-    d.line([t(-1.1, b, 74), t(0, b, 90), t(1.1, b, 74), t(-1.1, b, 74)], fill=C['ouro'], width=2)
-    x, y = t(0, b, 80)
+    d.polygon([t(-1.1, b, 88), t(1.1, b, 88), t(0, b, 106)], fill=C['marmore_luz'])
+    d.line([t(-1.1, b, 88), t(0, b, 106), t(1.1, b, 88), t(-1.1, b, 88)], fill=C['ouro'], width=2)
+    x, y = t(0, b, 95)
     d.ellipse([x - 3, y - 3, x + 3, y + 3], fill=C['ouro'], outline=C['ouro_sombra'])
-    a0, a1, z0, z1 = -0.55, 0.55, 16, 64
+    a0, a1, z0, z1 = -0.55, 0.55, 16, 70
     d.polygon([t(a0 - 0.1, b, z0), t(a1 + 0.1, b, z0), t(a1 + 0.1, b, z1 + 5), t(a0 - 0.1, b, z1 + 5)],
               fill=C['ouro_sombra'])
     d.polygon([t(a0, b, z0), t(a1, b, z0), t(a1, b, z1), t(a0, b, z1)], fill=C['madeira'])
@@ -1698,7 +1698,7 @@ def escadaria_mansao():
     # Colunas no patamar, dos dois lados da porta, sustentando o frontão.
     for k in (-1.0, 1.0):
         xb, yb = t(k, -3.25, 16)
-        _, yt = t(k, -3.25, 74)
+        _, yt = t(k, -3.25, 88)
         d.rectangle([xb - 4, yt, xb + 4, yb], fill=C['marmore'])
         d.rectangle([xb + 2, yt, xb + 4, yb], fill=C['marmore_sombra'])
         d.rectangle([xb - 3, yt, xb - 2, yb], fill=C['marmore_luz'])
@@ -1706,6 +1706,42 @@ def escadaria_mansao():
         d.rectangle([xb - 5, yb - 3, xb + 5, yb], fill=C['ouro_sombra'])  # base
     q.px = q.im.load()
     return q.contornar()
+
+
+def fachada_alta(janela):
+    """Bloco de parede de dois andares da frente da Mansão Olympia em Atenas
+    (64×112: topo em losango e face de 80 px, o dobro e meio da parede
+    comum; Rafael pediu mais altura para a escadaria caber, 25/10/2026).
+    Pedra clara de Olympia com soco, friso no meio e cornija dourada; com
+    [param janela], uma janela alta no andar de cima (inferência)."""
+    alto = 80
+    q = Q(64, 32 + alto)
+    for y in range(32):
+        meia = 32 - abs(y - 15.5) * 2
+        for x in range(int(32 - meia), int(32 + meia)):
+            borda = abs(y - 15.5) * 2 + 2 >= 32 - abs(x - 31.5)
+            q.p(x, y, 'ouro_sombra' if borda else 'pedra_parede_luz')
+    for x in range(64):
+        esq = x < 32
+        u = x if esq else 63 - x
+        for y in range(16, 32 + alto):
+            v = int(y - _topo(x))
+            if not 0 <= v <= alto:
+                continue
+            cor = 'pedra_parede' if esq else 'pedra_parede_sombra'
+            if v < 3:
+                cor = 'ouro' if esq else 'ouro_sombra'
+            elif v % 8 == 3 or (u + (v // 8) * 5) % 11 == 0:
+                cor = 'argamassa'
+            if 44 <= v <= 45:
+                cor = 'marmore' if esq else 'marmore_sombra'
+            if v > alto - 4:
+                cor = 'pedra_parede_sombra' if esq else 'argamassa'
+            if janela and esq and 10 <= u <= 21 and 10 <= v <= 38:
+                cor = 'ouro_sombra' if (u in (10, 21) or v in (10, 38)) else (
+                      'vidro_luz' if (u + v) % 9 == 0 else 'vidro')
+            q.p(x, y, cor)
+    return q.im
 
 
 def escrivaninha():
@@ -1946,6 +1982,8 @@ ARTES = {
     'loja/banquinho.png': banquinho,
     'mansao/escadaria.png': escadaria_mansao,
     'mansao/escrivaninha.png': escrivaninha,
+    'mansao/fachada_alta.png': lambda: fachada_alta(False),
+    'mansao/fachada_alta_janela.png': lambda: fachada_alta(True),
     'mansao/poltrona.png': poltrona,
     'mansao/tapete_antessala.png': tapete_antessala,
     'loja/caixa_madeira.png': caixa_madeira,

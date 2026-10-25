@@ -325,8 +325,8 @@ func test_volta_olhar_da_danica_perguntas_e_mapa() -> void:
 	await wait_seconds(CenaVolta.OLHAR_TEMPO + 0.3)
 	assert_true(volta.olhou_danica)
 	assert_true(Codice.tem("danica_desvia_o_olhar"))
-	# Chegar ao pé da escadaria já sobe (sem círculo de ação).
-	cena.jogador.position = cena.sala.centro(Vector2i(7, CenaVolta.LINHA_PE_DA_ESCADA))
+	# Subir a escadaria até o patamar segue o Duque (sem círculo de ação).
+	cena.jogador.position = cena.sala.centro(Vector2i(7, CenaVolta.LINHA_PATAMAR))
 	await _esperar_pedido()
 	for entrada in CenaVolta.ENTRADAS_DAS_PERGUNTAS:
 		assert_true(Codice.tem(entrada), entrada)

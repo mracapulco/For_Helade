@@ -38,9 +38,13 @@ const LINHA_PATAMAR := 1
 const ALTURAS := [16.0, 12.0, 8.0, 4.0]
 const CASA_DESENHO_ESCADA := Vector2i(7, 4)
 const PE_ESCADA := 33.0
-## Ao chegar ao pé da escadaria (linha 5, x 6 a 8), Nicholas sobe sozinho
-## atrás do Duque, sem círculo de ação (Rafael, 25/10/2026).
+## Nicholas sobe a escadaria andando (Rafael, 25/10/2026): nos degraus o
+## desenho dele sobe ALTURAS e passa na frente da escada; ao chegar ao
+## patamar, segue o Duque (sem círculo de ação).
 const LINHA_PE_DA_ESCADA := 5
+## A fachada tem dois andares (Rafael: a parede comum, de um andar, era
+## baixa para a escadaria): blocos mansao/fachada_alta* por cima da parede.
+const ALTO_A_MAIS := 48.0
 const CASA_DANICA_EMBAIXO := Vector2i(9, 5)
 const CASA_APOLLON := Vector2i(6, 1)
 const CASA_DANICA := Vector2i(8, 1)
@@ -89,20 +93,16 @@ func comecar() -> void:
 
 func montar_frente() -> void:
 	_nova_sala(LARGURA, PROFUNDIDADE, TOM_FIM_DE_TARDE, "pedra", "fachada")
-	# A fachada (janelas e brasões de Olympia são inferência), lampiões e vasos.
-	_pendurar([["janela_alta_esq", Vector2i(2, 0)], ["janela_alta_esq", Vector2i(4, 0)],
-		["brasao_olympia_esq", Vector2i(5, 0)], ["brasao_olympia_esq", Vector2i(9, 0)],
-		["janela_alta_esq", Vector2i(10, 0)], ["janela_alta_esq", Vector2i(12, 0)],
-		["janela_alta_esq", Vector2i(16, 0)], ["janela_alta_esq", Vector2i(18, 0)]])
+	# A fachada de dois andares (janelas e brasões de Olympia são
+	# inferência), lampiões e vasos.
+	_levantar_a_fachada()
+	_pendurar([["brasao_olympia_esq", Vector2i(5, 0)], ["brasao_olympia_esq", Vector2i(9, 0)]])
 	for casa: Vector2i in [Vector2i(5, 5), Vector2i(9, 4)]:
 		_objeto("lampiao_%d" % casa.x, "rua/lampiao", casa)
 	for casa: Vector2i in [Vector2i(5, 2), Vector2i(9, 2)]:
 		_objeto("vaso_%d_%d" % [casa.x, casa.y], "rua/vaso_flor", casa)
 	_objeto("escadaria_desenho", "mansao/escadaria", CASA_DESENHO_ESCADA, false, PE_ESCADA, false)
 	objetos["escadaria_desenho"].remove_meta(SalaMontada.META_TRANSLUCIDO)
-	for y in range(LINHA_PATAMAR, LINHA_PATAMAR + ALTURAS.size()):
-		for x in range(ESCADA_X.x, ESCADA_X.y + 1):
-			_bloqueio("escada_%d_%d" % [x, y], Vector2i(x, y))
 	_objeto("carruagem", "rua/carruagem_parada", CASA_CARRUAGEM, false, CenaButiques.PE_CARRUAGEM)
 	for i in CenaButiques.CASAS_DA_CARRUAGEM.size():
 		_bloqueio("junto_da_carruagem_%d" % i, CASA_CARRUAGEM + CenaButiques.CASAS_DA_CARRUAGEM[i])
@@ -171,11 +171,48 @@ func _descer(x: int) -> Array:
 	return pontos
 
 
+## Cada bloco da parede (linha 0 e coluna 0, menos o pórtico) ganha o
+## andar de cima; um em cada dois da linha 0 com janela.
+func _levantar_a_fachada() -> void:
+	var lisa: Texture2D = load(ARTE + "mansao/fachada_alta.png")
+	var com_janela: Texture2D = load(ARTE + "mansao/fachada_alta_janela.png")
+	var casas: Array[Vector2i] = []
+	for x in LARGURA:
+		if x < ESCADA_X.x or x > ESCADA_X.y:
+			casas.append(Vector2i(x, 0))
+	for y in range(1, PROFUNDIDADE):
+		casas.append(Vector2i(0, y))
+	for casa in casas:
+		var bloco := Sprite2D.new()
+		bloco.name = "FachadaAlta_%d_%d" % [casa.x, casa.y]
+		bloco.texture = com_janela if casa.y == 0 and casa.x % 2 == 0 else lisa
+		bloco.centered = false
+		# Como os enfeites da parede (SalaMontada.pendurar), meio pixel antes
+		# deles na ordem de desenho.
+		bloco.position = sala.centro(casa) + Vector2(0, 0.5)
+		bloco.offset = Vector2(-32, -49 - ALTO_A_MAIS)
+		sala.add_child(bloco)
+
+
+## Altura do chão debaixo de Nicholas (0 fora da escada).
+func altura_na_escada(casa: Vector2i) -> float:
+	return sala.centro(casa).y - _no_patamar(casa).y
+
+
 func _physics_process(delta: float) -> void:
-	if etapa != "seguir" or _subindo or not objetos.has("danica"):
+	if not objetos.has("escadaria_desenho"):
 		return
 	var casa := _casa_de(jogador)
-	if casa.y <= LINHA_PE_DA_ESCADA and casa.x >= ESCADA_X.x and casa.x <= ESCADA_X.y:
+	var alvo := altura_na_escada(casa)
+	var visual := jogador.get_node("Corpo/Visual") as Node2D
+	var agora := -visual.position.y
+	agora = move_toward(agora, alvo, 120.0 * delta)
+	visual.position.y = -agora
+	jogador.get_node("Sombra").position.y = -agora
+	jogador.z_index = 1 if alvo > 0.0 or agora > 0.0 else 0
+	if etapa != "seguir" or _subindo:
+		return
+	if casa.y <= LINHA_PATAMAR and casa.x >= ESCADA_X.x and casa.x <= ESCADA_X.y:
 		subir_a_escadaria()
 		return
 	if olhou_danica:
@@ -241,6 +278,9 @@ func montar_antessala() -> void:
 	# "Antessala de ornamentos dourados com grande janela para o Palácio"
 	# (livro/descricao-lugares.md); a escrivaninha, a poltrona, o tapete e o
 	# armário são inferência (Rafael pediu algo como um escritório, 25/10).
+	jogador.z_index = 0
+	jogador.get_node("Corpo/Visual").position.y = 0.0
+	jogador.get_node("Sombra").position.y = 0.0
 	_nova_sala(8, 6, TOM_DENTRO, "assoalho", "reboco")
 	_pendurar([["arandela_esq", Vector2i(2, 0)], ["janela_alta_esq", Vector2i(3, 0)],
 		["janela_alta_esq", Vector2i(5, 0)], ["arandela_esq", Vector2i(6, 0)],

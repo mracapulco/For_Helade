@@ -187,9 +187,9 @@ func _levantar_a_fachada() -> void:
 		bloco.name = "FachadaAlta_%d_%d" % [casa.x, casa.y]
 		bloco.texture = com_janela if casa.y == 0 and casa.x % 2 == 0 else lisa
 		bloco.centered = false
-		# Como os enfeites da parede (SalaMontada.pendurar), meio pixel antes
-		# deles na ordem de desenho.
-		bloco.position = sala.centro(casa) + Vector2(0, 0.5)
+		# Alinhado como os enfeites da parede (SalaMontada.pendurar); os
+		# brasões entram depois e ficam por cima.
+		bloco.position = sala.centro(casa) + Vector2(0, 1)
 		bloco.offset = Vector2(-32, -49 - ALTO_A_MAIS)
 		sala.add_child(bloco)
 
@@ -289,9 +289,9 @@ func montar_antessala() -> void:
 	var tapete := _objeto("tapete", "mansao/tapete_antessala", Vector2i(4, 3), false, 32.0, false)
 	tapete.z_index = -1
 	# A primeira casa livre é a linha/coluna 1 (a 0 é a parede).
-	_objeto("poltrona", "mansao/poltrona", Vector2i(4, 1))
-	_objeto("escrivaninha", "mansao/escrivaninha", Vector2i(4, 2))
-	_objeto("armario", "armario", Vector2i(7, 1))
+	_objeto("poltrona", "mansao/poltrona", Vector2i(4, 1), false, PE_CAIXA)
+	_objeto("escrivaninha", "mansao/escrivaninha", Vector2i(4, 2), false, PE_CAIXA)
+	_objeto("armario", "armario", Vector2i(7, 1), false, PE_CAIXA)
 	_pessoa("apollon", QUADROS_APOLLON, Vector2i(5, 3))
 	_entrar(Vector2i(2, 4))
 	jogador.direcao_olhar = (objetos["apollon"].position - jogador.position).normalized()

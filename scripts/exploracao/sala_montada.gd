@@ -40,6 +40,10 @@ const TAMANHO_JOGADOR := Vector2(24, 44)
 const META_TRANSLUCIDO := &"translucido_na_frente"
 ## Quanto do desenho dele (em altura, pixels) precisa ficar coberto: um
 ## banquinho baixo ao lado não some.
+## Pontos com tinta (amostra a cada PASSO_AMOSTRA px) que o objeto precisa
+## ter em cima do jogador para ficar translúcido.
+const PINTADOS_MINIMO := 12
+const PASSO_AMOSTRA := 4.0
 const COBERTO_MINIMO := 20.0
 
 @export var largura := 6
@@ -173,7 +177,39 @@ func cobre(objeto: Node2D, jogador: Node2D) -> bool:
 	var desenho := visual.get_rect()
 	desenho.position += objeto.position + visual.position
 	var coberto := desenho.intersection(dele)
-	return coberto.has_area() and coberto.size.y >= COBERTO_MINIMO
+	if not coberto.has_area() or coberto.size.y < COBERTO_MINIMO:
+		return false
+	# Desenhos grandes (a carruagem com os cavalos) têm muito vazio em volta:
+	# só conta o que tem tinta em cima dele (Rafael, 25/10/2026).
+	return _pixels_pintados(visual, coberto.position - desenho.position, coberto.size) >= PINTADOS_MINIMO
+
+
+var _imagens := {}
+
+
+## Quantos pontos (de PASSO_AMOSTRA em PASSO_AMOSTRA pixels) do retângulo
+## [param de] + [param tamanho] (em pixels da textura) não são transparentes.
+func _pixels_pintados(visual: Sprite2D, de: Vector2, tamanho: Vector2) -> int:
+	var imagem: Image = _imagens.get(visual.texture)
+	if imagem == null:
+		imagem = visual.texture.get_image()
+		if imagem == null:
+			return PINTADOS_MINIMO
+		if imagem.is_compressed():
+			imagem.decompress()
+		_imagens[visual.texture] = imagem
+	var pintados := 0
+	var y := de.y
+	while y < de.y + tamanho.y:
+		var x := de.x
+		while x < de.x + tamanho.x:
+			var px := Vector2i(int(x), int(y))
+			if px.x >= 0 and px.y >= 0 and px.x < imagem.get_width() and px.y < imagem.get_height() \
+					and imagem.get_pixelv(px).a > 0.5:
+				pintados += 1
+			x += PASSO_AMOSTRA
+		y += PASSO_AMOSTRA
+	return pintados
 
 
 func centro(casa: Vector2i) -> Vector2:

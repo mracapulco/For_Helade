@@ -1639,42 +1639,103 @@ def caixote_pesado():
 
 def escadaria_mansao():
     """Escadaria da frente da Mansão Olympia em Atenas com a porta lá em cima
-    (Rafael, 25/10/2026; o livro só diz "o alto da escadaria"): patamar
-    encostado na parede (linha y 0, alto 24 px) e três degraus (18, 12, 6)
-    descendo até a linha y 3, três casas de largura (x 6 a 8). O ponto de
-    apoio é o centro da casa (7, 3) no chão: fica na linha 150 e no meio da
-    largura (pé 33 na cena)."""
+    (Rafael, 25/10/2026). O livro: "escadaria e antessala de ornamentos
+    dourados" (livro/descricao-lugares.md); colunas, frontão, passadeira azul
+    e dourada (as cores da carruagem de Olympia) e balaústres são inferência.
+    Patamar encostado na parede (linha y 0, alto 24 px) e três degraus (18,
+    12, 6) até a linha y 3, três casas de largura (x 6 a 8). O ponto de apoio
+    é o centro da casa (7, 3) no chão: linha 170, meio da largura (pé 33)."""
     from PIL import ImageDraw
-    largura, altura, cx, oy = 320, 183, 160, 150
+    largura, altura, cx, oy = 320, 203, 160, 170
     q = Q(largura, altura)
     d = ImageDraw.Draw(q.im)
     t = lambda a, b, z: (cx + 32 * (a - b), oy + 16 * (a + b) - z)
+
+    def caixa(a0, a1, b0, b1, z0, z1, frente, lado, topo):
+        d.polygon([t(a0, b1, z0), t(a1, b1, z0), t(a1, b1, z1), t(a0, b1, z1)], fill=C[frente])
+        d.polygon([t(a1, b0, z0), t(a1, b1, z0), t(a1, b1, z1), t(a1, b0, z1)], fill=C[lado])
+        d.polygon([t(a0, b0, z1), t(a1, b0, z1), t(a1, b1, z1), t(a0, b1, z1)], fill=C[topo])
+
     alturas = [24, 18, 12, 6]                 # linha 0 (patamar) até a linha 3
-    # Porta dupla na parede, de pé sobre o patamar (plano b = -3,5).
+    # Na parede (plano b = -3,5): frontão com ornamento dourado e porta dupla.
     b = -3.5
+    d.polygon([t(-1.0, b, 88), t(1.0, b, 88), t(0, b, 110)], fill=C['marmore'])
+    d.line([t(-1.0, b, 88), t(0, b, 110), t(1.0, b, 88), t(-1.0, b, 88)], fill=C['ouro'], width=2)
+    x, y = t(0, b, 96)
+    d.ellipse([x - 3, y - 3, x + 3, y + 3], fill=C['ouro'], outline=C['ouro_sombra'])
     a0, a1, z0, z1 = -0.62, 0.62, 24, 82
-    d.polygon([t(a0 - 0.08, b, z0), t(a1 + 0.08, b, z0), t(a1 + 0.08, b, z1 + 6), t(a0 - 0.08, b, z1 + 6)],
-              fill=C['pedra_parede_sombra'])
+    d.polygon([t(a0 - 0.1, b, z0), t(a1 + 0.1, b, z0), t(a1 + 0.1, b, z1 + 6), t(a0 - 0.1, b, z1 + 6)],
+              fill=C['ouro_sombra'])
     d.polygon([t(a0, b, z0), t(a1, b, z0), t(a1, b, z1), t(a0, b, z1)], fill=C['madeira'])
     for k in (-0.31, 0.31):                   # almofadas das duas folhas
-        d.polygon([t(k - 0.22, b, z0 + 30), t(k + 0.22, b, z0 + 30), t(k + 0.22, b, z1 - 6), t(k - 0.22, b, z1 - 6)],
-                  fill=C['madeira_luz'])
-        d.polygon([t(k - 0.22, b, z0 + 6), t(k + 0.22, b, z0 + 6), t(k + 0.22, b, z0 + 24), t(k - 0.22, b, z0 + 24)],
-                  fill=C['madeira_luz'])
+        for (p0, p1) in ((z0 + 6, z0 + 24), (z0 + 30, z1 - 6)):
+            d.polygon([t(k - 0.22, b, p0), t(k + 0.22, b, p0), t(k + 0.22, b, p1), t(k - 0.22, b, p1)],
+                      fill=C['madeira_luz'])
     d.line([t(0, b, z0), t(0, b, z1)], fill=C['madeira_sombra'], width=1)
-    d.line([t(a0, b, z1 + 3), t(a1, b, z1 + 3)], fill=C['ouro'], width=2)
-    for k in (-0.06, 0.06):
-        x, y = t(k, b, z0 + 26)
-        d.point((x, y), fill=C['ouro'])
-    # Patamar e degraus, de trás para a frente.
+    d.line([t(a0 - 0.1, b, z1 + 6), t(a1 + 0.1, b, z1 + 6)], fill=C['ouro_luz'], width=2)
+    for k in (-0.07, 0.07):                   # puxadores
+        x, y = t(k, b, z0 + 28)
+        d.rectangle([x - 1, y - 1, x, y], fill=C['ouro'])
+    # Patamar e degraus, de trás para a frente, com a passadeira e os
+    # balaústres de mármore com o remate dourado dos dois lados.
     for linha, h in enumerate(alturas):
         b0, b1 = linha - 3.5, linha - 2.5
-        d.polygon([t(-1.5, b1, 0), t(1.5, b1, 0), t(1.5, b1, h), t(-1.5, b1, h)], fill=C['pedra_parede'])
-        d.polygon([t(1.5, b0, 0), t(1.5, b1, 0), t(1.5, b1, h), t(1.5, b0, h)], fill=C['pedra_parede_sombra'])
-        d.polygon([t(-1.5, b0, h), t(1.5, b0, h), t(1.5, b1, h), t(-1.5, b1, h)], fill=C['pedra_parede_luz'])
-        d.line([t(-1.5, b1, h), t(1.5, b1, h)], fill=C['pedra_parede_sombra'], width=1)
+        caixa(-1.5, 1.5, b0, b1, 0, h, 'pedra_parede', 'pedra_parede_sombra', 'pedra_parede_luz')
+        d.polygon([t(-0.45, b0, h), t(0.45, b0, h), t(0.45, b1, h), t(-0.45, b1, h)], fill=C['veludo'])
+        d.polygon([t(-0.45, b1, 0), t(0.45, b1, 0), t(0.45, b1, h), t(-0.45, b1, h)], fill=C['veludo_luz'])
+        for k in (-0.45, 0.45):
+            d.line([t(k, b0, h), t(k, b1, h), t(k, b1, 0)], fill=C['ouro'], width=1)
+        d.line([t(-1.5, b1, h), t(1.5, b1, h)], fill=C['ouro_sombra'], width=1)
+        for a_ in (-1.5, 1.3):
+            caixa(a_, a_ + 0.2, b0, b1, 0, h + 12, 'marmore', 'marmore_sombra', 'marmore_luz')
+            d.line([t(a_, b0, h + 12), t(a_, b1, h + 12), t(a_ + 0.2, b1, h + 12)], fill=C['ouro'], width=1)
+    # Colunas no patamar, dos dois lados da porta.
+    for k in (-0.95, 0.95):
+        xb, yb = t(k, -3.25, 24)
+        xt, yt = t(k, -3.25, 100)
+        d.rectangle([xb - 4, yt, xb + 4, yb], fill=C['marmore'])
+        d.rectangle([xb + 2, yt, xb + 4, yb], fill=C['marmore_sombra'])
+        d.rectangle([xb - 3, yt, xb - 2, yb], fill=C['marmore_luz'])
+        d.rectangle([xb - 6, yt - 3, xb + 6, yt + 1], fill=C['ouro'])     # capitel
+        d.rectangle([xb - 5, yb - 3, xb + 5, yb], fill=C['ouro_sombra'])  # base
     q.px = q.im.load()
     return q.contornar()
+
+
+def escrivaninha():
+    """Escrivaninha da antessala (inferência: o livro só fala em "ornamentos
+    dourados" e na janela para o Palácio): madeira escura com remate dourado,
+    papéis e tinteiro. Uma casa; encostada no meio da sala."""
+    q, frente, lado = caixa_iso(-0.45, 0.45, -0.3, 0.3, 20, 'madeira', 'madeira_sombra', 'madeira_luz')
+    _riscar(frente, 0.0, 1.0, 0.92, 0.92, 'ouro')
+    _riscar(lado, 0.0, 1.0, 0.92, 0.92, 'ouro_sombra')
+    _riscar(frente, 0.3, 0.7, 0.55, 0.55, 'madeira_sombra')            # gaveta
+    frente(0.5, 0.45, 'ouro')
+    for (x, y) in ((24, 12), (27, 13), (30, 12)):                       # papéis
+        q.r(x, y, x + 5, y + 2, 'perola')
+    q.r(38, 11, 39, 13, 'noite'); q.p(39, 10, 'perola')                 # tinteiro e pena
+    return q.contornar()
+
+
+def poltrona():
+    """Poltrona de veludo azul com o remate dourado (cores de Olympia;
+    inferência)."""
+    q, frente, lado = caixa_iso(-0.3, 0.3, -0.3, 0.3, 12, 'veludo', 'veludo_luz', 'veludo_luz')
+    _riscar(frente, 0.0, 1.0, 0.98, 0.98, 'ouro')
+    q2, f2, _ = caixa_iso(-0.3, 0.3, -0.36, -0.22, 30, 'veludo', 'veludo_luz', 'ouro')
+    q2.im.alpha_composite(q.im, (0, q2.im.height - q.im.height))
+    return q2.contornar()
+
+
+def tapete_antessala():
+    """Tapete retangular azul com borda dourada (2×2 casas, deitado)."""
+    q = Q(128, 64)
+    for y in range(64):
+        for x in range(128):
+            d = abs(x - 63.5) / 60 + abs(y - 31.5) / 30
+            if d <= 1.0:
+                q.p(x, y, 'ouro' if d > 0.9 else ('veludo_luz' if 0.6 < d < 0.66 else 'veludo'))
+    return q.im
 
 
 def tapete_loja():
@@ -1878,6 +1939,9 @@ ARTES = {
     'loja/cavalinho.png': cavalinho,
     'loja/banquinho.png': banquinho,
     'mansao/escadaria.png': escadaria_mansao,
+    'mansao/escrivaninha.png': escrivaninha,
+    'mansao/poltrona.png': poltrona,
+    'mansao/tapete_antessala.png': tapete_antessala,
     'loja/caixa_madeira.png': caixa_madeira,
     'loja/caixote_pesado.png': caixote_pesado,
     'loja/tapete_loja.png': tapete_loja,

@@ -6,7 +6,7 @@ extends CenaCapitulo01
 ## 1. chegada: carruagens carregadas, criados em duas fileiras, Apollon e
 ##    Danica no alto da escadaria. Apollon desce, recebe Ophelia e chama
 ##    Nicholas; volta para dentro.
-## 2. seguir: o jogador anda livre até a escadaria (E). Opcional (olhar de
+## 2. seguir: o jogador anda livre até o pé da escadaria e sobe. Opcional (olhar de
 ##    Nicholas): parado perto de Danica, olhando para ela, ela desvia o
 ##    olhar ("Nem mesmo sustentou meu olhar por muito tempo"; Códice).
 ##    Ao subir, Danica leva Althea pela mão, Ophelia vai atrás.
@@ -36,7 +36,10 @@ const ESCADA_X := Vector2i(6, 8)
 const ALTURAS := [24.0, 18.0, 12.0, 6.0]
 const CASA_DESENHO_ESCADA := Vector2i(7, 3)
 const PE_ESCADA := 33.0
-const CASA_ESCADARIA := Vector2i(7, 4)
+## Ao chegar ao pé da escadaria (linha 4, x 6 a 8), Nicholas sobe sozinho
+## atrás do Duque, sem círculo de ação (Rafael, 25/10/2026).
+const LINHA_PE_DA_ESCADA := 4
+const CASA_DANICA_EMBAIXO := Vector2i(9, 4)
 const CASA_APOLLON := Vector2i(6, 0)
 const CASA_DANICA := Vector2i(8, 0)
 const CASA_CARRUAGEM := Vector2i(14, 8)
@@ -45,8 +48,8 @@ const CASA_JOGADOR := Vector2i(9, 8)
 const CASA_ALTHEA := Vector2i(8, 9)
 const CASA_OPHELIA := Vector2i(9, 7)
 ## Os criados em duas fileiras dos dois lados do caminho até a escadaria.
-const CRIADOS := [["moco", Vector2i(5, 3)], ["moca", Vector2i(5, 4)], ["moco", Vector2i(5, 5)],
-	["moca", Vector2i(9, 3)], ["moco", Vector2i(9, 4)], ["moca", Vector2i(9, 5)]]
+const CRIADOS := [["moco", Vector2i(4, 5)], ["moca", Vector2i(4, 6)], ["moco", Vector2i(4, 7)],
+	["moca", Vector2i(10, 5)], ["moco", Vector2i(10, 6)], ["moca", Vector2i(10, 7)]]
 ## O olhar para Danica: até que distância (pixels), quanto de frente para
 ## ela e por quanto tempo parado.
 const OLHAR_DISTANCIA := 96.0
@@ -79,12 +82,20 @@ func comecar() -> void:
 	await _frases("frases_chegada")
 	await apollon_recebe()
 	_mudar("seguir")
-	_ativar(objetos["escadaria"], true)
 	_travar(false)
 
 
 func montar_frente() -> void:
 	_nova_sala(LARGURA, PROFUNDIDADE, TOM_FIM_DE_TARDE, "pedra", "fachada")
+	# A fachada (janelas e brasões de Olympia são inferência), lampiões e vasos.
+	_pendurar([["janela_alta_esq", Vector2i(2, 0)], ["janela_alta_esq", Vector2i(4, 0)],
+		["brasao_olympia_esq", Vector2i(5, 0)], ["brasao_olympia_esq", Vector2i(9, 0)],
+		["janela_alta_esq", Vector2i(10, 0)], ["janela_alta_esq", Vector2i(12, 0)],
+		["janela_alta_esq", Vector2i(16, 0)], ["janela_alta_esq", Vector2i(18, 0)]])
+	for casa: Vector2i in [Vector2i(5, 4), Vector2i(9, 3)]:
+		_objeto("lampiao_%d" % casa.x, "rua/lampiao", casa)
+	for casa: Vector2i in [Vector2i(5, 2), Vector2i(9, 1)]:
+		_objeto("vaso_%d_%d" % [casa.x, casa.y], "rua/vaso_flor", casa)
 	_objeto("escadaria_desenho", "mansao/escadaria", CASA_DESENHO_ESCADA, false, PE_ESCADA, false)
 	objetos["escadaria_desenho"].remove_meta(SalaMontada.META_TRANSLUCIDO)
 	for y in ALTURAS.size():
@@ -105,9 +116,6 @@ func montar_frente() -> void:
 	_no_alto(_pessoa("danica", QUADROS_DANICA, CASA_DANICA), CASA_DANICA)
 	_pessoa("althea", QUADROS_ALTHEA, CASA_ALTHEA)
 	_pessoa("ophelia", QUADROS_OPHELIA, CASA_OPHELIA)
-	_ponto("escadaria", CASA_ESCADARIA)
-	_ativar(objetos["escadaria"], false)
-	_ao_interagir("escadaria", subir_a_escadaria)
 	_entrar(CASA_JOGADOR)
 	jogador.direcao_olhar = (sala.centro(CASA_PORTA) - jogador.position).normalized()
 
@@ -135,6 +143,7 @@ func _danica_desce() -> void:
 	var danica: Node2D = objetos["danica"]
 	await _caminhar(danica, _descer(8), 0.35)
 	danica.z_index = 0
+	await _caminhar(danica, [sala.centro(CASA_DANICA_EMBAIXO)], 0.4)
 
 
 ## Na escadaria a pessoa fica mais alta na tela e na frente do desenho dela.
@@ -160,7 +169,13 @@ func _descer(x: int) -> Array:
 
 
 func _physics_process(delta: float) -> void:
-	if etapa != "seguir" or olhou_danica or _subindo or not objetos.has("danica"):
+	if etapa != "seguir" or _subindo or not objetos.has("danica"):
+		return
+	var casa := _casa_de(jogador)
+	if casa.y <= LINHA_PE_DA_ESCADA and casa.x >= ESCADA_X.x and casa.x <= ESCADA_X.y:
+		subir_a_escadaria()
+		return
+	if olhou_danica:
 		return
 	if olhando_para_danica():
 		_olhando += delta
@@ -188,12 +203,11 @@ func danica_desvia_o_olhar() -> void:
 	await _frases("frases_olhar_danica")
 
 
-## E na escadaria: Danica leva Althea, Ophelia vai atrás, e a antessala.
+## No pé da escadaria: Danica leva Althea, Ophelia vai atrás, e a antessala.
 func subir_a_escadaria() -> void:
 	if etapa != "seguir" or _subindo:
 		return
 	_subindo = true
-	_ativar(objetos["escadaria"], false)
 	_travar(true)
 	var danica: Node2D = objetos["danica"]
 	var althea: Node2D = objetos["althea"]
@@ -221,11 +235,21 @@ func subir_a_escadaria() -> void:
 
 
 func montar_antessala() -> void:
-	_nova_sala(5, 4, TOM_DENTRO, "assoalho", "")
-	_pendurar([["quadro_atenas_esq", Vector2i(2, 0)], ["arandela_esq", Vector2i(3, 0)],
-		["arandela_dir", Vector2i(0, 2)]])
-	_pessoa("apollon", QUADROS_APOLLON, Vector2i(3, 2))
-	_entrar(Vector2i(1, 2))
+	# "Antessala de ornamentos dourados com grande janela para o Palácio"
+	# (livro/descricao-lugares.md); a escrivaninha, a poltrona, o tapete e o
+	# armário são inferência (Rafael pediu algo como um escritório, 25/10).
+	_nova_sala(7, 5, TOM_DENTRO, "assoalho", "reboco")
+	_pendurar([["arandela_esq", Vector2i(1, 0)], ["janela_alta_esq", Vector2i(2, 0)],
+		["janela_alta_esq", Vector2i(4, 0)], ["arandela_esq", Vector2i(5, 0)],
+		["quadro_olympia_dir", Vector2i(0, 1)], ["brasao_olympia_dir", Vector2i(0, 2)],
+		["arandela_dir", Vector2i(0, 3)]])
+	var tapete := _objeto("tapete", "mansao/tapete_antessala", Vector2i(3, 2), false, 32.0, false)
+	tapete.z_index = -1
+	_objeto("poltrona", "mansao/poltrona", Vector2i(3, 0))
+	_objeto("escrivaninha", "mansao/escrivaninha", Vector2i(3, 1))
+	_objeto("armario", "armario", Vector2i(6, 0))
+	_pessoa("apollon", QUADROS_APOLLON, Vector2i(4, 2))
+	_entrar(Vector2i(1, 3))
 	jogador.direcao_olhar = (objetos["apollon"].position - jogador.position).normalized()
 	_virar(objetos["apollon"], jogador.position)
 

@@ -2,7 +2,8 @@
 
 A visão de Nicholas na carruagem, em primeira pessoa 3D e sem andar: uma varanda
 fria à noite, céu limpo salpicado de luzes, ar imóvel e uma garota de costas
-(cabelos longos, ondulados, escuros). Tudo com formas do próprio Godot e os
+(cabelos longos, ondulados, escuros). A garota vem de malhas feitas por código
+(tools/arte/gerar_garota_visao.py); o resto usa formas do próprio Godot e os
 materiais do prólogo, até a arte definitiva chegar. Renderer gl_compatibility:
 sem SSAO e sem névoa volumétrica.
 
@@ -32,6 +33,7 @@ TEXTO_SOLTO = "res://scripts/prologo/texto_solto.gd"
 TREMOR = "res://scripts/capitulo_01/tremor_do_sonho.gdshader"
 VINHETA = "res://assets/shaders/prologo/vinheta.gdshader"
 CEU = "res://assets/shaders/prologo/ceu_noite.gdshader"
+GAROTA = "res://assets/art/capitulo_01/visao/"
 
 MUNDO = "Mundo"
 VIEW = "Mundo/Viewport"
@@ -75,35 +77,17 @@ def haste(c: Cena, nome, pai, pos, raio, altura, mat, rot=(0, 0, 0), raio_baixo=
 # ------------------------------------------------------------ garota
 
 def garota(c: Cena, pai) -> None:
+    """Malhas de tools/arte/gerar_garota_visao.py (corpo, vestido, mangas, pele, cabelo)."""
     pele = material(c, (0.82, 0.68, 0.6), 0.7)
     vestido = material(c, (0.6, 0.63, 0.78), 0.85)
-    cabelo = material(c, (0.045, 0.03, 0.035), 0.5)
+    cabelo = c.s("StandardMaterial3D", albedo_color=cor(0.085, 0.06, 0.06), roughness=num(0.38),
+                 cull_mode="2", rim_enabled="true", rim=num(0.35), rim_tint=num(0.6))
     g = c.no("Garota", "Node3D", pai, transform=transform((0, 0, 3.9)))
-    # vestido longo, quase até o chão, e torso fino
-    haste(c, "Saia", g, (0, 0.52, 0), 0.15, 1.02, vestido, raio_baixo=0.36)
-    haste(c, "Torso", g, (0, 1.23, 0), 0.16, 0.46, vestido, raio_baixo=0.14)
-    elipsoide(c, "Ombros", g, (0, 1.42, 0), 0.19, vestido, escala=(1.0, 0.32, 0.55))
-    haste(c, "Pescoco", g, (0, 1.52, 0), 0.042, 0.12, pele)
-    elipsoide(c, "Cabeca", g, (0, 1.63, 0), 0.105, pele, escala=(0.92, 1.1, 1.0))
-    # braços apoiados no corrimão (as mãos descansam em y 0,98)
-    for lado in (-1, 1):
-        haste(c, "Braco", g, (lado * 0.2, 1.2, 0.2), 0.04, 0.55, vestido, rot=(-45, 0, lado * -4))
-        elipsoide(c, "Mao", g, (lado * 0.2, 0.99, 0.43), 0.04, pele, escala=(1, 0.7, 1.4))
-    # cabelo: coroa, e a cascata ondulada que desce pelas costas até a cintura
-    elipsoide(c, "Coroa", g, (0, 1.65, -0.02), 0.118, cabelo, escala=(1.0, 1.05, 1.0))
-    passos = 9
-    for i in range(passos):
-        t = i / (passos - 1)
-        y = 1.56 - t * 0.56
-        onda = math.sin(t * math.pi * 3.0) * 0.03          # ondas laterais
-        largura = 0.12 + 0.025 * math.sin(t * math.pi)      # mais cheio no meio
-        elipsoide(c, "Madeixa", g, (onda, y, -0.095 - 0.02 * math.sin(t * math.pi)), largura, cabelo,
-                  escala=(1.0, 1.7, 0.55), rot=(0, 0, math.sin(t * math.pi * 3.0 + 1.0) * 9))
-    # mechas dos lados descendo à frente dos ombros e abraçando a cintura
-    for lado in (-1, 1):
-        for i, (y, dx) in enumerate(((1.4, 0.15), (1.25, 0.155), (1.11, 0.16), (1.02, 0.14))):
-            elipsoide(c, "Mecha", g, (lado * dx, y, 0.0), 0.05, cabelo, escala=(0.9, 2.0, 1.0),
-                      rot=(0, 0, lado * (4 + i * 3)))
+    for nome, mat in (("vestido", vestido), ("mangas", vestido), ("pele", pele), ("cabelo", cabelo)):
+        mesh = c.e("ArrayMesh", f"{GAROTA}garota_{nome}.obj")
+        no = malha(c, nome.capitalize(), g, mesh, mat)
+        c.nos[-1][3]["layers"] = "3"                       # camada 2: só ela recebe o contorno
+        del no
 
 
 # ------------------------------------------------------------ varanda
@@ -184,6 +168,9 @@ def montar() -> Cena:
     # luz fria vinda de trás da câmera, tocando as costas da garota
     c.no("LuzFria", "DirectionalLight3D", CEN, transform=transform(rot=(-30, 180, 0)),
          light_color=cor(0.62, 0.72, 1.0), light_energy="0.7")
+    # contorno: luz fraca vinda do céu à frente, para a silhueta (cabelo, ombros) não sumir no escuro
+    c.no("LuzContorno", "DirectionalLight3D", CEN, transform=transform(rot=(-15, 0, 0)),
+         light_color=cor(0.55, 0.65, 1.0), light_energy="0.7", light_cull_mask="2")
     c.no("Camera", "Camera3D", CEN, transform=transform((0, 1.72, -0.6), (-1.5, 180, 0)), current="true",
          fov="58.0", unique_name_in_owner="true")
     varanda(c, CEN)

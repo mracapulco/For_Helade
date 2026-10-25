@@ -4,9 +4,13 @@
 [ext_resource type="Shader" path="res://assets/shaders/prologo/ceu_noite.gdshader" id="2_ceu_noite"]
 [ext_resource type="Material" path="res://assets/art/prologo/materiais/marmore_varanda.tres" id="3_marmore_varanda"]
 [ext_resource type="Material" path="res://assets/art/prologo/materiais/parede_pedra.tres" id="4_parede_pedra"]
-[ext_resource type="Shader" path="res://assets/shaders/prologo/vinheta.gdshader" id="5_vinheta"]
-[ext_resource type="Shader" path="res://scripts/capitulo_01/tremor_do_sonho.gdshader" id="6_tremor_do_sonho"]
-[ext_resource type="Script" path="res://scripts/prologo/texto_solto.gd" id="7_texto_solto"]
+[ext_resource type="ArrayMesh" path="res://assets/art/capitulo_01/visao/garota_vestido.obj" id="5_garota_vestido"]
+[ext_resource type="ArrayMesh" path="res://assets/art/capitulo_01/visao/garota_mangas.obj" id="6_garota_mangas"]
+[ext_resource type="ArrayMesh" path="res://assets/art/capitulo_01/visao/garota_pele.obj" id="7_garota_pele"]
+[ext_resource type="ArrayMesh" path="res://assets/art/capitulo_01/visao/garota_cabelo.obj" id="8_garota_cabelo"]
+[ext_resource type="Shader" path="res://assets/shaders/prologo/vinheta.gdshader" id="9_vinheta"]
+[ext_resource type="Shader" path="res://scripts/capitulo_01/tremor_do_sonho.gdshader" id="10_tremor_do_sonho"]
+[ext_resource type="Script" path="res://scripts/prologo/texto_solto.gd" id="11_texto_solto"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_1"]
 shader = ExtResource("2_ceu_noite")
@@ -67,102 +71,18 @@ albedo_color = Color(0.6, 0.63, 0.78, 1)
 roughness = 0.85
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_13"]
-albedo_color = Color(0.045, 0.03, 0.035, 1)
-roughness = 0.5
+albedo_color = Color(0.085, 0.06, 0.06, 1)
+roughness = 0.38
+cull_mode = 2
+rim_enabled = true
+rim = 0.35
+rim_tint = 0.6
 
-[sub_resource type="CylinderMesh" id="CylinderMesh_14"]
-top_radius = 0.15
-bottom_radius = 0.36
-height = 1.02
-radial_segments = 14
-rings = 1
-
-[sub_resource type="CylinderMesh" id="CylinderMesh_15"]
-top_radius = 0.16
-bottom_radius = 0.14
-height = 0.46
-radial_segments = 14
-rings = 1
-
-[sub_resource type="SphereMesh" id="SphereMesh_16"]
-radius = 0.19
-height = 0.38
-radial_segments = 14
-rings = 7
-
-[sub_resource type="CylinderMesh" id="CylinderMesh_17"]
-top_radius = 0.042
-bottom_radius = 0.042
-height = 0.12
-radial_segments = 14
-rings = 1
-
-[sub_resource type="SphereMesh" id="SphereMesh_18"]
-radius = 0.105
-height = 0.21
-radial_segments = 14
-rings = 7
-
-[sub_resource type="CylinderMesh" id="CylinderMesh_19"]
-top_radius = 0.04
-bottom_radius = 0.04
-height = 0.55
-radial_segments = 14
-rings = 1
-
-[sub_resource type="SphereMesh" id="SphereMesh_20"]
-radius = 0.04
-height = 0.08
-radial_segments = 14
-rings = 7
-
-[sub_resource type="SphereMesh" id="SphereMesh_21"]
-radius = 0.118
-height = 0.236
-radial_segments = 14
-rings = 7
-
-[sub_resource type="SphereMesh" id="SphereMesh_22"]
-radius = 0.12
-height = 0.24
-radial_segments = 14
-rings = 7
-
-[sub_resource type="SphereMesh" id="SphereMesh_23"]
-radius = 0.1296
-height = 0.2591
-radial_segments = 14
-rings = 7
-
-[sub_resource type="SphereMesh" id="SphereMesh_24"]
-radius = 0.1377
-height = 0.2754
-radial_segments = 14
-rings = 7
-
-[sub_resource type="SphereMesh" id="SphereMesh_25"]
-radius = 0.1431
-height = 0.2862
-radial_segments = 14
-rings = 7
-
-[sub_resource type="SphereMesh" id="SphereMesh_26"]
-radius = 0.145
-height = 0.29
-radial_segments = 14
-rings = 7
-
-[sub_resource type="SphereMesh" id="SphereMesh_27"]
-radius = 0.05
-height = 0.1
-radial_segments = 14
-rings = 7
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_28"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_14"]
 albedo_color = Color(0.012, 0.016, 0.03, 1)
 roughness = 1
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_29"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_15"]
 albedo_color = Color(1, 0.8, 0.5, 1)
 roughness = 1
 emission_enabled = true
@@ -170,7 +90,7 @@ emission = Color(1, 0.78, 0.45, 1)
 emission_energy_multiplier = 3
 shading_mode = 0
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_30"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_16"]
 albedo_color = Color(0.75, 0.88, 1, 1)
 roughness = 1
 emission_enabled = true
@@ -178,26 +98,26 @@ emission = Color(0.7, 0.85, 1, 1)
 emission_energy_multiplier = 2.5
 shading_mode = 0
 
-[sub_resource type="BoxMesh" id="BoxMesh_31"]
+[sub_resource type="BoxMesh" id="BoxMesh_17"]
 size = Vector3(1, 1, 1)
 
-[sub_resource type="PlaneMesh" id="PlaneMesh_32"]
+[sub_resource type="PlaneMesh" id="PlaneMesh_18"]
 size = Vector2(900, 700)
 
-[sub_resource type="SphereMesh" id="SphereMesh_33"]
+[sub_resource type="SphereMesh" id="SphereMesh_19"]
 radius = 0.35
 height = 0.7
 radial_segments = 6
 rings = 3
 
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_34"]
-shader = ExtResource("5_vinheta")
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_20"]
+shader = ExtResource("9_vinheta")
 shader_parameter/vinheta = 0.5
 shader_parameter/desfoque = 0.0
 shader_parameter/granulacao = 0.04
 
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_35"]
-shader = ExtResource("6_tremor_do_sonho")
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_21"]
+shader = ExtResource("10_tremor_do_sonho")
 shader_parameter/forca = 0.001
 
 [node name="VisaoVaranda" type="CanvasLayer"]
@@ -230,6 +150,12 @@ environment = SubResource("Environment_3")
 transform = Transform3D(-1, 0, 0, 0, 0.866, 0.5, 0, 0.5, -0.866, 0, 0, 0)
 light_color = Color(0.62, 0.72, 1, 1)
 light_energy = 0.7
+
+[node name="LuzContorno" type="DirectionalLight3D" parent="Mundo/Viewport/Cenario"]
+transform = Transform3D(1, 0, 0, 0, 0.9659, 0.2588, 0, -0.2588, 0.9659, 0, 0, 0)
+light_color = Color(0.55, 0.65, 1, 1)
+light_energy = 0.7
+light_cull_mask = 2
 
 [node name="Camera" type="Camera3D" parent="Mundo/Viewport/Cenario"]
 transform = Transform3D(-1, 0, 0, 0, 0.9997, 0.0262, 0, 0.0262, -0.9997, 0, 1.72, -0.6)
@@ -475,575 +401,464 @@ material_override = ExtResource("3_marmore_varanda")
 [node name="Garota" type="Node3D" parent="Mundo/Viewport/Cenario"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 3.9)
 
-[node name="Saia" type="MeshInstance3D" parent="Mundo/Viewport/Cenario/Garota"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.52, 0)
-mesh = SubResource("CylinderMesh_14")
+[node name="Vestido" type="MeshInstance3D" parent="Mundo/Viewport/Cenario/Garota"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+mesh = ExtResource("5_garota_vestido")
 material_override = SubResource("StandardMaterial3D_12")
+layers = 3
 
-[node name="Torso" type="MeshInstance3D" parent="Mundo/Viewport/Cenario/Garota"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.23, 0)
-mesh = SubResource("CylinderMesh_15")
+[node name="Mangas" type="MeshInstance3D" parent="Mundo/Viewport/Cenario/Garota"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+mesh = ExtResource("6_garota_mangas")
 material_override = SubResource("StandardMaterial3D_12")
+layers = 3
 
-[node name="Ombros" type="MeshInstance3D" parent="Mundo/Viewport/Cenario/Garota"]
-transform = Transform3D(1, 0, 0, 0, 0.32, 0, 0, 0, 0.55, 0, 1.42, 0)
-mesh = SubResource("SphereMesh_16")
-material_override = SubResource("StandardMaterial3D_12")
-
-[node name="Pescoco" type="MeshInstance3D" parent="Mundo/Viewport/Cenario/Garota"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.52, 0)
-mesh = SubResource("CylinderMesh_17")
+[node name="Pele" type="MeshInstance3D" parent="Mundo/Viewport/Cenario/Garota"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+mesh = ExtResource("7_garota_pele")
 material_override = SubResource("StandardMaterial3D_11")
+layers = 3
 
-[node name="Cabeca" type="MeshInstance3D" parent="Mundo/Viewport/Cenario/Garota"]
-transform = Transform3D(0.92, 0, 0, 0, 1.1, 0, 0, 0, 1, 0, 1.63, 0)
-mesh = SubResource("SphereMesh_18")
-material_override = SubResource("StandardMaterial3D_11")
-
-[node name="Braco" type="MeshInstance3D" parent="Mundo/Viewport/Cenario/Garota"]
-transform = Transform3D(0.9976, -0.0698, 0, 0.0493, 0.7054, 0.7071, -0.0493, -0.7054, 0.7071, -0.2, 1.2, 0.2)
-mesh = SubResource("CylinderMesh_19")
-material_override = SubResource("StandardMaterial3D_12")
-
-[node name="Mao" type="MeshInstance3D" parent="Mundo/Viewport/Cenario/Garota"]
-transform = Transform3D(1, 0, 0, 0, 0.7, 0, 0, 0, 1.4, -0.2, 0.99, 0.43)
-mesh = SubResource("SphereMesh_20")
-material_override = SubResource("StandardMaterial3D_11")
-
-[node name="Braco2" type="MeshInstance3D" parent="Mundo/Viewport/Cenario/Garota"]
-transform = Transform3D(0.9976, 0.0698, 0, -0.0493, 0.7054, 0.7071, 0.0493, -0.7054, 0.7071, 0.2, 1.2, 0.2)
-mesh = SubResource("CylinderMesh_19")
-material_override = SubResource("StandardMaterial3D_12")
-
-[node name="Mao2" type="MeshInstance3D" parent="Mundo/Viewport/Cenario/Garota"]
-transform = Transform3D(1, 0, 0, 0, 0.7, 0, 0, 0, 1.4, 0.2, 0.99, 0.43)
-mesh = SubResource("SphereMesh_20")
-material_override = SubResource("StandardMaterial3D_11")
-
-[node name="Coroa" type="MeshInstance3D" parent="Mundo/Viewport/Cenario/Garota"]
-transform = Transform3D(1, 0, 0, 0, 1.05, 0, 0, 0, 1, 0, 1.65, -0.02)
-mesh = SubResource("SphereMesh_21")
+[node name="Cabelo" type="MeshInstance3D" parent="Mundo/Viewport/Cenario/Garota"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+mesh = ExtResource("8_garota_cabelo")
 material_override = SubResource("StandardMaterial3D_13")
-
-[node name="Madeixa" type="MeshInstance3D" parent="Mundo/Viewport/Cenario/Garota"]
-transform = Transform3D(0.9913, -0.224, 0, 0.1318, 1.6852, 0, 0, 0, 0.55, 0, 1.56, -0.095)
-mesh = SubResource("SphereMesh_22")
-material_override = SubResource("StandardMaterial3D_13")
-
-[node name="Madeixa2" type="MeshInstance3D" parent="Mundo/Viewport/Cenario/Garota"]
-transform = Transform3D(0.9917, -0.2187, 0, 0.1286, 1.6859, 0, 0, 0, 0.55, 0.0277, 1.49, -0.1027)
-mesh = SubResource("SphereMesh_23")
-material_override = SubResource("StandardMaterial3D_13")
-
-[node name="Madeixa3" type="MeshInstance3D" parent="Mundo/Viewport/Cenario/Garota"]
-transform = Transform3D(0.9994, 0.0569, 0, -0.0334, 1.699, 0, 0, 0, 0.55, 0.0212, 1.42, -0.1091)
-mesh = SubResource("SphereMesh_24")
-material_override = SubResource("StandardMaterial3D_13")
-
-[node name="Madeixa4" type="MeshInstance3D" parent="Mundo/Viewport/Cenario/Garota"]
-transform = Transform3D(0.9881, 0.2618, 0, -0.154, 1.6797, 0, 0, 0, 0.55, -0.0115, 1.35, -0.1135)
-mesh = SubResource("SphereMesh_25")
-material_override = SubResource("StandardMaterial3D_13")
-
-[node name="Madeixa5" type="MeshInstance3D" parent="Mundo/Viewport/Cenario/Garota"]
-transform = Transform3D(0.9964, 0.1441, 0, -0.0848, 1.6939, 0, 0, 0, 0.55, -0.03, 1.28, -0.115)
-mesh = SubResource("SphereMesh_26")
-material_override = SubResource("StandardMaterial3D_13")
-
-[node name="Madeixa6" type="MeshInstance3D" parent="Mundo/Viewport/Cenario/Garota"]
-transform = Transform3D(0.996, -0.1522, 0, 0.0895, 1.6932, 0, 0, 0, 0.55, -0.0115, 1.21, -0.1135)
-mesh = SubResource("SphereMesh_25")
-material_override = SubResource("StandardMaterial3D_13")
-
-[node name="Madeixa7" type="MeshInstance3D" parent="Mundo/Viewport/Cenario/Garota"]
-transform = Transform3D(0.9882, -0.2599, 0, 0.1529, 1.68, 0, 0, 0, 0.55, 0.0212, 1.14, -0.1091)
-mesh = SubResource("SphereMesh_24")
-material_override = SubResource("StandardMaterial3D_13")
-
-[node name="Madeixa8" type="MeshInstance3D" parent="Mundo/Viewport/Cenario/Garota"]
-transform = Transform3D(0.9996, -0.0473, 0, 0.0278, 1.6993, 0, 0, 0, 0.55, 0.0277, 1.07, -0.1027)
-mesh = SubResource("SphereMesh_23")
-material_override = SubResource("StandardMaterial3D_13")
-
-[node name="Madeixa9" type="MeshInstance3D" parent="Mundo/Viewport/Cenario/Garota"]
-transform = Transform3D(0.9913, 0.224, 0, -0.1318, 1.6852, 0, 0, 0, 0.55, 0, 1, -0.095)
-mesh = SubResource("SphereMesh_22")
-material_override = SubResource("StandardMaterial3D_13")
-
-[node name="Mecha" type="MeshInstance3D" parent="Mundo/Viewport/Cenario/Garota"]
-transform = Transform3D(0.8978, 0.1395, 0, -0.0628, 1.9951, 0, 0, 0, 1, -0.15, 1.4, 0)
-mesh = SubResource("SphereMesh_27")
-material_override = SubResource("StandardMaterial3D_13")
-
-[node name="Mecha2" type="MeshInstance3D" parent="Mundo/Viewport/Cenario/Garota"]
-transform = Transform3D(0.8933, 0.2437, 0, -0.1097, 1.9851, 0, 0, 0, 1, -0.155, 1.25, 0)
-mesh = SubResource("SphereMesh_27")
-material_override = SubResource("StandardMaterial3D_13")
-
-[node name="Mecha3" type="MeshInstance3D" parent="Mundo/Viewport/Cenario/Garota"]
-transform = Transform3D(0.8863, 0.3473, 0, -0.1563, 1.9696, 0, 0, 0, 1, -0.16, 1.11, 0)
-mesh = SubResource("SphereMesh_27")
-material_override = SubResource("StandardMaterial3D_13")
-
-[node name="Mecha4" type="MeshInstance3D" parent="Mundo/Viewport/Cenario/Garota"]
-transform = Transform3D(0.8769, 0.4499, 0, -0.2025, 1.9487, 0, 0, 0, 1, -0.14, 1.02, 0)
-mesh = SubResource("SphereMesh_27")
-material_override = SubResource("StandardMaterial3D_13")
-
-[node name="Mecha5" type="MeshInstance3D" parent="Mundo/Viewport/Cenario/Garota"]
-transform = Transform3D(0.8978, -0.1395, 0, 0.0628, 1.9951, 0, 0, 0, 1, 0.15, 1.4, 0)
-mesh = SubResource("SphereMesh_27")
-material_override = SubResource("StandardMaterial3D_13")
-
-[node name="Mecha6" type="MeshInstance3D" parent="Mundo/Viewport/Cenario/Garota"]
-transform = Transform3D(0.8933, -0.2437, 0, 0.1097, 1.9851, 0, 0, 0, 1, 0.155, 1.25, 0)
-mesh = SubResource("SphereMesh_27")
-material_override = SubResource("StandardMaterial3D_13")
-
-[node name="Mecha7" type="MeshInstance3D" parent="Mundo/Viewport/Cenario/Garota"]
-transform = Transform3D(0.8863, -0.3473, 0, 0.1563, 1.9696, 0, 0, 0, 1, 0.16, 1.11, 0)
-mesh = SubResource("SphereMesh_27")
-material_override = SubResource("StandardMaterial3D_13")
-
-[node name="Mecha8" type="MeshInstance3D" parent="Mundo/Viewport/Cenario/Garota"]
-transform = Transform3D(0.8769, -0.4499, 0, 0.2025, 1.9487, 0, 0, 0, 1, 0.14, 1.02, 0)
-mesh = SubResource("SphereMesh_27")
-material_override = SubResource("StandardMaterial3D_13")
+layers = 3
 
 [node name="Colina" type="MeshInstance3D" parent="Mundo/Viewport/Cenario"]
 transform = Transform3D(39.0682, 0, 0, 0, 64.1041, 0, 0, 0, 40, -240.4659, -27.948, 190)
-mesh = SubResource("BoxMesh_31")
-material_override = SubResource("StandardMaterial3D_28")
+mesh = SubResource("BoxMesh_17")
+material_override = SubResource("StandardMaterial3D_14")
 
 [node name="Colina2" type="MeshInstance3D" parent="Mundo/Viewport/Cenario"]
 transform = Transform3D(35.0532, 0, 0, 0, 61.4006, 0, 0, 0, 40, -211.2188, -29.2997, 190)
-mesh = SubResource("BoxMesh_31")
-material_override = SubResource("StandardMaterial3D_28")
+mesh = SubResource("BoxMesh_17")
+material_override = SubResource("StandardMaterial3D_14")
 
 [node name="Colina3" type="MeshInstance3D" parent="Mundo/Viewport/Cenario"]
 transform = Transform3D(33.4074, 0, 0, 0, 56.5981, 0, 0, 0, 40, -183.9991, -31.7009, 190)
-mesh = SubResource("BoxMesh_31")
-material_override = SubResource("StandardMaterial3D_28")
+mesh = SubResource("BoxMesh_17")
+material_override = SubResource("StandardMaterial3D_14")
 
 [node name="Colina4" type="MeshInstance3D" parent="Mundo/Viewport/Cenario"]
 transform = Transform3D(69.9651, 0, 0, 0, 56.1987, 0, 0, 0, 40, -138.9943, -31.9007, 190)
-mesh = SubResource("BoxMesh_31")
-material_override = SubResource("StandardMaterial3D_28")
+mesh = SubResource("BoxMesh_17")
+material_override = SubResource("StandardMaterial3D_14")
 
 [node name="Colina5" type="MeshInstance3D" parent="Mundo/Viewport/Cenario"]
 transform = Transform3D(55.6747, 0, 0, 0, 58.8209, 0, 0, 0, 40, -90.1674, -30.5895, 190)
-mesh = SubResource("BoxMesh_31")
-material_override = SubResource("StandardMaterial3D_28")
+mesh = SubResource("BoxMesh_17")
+material_override = SubResource("StandardMaterial3D_14")
 
 [node name="Colina6" type="MeshInstance3D" parent="Mundo/Viewport/Cenario"]
 transform = Transform3D(48.1253, 0, 0, 0, 59.1973, 0, 0, 0, 40, -49.4023, -30.4013, 190)
-mesh = SubResource("BoxMesh_31")
-material_override = SubResource("StandardMaterial3D_28")
+mesh = SubResource("BoxMesh_17")
+material_override = SubResource("StandardMaterial3D_14")
 
 [node name="Colina7" type="MeshInstance3D" parent="Mundo/Viewport/Cenario"]
 transform = Transform3D(37.6892, 0, 0, 0, 62.7205, 0, 0, 0, 40, -16.1201, -28.6398, 190)
-mesh = SubResource("BoxMesh_31")
-material_override = SubResource("StandardMaterial3D_28")
+mesh = SubResource("BoxMesh_17")
+material_override = SubResource("StandardMaterial3D_14")
 
 [node name="Colina8" type="MeshInstance3D" parent="Mundo/Viewport/Cenario"]
 transform = Transform3D(33.5826, 0, 0, 0, 56.4589, 0, 0, 0, 40, 11.9779, -31.7705, 190)
-mesh = SubResource("BoxMesh_31")
-material_override = SubResource("StandardMaterial3D_28")
+mesh = SubResource("BoxMesh_17")
+material_override = SubResource("StandardMaterial3D_14")
 
 [node name="Colina9" type="MeshInstance3D" parent="Mundo/Viewport/Cenario"]
 transform = Transform3D(30.7997, 0, 0, 0, 56.8011, 0, 0, 0, 40, 37.4526, -31.5995, 190)
-mesh = SubResource("BoxMesh_31")
-material_override = SubResource("StandardMaterial3D_28")
+mesh = SubResource("BoxMesh_17")
+material_override = SubResource("StandardMaterial3D_14")
 
 [node name="Colina10" type="MeshInstance3D" parent="Mundo/Viewport/Cenario"]
 transform = Transform3D(46.3066, 0, 0, 0, 63.4717, 0, 0, 0, 40, 69.8457, -28.2642, 190)
-mesh = SubResource("BoxMesh_31")
-material_override = SubResource("StandardMaterial3D_28")
+mesh = SubResource("BoxMesh_17")
+material_override = SubResource("StandardMaterial3D_14")
 
 [node name="Colina11" type="MeshInstance3D" parent="Mundo/Viewport/Cenario"]
 transform = Transform3D(45.163, 0, 0, 0, 55.1942, 0, 0, 0, 40, 106.3192, -32.4029, 190)
-mesh = SubResource("BoxMesh_31")
-material_override = SubResource("StandardMaterial3D_28")
+mesh = SubResource("BoxMesh_17")
+material_override = SubResource("StandardMaterial3D_14")
 
 [node name="Colina12" type="MeshInstance3D" parent="Mundo/Viewport/Cenario"]
 transform = Transform3D(40.3343, 0, 0, 0, 64.4118, 0, 0, 0, 40, 140.0352, -27.7941, 190)
-mesh = SubResource("BoxMesh_31")
-material_override = SubResource("StandardMaterial3D_28")
+mesh = SubResource("BoxMesh_17")
+material_override = SubResource("StandardMaterial3D_14")
 
 [node name="Colina13" type="MeshInstance3D" parent="Mundo/Viewport/Cenario"]
 transform = Transform3D(32.5235, 0, 0, 0, 60.5118, 0, 0, 0, 40, 168.3973, -29.7441, 190)
-mesh = SubResource("BoxMesh_31")
-material_override = SubResource("StandardMaterial3D_28")
+mesh = SubResource("BoxMesh_17")
+material_override = SubResource("StandardMaterial3D_14")
 
 [node name="Colina14" type="MeshInstance3D" parent="Mundo/Viewport/Cenario"]
 transform = Transform3D(45.0882, 0, 0, 0, 60.9389, 0, 0, 0, 40, 200.6985, -29.5306, 190)
-mesh = SubResource("BoxMesh_31")
-material_override = SubResource("StandardMaterial3D_28")
+mesh = SubResource("BoxMesh_17")
+material_override = SubResource("StandardMaterial3D_14")
 
 [node name="Colina15" type="MeshInstance3D" parent="Mundo/Viewport/Cenario"]
 transform = Transform3D(43.5375, 0, 0, 0, 61.2587, 0, 0, 0, 40, 235.9937, -29.3707, 190)
-mesh = SubResource("BoxMesh_31")
-material_override = SubResource("StandardMaterial3D_28")
+mesh = SubResource("BoxMesh_17")
+material_override = SubResource("StandardMaterial3D_14")
 
 [node name="Colina16" type="MeshInstance3D" parent="Mundo/Viewport/Cenario"]
 transform = Transform3D(49.9032, 0, 0, 0, 60.8221, 0, 0, 0, 40, 274.0066, -29.589, 190)
-mesh = SubResource("BoxMesh_31")
-material_override = SubResource("StandardMaterial3D_28")
+mesh = SubResource("BoxMesh_17")
+material_override = SubResource("StandardMaterial3D_14")
 
 [node name="Vazio" type="MeshInstance3D" parent="Mundo/Viewport/Cenario"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -60, 150)
-mesh = SubResource("PlaneMesh_32")
-material_override = SubResource("StandardMaterial3D_28")
+mesh = SubResource("PlaneMesh_18")
+material_override = SubResource("StandardMaterial3D_14")
 
 [node name="LuzDistante" type="MeshInstance3D" parent="Mundo/Viewport/Cenario"]
 transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, 176.605, -4.0569, 168)
-mesh = SubResource("SphereMesh_33")
-material_override = SubResource("StandardMaterial3D_30")
+mesh = SubResource("SphereMesh_19")
+material_override = SubResource("StandardMaterial3D_16")
 
 [node name="LuzDistante2" type="MeshInstance3D" parent="Mundo/Viewport/Cenario"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -157.4593, -8.4528, 168)
-mesh = SubResource("SphereMesh_33")
-material_override = SubResource("StandardMaterial3D_29")
+mesh = SubResource("SphereMesh_19")
+material_override = SubResource("StandardMaterial3D_15")
 
 [node name="LuzDistante3" type="MeshInstance3D" parent="Mundo/Viewport/Cenario"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 196.2626, -4.8463, 168)
-mesh = SubResource("SphereMesh_33")
-material_override = SubResource("StandardMaterial3D_29")
+mesh = SubResource("SphereMesh_19")
+material_override = SubResource("StandardMaterial3D_15")
 
 [node name="LuzDistante4" type="MeshInstance3D" parent="Mundo/Viewport/Cenario"]
 transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, -134.7042, -0.9586, 168)
-mesh = SubResource("SphereMesh_33")
-material_override = SubResource("StandardMaterial3D_29")
+mesh = SubResource("SphereMesh_19")
+material_override = SubResource("StandardMaterial3D_15")
 
 [node name="LuzDistante5" type="MeshInstance3D" parent="Mundo/Viewport/Cenario"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 34.7432, -2.804, 168)
-mesh = SubResource("SphereMesh_33")
-material_override = SubResource("StandardMaterial3D_29")
+mesh = SubResource("SphereMesh_19")
+material_override = SubResource("StandardMaterial3D_15")
 
 [node name="LuzDistante6" type="MeshInstance3D" parent="Mundo/Viewport/Cenario"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 167.6223, -6.5719, 168)
-mesh = SubResource("SphereMesh_33")
-material_override = SubResource("StandardMaterial3D_29")
+mesh = SubResource("SphereMesh_19")
+material_override = SubResource("StandardMaterial3D_15")
 
 [node name="LuzDistante7" type="MeshInstance3D" parent="Mundo/Viewport/Cenario"]
 transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, -63.0534, -1.5363, 168)
-mesh = SubResource("SphereMesh_33")
-material_override = SubResource("StandardMaterial3D_30")
+mesh = SubResource("SphereMesh_19")
+material_override = SubResource("StandardMaterial3D_16")
 
 [node name="LuzDistante8" type="MeshInstance3D" parent="Mundo/Viewport/Cenario"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -160.6107, -2.5035, 168)
-mesh = SubResource("SphereMesh_33")
-material_override = SubResource("StandardMaterial3D_29")
+mesh = SubResource("SphereMesh_19")
+material_override = SubResource("StandardMaterial3D_15")
 
 [node name="LuzDistante9" type="MeshInstance3D" parent="Mundo/Viewport/Cenario"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -177.0487, -3.1335, 168)
-mesh = SubResource("SphereMesh_33")
-material_override = SubResource("StandardMaterial3D_29")
+mesh = SubResource("SphereMesh_19")
+material_override = SubResource("StandardMaterial3D_15")
 
 [node name="LuzDistante10" type="MeshInstance3D" parent="Mundo/Viewport/Cenario"]
 transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, 88.944, -0.925, 168)
-mesh = SubResource("SphereMesh_33")
-material_override = SubResource("StandardMaterial3D_29")
+mesh = SubResource("SphereMesh_19")
+material_override = SubResource("StandardMaterial3D_15")
 
 [node name="LuzDistante11" type="MeshInstance3D" parent="Mundo/Viewport/Cenario"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 151.1369, -4.7192, 168)
-mesh = SubResource("SphereMesh_33")
-material_override = SubResource("StandardMaterial3D_29")
+mesh = SubResource("SphereMesh_19")
+material_override = SubResource("StandardMaterial3D_15")
 
 [node name="LuzDistante12" type="MeshInstance3D" parent="Mundo/Viewport/Cenario"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -133.0348, -7.7236, 168)
-mesh = SubResource("SphereMesh_33")
-material_override = SubResource("StandardMaterial3D_29")
+mesh = SubResource("SphereMesh_19")
+material_override = SubResource("StandardMaterial3D_15")
 
 [node name="LuzDistante13" type="MeshInstance3D" parent="Mundo/Viewport/Cenario"]
 transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, 12.6369, -4.6668, 168)
-mesh = SubResource("SphereMesh_33")
-material_override = SubResource("StandardMaterial3D_30")
+mesh = SubResource("SphereMesh_19")
+material_override = SubResource("StandardMaterial3D_16")
 
 [node name="LuzDistante14" type="MeshInstance3D" parent="Mundo/Viewport/Cenario"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -188.5748, -1.3226, 168)
-mesh = SubResource("SphereMesh_33")
-material_override = SubResource("StandardMaterial3D_29")
+mesh = SubResource("SphereMesh_19")
+material_override = SubResource("StandardMaterial3D_15")
 
 [node name="LuzDistante15" type="MeshInstance3D" parent="Mundo/Viewport/Cenario"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.2636, -3.039, 168)
-mesh = SubResource("SphereMesh_33")
-material_override = SubResource("StandardMaterial3D_29")
+mesh = SubResource("SphereMesh_19")
+material_override = SubResource("StandardMaterial3D_15")
 
 [node name="LuzDistante16" type="MeshInstance3D" parent="Mundo/Viewport/Cenario"]
 transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, -123.2198, -6.927, 168)
-mesh = SubResource("SphereMesh_33")
-material_override = SubResource("StandardMaterial3D_29")
+mesh = SubResource("SphereMesh_19")
+material_override = SubResource("StandardMaterial3D_15")
 
 [node name="LuzDistante17" type="MeshInstance3D" parent="Mundo/Viewport/Cenario"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -214.7569, -6.0825, 168)
-mesh = SubResource("SphereMesh_33")
-material_override = SubResource("StandardMaterial3D_29")
+mesh = SubResource("SphereMesh_19")
+material_override = SubResource("StandardMaterial3D_15")
 
 [node name="LuzDistante18" type="MeshInstance3D" parent="Mundo/Viewport/Cenario"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -102.5894, -5.4011, 168)
-mesh = SubResource("SphereMesh_33")
-material_override = SubResource("StandardMaterial3D_29")
+mesh = SubResource("SphereMesh_19")
+material_override = SubResource("StandardMaterial3D_15")
 
 [node name="LuzDistante19" type="MeshInstance3D" parent="Mundo/Viewport/Cenario"]
 transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, -54.1525, -1.9083, 168)
-mesh = SubResource("SphereMesh_33")
-material_override = SubResource("StandardMaterial3D_30")
+mesh = SubResource("SphereMesh_19")
+material_override = SubResource("StandardMaterial3D_16")
 
 [node name="LuzDistante20" type="MeshInstance3D" parent="Mundo/Viewport/Cenario"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 172.2458, -7.5104, 168)
-mesh = SubResource("SphereMesh_33")
-material_override = SubResource("StandardMaterial3D_29")
+mesh = SubResource("SphereMesh_19")
+material_override = SubResource("StandardMaterial3D_15")
 
 [node name="LuzDistante21" type="MeshInstance3D" parent="Mundo/Viewport/Cenario"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -45.6439, -7.5875, 168)
-mesh = SubResource("SphereMesh_33")
-material_override = SubResource("StandardMaterial3D_29")
+mesh = SubResource("SphereMesh_19")
+material_override = SubResource("StandardMaterial3D_15")
 
 [node name="LuzDistante22" type="MeshInstance3D" parent="Mundo/Viewport/Cenario"]
 transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, 71.7954, -0.7138, 168)
-mesh = SubResource("SphereMesh_33")
-material_override = SubResource("StandardMaterial3D_29")
+mesh = SubResource("SphereMesh_19")
+material_override = SubResource("StandardMaterial3D_15")
 
 [node name="LuzDistante23" type="MeshInstance3D" parent="Mundo/Viewport/Cenario"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -131.2044, -2.485, 168)
-mesh = SubResource("SphereMesh_33")
-material_override = SubResource("StandardMaterial3D_29")
+mesh = SubResource("SphereMesh_19")
+material_override = SubResource("StandardMaterial3D_15")
 
 [node name="LuzDistante24" type="MeshInstance3D" parent="Mundo/Viewport/Cenario"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -87.9803, -8.8877, 168)
-mesh = SubResource("SphereMesh_33")
-material_override = SubResource("StandardMaterial3D_29")
+mesh = SubResource("SphereMesh_19")
+material_override = SubResource("StandardMaterial3D_15")
 
 [node name="LuzDistante25" type="MeshInstance3D" parent="Mundo/Viewport/Cenario"]
 transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, 116.2912, -6.0946, 168)
-mesh = SubResource("SphereMesh_33")
-material_override = SubResource("StandardMaterial3D_30")
+mesh = SubResource("SphereMesh_19")
+material_override = SubResource("StandardMaterial3D_16")
 
 [node name="LuzDistante26" type="MeshInstance3D" parent="Mundo/Viewport/Cenario"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -145.1309, -5.2973, 168)
-mesh = SubResource("SphereMesh_33")
-material_override = SubResource("StandardMaterial3D_29")
+mesh = SubResource("SphereMesh_19")
+material_override = SubResource("StandardMaterial3D_15")
 
 [node name="LuzDistante27" type="MeshInstance3D" parent="Mundo/Viewport/Cenario"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -118.0435, -5.5141, 168)
-mesh = SubResource("SphereMesh_33")
-material_override = SubResource("StandardMaterial3D_29")
+mesh = SubResource("SphereMesh_19")
+material_override = SubResource("StandardMaterial3D_15")
 
 [node name="LuzDistante28" type="MeshInstance3D" parent="Mundo/Viewport/Cenario"]
 transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, -23.7365, -5.4473, 168)
-mesh = SubResource("SphereMesh_33")
-material_override = SubResource("StandardMaterial3D_29")
+mesh = SubResource("SphereMesh_19")
+material_override = SubResource("StandardMaterial3D_15")
 
 [node name="LuzDistante29" type="MeshInstance3D" parent="Mundo/Viewport/Cenario"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 38.9438, -6.5457, 168)
-mesh = SubResource("SphereMesh_33")
-material_override = SubResource("StandardMaterial3D_29")
+mesh = SubResource("SphereMesh_19")
+material_override = SubResource("StandardMaterial3D_15")
 
 [node name="LuzDistante30" type="MeshInstance3D" parent="Mundo/Viewport/Cenario"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -178.1508, -8.2753, 168)
-mesh = SubResource("SphereMesh_33")
-material_override = SubResource("StandardMaterial3D_29")
+mesh = SubResource("SphereMesh_19")
+material_override = SubResource("StandardMaterial3D_15")
 
 [node name="LuzDistante31" type="MeshInstance3D" parent="Mundo/Viewport/Cenario"]
 transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, -173.1297, -4.572, 168)
-mesh = SubResource("SphereMesh_33")
-material_override = SubResource("StandardMaterial3D_30")
+mesh = SubResource("SphereMesh_19")
+material_override = SubResource("StandardMaterial3D_16")
 
 [node name="LuzDistante32" type="MeshInstance3D" parent="Mundo/Viewport/Cenario"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -61.5279, -2.1346, 168)
-mesh = SubResource("SphereMesh_33")
-material_override = SubResource("StandardMaterial3D_29")
+mesh = SubResource("SphereMesh_19")
+material_override = SubResource("StandardMaterial3D_15")
 
 [node name="LuzDistante33" type="MeshInstance3D" parent="Mundo/Viewport/Cenario"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.1662, -2.9805, 168)
-mesh = SubResource("SphereMesh_33")
-material_override = SubResource("StandardMaterial3D_29")
+mesh = SubResource("SphereMesh_19")
+material_override = SubResource("StandardMaterial3D_15")
 
 [node name="LuzDistante34" type="MeshInstance3D" parent="Mundo/Viewport/Cenario"]
 transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, 211.2315, -8.4647, 168)
-mesh = SubResource("SphereMesh_33")
-material_override = SubResource("StandardMaterial3D_29")
+mesh = SubResource("SphereMesh_19")
+material_override = SubResource("StandardMaterial3D_15")
 
 [node name="LuzDistante35" type="MeshInstance3D" parent="Mundo/Viewport/Cenario"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -212.5454, -7.8067, 168)
-mesh = SubResource("SphereMesh_33")
-material_override = SubResource("StandardMaterial3D_29")
+mesh = SubResource("SphereMesh_19")
+material_override = SubResource("StandardMaterial3D_15")
 
 [node name="LuzDistante36" type="MeshInstance3D" parent="Mundo/Viewport/Cenario"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -50.0135, -4.1238, 168)
-mesh = SubResource("SphereMesh_33")
-material_override = SubResource("StandardMaterial3D_29")
+mesh = SubResource("SphereMesh_19")
+material_override = SubResource("StandardMaterial3D_15")
 
 [node name="LuzDistante37" type="MeshInstance3D" parent="Mundo/Viewport/Cenario"]
 transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, 107.2509, -6.0127, 168)
-mesh = SubResource("SphereMesh_33")
-material_override = SubResource("StandardMaterial3D_30")
+mesh = SubResource("SphereMesh_19")
+material_override = SubResource("StandardMaterial3D_16")
 
 [node name="LuzDistante38" type="MeshInstance3D" parent="Mundo/Viewport/Cenario"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 204.5833, -8.975, 168)
-mesh = SubResource("SphereMesh_33")
-material_override = SubResource("StandardMaterial3D_29")
+mesh = SubResource("SphereMesh_19")
+material_override = SubResource("StandardMaterial3D_15")
 
 [node name="LuzDistante39" type="MeshInstance3D" parent="Mundo/Viewport/Cenario"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 147.6985, -7.2143, 168)
-mesh = SubResource("SphereMesh_33")
-material_override = SubResource("StandardMaterial3D_29")
+mesh = SubResource("SphereMesh_19")
+material_override = SubResource("StandardMaterial3D_15")
 
 [node name="LuzDistante40" type="MeshInstance3D" parent="Mundo/Viewport/Cenario"]
 transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, 165.0788, -8.7185, 168)
-mesh = SubResource("SphereMesh_33")
-material_override = SubResource("StandardMaterial3D_29")
+mesh = SubResource("SphereMesh_19")
+material_override = SubResource("StandardMaterial3D_15")
 
 [node name="LuzDistante41" type="MeshInstance3D" parent="Mundo/Viewport/Cenario"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 204.6716, -2.5453, 168)
-mesh = SubResource("SphereMesh_33")
-material_override = SubResource("StandardMaterial3D_29")
+mesh = SubResource("SphereMesh_19")
+material_override = SubResource("StandardMaterial3D_15")
 
 [node name="LuzDistante42" type="MeshInstance3D" parent="Mundo/Viewport/Cenario"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 215.8023, -4.0699, 168)
-mesh = SubResource("SphereMesh_33")
-material_override = SubResource("StandardMaterial3D_29")
+mesh = SubResource("SphereMesh_19")
+material_override = SubResource("StandardMaterial3D_15")
 
 [node name="LuzDistante43" type="MeshInstance3D" parent="Mundo/Viewport/Cenario"]
 transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, -141.7689, -0.7561, 168)
-mesh = SubResource("SphereMesh_33")
-material_override = SubResource("StandardMaterial3D_30")
+mesh = SubResource("SphereMesh_19")
+material_override = SubResource("StandardMaterial3D_16")
 
 [node name="LuzDistante44" type="MeshInstance3D" parent="Mundo/Viewport/Cenario"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -25.7295, -8.2915, 168)
-mesh = SubResource("SphereMesh_33")
-material_override = SubResource("StandardMaterial3D_29")
+mesh = SubResource("SphereMesh_19")
+material_override = SubResource("StandardMaterial3D_15")
 
 [node name="LuzDistante45" type="MeshInstance3D" parent="Mundo/Viewport/Cenario"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 46.3768, -4.7737, 168)
-mesh = SubResource("SphereMesh_33")
-material_override = SubResource("StandardMaterial3D_29")
+mesh = SubResource("SphereMesh_19")
+material_override = SubResource("StandardMaterial3D_15")
 
 [node name="LuzDistante46" type="MeshInstance3D" parent="Mundo/Viewport/Cenario"]
 transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, -11.7974, -7.6866, 168)
-mesh = SubResource("SphereMesh_33")
-material_override = SubResource("StandardMaterial3D_29")
+mesh = SubResource("SphereMesh_19")
+material_override = SubResource("StandardMaterial3D_15")
 
 [node name="LuzDistante47" type="MeshInstance3D" parent="Mundo/Viewport/Cenario"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -166.3103, -4.0637, 168)
-mesh = SubResource("SphereMesh_33")
-material_override = SubResource("StandardMaterial3D_29")
+mesh = SubResource("SphereMesh_19")
+material_override = SubResource("StandardMaterial3D_15")
 
 [node name="LuzDistante48" type="MeshInstance3D" parent="Mundo/Viewport/Cenario"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20.8168, -7.9252, 168)
-mesh = SubResource("SphereMesh_33")
-material_override = SubResource("StandardMaterial3D_29")
+mesh = SubResource("SphereMesh_19")
+material_override = SubResource("StandardMaterial3D_15")
 
 [node name="LuzDistante49" type="MeshInstance3D" parent="Mundo/Viewport/Cenario"]
 transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, -26.6272, -2.833, 168)
-mesh = SubResource("SphereMesh_33")
-material_override = SubResource("StandardMaterial3D_30")
+mesh = SubResource("SphereMesh_19")
+material_override = SubResource("StandardMaterial3D_16")
 
 [node name="LuzDistante50" type="MeshInstance3D" parent="Mundo/Viewport/Cenario"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 94.8153, -4.994, 168)
-mesh = SubResource("SphereMesh_33")
-material_override = SubResource("StandardMaterial3D_29")
+mesh = SubResource("SphereMesh_19")
+material_override = SubResource("StandardMaterial3D_15")
 
 [node name="LuzDistante51" type="MeshInstance3D" parent="Mundo/Viewport/Cenario"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -46.7487, -5.9331, 168)
-mesh = SubResource("SphereMesh_33")
-material_override = SubResource("StandardMaterial3D_29")
+mesh = SubResource("SphereMesh_19")
+material_override = SubResource("StandardMaterial3D_15")
 
 [node name="LuzDistante52" type="MeshInstance3D" parent="Mundo/Viewport/Cenario"]
 transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, -120.7714, -7.3212, 168)
-mesh = SubResource("SphereMesh_33")
-material_override = SubResource("StandardMaterial3D_29")
+mesh = SubResource("SphereMesh_19")
+material_override = SubResource("StandardMaterial3D_15")
 
 [node name="LuzDistante53" type="MeshInstance3D" parent="Mundo/Viewport/Cenario"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -23.6626, -8.0804, 168)
-mesh = SubResource("SphereMesh_33")
-material_override = SubResource("StandardMaterial3D_29")
+mesh = SubResource("SphereMesh_19")
+material_override = SubResource("StandardMaterial3D_15")
 
 [node name="LuzDistante54" type="MeshInstance3D" parent="Mundo/Viewport/Cenario"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 99.062, -2.9793, 168)
-mesh = SubResource("SphereMesh_33")
-material_override = SubResource("StandardMaterial3D_29")
+mesh = SubResource("SphereMesh_19")
+material_override = SubResource("StandardMaterial3D_15")
 
 [node name="LuzDistante55" type="MeshInstance3D" parent="Mundo/Viewport/Cenario"]
 transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, 49.0681, -8.8078, 168)
-mesh = SubResource("SphereMesh_33")
-material_override = SubResource("StandardMaterial3D_30")
+mesh = SubResource("SphereMesh_19")
+material_override = SubResource("StandardMaterial3D_16")
 
 [node name="LuzDistante56" type="MeshInstance3D" parent="Mundo/Viewport/Cenario"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -59.7968, -5.3244, 168)
-mesh = SubResource("SphereMesh_33")
-material_override = SubResource("StandardMaterial3D_29")
+mesh = SubResource("SphereMesh_19")
+material_override = SubResource("StandardMaterial3D_15")
 
 [node name="LuzDistante57" type="MeshInstance3D" parent="Mundo/Viewport/Cenario"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -178.9323, -0.7738, 168)
-mesh = SubResource("SphereMesh_33")
-material_override = SubResource("StandardMaterial3D_29")
+mesh = SubResource("SphereMesh_19")
+material_override = SubResource("StandardMaterial3D_15")
 
 [node name="LuzDistante58" type="MeshInstance3D" parent="Mundo/Viewport/Cenario"]
 transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, 112.4777, -4.728, 168)
-mesh = SubResource("SphereMesh_33")
-material_override = SubResource("StandardMaterial3D_29")
+mesh = SubResource("SphereMesh_19")
+material_override = SubResource("StandardMaterial3D_15")
 
 [node name="LuzDistante59" type="MeshInstance3D" parent="Mundo/Viewport/Cenario"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 90.2751, -7.2943, 168)
-mesh = SubResource("SphereMesh_33")
-material_override = SubResource("StandardMaterial3D_29")
+mesh = SubResource("SphereMesh_19")
+material_override = SubResource("StandardMaterial3D_15")
 
 [node name="LuzDistante60" type="MeshInstance3D" parent="Mundo/Viewport/Cenario"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -119.0489, -4.5312, 168)
-mesh = SubResource("SphereMesh_33")
-material_override = SubResource("StandardMaterial3D_29")
+mesh = SubResource("SphereMesh_19")
+material_override = SubResource("StandardMaterial3D_15")
 
 [node name="LuzDistante61" type="MeshInstance3D" parent="Mundo/Viewport/Cenario"]
 transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, 107.3385, -3.4982, 168)
-mesh = SubResource("SphereMesh_33")
-material_override = SubResource("StandardMaterial3D_30")
+mesh = SubResource("SphereMesh_19")
+material_override = SubResource("StandardMaterial3D_16")
 
 [node name="LuzDistante62" type="MeshInstance3D" parent="Mundo/Viewport/Cenario"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -217.0585, -3.7881, 168)
-mesh = SubResource("SphereMesh_33")
-material_override = SubResource("StandardMaterial3D_29")
+mesh = SubResource("SphereMesh_19")
+material_override = SubResource("StandardMaterial3D_15")
 
 [node name="LuzDistante63" type="MeshInstance3D" parent="Mundo/Viewport/Cenario"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 179.8945, -2.682, 168)
-mesh = SubResource("SphereMesh_33")
-material_override = SubResource("StandardMaterial3D_29")
+mesh = SubResource("SphereMesh_19")
+material_override = SubResource("StandardMaterial3D_15")
 
 [node name="LuzDistante64" type="MeshInstance3D" parent="Mundo/Viewport/Cenario"]
 transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, 188.1352, -0.6553, 168)
-mesh = SubResource("SphereMesh_33")
-material_override = SubResource("StandardMaterial3D_29")
+mesh = SubResource("SphereMesh_19")
+material_override = SubResource("StandardMaterial3D_15")
 
 [node name="LuzDistante65" type="MeshInstance3D" parent="Mundo/Viewport/Cenario"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -121.586, -6.4804, 168)
-mesh = SubResource("SphereMesh_33")
-material_override = SubResource("StandardMaterial3D_29")
+mesh = SubResource("SphereMesh_19")
+material_override = SubResource("StandardMaterial3D_15")
 
 [node name="LuzDistante66" type="MeshInstance3D" parent="Mundo/Viewport/Cenario"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20.829, -0.6972, 168)
-mesh = SubResource("SphereMesh_33")
-material_override = SubResource("StandardMaterial3D_29")
+mesh = SubResource("SphereMesh_19")
+material_override = SubResource("StandardMaterial3D_15")
 
 [node name="LuzDistante67" type="MeshInstance3D" parent="Mundo/Viewport/Cenario"]
 transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, -57.5283, -0.9979, 168)
-mesh = SubResource("SphereMesh_33")
-material_override = SubResource("StandardMaterial3D_30")
+mesh = SubResource("SphereMesh_19")
+material_override = SubResource("StandardMaterial3D_16")
 
 [node name="LuzDistante68" type="MeshInstance3D" parent="Mundo/Viewport/Cenario"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 154.2123, -4.6117, 168)
-mesh = SubResource("SphereMesh_33")
-material_override = SubResource("StandardMaterial3D_29")
+mesh = SubResource("SphereMesh_19")
+material_override = SubResource("StandardMaterial3D_15")
 
 [node name="LuzDistante69" type="MeshInstance3D" parent="Mundo/Viewport/Cenario"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 55.0493, -0.8651, 168)
-mesh = SubResource("SphereMesh_33")
-material_override = SubResource("StandardMaterial3D_29")
+mesh = SubResource("SphereMesh_19")
+material_override = SubResource("StandardMaterial3D_15")
 
 [node name="LuzDistante70" type="MeshInstance3D" parent="Mundo/Viewport/Cenario"]
 transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, 124.6403, -6.4855, 168)
-mesh = SubResource("SphereMesh_33")
-material_override = SubResource("StandardMaterial3D_29")
+mesh = SubResource("SphereMesh_19")
+material_override = SubResource("StandardMaterial3D_15")
 
 [node name="Vinheta" type="ColorRect" parent="."]
 layout_mode = 3
@@ -1054,7 +869,7 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 color = Color(1, 1, 1, 1)
-material = SubResource("ShaderMaterial_34")
+material = SubResource("ShaderMaterial_20")
 
 [node name="Tremor" type="ColorRect" parent="."]
 layout_mode = 3
@@ -1066,7 +881,7 @@ grow_vertical = 2
 mouse_filter = 2
 color = Color(1, 1, 1, 1)
 unique_name_in_owner = true
-material = SubResource("ShaderMaterial_35")
+material = SubResource("ShaderMaterial_21")
 
 [node name="Escuro" type="ColorRect" parent="."]
 layout_mode = 3
@@ -1092,7 +907,7 @@ mouse_filter = 2
 horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 3
-script = ExtResource("7_texto_solto")
+script = ExtResource("11_texto_solto")
 tempo_fade = 0.35
 tempo_minimo = 0.5
 tempo_por_letra = 0.02

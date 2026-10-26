@@ -112,5 +112,22 @@ Apollon: [#retrato=neutro] Quero que lhe dê uma chance de se tornar uma. [ID:CA
 	$> Relacoes.ajustar("apollon", 0)
 Nicholas: [#retrato=neutro] Está bem. Ensinarei tudo o que puder. Ninguém merece um destino tão terrível quanto depender de você como tutor. [ID:CAP1_276]
 Nicholas: [#retrato=neutro] Mas não espere que eu me torne amigo dela. [ID:CAP1_277]
-Apollon: [#retrato=neutro] Naturalmente. Jamais esperaria isso. [ID:CAP1_278]
+=> END
+
+~ frases_silencio
+
+## O fim do capítulo, como no livro: Nicholas de costas, o silêncio do pai.
+O silêncio atrás dele durou um pouco mais do que deveria. [ID:CAP1_283]
+=> END
+
+~ frases_sorriso
+
+## Ele olha por cima do ombro.
+Quando Nicholas olhou por cima do ombro, encontrou no rosto do pai um sorriso quase melancólico. [ID:CAP1_284]
+Parecia a expressão de alguém que acabara de ouvir uma ingenuidade e sabia que o tempo se encarregaria de corrigi-la. [ID:CAP1_285]
+=> END
+
+~ naturalmente
+
+Apollon: [#retrato=alegre] Naturalmente. Jamais esperaria isso. [ID:CAP1_278]
 => END

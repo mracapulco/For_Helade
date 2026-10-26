@@ -198,6 +198,12 @@ func _ativar(objeto: Node2D, ativo: bool) -> void:
 	var area := objeto.get_node_or_null("Interagivel") as Interagivel
 	if area == null:
 		return
+	# Montada antes de a sala entrar na árvore, a área ainda não rodou o
+	# _ready, que a liga de novo (e o anel aparecia sem ter o que fazer):
+	# aplica depois dele.
+	if not area.is_node_ready():
+		area.ready.connect(_ativar.bind(objeto, ativo), CONNECT_ONE_SHOT)
+		return
 	if ativo:
 		area.add_to_group(Interagivel.GRUPO_INTERAGIVEIS)
 		area.collision_layer = Interagivel.CAMADA_INTERAGIVEIS

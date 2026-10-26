@@ -25,6 +25,20 @@ const ENTRADAS := {
 	"imperatriz_callie": TIPO_CODICE,
 	"atenas": TIPO_CODICE,
 	"palacio_imperial": TIPO_CODICE,
+	# Capítulo 01, cenas 7 a 10: o Palácio, a Rua das Butiques.
+	"poucos_guardas": TIPO_OLHAR,
+	"olhos_de_ophelia": TIPO_OLHAR,
+	"anexo_vazio": TIPO_OLHAR,
+	"rua_das_butiques": TIPO_CODICE,
+	# Capítulo 01, cena 11: o passeio (livraria; texto do pré-textual do V1).
+	"ano_dourado": TIPO_CODICE,
+	# Capítulo 01, cenas 12 e 13: a volta à mansão e a antessala.
+	"danica_desvia_o_olhar": TIPO_OLHAR,
+	"elogio_do_duque": TIPO_OLHAR,
+	"decisao_do_imperador": TIPO_CODICE,
+	"ophelia_abencoada": TIPO_CODICE,
+	"tristan": TIPO_CODICE,
+	"apoio_de_olympia": TIPO_CODICE,
 	# Biblioteca do Castelo Olympia (sala de desafio, P5; V1 P1 c05).
 	"pilhas_de_livros": TIPO_OLHAR,
 	"mesa_de_xadrez": TIPO_OLHAR,

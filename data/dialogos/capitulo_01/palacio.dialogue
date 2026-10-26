@@ -1,0 +1,91 @@
+## Capítulo 01 de "Pelos Olhos Dele", cena 7: o Palácio Imperial (livro,
+## l. ~255-315). Só frases-chave do livro, sem mudar as palavras. Os
+## marcadores "frases_..." aparecem e somem sozinhos na tela; os outros
+## abrem a caixa de diálogo. Sem escolhas nesta cena (o livro não deixa
+## brecha: Nicholas só observa).
+## Cada marcador é um ponto para a cena jogável chamar (pátio, fonte,
+## postos de guarda, anexo, carruagem).
+
+~ frases_palacio_chegada
+
+## A carruagem entra no pátio.
+O Palácio Imperial se ergueu diante de nós. [ID:CAP1_107]
+Tudo era excessivo. Alto demais, amplo demais, ornamentado demais. [ID:CAP1_108]
+## Logo ao descer: Althea vê a fonte (Rafael, 21/10/2026: no alto).
+A fonte central jorrava água que, aos olhos de Althea, eram diamantes líquidos. [ID:CAP1_109]
+=> END
+
+~ fonte
+
+## Logo ao descer: Althea vê a fonte e corre até ela (Nicholas a segue).
+Althea: [#retrato=neutro] Nick… olha isso… [ID:CAP1_110]
+=> END
+
+~ frases_poucos_guardas
+
+## No caminho para a fonte, passando pelos postos de guarda quase vazios.
+Poucos guardas. Poucos demais para alguém como uma princesa. [ID:CAP1_111]
+$> Codice.anotar("poucos_guardas")
+=> END
+
+~ anuncio
+
+## Ophelia aparece no portal e o guarda anuncia os irmãos (Rafael, 26/10/2026).
+Guarda: [#retrato=neutro] Anunciando os filhos do Duque de Olympia, Jovem Mestre Nicholas e Lady Althea! [ID:CAP1_112]
+=> END
+
+~ apresentacao
+
+## Ophelia chega até eles e os recebe.
+Nicholas: [#retrato=neutro] É uma honra conhecê-la, Princesa Ophelia. [ID:CAP1_113]
+Althea: [#retrato=neutro] P-prazer… Princesa. [ID:CAP1_114]
+Ophelia: [#retrato=neutro] A honra é minha, filhos de Olympia. Fico feliz de estar aos seus cuidados. [ID:CAP1_115]
+=> END
+
+~ frases_olhos_de_ophelia
+
+## Logo depois da apresentação, no alto (Rafael, 21/10/2026).
+Essa foi a primeira vez que nós vimos a princesa. [ID:CAP1_116]
+Os olhos dela também eram assim… como os meus. [ID:CAP1_117]
+$> Codice.anotar("olhos_de_ophelia")
+=> END
+
+~ ophelia_riu
+
+## Althea rompe o momento.
+Althea: [#retrato=neutro] Minha Hera! Princesa, você é muito bonita! [ID:CAP1_120]
+=> END
+
+~ pedido_loja
+
+## Ophelia pede para passar numa loja.
+Ophelia: [#retrato=neutro] Aceite meus parabéns, Lady Althea. Não consegui preparar nada. Se não se importarem… Poderíamos passar em alguma loja? Comprar um presente? [ID:CAP1_123]
+Althea: [#retrato=neutro] Podemos, Nick? Já que vamos almoçar fora? [ID:CAP1_124]
+Nicholas: [#retrato=neutro] Se quiser, Thea. [ID:CAP1_125]
+=> END
+
+~ frases_anexo
+
+## Os guardas recuam para o anexo.
+Nenhum guarda as seguiu. Pelo contrário, recuaram, em silêncio, para o anexo. [ID:CAP1_126]
+=> END
+
+~ frases_anexo_vazio
+
+## Último olhar ao anexo.
+Antes de entrar, lancei um último olhar ao anexo. Vazio. [ID:CAP1_129]
+$> Codice.anotar("anexo_vazio")
+=> END
+
+~ escolta
+
+## Sem dama de companhia nem escolta.
+Nicholas: [#retrato=neutro] A Princesa não levará nenhuma dama de companhia? Ou escolta? [ID:CAP1_130]
+Ophelia: [#retrato=neutro] Oh… Bem… Acredito que estarei segura com os guardas de Olympia. São conhecidos por sua lealdade. [ID:CAP1_131]
+=> END
+
+~ frases_partida
+
+## Logo depois da escolta, no alto; a carruagem parte.
+Sim. Leais à Olympia. Não ao Império. [ID:CAP1_132]
+=> END

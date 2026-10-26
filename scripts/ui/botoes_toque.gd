@@ -36,7 +36,7 @@ func _ready() -> void:
 
 
 func deve_aparecer() -> bool:
-	return sempre_mostrar or DisplayServer.is_touchscreen_available() or OS.has_feature("mobile")
+	return sempre_mostrar or Configuracoes.mostrar_botoes_toque()
 
 
 ## Aperta e solta "pular", como um toque rápido em Espaço. Sem soltar, a ação

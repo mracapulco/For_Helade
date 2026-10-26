@@ -1,0 +1,133 @@
+## Capítulo 01 de "Pelos Olhos Dele", cenas 12 e 13: a volta à mansão e a
+## antessala com o Duque, fim do capítulo (livro, l. ~565-739). Só
+## frases-chave, sem mudar as palavras (a narração na voz de Nicholas, como
+## o resto do capítulo). A conversa com o Duque é uma sequência com duas
+## opções por vez, como em Skyrim (Rafael, 25/10/2026): os rótulos entre
+## colchetes são texto do jogo, NÃO do livro; as falas são sempre as do
+## livro. Calar pula a fala de Nicholas quando a do Duque ainda faz sentido
+## sem ela; o tom só muda o retrato e a relação com o Duque (regra do jogo),
+## nunca o rumo.
+
+~ frases_chegada
+
+## As carruagens e a escadaria.
+As carruagens já nos aguardavam quando retornamos à mansão da família em Atenas. [ID:CAP1_241]
+O duque Apollon aguardava no alto da escadaria. Uma mulher estava ao lado dele. [ID:CAP1_242]
+Danica existia. E estava ali. [ID:CAP1_243]
+=> END
+
+~ apollon_recebe
+
+## Apollon desce e recebe Ophelia.
+Apollon: [#retrato=neutro] Princesa Ophelia, é um prazer recebê-la sob os cuidados de nossa casa. [ID:CAP1_244]
+Ophelia: [#retrato=neutro] Duque de Olympia, a honra é minha. Agradeço por me receber. [ID:CAP1_245]
+Apollon: [#retrato=neutro] Princesa Ophelia, Althea, acompanhem Danica até a carruagem. Partiremos em breve. [ID:CAP1_246]
+Apollon: [#retrato=neutro] Nicholas, preciso de uma última palavra a sós. Venha comigo. [ID:CAP1_247]
+Nicholas: [#retrato=neutro] Sim, Duque. [ID:CAP1_248]
+=> END
+
+~ frases_olhar_danica
+
+## Opcional: Nicholas encara Danica.
+Ela não tentou se aproximar. Nem mesmo sustentou meu olhar por muito tempo. [ID:CAP1_249]
+=> END
+
+~ frases_danica
+
+## Danica leva Althea; Nicholas vai atrás do pai.
+Danica estendeu a mão para Thea com cuidado, como se temesse assustá-la. [ID:CAP1_250]
+Senti o sangue ferver. [ID:CAP1_251]
+=> END
+
+~ frases_antessala
+
+## A porta fechada.
+Conversas que exigiam portas fechadas raramente traziam algo bom. [ID:CAP1_252]
+=> END
+
+
+~ conversa
+
+## O pedido. Duas opções por vez; as falas são as do livro.
+Apollon: [#retrato=neutro] Nicholas, serei direto. Durante o período em que a Princesa estiver em nossa casa, quero que lhe ensine tudo o que puder. [ID:CAP1_253]
+- [Perguntar o que ele quer dizer] [ID:CAP1_OPC_DUQUE_TUDO]
+	Nicholas: [#retrato=surpresa] Tudo o quê? [ID:CAP1_254]
+- [Esperar que ele continue] [ID:CAP1_OPC_DUQUE_ESPERAR]
+	$> Relacoes.ajustar("apollon", 1)
+Apollon: [#retrato=neutro] Finanças. Gestão de propriedades. Comércio. Relações entre as Casas. Tudo o que seus tutores já lhe ensinaram e tudo o que aprendeu comigo. [ID:CAP1_255]
+- [Questionar a escolha] [ID:CAP1_OPC_DUQUE_QUESTIONAR]
+	$> Relacoes.ajustar("apollon", -1)
+- [Perguntar com calma] [ID:CAP1_OPC_DUQUE_CALMA]
+	$> Relacoes.ajustar("apollon", 0)
+Nicholas: [#retrato=neutro] Há bons tutores em Olympia. Por que deveria ser eu? [ID:CAP1_256]
+Apollon: [#retrato=neutro] Porque você é excepcional. [ID:CAP1_257]
+Apollon: [#retrato=neutro] Você está à frente de outras crianças da sua idade. Compreende assuntos que muitos adultos preferem ignorar. E preciso que use isso para ajudá-la. [ID:CAP1_258]
+$> Codice.anotar("elogio_do_duque")
+- [Perguntar por quê] [ID:CAP1_OPC_DUQUE_POR_QUE]
+	Nicholas: [#retrato=neutro] Por quê? [ID:CAP1_259]
+- [Encará-lo em silêncio] [ID:CAP1_OPC_DUQUE_SILENCIO]
+	$> Relacoes.ajustar("apollon", -1)
+Apollon: [#retrato=neutro] O Imperador Varsélios tomou uma decisão controversa. Neste Ciclo, os Abençoados não receberão a mesma educação. As meninas ficarão em desvantagem. [ID:CAP1_260]
+$> Codice.anotar("decisao_do_imperador")
+- [Dizer o que pensa] [ID:CAP1_OPC_DUQUE_ABSURDO]
+	Nicholas: [#retrato=neutro] Isso é absurdo. [ID:CAP1_261]
+	Apollon: [#retrato=neutro] Sim. [ID:CAP1_262]
+	$> Relacoes.ajustar("apollon", 1)
+- [Guardar para si] [ID:CAP1_OPC_DUQUE_GUARDAR]
+	$> Relacoes.ajustar("apollon", 0)
+Nicholas: [#retrato=neutro] Mas o que a Princesa tem a ver com isso? [ID:CAP1_263]
+Apollon: [#retrato=neutro] Ophelia também é uma Abençoada. [ID:CAP1_264]
+$> Codice.anotar("ophelia_abencoada")
+=> END
+
+~ frases_doze
+
+## Narração (só no texto de cima, nunca na caixa; Rafael 25/10/2026).
+Doze crianças para o Vigésimo Ciclo. E Ophelia era uma delas. [ID:CAP1_265]
+=> END
+
+~ conversa_fim
+
+Apollon: [#retrato=neutro] Ainda há mais. Varsélios não declarou quem herdará o trono. Ophelia é a única princesa legítima do Império, a única filha da Imperatriz Callie. [ID:CAP1_279]
+Nicholas: [#retrato=neutro] Se Ophelia é a única Princesa legítima, por que simplesmente não assume o trono quando o Imperador... Quando chegar o momento? [ID:CAP1_266]
+Apollon: [#retrato=neutro] Existe um Príncipe. Filho de uma das concubinas de Varsélios. [ID:CAP1_267]
+- [Perguntar se é legítimo] [ID:CAP1_OPC_DUQUE_LEGITIMO]
+	Nicholas: [#retrato=neutro] Legítimo? [ID:CAP1_268]
+	Apollon: [#retrato=neutro] Não. [ID:CAP1_269]
+	Nicholas: [#retrato=neutro] Então ele não deveria importar. [ID:CAP1_280]
+- [Esperar que ele diga o nome] [ID:CAP1_OPC_DUQUE_NOME]
+	$> Relacoes.ajustar("apollon", 0)
+Apollon: [#retrato=neutro] Dever e poder raramente significam a mesma coisa, Nicholas. O garoto se chama Tristan e deve ter a idade de Althea. [ID:CAP1_281]
+Nicholas: [#retrato=neutro] E o Imperador? [ID:CAP1_270]
+Apollon: [#retrato=neutro] Ainda não escolheu. [ID:CAP1_271]
+$> Codice.anotar("tristan")
+Nicholas: [#retrato=neutro] E o que isso tem a ver conosco? [ID:CAP1_272]
+Apollon: [#retrato=neutro] Olympia é uma das Casas mais poderosas de Hélade. Quando chegar o momento, nosso apoio terá peso. E nós apoiaremos a ascensão da princesa Ophelia. [ID:CAP1_273]
+$> Codice.anotar("apoio_de_olympia")
+Nicholas: [#retrato=neutro] Então, quer que eu a ensine para transformá-la em Imperatriz? [ID:CAP1_274]
+Apollon: [#retrato=neutro] Quero que lhe dê uma chance de se tornar uma. [ID:CAP1_275]
+- [Aceitar com ironia] [ID:CAP1_OPC_DUQUE_IRONIA]
+	$> Relacoes.ajustar("apollon", -1)
+- [Aceitar a contragosto] [ID:CAP1_OPC_DUQUE_CONTRAGOSTO]
+	$> Relacoes.ajustar("apollon", 0)
+Nicholas: [#retrato=neutro] Está bem. Ensinarei tudo o que puder. Ninguém merece um destino tão terrível quanto depender de você como tutor. [ID:CAP1_276]
+Nicholas: [#retrato=neutro] Mas não espere que eu me torne amigo dela. [ID:CAP1_277]
+=> END
+
+~ frases_silencio
+
+## O fim do capítulo, como no livro: Nicholas de costas, o silêncio do pai.
+O silêncio atrás dele durou um pouco mais do que deveria. [ID:CAP1_283]
+=> END
+
+~ frases_sorriso
+
+## Ele olha por cima do ombro.
+Quando Nicholas olhou por cima do ombro, encontrou no rosto do pai um sorriso quase melancólico. [ID:CAP1_284]
+Parecia a expressão de alguém que acabara de ouvir uma ingenuidade e sabia que o tempo se encarregaria de corrigi-la. [ID:CAP1_285]
+=> END
+
+~ naturalmente
+
+Apollon: [#retrato=alegre] Naturalmente. Jamais esperaria isso. [ID:CAP1_278]
+=> END

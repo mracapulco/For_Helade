@@ -20,13 +20,13 @@ Início da Primavera. 12º ano do 20º Ciclo. [ID:CAP1_002]
 ## O corredor quente do sonho; Nicholas segue a garota.
 Tic. [ID:CAP1_003]
 Tac. [ID:CAP1_004]
-Por um corredor não familiar ele seguia uma garota. [ID:CAP1_005]
+Eu estava ali, seguindo uma garota. Estávamos em um corredor não muito familiar. [ID:CAP1_005]
 => END
 
 ~ frases_porta_do_sonho
 
 ## A porta do fim do corredor se abre para o frio.
-À sua frente, ela parou. E nada disse. [ID:CAP1_012]
+De repente, ela parou na minha frente. [ID:CAP1_012]
 Tic. [ID:CAP1_014]
 Tac. [ID:CAP1_015]
 => END
@@ -34,28 +34,21 @@ Tac. [ID:CAP1_015]
 ~ frases_despertar
 
 ## Nicholas acorda no próprio quarto, antes do amanhecer.
-Nicholas acordou em um salto. [ID:CAP1_016]
-Era o aniversário de Thea. [ID:CAP1_019]
+Aquela manhã, acordei em um salto. [ID:CAP1_016]
+Era o aniversário da Thea. [ID:CAP1_019]
 => END
 
-~ frases_espelho
+~ espelho_sem_roupa
 
-## Diante do espelho, grande demais para o quarto.
-Abençoado por Apolo do Vigésimo Ciclo. [ID:CAP1_025]
-Herdeiro da Casa Olympia. [ID:CAP1_026]
-=> END
-
-~ frases_espelho_sem_roupa
-
-## O espelho antes de pegar a roupa no armário.
-Diante do espelho, grande demais para o quarto e ainda maior para ele. [ID:CAP1_091]
+## O espelho antes de pegar a roupa no armário (na caixa, Rafael 21/10/2026).
+Preciso me arrumar, rápido. [ID:CAP1_091]
 => END
 
 ~ frases_esperando
 
 ## Diante da porta de Althea, ninguém chegou ainda.
-Nicholas cruzou os braços e esperou. [ID:CAP1_030]
-Ele olhou para uma das extremidades do corredor. [ID:CAP1_106]
+Cruzei os braços e esperei. [ID:CAP1_030]
+Olhei para uma das extremidades do corredor. [ID:CAP1_106]
 => END
 
 ~ frases_nada
@@ -67,8 +60,8 @@ Nada. [ID:CAP1_092]
 ~ frases_cortejo_chega
 
 ## Depois de olhar as duas extremidades, o cortejo enfim chega.
-Bateu o pé no chão. [ID:CAP1_093]
-Finalmente, ouviu cochichos e risos abafados. [ID:CAP1_034]
+Bati o pé no chão. [ID:CAP1_093]
+Finalmente, ouvi cochichos e risos abafados. [ID:CAP1_034]
 => END
 
 ~ cortejo
@@ -85,25 +78,22 @@ Finalmente, ouviu cochichos e risos abafados. [ID:CAP1_034]
 Nicholas: [#retrato=neutro] Deixemos isso para lá. Hoje é o aniversário da Thea e nosso último dia em Atenas. Ninguém vai estragá-lo. [ID:CAP1_040]
 => END
 
-~ frases_quarto_althea
-
 ~ frases_resmungou
 
 ## Nicholas toca o ombro de Althea pela primeira vez.
-Ela resmungou e apertou a pelúcia. [ID:CAP1_094]
-
+Althea resmungou e apertou a pelúcia. [ID:CAP1_094]
 => END
 
-~ frases_puxou
+~ frases_puxei
 
-## Na segunda vez, ele tira a pelúcia dos braços dela.
-Nicholas puxou o monstro marinho de seus braços. [ID:CAP1_095]
+## No alto, antes da conversa (Rafael, 21/10/2026).
+Puxei o monstro marinho de seus braços. [ID:CAP1_095]
 => END
 
 ~ acordar_althea
 
-## Nicholas acorda a irmã; o embrulho tem a espada de madeira.
-Nicholas: [#retrato=neutro] Ei... [ID:CAP1_044]
+## Na segunda vez, ele tira a pelúcia dos braços dela (no alto, Rafael
+## 21/10/2026) e acorda a irmã; o embrulho tem a espada de madeira.
 Nicholas: [#retrato=neutro] Feliz aniversário! [ID:CAP1_045]
 Althea: [#retrato=neutro] Nick! [ID:CAP1_046]
 Nicholas: [#retrato=neutro] Eu também senti sua falta nesses oito passos entre os nossos quartos. [ID:CAP1_047]
@@ -114,13 +104,35 @@ Nicholas: [#retrato=neutro] Eu também senti sua falta nesses oito passos entre 
 ## Althea, já fora da cama, vê o embrulho; Nicholas o entrega.
 Althea: [#retrato=neutro] Aquilo ali é meu? [ID:CAP1_048]
 Nicholas: [#retrato=neutro] Não. Pedi que embrulhassem um presente para mim e deixassem no seu quarto. [ID:CAP1_049]
-Dentro dele havia uma espada de madeira, esculpida para o tamanho de suas mãos. [ID:CAP1_051]
-Pany: [#retrato=neutro] Lady Althea! [ID:CAP1_053]
+=> END
+
+~ frases_espada
+
+## Althea golpeia o ar com o presente.
+O presente dela era uma espada de madeira, esculpida para o tamanho das mãos da minha irmã. [ID:CAP1_051]
+=> END
+
+~ espada_escolha
+
+## A escolha só marca qual frase vem no alto (escolheu_...).
 - [Fingir rendição] [ID:CAP1_OPC_ESPADA_RENDICAO]
 	$> Relacoes.ajustar("althea", 1)
-	Nicholas ergueu as mãos, fingindo rendição. [ID:CAP1_099]
+	=> escolheu_rendicao
 - [Desviar, rindo] [ID:CAP1_OPC_ESPADA_DESVIAR]
-	Nicholas desviou, rindo. [ID:CAP1_100]
+	=> escolheu_desvio
+
+~ escolheu_rendicao
+=> END
+
+~ escolheu_desvio
+=> END
+
+~ frases_desvio
+Desviei, rindo. [ID:CAP1_100]
+=> END
+
+~ espada_fim
+
 Nicholas: [#retrato=neutro] Veja só. Seis anos e já pretende assassinar o próprio irmão. [ID:CAP1_054]
 Althea: [#retrato=neutro] Você disse que me ensinaria! [ID:CAP1_055]
 Nicholas: [#retrato=neutro] Eu disse que lhe ensinaria a usar uma espada. Não que poderia começar por mim. [ID:CAP1_056]
@@ -129,7 +141,7 @@ Nicholas: [#retrato=neutro] Eu disse que lhe ensinaria a usar uma espada. Não q
 ~ frases_presentes
 
 ## Os empregados entregam os outros presentes.
-Nicholas a observou com orgulho. [ID:CAP1_059]
+Eu a observei com orgulho. [ID:CAP1_059]
 => END
 
 ~ frases_mesa
@@ -139,11 +151,11 @@ Nicholas a observou com orgulho. [ID:CAP1_059]
 Naquela época, entre nós não havia títulos. [ID:CAP1_061]
 => END
 
-~ frases_duque
+~ anuncio_do_duque
 
-## A bolha se rompe: os guardas anunciam o duque, em duas vozes (Rafael,
-## 17/10/2026; fórmula do anúncio do Palácio, mais adiante no livro).
-Anunciando o Duque de Olympia! [ID:CAP1_064]
+## A bolha se rompe: o guarda anuncia o duque, na caixa (Rafael, 21/10/2026;
+## fórmula do anúncio do Palácio, mais adiante no livro).
+Guarda: [#retrato=neutro] Anunciando o Duque de Olympia! [ID:CAP1_064]
 => END
 
 ~ duque
@@ -158,10 +170,28 @@ Apollon: [#retrato=neutro] Pense o que quiser. Apenas mantenha a postura diante 
 Althea: [#retrato=neutro] Pa-parem de brigar... [ID:CAP1_070]
 - [Olhar para Althea] [ID:CAP1_OPC_DUQUE_ALTHEA]
 	$> Relacoes.ajustar("althea", 1)
-	A irmã apertava o punho da espada contra o peito, os olhos brilhando com lágrimas. [ID:CAP1_102]
+	=> escolheu_olhar_althea
 - [Encarar o duque] [ID:CAP1_OPC_DUQUE_ENCARAR]
 	$> Relacoes.ajustar("apollon", -1)
-	A desconfiança de Nicholas permaneceu. [ID:CAP1_103]
+	=> escolheu_encarar
+
+~ escolheu_olhar_althea
+=> END
+
+~ escolheu_encarar
+=> END
+
+~ frases_olhar_althea
+Minha irmã apertava o punho da espada contra o peito, os olhos brilhando com lágrimas. [ID:CAP1_102]
+=> END
+
+~ frases_encarar
+Minha desconfiança permaneceu. [ID:CAP1_103]
+=> END
+
+~ duque_tarefa
+
+## Depois da escolha, o duque segue.
 Apollon: [#retrato=neutro] Não vim para discutir. Vim parabenizar minha filha e incumbir os dois de uma tarefa. [ID:CAP1_071]
 Nicholas: [#retrato=neutro] Que tarefa? [ID:CAP1_072]
 Apollon: [#retrato=neutro] Como uma nova condição para o nosso retorno, levaremos a Princesa Ophelia conosco para Olympia. Vocês deverão ir ao Palácio Imperial e trazer ela até o fim do dia. [ID:CAP1_073]
@@ -175,7 +205,8 @@ Apollon: [#retrato=neutro] Ah, feliz aniversário Althea. Vou indo, tenho assunt
 ## O duque saiu; Nicholas volta à mesa.
 Althea: [#retrato=neutro] Está tudo bem, Nick? [ID:CAP1_077]
 Nicholas: [#retrato=neutro] Teremos que mudar os planos de hoje, Thea. Que tal almoçarmos com a princesa naquele restaurante que você gosta? [ID:CAP1_078]
-Althea: [#retrato=neutro] É uma ótima ideia! Depois podemos passar na livraria. E naquela loja de doces. E talvez naquela praça com os músicos. Ah, e eu posso levar minha espada? [ID:CAP1_079]
+Althea: [#retrato=neutro] É uma ótima ideia! Depois podemos passar na livraria. E naquela loja de doces. E talvez naquela praça com os músicos. [ID:CAP1_079]
+Althea: [#retrato=neutro] Ah, e eu posso levar minha espada? [ID:CAP1_282]
 Nicholas: [#retrato=neutro] Não. [ID:CAP1_080]
 Althea: [#retrato=neutro] Mas... [ID:CAP1_081]
 Nicholas: [#retrato=neutro] Definitivamente não. [ID:CAP1_082]
@@ -190,7 +221,7 @@ Por que o Imperador havia exigido justamente a minha presença? [ID:CAP1_083]
 ~ frases_carruagem
 
 ## Na carruagem rumo ao Palácio Imperial. Nicholas adulto narra (Rafael, 17/10/2026).
-Naquela época, já fazia dois meses que a Imperatriz Callie havia falecido. [ID:CAP1_084]
+Já fazia dois meses que a Imperatriz Callie tinha falecido. [ID:CAP1_084]
 => END
 
 ~ janela
@@ -216,5 +247,5 @@ Nicholas: [#retrato=neutro] O quê? Não, Thea, eu jamais conseguiria... [ID:CAP
 Althea: [#retrato=neutro] Então, por que parece chateado? [ID:CAP1_087]
 Nicholas: [#retrato=neutro] Porque estou. Não gostei que o Duque nos mandou buscar a Princesa. Não vamos aproveitar seu aniversário como eu tinha planejado. [ID:CAP1_088]
 Althea: [#retrato=neutro] ...Não o chame assim. Ele é o papai. [ID:CAP1_089]
-Silêncio. [ID:CAP1_090]
 => END
+

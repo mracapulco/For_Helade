@@ -230,28 +230,29 @@ func test_pe_no_chao_e_cochichos_sao_efeitos() -> void:
 		var som := _arquivo(falas, id + "_som")
 		assert_eq(som.get("tipo"), "efeito", id)
 		assert_false(str(som.falado).is_empty())
-		assert_true(_arquivo(falas, id).is_empty(), "a frase em si não ganha voz")
+		# Rafael, 21/10/2026: a frase também é narrada pelo Nicholas criança.
+		assert_eq(_arquivo(falas, id).get("voz"), "nicholas_crianca", id)
 
 
 func test_althea_resmunga_com_a_voz_dela() -> void:
 	var som := _arquivo(_da_manha(), "CAP1_094_som")
 	assert_eq(som.voz, "althea_crianca")
 	assert_string_contains(GeradorVozes.texto_para_voz(som), "[grumbles]")
-	assert_eq(som.texto, "Ela resmungou e apertou a pelúcia.", "o índice guarda o texto da tela")
+	assert_eq(som.texto, "Althea resmungou e apertou a pelúcia.", "o índice guarda o texto da tela")
 
 
-func test_nicholas_adulto_narra_no_capitulo_01() -> void:
+## Rafael, 21/10/2026: a narração do Capítulo 01 é do Nicholas criança.
+func test_nicholas_crianca_narra_no_capitulo_01() -> void:
 	var falas := _da_manha()
-	for id in ["CAP1_061", "CAP1_083", "CAP1_084"]:
-		assert_eq(_arquivo(falas, id).get("voz"), "nicholas", id)
-	for id in ["CAP1_104", "CAP1_105"]:
+	for id in ["CAP1_016", "CAP1_030", "CAP1_061", "CAP1_083", "CAP1_084", "CAP1_103", "CAP1_104", "CAP1_105"]:
 		assert_eq(_arquivo(falas, id).get("voz"), "nicholas_crianca", id)
 
 
-func test_guardas_anunciam_o_duque_em_duas_vozes() -> void:
-	var falas := _da_manha()
-	assert_eq(_arquivo(falas, "CAP1_064_1").voz_id, "Ey5AWb48tVX1IOcikcht")
-	assert_eq(_arquivo(falas, "CAP1_064_2").voz_id, "EbiSUflQjzm4g7S895SC")
+## Rafael, 21/10/2026: um guarda só anuncia o duque, com voz firme.
+func test_um_guarda_anuncia_o_duque() -> void:
+	var fala := _arquivo(_da_manha(), "CAP1_064")
+	assert_eq(fala.get("voz"), "guarda_imperial")
+	assert_eq(fala.get("voz_id"), "Ey5AWb48tVX1IOcikcht")
 
 
 func test_efeito_muda_de_assinatura_com_a_duracao() -> void:
@@ -276,3 +277,27 @@ func test_estabilidade_por_fala_vence_a_da_voz() -> void:
 	var com := GeradorVozes.falas_do_roteiro(load(MANHA), vozes, {}, {}, {}, {id: 0.9})
 	assert_eq(com[0].estabilidade, 0.9)
 	assert_eq(com[1].estabilidade, base[1].estabilidade, "as outras seguem a voz")
+
+
+func test_podar_tira_do_indice_o_que_nao_tem_mais_voz() -> void:
+	var falas: Array[Dictionary] = [{"id": "A"}, {"id": "S", "arquivo": "S_1"}]
+	var indice := {"A": {"fala": "A"}, "S_1": {"fala": "S"}, "CAP1_107": {"fala": "CAP1_107"}, "S_2": {"fala": "S"}}
+	var podado := GeradorVozes.podar(falas, indice)
+	assert_eq_deep(podado.keys(), ["A", "S_1"])
+
+
+func test_mp3_antigo_fora_do_indice_nao_toca() -> void:
+	DirAccess.make_dir_recursive_absolute(PASTA_TESTE)
+	var caminho := PASTA_TESTE.path_join("indice.json")
+	FileAccess.open(caminho, FileAccess.WRITE).store_string(JSON.stringify({"CAP1_080": {"fala": "CAP1_080", "texto": "Não."}}))
+	Voz.carregar_indice(caminho)
+	assert_true(Voz.indexado("CAP1_080"))
+	assert_false(Voz.indexado("CAP1_107"), "Fala que virou só texto: o mp3 antigo não toca")
+	assert_false(Voz.disponivel("CAP1_107"))
+	assert_false(Voz.tem("CAP1_107"))
+	assert_eq(Voz.tocar("CAP1_107"), 0.0)
+
+
+func test_sem_indice_toca_o_que_existir() -> void:
+	Voz.carregar_indice(PASTA_TESTE.path_join("nao_existe.json"))
+	assert_true(Voz.indexado("CAP1_107"), "Sem índice nada fica mudo por engano")

@@ -20,6 +20,14 @@ const ZOOM_PIXEL_ART := 2.0
 
 ## Adiantamento atual (sem o tremor).
 var _adiantamento_atual := Vector2.ZERO
+## Limites da sala (antes de ajustar à tela) e o tamanho da tela usado no ajuste.
+var _limites_sala := Rect2()
+var _tela_do_ajuste := Vector2.ZERO
+## Eixos em que a sala cabe inteira na tela: ali a câmera fica parada no meio
+## da sala (sem isso, numa sala pequena, ela balançava de borda a borda com o
+## adiantamento e dava enjoo; Rafael, 26/10/2026, no restaurante).
+var parada_x := false
+var parada_y := false
 ## Tremor em andamento: força em pixels e quanto falta.
 var _forca_tremor := 0.0
 var _tremor_restante := 0.0
@@ -27,6 +35,9 @@ var _tremor_restante := 0.0
 
 func _ready() -> void:
 	zoom = Vector2.ONE * ZOOM_PIXEL_ART
+	# Segue o personagem, que anda na física com interpolação: a câmera
+	# também (o Godot faria isso sozinho, com um aviso).
+	process_callback = Camera2D.CAMERA2D_PROCESS_PHYSICS
 	position_smoothing_enabled = true
 	limit_smoothed = true
 	if mapa:
@@ -39,8 +50,14 @@ func _process(delta: float) -> void:
 	var dono := get_parent() as CharacterBody2D
 	if dono == null:
 		return
+	if _limites_sala.has_area() and _tela() != _tela_do_ajuste:
+		_ajustar_limites()
 	_adiantamento_atual = _adiantamento_atual.lerp(adiantamento_para(dono.velocity),
 		1.0 - exp(-suavidade_adiantamento * delta))
+	if parada_x:
+		_adiantamento_atual.x = 0.0
+	if parada_y:
+		_adiantamento_atual.y = 0.0
 	var tremor := Vector2.ZERO
 	if _tremor_restante > 0.0:
 		_tremor_restante -= delta
@@ -69,10 +86,34 @@ func adiantamento_para(velocidade: Vector2) -> Vector2:
 
 
 func aplicar_limites(limites: Rect2) -> void:
-	limit_left = floori(limites.position.x)
-	limit_top = floori(limites.position.y)
-	limit_right = ceili(limites.end.x)
-	limit_bottom = ceili(limites.end.y)
+	_limites_sala = limites
+	_ajustar_limites()
+
+
+## Tamanho da tela em pixels da arte.
+func _tela() -> Vector2:
+	if not is_inside_tree():
+		return Vector2.ZERO
+	return get_viewport_rect().size / zoom
+
+
+## Os limites da sala; no eixo em que ela é menor que a tela, alarga os limites
+## por igual até o tamanho da tela: a câmera não tem para onde ir e fica parada
+## com a sala no meio.
+func _ajustar_limites() -> void:
+	var tela := _tela()
+	_tela_do_ajuste = tela
+	var r := _limites_sala
+	parada_x = tela.x > 0.0 and r.size.x <= tela.x
+	parada_y = tela.y > 0.0 and r.size.y <= tela.y
+	if parada_x:
+		r = r.grow_individual((tela.x - r.size.x) / 2.0, 0.0, (tela.x - r.size.x) / 2.0, 0.0)
+	if parada_y:
+		r = r.grow_individual(0.0, (tela.y - r.size.y) / 2.0, 0.0, (tela.y - r.size.y) / 2.0)
+	limit_left = floori(r.position.x)
+	limit_top = floori(r.position.y)
+	limit_right = ceili(r.end.x)
+	limit_bottom = ceili(r.end.y)
 
 
 ## Retângulo, em coordenadas globais, que cobre todos os tiles usados no mapa.

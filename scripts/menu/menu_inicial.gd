@@ -10,6 +10,15 @@ extends Control
 const CENAS := {
 	"prologo": "res://scenes/prologo/prologo.tscn",
 	"capitulo_1": "res://scenes/capitulo_01/capitulo_01.tscn",
+	# Cenas 7 a 13 do Capítulo 1 (as mesmas de SequenciaCenas01.CENAS): um jogo
+	# salvo com uma destas etapas, ou `--etapa=<nome>` (ver abrir_etapa), abre
+	# a cena sozinha para testar.
+	"palacio": "res://scenes/capitulo_01/cena_palacio.tscn",
+	"visao_carruagem": "res://scenes/capitulo_01/cena_visao.tscn",
+	"butiques": "res://scenes/capitulo_01/cena_butiques.tscn",
+	"restaurante": "res://scenes/capitulo_01/cena_restaurante.tscn",
+	"passeio": "res://scenes/capitulo_01/cena_passeio.tscn",
+	"volta": "res://scenes/capitulo_01/cena_volta.tscn",
 }
 const CENA_MAPA := "res://scenes/mapa/mapa_helade.tscn"
 const CENA_NOVO_JOGO := "res://scenes/prologo/prologo.tscn"
@@ -56,6 +65,9 @@ func _ready() -> void:
 	_tocar_musica()
 	if animar_entrada:
 		_animar_entrada()
+	# Atalho de teste: godot --path . -- --etapa=butiques (só em build de debug).
+	if OS.is_debug_build():
+		abrir_etapa(etapa_da_linha_de_comando(OS.get_cmdline_user_args()))
 
 
 var _entrada: Tween
@@ -97,6 +109,23 @@ func carregar_espaco(espaco: int) -> void:
 		atualizar()
 		return
 	_ir(cena_para_continuar(Progresso.etapa))
+
+
+## Abre direto a cena de uma etapa (ponto de entrada de teste). Devolve falso
+## se a etapa não tem cena.
+func abrir_etapa(etapa: String) -> bool:
+	if not CENAS.has(etapa):
+		return false
+	_ir(CENAS[etapa])
+	return true
+
+
+## O valor de `--etapa=<nome>` nos argumentos, ou vazio.
+static func etapa_da_linha_de_comando(argumentos: PackedStringArray) -> String:
+	for argumento in argumentos:
+		if argumento.begins_with("--etapa="):
+			return argumento.trim_prefix("--etapa=")
+	return ""
 
 
 static func cena_para_continuar(etapa: String) -> String:

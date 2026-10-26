@@ -21,8 +21,30 @@ const PASSADEIRA_CIMA := 4
 const PASSADEIRA_BAIXO := 5
 const PASSADEIRA_MEIO := 6
 const PISO_GRAMA := 7
+## Rodada 1 das cenas 7 a 10 (tools/arte/gerar_capitulo_01.py): mármore do
+## pátio do Palácio (9-10), paralelepípedo da rua (11-12), ladrilho (13-14).
+const PISO_MARMORE := 9
+const PISO_RUA := 11
+const PISO_LADRILHO := 13
+## Blocos de parede no atlas: mármore do Palácio, fachada de reboco da rua e
+## reboco com lambri por dentro.
+const PAREDE_ESTILOS := {"marmore": 3, "fachada": 4, "reboco": 5}
 const RAIO_CORPO := 9.0
 const RAIO_TOQUE := 28.0
+## Objetos na frente do jogador que cobrem o desenho dele ficam com esta
+## opacidade, como as paredes ([ParedesTranslucidas]): ele não some atrás
+## de um caixote ou de uma estante (Rafael, 23/10).
+const OPACIDADE_NA_FRENTE := 0.4
+## Tamanho do desenho do jogador a partir dos pés (como nas paredes).
+const TAMANHO_JOGADOR := Vector2(24, 44)
+const META_TRANSLUCIDO := &"translucido_na_frente"
+## Quanto do desenho dele (em altura, pixels) precisa ficar coberto: um
+## banquinho baixo ao lado não some.
+## Pontos com tinta (amostra a cada PASSO_AMOSTRA px) que o objeto precisa
+## ter em cima do jogador para ficar translúcido.
+const PINTADOS_MINIMO := 12
+const PASSO_AMOSTRA := 4.0
+const COBERTO_MINIMO := 20.0
 
 @export var largura := 6
 @export var profundidade := 6
@@ -38,6 +60,12 @@ const RAIO_TOQUE := 28.0
 @export var parede_madeira := false
 ## Só o chão, sem as paredes do fundo (a rua por onde passa a carruagem).
 @export var sem_paredes := false
+## Estilo da parede das cenas 7 a 10: "marmore" (Palácio), "fachada" (Rua das
+## Butiques) ou "reboco" (loja e restaurante). Vazio: segue os campos acima.
+@export var parede_estilo := ""
+## Pisos novos: "patio" (mármore em cruz e nas bordas, jardins de grama nos
+## quatro cantos), "rua" (duas fileiras de lajes junto às fachadas do fundo e da esquerda e
+## paralelepípedo no resto) e "ladrilho" (xadrez do restaurante).
 
 var chao: TileMapLayer
 var obstaculos: TileMapLayer
@@ -80,6 +108,8 @@ func _ready() -> void:
 
 
 func _quadro_da_parede() -> int:
+	if PAREDE_ESTILOS.has(parede_estilo):
+		return PAREDE_ESTILOS[parede_estilo]
 	if parede_madeira:
 		return 2
 	return 1 if parede_lisa else 0
@@ -93,6 +123,17 @@ func _quadro_do_piso(x: int, y: int) -> int:
 			if absi(y - profundidade / 2) <= 1:
 				return PISO_PEDRA + (x + y) % 2
 			return PISO_GRAMA + (x * 3 + y) % 2
+		"patio":
+			if absi(x - largura / 2) <= 1 or y <= 1 or y >= profundidade - 2:
+				return PISO_MARMORE + (x + y) % 2
+			return PISO_GRAMA + (x * 3 + y) % 2
+		"rua":
+			# Calçada junto às fachadas do fundo e da esquerda.
+			if y <= 1 or x <= 1:
+				return PISO_PEDRA + (x + y) % 2
+			return PISO_RUA + (x + y) % 2
+		"ladrilho":
+			return PISO_LADRILHO + (x + y) % 2
 		"passadeira":
 			if y <= 1:
 				return PASSADEIRA_CIMA
@@ -108,6 +149,69 @@ func abrir_vao(casa: Vector2i) -> void:
 
 
 ## Centro de uma casa do chão, em coordenadas da sala.
+func _process(_delta: float) -> void:
+	var jogador := get_tree().get_first_node_in_group(Interagivel.GRUPO_JOGADOR) as Node2D
+	for objeto in get_children():
+		if objeto.has_meta(META_TRANSLUCIDO):
+			var visual := objeto.get_node_or_null("Visual") as CanvasItem
+			if visual:
+				visual.modulate.a = OPACIDADE_NA_FRENTE if jogador and cobre(objeto, jogador) else 1.0
+
+
+## O objeto está na frente de [param jogador] (mais abaixo na tela) e o
+## desenho dele passa por cima do desenho do jogador.
+func cobre(objeto: Node2D, jogador: Node2D) -> bool:
+	var pes := to_local(jogador.global_position)
+	if objeto.position.y <= pes.y or objeto.z_index < 0:
+		return false
+	var visivel := jogador.get_node_or_null("Corpo") as CanvasItem
+	if not jogador.is_visible_in_tree() or (visivel and not visivel.visible):
+		return false   # escondido (sentado à mesa, por exemplo)
+	var corpo := jogador.get_node_or_null("Corpo/Visual") as Node2D
+	if corpo:
+		pes.y += corpo.position.y   # em cima de um bloco, o desenho sobe
+	var dele := Rect2(pes.x - TAMANHO_JOGADOR.x / 2.0, pes.y - TAMANHO_JOGADOR.y, TAMANHO_JOGADOR.x, TAMANHO_JOGADOR.y)
+	var visual := objeto.get_node_or_null("Visual") as Sprite2D
+	if visual == null or visual.texture == null:
+		return false
+	var desenho := visual.get_rect()
+	desenho.position += objeto.position + visual.position
+	var coberto := desenho.intersection(dele)
+	if not coberto.has_area() or coberto.size.y < COBERTO_MINIMO:
+		return false
+	# Desenhos grandes (a carruagem com os cavalos) têm muito vazio em volta:
+	# só conta o que tem tinta em cima dele (Rafael, 25/10/2026).
+	return _pixels_pintados(visual, coberto.position - desenho.position, coberto.size) >= PINTADOS_MINIMO
+
+
+var _imagens := {}
+
+
+## Quantos pontos (de PASSO_AMOSTRA em PASSO_AMOSTRA pixels) do retângulo
+## [param de] + [param tamanho] (em pixels da textura) não são transparentes.
+func _pixels_pintados(visual: Sprite2D, de: Vector2, tamanho: Vector2) -> int:
+	var imagem: Image = _imagens.get(visual.texture)
+	if imagem == null:
+		imagem = visual.texture.get_image()
+		if imagem == null:
+			return PINTADOS_MINIMO
+		if imagem.is_compressed():
+			imagem.decompress()
+		_imagens[visual.texture] = imagem
+	var pintados := 0
+	var y := de.y
+	while y < de.y + tamanho.y:
+		var x := de.x
+		while x < de.x + tamanho.x:
+			var px := Vector2i(int(x), int(y))
+			if px.x >= 0 and px.y >= 0 and px.x < imagem.get_width() and px.y < imagem.get_height() \
+					and imagem.get_pixelv(px).a > 0.5:
+				pintados += 1
+			x += PASSO_AMOSTRA
+		y += PASSO_AMOSTRA
+	return pintados
+
+
 func centro(casa: Vector2i) -> Vector2:
 	return chao.map_to_local(casa)
 
@@ -135,6 +239,7 @@ func adicionar_objeto(nome: String, textura: Texture2D, casa: Vector2i,
 	visual.texture = textura
 	visual.offset = Vector2(0, -textura.get_height() / 2.0 + pe)
 	objeto.add_child(visual)
+	objeto.set_meta(META_TRANSLUCIDO, true)
 	if interagivel:
 		var area := Interagivel.new()
 		area.name = "Interagivel"
@@ -182,6 +287,7 @@ func adicionar_pessoa(nome: String, quadros: Variant, casa: Vector2i,
 		visual.free()
 		objeto.add_child(animado)
 		objeto.move_child(animado, 0)
+		objeto.remove_meta(META_TRANSLUCIDO)
 		return objeto
 	return adicionar_objeto(nome, quadros, casa, true, interagivel)
 

@@ -245,6 +245,17 @@ func pendentes(falas: Array[Dictionary], indice: Dictionary) -> Array[Dictionary
 	return lista
 
 
+## O índice sem as entradas de falas que não têm mais voz (viraram só texto
+## ou saíram do roteiro).
+static func podar(falas: Array[Dictionary], indice: Dictionary) -> Dictionary:
+	var podado := {}
+	for fala in falas:
+		var arquivo: String = fala.get("arquivo", fala.id)
+		if indice.has(arquivo):
+			podado[arquivo] = indice[arquivo]
+	return podado
+
+
 func caminho_audio(id: String) -> String:
 	return pasta_saida.path_join(id + ".mp3")
 
@@ -285,7 +296,12 @@ func rodar(chave: String, vozes: Array[Dictionary] = ler_vozes(), arquivos := ro
 		if recurso:
 			falas.append_array(falas_do_roteiro(recurso, vozes, direcao, pronuncia, sons, estabilidades))
 	DirAccess.make_dir_recursive_absolute(pasta_saida)
+	# O índice fica só com o que a config ainda gera; mp3 antigos ficam na
+	# pasta (não apagamos nada), mas fora do índice o jogo não os toca.
 	var indice := ler_indice()
+	if not falas.is_empty():
+		indice = podar(falas, indice)
+		salvar_indice(indice)
 	var fazer := pendentes(falas, indice)
 	var resultado := {"geradas": 0, "prontas": falas.size() - fazer.size(), "erros": []}
 	_anotar("%d falas com voz; %d já prontas, %d para gerar." % [falas.size(), resultado.prontas, fazer.size()])

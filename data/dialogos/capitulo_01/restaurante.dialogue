@@ -1,0 +1,111 @@
+## Capítulo 01 de "Pelos Olhos Dele", cena 10: o restaurante, a sopa e a
+## colher (livro, l. ~443-553). Mais curto desde 24/10 (Rafael pediu cortar
+## metade das falas): a sopa é jogada (SopaNoRitmo) em vez de narrada, e
+## pegar e levar a colher limpa são feitos pelo jogador. Só frases-chave,
+## sem mudar as palavras
+## (a fala longa de desculpas do Nicholas termina em "Ou outra sopa."; o
+## livro continua depois disso). Escolha (brecha): o tom com que Nicholas
+## insiste que Ophelia coma. Os rótulos entre colchetes são texto provisório
+## do jogo, NÃO do livro. A escolha só muda a relação com Ophelia e volta
+## para a mesma linha do livro.
+
+~ frases_restaurante
+
+## A mesa redonda.
+A mesa redonda era pequena o bastante para que as três crianças se acomodassem sem dificuldade. [ID:CAP1_181]
+=> END
+
+~ frases_prato
+
+## O prato servido.
+Thea recebeu seu prato com um sorriso. Ophelia não tocou no dela. [ID:CAP1_184]
+=> END
+
+~ prato_intocado
+
+## Ophelia não toca no prato (a frase do alto vem em frases_prato).
+Nicholas: [#retrato=neutro] Os pratos que escolhi não são de seu agrado? Há outras opções. Tenho certeza de que podem preparar algo de que goste, Princesa. [ID:CAP1_185]
+Ophelia: [#retrato=neutro] Eu... Não comerei nada, obrigada. [ID:CAP1_186]
+=> END
+
+~ insistir
+
+## A brecha de tom: como Nicholas insiste.
+- [Insistir com calma] [ID:CAP1_OPC_SOPA_CALMA]
+	$> Relacoes.ajustar("ophelia", 1)
+	Nicholas: [#retrato=neutro] Faço questão de que coma alguma coisa. Terei sérios problemas com o Duque se ele descobrir que a trouxe até aqui e a deixei passar fome. [ID:CAP1_189]
+- [Insistir com firmeza] [ID:CAP1_OPC_SOPA_FIRME]
+	$> Relacoes.ajustar("ophelia", -1)
+	Nicholas: [#retrato=neutro] Faço questão de que coma alguma coisa. Terei sérios problemas com o Duque se ele descobrir que a trouxe até aqui e a deixei passar fome. [ID:CAP1_190]
+=> END
+
+~ frases_sopa
+
+## A sopa chega, quente demais.
+Uma pequena tigela de sopa ainda soltava fios de vapor. [ID:CAP1_195]
+=> END
+
+~ sopa
+
+## Ophelia recusa a sopa.
+Ophelia: [#retrato=neutro] Você é muito gentil. Embora às vezes seja tão estúpido quanto um coice. Mas isso não apaga sua gentileza. [ID:CAP1_196]
+Ophelia: [#retrato=neutro] Já disse que não estou com fome. E a sopa está quente. Não consigo comer depressa. [ID:CAP1_198]
+Nicholas: [#retrato=neutro] Pelo amor de Afrodite! É apenas sopa. Como alguém pode não gostar de sopa? [ID:CAP1_199]
+=> END
+
+~ frases_colher
+
+## Nicholas puxa a tigela; mexer, soprar, provar e devolver são a ação
+## da sopa (SopaNoRitmo), sem texto.
+Sem pensar, puxei a tigela para perto de mim. [ID:CAP1_201]
+=> END
+
+~ colher
+
+## "Pronto."
+Nicholas: [#retrato=neutro] Pronto. Não está mais quente. [ID:CAP1_203]
+=> END
+
+~ frases_silencio
+
+## E percebe o que fez.
+Olhei para a colher ainda dentro da tigela. A colher que acabara de colocar na própria boca. [ID:CAP1_205]
+=> END
+
+~ desculpas
+
+## Nicholas se atrapalha todo.
+Nicholas: [#retrato=neutro] Perdoe-me. Sinto muitíssimo, Princesa. Por Hera, não tive a intenção de desrespeitá-la. Tenho o costume de fazer isso para Thea e não pensei... Eu deveria ter pedido outra colher. Ou outra sopa. [ID:CAP1_206]
+=> END
+
+~ ophelia_toma
+
+## Ophelia pega a colher e prova a sopa.
+Ophelia: [#retrato=neutro] Está tudo bem. [ID:CAP1_208]
+=> END
+
+~ ophelia_toma_fim
+
+## A colher e o garçom.
+Nicholas: [#retrato=neutro] Z-Zeus! Princesa, deixe-me ao menos trocar a colher! [ID:CAP1_210]
+Ophelia: [#retrato=neutro] A sopa está mesmo deliciosa. [ID:CAP1_211]
+Nicholas: [#retrato=neutro] Podem nos deixar. [ID:CAP1_212]
+=> END
+
+~ frases_risos
+
+## A porta se fecha; as três crianças riem.
+A porta mal havia se fechado quando nós três começamos a rir. [ID:CAP1_213]
+=> END
+
+~ estranha
+
+## Nicholas entrega a colher limpa (levada pelo jogador até Ophelia).
+Nicholas: [#retrato=neutro] Você é... Estranha. [ID:CAP1_216]
+=> END
+
+~ frases_fim_almoco
+
+## Fecha a cena; segue para a tarde em Atenas.
+O restante do almoço transcorreu com leveza. [ID:CAP1_217]
+=> END

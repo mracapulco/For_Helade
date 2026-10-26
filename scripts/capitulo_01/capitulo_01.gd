@@ -636,10 +636,11 @@ func _golpe_de_althea(vezes := 3) -> void:
 		visual.play()
 		if escala_tempo <= 0.0:
 			return
-		var lado := signf(jogador.position.x - althea.position.x)
+		# O avanço vai na direção dele, em x e y.
+		var rumo := (jogador.position - althea.position).normalized()
 		var avanco := create_tween()
-		avanco.tween_property(visual, "position:x", lado * 5.0, 0.12)
-		avanco.tween_property(visual, "position:x", 0.0, 0.2)
+		avanco.tween_property(visual, "position", rumo * 5.0, 0.12)
+		avanco.tween_property(visual, "position", Vector2.ZERO, 0.2)
 		await visual.animation_finished
 		await _esperar(0.35)
 	if is_instance_valid(visual) and etapa == etapa_do_golpe:
@@ -684,10 +685,14 @@ func _althea_de_frente() -> void:
 	if althea == null:
 		return
 	var dele := _casa_de(jogador)
-	var ocupadas: Array[Vector2i] = [Vector2i(1, 3), Vector2i(3, 1), Vector2i(1, 1), Vector2i(2, 2)]
-	for passo: Vector2i in [Vector2i(-1, -1), Vector2i(0, -1), Vector2i(-1, 0)]:
+	var ocupadas: Array[Vector2i] = [Vector2i(1, 3), Vector2i(3, 1), Vector2i(1, 1), Vector2i(2, 2),
+		Vector2i(4, 4), Vector2i(5, 4), Vector2i(5, 2), Vector2i(6, 2), Vector2i(6, 3)]
+	# Na diagonal de cima da tela (acima e ao lado dele), para o golpe ir de
+	# frente para a câmera e na direção dele; bem em cima (-1, -1) o desenho
+	# golpeia para o lado, contra a parede (Rafael, 26/10/2026).
+	for passo: Vector2i in [Vector2i(0, -1), Vector2i(-1, 0), Vector2i(1, -1), Vector2i(-1, 1), Vector2i(-1, -1)]:
 		var casa := dele + passo
-		if casa.x < 1 or casa.y < 1 or ocupadas.has(casa):
+		if casa.x < 1 or casa.y < 1 or casa.x > 6 or casa.y > 5 or ocupadas.has(casa):
 			continue
 		if _casa_de(althea) != casa:
 			await _caminhar(althea, sala.centro(casa), 0.5 * maxf(escala_tempo, 0.01))

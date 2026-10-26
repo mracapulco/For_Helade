@@ -488,3 +488,19 @@ func test_com_o_duque_althea_segura_a_espada_e_a_aperta_no_peito() -> void:
 	linha.static_id = "CAP1_070"
 	capitulo._ao_ver_fala_do_duque(linha)
 	assert_string_starts_with(visual.animation, "abraca_espada_", "\"P-parem de brigar...\"")
+
+
+## A espada: Althea golpeia de uma casa acima e ao lado de Nicholas na tela,
+## nunca bem em cima (o desenho golpearia para o lado, contra a parede).
+func test_althea_golpeia_na_direcao_de_nicholas() -> void:
+	await _ate_o_corredor()
+	await _esperar_o_cortejo()
+	_interagir("cama_althea")
+	_interagir("cama_althea")
+	await _esperar_etapa("embrulho")
+	for casa: Vector2i in [Vector2i(2, 3), Vector2i(1, 4), Vector2i(3, 3), Vector2i(4, 2)]:
+		capitulo.jogador.position = capitulo.sala.centro(casa)
+		await capitulo._althea_de_frente()
+		var ate_ela: Vector2 = capitulo.objetos["althea"].position - capitulo.jogador.position
+		assert_true(absf(ate_ela.x) > 8.0, "ao lado dele na tela (%s)" % casa)
+		assert_true(ate_ela.y <= 1.0, "não abaixo dele (%s)" % casa)

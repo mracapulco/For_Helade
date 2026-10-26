@@ -137,6 +137,8 @@ var _andar_garota: Tween
 var _ar_do_sonho: CanvasLayer
 ## Velocidade e corrida de Nicholas antes do sonho, para devolver ao acordar.
 var _passo_fora_do_sonho := Vector2.ZERO
+## As frases do começo do sonho ainda estão na tela.
+var _narrando_sonho := false
 
 ## Objetos da sala atual que a sequência usa.
 var objetos := {}
@@ -197,8 +199,16 @@ func montar_sonho() -> void:
 	# Ela segue pelo corredor um pouco mais rápido que ele e para diante da
 	# porta: ele só a alcança ali, quando as frases já passaram.
 	_andar_garota = _andar(garota, sala.centro(Vector2i(2, 1)), TEMPO_DA_GAROTA)
+	# A narração começa junto com o clarear, para terminar antes de ele
+	# chegar até ela (Rafael, 26/10/2026).
+	_narrar_sonho()
 	await _clarear()
-	_frases("frases_sonho")
+
+
+func _narrar_sonho() -> void:
+	_narrando_sonho = true
+	await _frases("frases_sonho")
+	_narrando_sonho = false
 
 
 ## Nicholas chegou até a garota: ela se vira para ele ("À sua frente, ela
@@ -209,6 +219,8 @@ func chegar_na_garota() -> void:
 		return
 	_mudar("porta_do_sonho")
 	_travar(true)
+	while _narrando_sonho:    # se ele chegou antes, a narração termina primeiro
+		await get_tree().process_frame
 	if _andar_garota:
 		_andar_garota.kill()
 	var garota: Node2D = objetos["garota"]

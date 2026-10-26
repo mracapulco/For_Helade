@@ -25,6 +25,11 @@ Mercador: [Provisório] Precisa de alguma coisa para a estrada? [ID:ACAMP_MERCAD
 Viajante: [#retrato=neutro] [Provisório] A estrada é longa. Melhor dormir antes de seguir. [ID:ACAMP_VIAJANTE_001]
 => END
 
+~ viajante_pousada
+
+Viajante: [#retrato=neutro] [Provisório] A pousada é simples, mas bem cuidada. E a comida chega quente. [ID:ACAMP_VIAJANTE_POUSADA_001]
+=> END
+
 ~ rafael
 
 if Inventario.ja_coletado("charada_proskopos")

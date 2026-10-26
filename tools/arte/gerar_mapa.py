@@ -54,6 +54,9 @@ def ler_pontos(pasta):
 
 PASTA_DADOS = __file__.rsplit('/tools/', 1)[0] + '/data/mapa'
 PONTOS, ESTRADAS = ler_pontos(PASTA_DADOS)
+# Pontos desenhados como prédio em vez de tendas (construcao = true).
+CONSTRUCOES = {n[:-5] for n in __import__('os').listdir(PASTA_DADOS) if n.endswith('.tres')
+               and '\nconstrucao = true' in open(f'{PASTA_DADOS}/{n}', encoding='utf-8').read()}
 # Regiões que ganham desenho próprio.
 LOCAIS = {k: PONTOS[k] for k in ('norte', 'templo', 'atenas', 'agape', 'floresta_ninfas', 'olympia')}
 
@@ -551,6 +554,23 @@ def tenda(x, y, cor='prata'):
     ret(x, y - 4, x, y - 1, 'noite')
 
 
+def pousada(x, y):
+    """Pousada de beira de estrada: pedra embaixo, reboco em cima, telhado e janelas acesas."""
+    ret(x - 9, y - 6, x + 9, y, 'rocha')
+    ret(x - 9, y - 6, x - 7, y, 'rocha_sombra')
+    ret(x - 8, y - 12, x + 8, y - 7, 'marmore')
+    ret(x - 8, y - 12, x - 6, y - 7, 'marmore_sombra')
+    for i in range(6):
+        ret(x - 11 + i, y - 13 - i, x + 11 - i, y - 13 - i, 'telhado' if i else 'telhado_luz')
+    ret(x + 5, y - 19, x + 6, y - 15, 'rocha')                    # chaminé
+    ret(x - 1, y - 4, x + 1, y, 'terra'); ponto(x, y - 2, 'vela')  # porta
+    for wx in (-6, 5):
+        ret(x + wx, y - 4, x + wx + 1, y - 3, 'vela')
+        ret(x + wx, y - 10, x + wx + 1, y - 9, 'vela')
+    ret(x - 10, y + 1, x + 10, y + 1, 'noite')
+    luz(x, y - 4, 14)
+
+
 def fogueira(x, y):
     ret(x - 2, y, x + 2, y, 'terra')
     ret(x - 1, y - 3, x + 1, y - 1, 'vela')
@@ -776,9 +796,12 @@ for _ in range(80):
             and dist_mar[y, x] > 14 and livre(x, y, 60) and not ocupado(x, y, 40, aldeias):
         objetos.append((y, x, colina, ()))
 
-# Acampamentos: tendas e fogueira ao lado do ponto do mapa.
+# Acampamentos: tendas e fogueira ao lado do ponto do mapa. Os que viraram
+# prédio (construcao = true no .tres, como a pousada) ganham a casa.
 for ident, (x, y) in PONTOS.items():
-    if 'acampamento' in ident:
+    if ident in CONSTRUCOES:
+        objetos.append((y - 6, x - 20, pousada, ()))
+    elif 'acampamento' in ident:
         objetos.append((y - 10, x - 18, tenda, ('prata',)))
         objetos.append((y - 14, x + 16, tenda, ('olhos',)))
         objetos.append((y - 12, x - 2, fogueira, ()))

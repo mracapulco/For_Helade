@@ -31,6 +31,11 @@ enum Tipo {
 
 ## Cena carregada ao entrar. Vazio = ainda não existe.
 @export_file("*.tscn") var cena: String = ""
+## Missão da história que acontece aqui (a pousada do Cap. 2). Quando há, entrar
+## pergunta: descansar (abre [member cena]) ou fazer a missão.
+@export_file("*.tscn") var cena_missao: String = ""
+## Desenhado como prédio no mapa, e não como tenda (gerar_mapa.py lê isto).
+@export var construcao := false
 
 ## Já descoberto num jogo novo. Os outros aparecem quando Nicholas chega a
 ## um vizinho (como no mapa do Super Mario World). Provisório: a ordem real

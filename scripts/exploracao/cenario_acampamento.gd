@@ -32,6 +32,8 @@ const PISO_BORDA := Vector2i(7, 0)
 const CELULA_SAIDA := Vector2i(12, 7)
 
 const GRUPO_OBSTACULOS := &"navegacao_obstaculos"
+## Fundura (em pixels de chão) da colisão de um prédio no lugar da barraca.
+const LARGURA_CONSTRUCAO := 30.0
 
 enum Terreno { CHAO, CLAREIRA, CAMINHO, BORDA, MARGEM, AGUA }
 
@@ -42,6 +44,10 @@ enum Terreno { CHAO, CLAREIRA, CAMINHO, BORDA, MARGEM, AGUA }
 @export var reservados: Array[Node2D] = []
 @export var saida: Node2D
 @export var companheiro: Node2D
+## Viajante a mais (só aparece quando o bioma tem [member BiomaAcampamento.viajante]).
+@export var viajante: Node2D
+## Barraca, que vira o prédio quando o bioma tem [member BiomaAcampamento.construcao].
+@export var barraca: Node2D
 @export var textura_placa: Texture2D
 @export var textura_barco: Texture2D
 
@@ -63,6 +69,8 @@ func _ready() -> void:
 		fundo.collision_enabled = false
 	_posicionar_saida()
 	_vestir_companheiro()
+	_vestir_viajante()
+	_erguer_construcao()
 	_reservar()
 	_por_falesias()
 	_pintar_chao()
@@ -175,8 +183,46 @@ func _vestir_companheiro() -> void:
 		interagivel.marcador = bioma.marcador_companheiro
 
 
+## Sem viajante no bioma, o nó some do jogo: sem desenho nem colisão (a
+## conversa sai no [Acampamento], depois que ela fica pronta).
+## Precisa ser antes da Navegacao, que só conta os obstáculos que existirem.
+func _vestir_viajante() -> void:
+	if viajante == null:
+		return
+	if bioma.viajante == null:
+		viajante.remove_from_group(GRUPO_OBSTACULOS)
+		viajante.hide()
+		viajante.process_mode = Node.PROCESS_MODE_DISABLED
+		return
+	var visual := viajante.get_node_or_null("Visual") as Sprite2D
+	if visual:
+		visual.texture = bioma.viajante
+		_apoiar_no_chao(visual)
+	var interagivel := viajante.get_node_or_null("Interagivel") as Interagivel
+	if interagivel:
+		interagivel.marcador = bioma.marcador_viajante
+
+
+## O prédio toma o lugar da barraca: o desenho e uma colisão larga como ele.
+func _erguer_construcao() -> void:
+	if barraca == null or bioma.construcao == null:
+		return
+	var visual := barraca.get_node_or_null("Visual") as Sprite2D
+	if visual:
+		visual.texture = bioma.construcao
+		_apoiar_no_chao(visual)
+	var forma := barraca.get_node_or_null("Colisao") as CollisionShape2D
+	if forma:
+		var retangulo := RectangleShape2D.new()
+		retangulo.size = Vector2(bioma.construcao.get_width() * 0.85, LARGURA_CONSTRUCAO)
+		forma.shape = retangulo
+		forma.position = Vector2(0, -LARGURA_CONSTRUCAO / 2.0 + 2.0)
+
+
 func _reservar() -> void:
 	var nos := reservados.duplicate()
+	if viajante and bioma.viajante:
+		nos.append(viajante)
 	if saida:
 		nos.append(saida)
 	for no in nos:

@@ -426,3 +426,37 @@ func test_rafael_na_mata_costeira_e_shara_no_rio_de_agape() -> void:
 	acampamento.free()
 	await _abrir("oa_acampamento")
 	assert_eq((acampamento.get_node("Mercador/Interagivel") as Interagivel).marcador, "mercador")
+
+
+func test_pousada_tem_predio_viajante_e_cao() -> void:
+	await _abrir("oa_acampamento")
+	var bioma := acampamento.bioma
+	assert_eq((acampamento.get_node("Barraca/Visual") as Sprite2D).texture, bioma.construcao, "o prédio no lugar da barraca")
+	assert_is((acampamento.get_node("Barraca/Colisao") as CollisionShape2D).shape, RectangleShape2D, "colisão larga como o prédio")
+	assert_eq(acampamento.companheiro.marcador, "cao")
+	assert_true(acampamento.get_node("Viajante").visible)
+	assert_eq(acampamento.viajante.marcador, "viajante_pousada")
+	var fala: DialogueLine = await acampamento.viajante.dialogo.get_next_dialogue_line(acampamento.viajante.marcador)
+	assert_string_contains(fala.text, "[Provisório]")
+
+
+func test_pousada_salva_na_porta_e_tudo_fica_ao_alcance() -> void:
+	await _abrir("oa_acampamento")
+	var mapa := _mapa_navegacao()
+	var inicio := acampamento.get_node("Personagem").global_position as Vector2
+	for nome: String in ["Barraca", "Viajante"]:
+		var alvo := acampamento.get_node(nome + "/Interagivel") as Interagivel
+		var caminho := NavigationServer2D.map_get_path(mapa, inicio, alvo.global_position, true)
+		assert_false(caminho.is_empty(), nome)
+		if not caminho.is_empty():
+			assert_true(alvo.ao_alcance(caminho[caminho.size() - 1]), "%s fora de alcance" % nome)
+	acampamento.barraca.interagir()
+	assert_true(acampamento.tela_espacos.aberta(), "a porta abre os espaços para salvar")
+
+
+func test_sem_viajante_no_bioma_ele_nao_aparece() -> void:
+	await _abrir("og_acampamento")
+	var no := acampamento.get_node("Viajante") as Node2D
+	assert_false(no.visible)
+	assert_false(no.is_in_group(CenarioAcampamento.GRUPO_OBSTACULOS))
+	assert_false(acampamento.viajante.is_in_group(Interagivel.GRUPO_INTERAGIVEIS))

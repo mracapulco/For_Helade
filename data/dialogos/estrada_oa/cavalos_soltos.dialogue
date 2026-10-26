@@ -1,0 +1,57 @@
+## Estrada Atenas–Olympia, fase 1: "Cavalos soltos" (olivais da saída de Atenas).
+## Nada daqui é do livro: o susto, os cavalos e o carroceiro são inferência
+## (brainstorm aprovado por Rafael em 26/10/2026). O carroceiro é um figurante
+## inventado, com texto provisório. As frases soltas (frases_*) aparecem no
+## alto da tela, nunca na caixa de fala.
+
+~ frases_inicio
+
+Um estalo na estrada, e três cavalos do comboio disparam entre as oliveiras. [ID:EOA_CAV_FRASE_001]
+Leve os três ao cercado, sem encostar neles. [ID:EOA_CAV_FRASE_002]
+=> END
+
+~ frases_fim
+
+O último cavalo entra no cercado. A estrada está livre. [ID:EOA_CAV_FRASE_003]
+=> END
+
+~ frase_placa_fechada
+
+Os cavalos ainda estão soltos. O comboio não segue sem eles. [ID:EOA_CAV_FRASE_004]
+=> END
+
+~ frase_macieira_cheia
+
+Já há frutas na bolsa. [ID:EOA_CAV_FRASE_005]
+=> END
+
+~ carroceiro_inicio
+
+Carroceiro: [#retrato=neutro] [Provisório] Que susto, jovem senhor! Os cavalos se soltaram e correram para o olival. [ID:EOA_CAV_CARROCEIRO_001]
+Carroceiro: [Provisório] Cavalo foge de quem chega perto. Fique do outro lado e ele anda para o cercado. [ID:EOA_CAV_CARROCEIRO_002]
+Carroceiro: [Provisório] Só não corra: correndo, o senhor assusta de longe e ele dispara. [ID:EOA_CAV_CARROCEIRO_003]
+=> END
+
+~ carroceiro_dica_teimoso
+
+Carroceiro: [#retrato=neutro] [Provisório] O cinzento é teimoso. De frente, ele finca as patas e bufa. [ID:EOA_CAV_CARROCEIRO_004]
+Carroceiro: [Provisório] Dê a volta e chegue pelo lado. As muretas e as colunas ajudam a fechar o caminho. [ID:EOA_CAV_CARROCEIRO_005]
+=> END
+
+~ carroceiro_dica_guloso
+
+Carroceiro: [#retrato=neutro] [Provisório] O preto não foge de ninguém, mas também não obedece. [ID:EOA_CAV_CARROCEIRO_006]
+Carroceiro: [Provisório] Por uma fruta, ele vai atrás até o fim do mundo. A caixa de frutas caiu da carroça, ali perto. [ID:EOA_CAV_CARROCEIRO_007]
+Carroceiro: [Provisório] Com a fruta na mão, ele segue o senhor. E se jogar uma, ele vai buscar. [ID:EOA_CAV_CARROCEIRO_008]
+=> END
+
+~ carroceiro_fim
+
+Carroceiro: [#retrato=neutro] [Provisório] Os três no cercado! Muito obrigado, jovem senhor. [ID:EOA_CAV_CARROCEIRO_009]
+Carroceiro: [Provisório] Tome, pelo trabalho. Agora o comboio pode seguir para Olympia. [ID:EOA_CAV_CARROCEIRO_010]
+=> END
+
+~ carroceiro_depois
+
+Carroceiro: [#retrato=neutro] [Provisório] A estrada está livre. Boa viagem até Olympia! [ID:EOA_CAV_CARROCEIRO_011]
+=> END

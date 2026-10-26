@@ -95,7 +95,9 @@ ITEM_ELMO_KHRONOSSES_DESC,"Protege a cabeça. Deixa um pouco mais lento. Cores d
 ITEM_ELMO_BANDIDOS_NOME,Elmo de bandido
 ITEM_ELMO_BANDIDOS_DESC,"Protege a cabeça. Deixa um pouco mais lento. Peça de bandido."
 ITEM_CAIXA_FRUTAS_NOME,Caixa de frutas
-ITEM_CAIXA_FRUTAS_DESC,"Na mão livre. Improviso: a caixa vazia (as frutas ficaram onde ela estava). Protege pouco, mas é melhor que nada."
+ITEM_CAIXA_FRUTAS_DESC,"Na mão livre. Improviso: a caixa vazia (as frutas vão para a bolsa). Protege pouco, mas é melhor que nada."
+ITEM_FRUTA_NOME,Fruta
+ITEM_FRUTA_DESC,"Uma maçã madura da caixa de frutas. Na barra rápida, fica na mão; o clique a joga longe. Cavalos não resistem."
 ITEM_PANELA_NOME,Panela
 ITEM_PANELA_DESC,"Na mão livre. Improviso: protege pouco e ainda dá para bater com ela."
 BOLSA_BOTAO,Bolsa
@@ -267,3 +269,4 @@ CODICE_PILHAS_DE_LIVROS_TITULO,Pilhas de livros
 CODICE_PILHAS_DE_LIVROS_TEXTO,"Livros empilhados no chão e prateleiras desarrumadas: o castigo do Duque. Quando sai da linha, Nicholas arruma a biblioteca."
 CODICE_MESA_DE_XADREZ_TITULO,A mesa de xadrez
 CODICE_MESA_DE_XADREZ_TEXTO,"Pequena, redonda e levemente empoeirada, perto da janela. Duas cadeiras estofadas ficam uma de frente para a outra, alinhadas com o tabuleiro de mármore embutido no centro. O tampo se abre como um pequeno alçapão, onde as peças ficam guardadas."
+EOA_CAVALOS_TITULO,[Provisório] Olivais da saída de Atenas: cavalos soltos

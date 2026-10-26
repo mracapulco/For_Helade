@@ -22,6 +22,8 @@ var personagens: Array[Personagem] = [
 	# Convidados (easter egg, pessoas reais), cada um em um acampamento.
 	preload("res://data/personagens/rafael.tres"),
 	preload("res://data/personagens/shara.tres"),
+	# Estrada Atenas–Olympia, fase "Cavalos soltos": figurante inventado.
+	preload("res://data/personagens/carroceiro.tres"),
 ]
 
 

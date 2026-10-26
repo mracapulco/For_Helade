@@ -20,6 +20,9 @@ signal coletada
 @export var moedas := 0
 ## Id único desta recompensa no jogo. Vazio = cena + caminho do nó.
 @export var id_coleta := ""
+## Depois de pega, o objeto inteiro (o pai deste nó) some: a caixa de frutas
+## vai toda para a bolsa, com as frutas (Rafael, 26/10).
+@export var sumir_ao_pegar := false
 
 const COR_VAZIO := Color(0.55, 0.55, 0.6)
 
@@ -49,6 +52,9 @@ func entregar() -> void:
 
 
 func _esvaziar() -> void:
+	if sumir_ao_pegar and get_parent() is Node2D:
+		get_parent().queue_free()
+		return
 	if visual is Sprite2D and textura_vazio:
 		(visual as Sprite2D).texture = textura_vazio
 	elif visual:

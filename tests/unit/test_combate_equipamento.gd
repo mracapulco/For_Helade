@@ -161,14 +161,13 @@ func test_bau_de_armas_entrega_tudo() -> void:
 		assert_true(Inventario.tem(id), id)
 
 
-func test_pegar_a_caixa_deixa_as_frutas_no_lugar() -> void:
-	var visual_caixa: Sprite2D = sala.get_node("CaixaDeFrutas/Visual")
-	var com_frutas := visual_caixa.texture
+func test_pegar_a_caixa_leva_a_caixa_e_as_frutas() -> void:
 	var recompensa: Recompensa = sala.get_node("CaixaDeFrutas/Recompensa")
 	recompensa.entregar()
 	assert_true(Inventario.tem("caixa_frutas"), "fica com a caixa")
-	assert_ne(visual_caixa.texture, com_frutas)
-	assert_string_contains(visual_caixa.texture.resource_path, "frutas_no_chao", "as frutas ficam no chão")
+	assert_true(Inventario.tem("fruta", 5), "e com as frutas (Rafael, 26/10)")
+	await get_tree().process_frame
+	assert_null(sala.get_node_or_null("CaixaDeFrutas"), "nada fica no chão")
 
 
 func test_bolsa_mostra_os_bonus() -> void:

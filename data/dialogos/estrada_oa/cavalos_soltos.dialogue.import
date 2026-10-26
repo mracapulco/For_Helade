@@ -1,0 +1,16 @@
+[remap]
+
+importer="dialogue_manager"
+importer_version=18
+type="Resource"
+uid="uid://c0x5wa6be1q5e"
+path="res://.godot/imported/cavalos_soltos.dialogue-648e5c977d1fff57e8192cc7da45bdac.tres"
+
+[deps]
+
+source_file="res://data/dialogos/estrada_oa/cavalos_soltos.dialogue"
+dest_files=["res://.godot/imported/cavalos_soltos.dialogue-648e5c977d1fff57e8192cc7da45bdac.tres"]
+
+[params]
+
+defaults=true

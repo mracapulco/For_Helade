@@ -9,4 +9,5 @@ chave_nome = "MAPA_ESTRADA_NOME"
 chave_regiao = "MAPA_ROTA_OLYMPIA_ATENAS"
 posicao = Vector2(452, 790)
 tipo = 1
+cena = "res://scenes/estrada_oa/cavalos_soltos/cavalos_soltos.tscn"
 vizinhos = Array[String](["atenas"])

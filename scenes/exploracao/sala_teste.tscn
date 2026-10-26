@@ -21,7 +21,6 @@
 [ext_resource type="Texture2D" path="res://assets/art/placeholders/combate/flecha.png" id="28_flecha"]
 [ext_resource type="Script" path="res://scripts/systems/vida.gd" id="29_vida"]
 [ext_resource type="Texture2D" path="res://assets/art/placeholders/exploracao/caixa_com_frutas.png" id="30_caixa_frutas"]
-[ext_resource type="Texture2D" path="res://assets/art/placeholders/exploracao/frutas_no_chao.png" id="31_frutas_chao"]
 [ext_resource type="Script" path="res://scripts/systems/efeitos_temporarios.gd" id="32_efeitos"]
 [ext_resource type="Script" path="res://scripts/exploracao/inimigo.gd" id="33_inimigo"]
 [ext_resource type="Script" path="res://scripts/exploracao/barra_vida_mundo.gd" id="34_barra_vida"]
@@ -322,10 +321,11 @@ shape = SubResource("CircleShape2D_bau_toque")
 script = ExtResource("14_recompensa")
 interagivel = NodePath("../Interagivel")
 visual = NodePath("../Visual")
-textura_vazio = ExtResource("31_frutas_chao")
 itens = Dictionary[String, int]({
-"caixa_frutas": 1
+"caixa_frutas": 1,
+"fruta": 5
 })
+sumir_ao_pegar = true
 
 [node name="GuardaTeste" type="StaticBody2D" parent="." groups=["navegacao_obstaculos"]]
 position = Vector2(256, 320)

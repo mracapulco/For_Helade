@@ -267,3 +267,19 @@ CODICE_PILHAS_DE_LIVROS_TITULO,Pilhas de livros
 CODICE_PILHAS_DE_LIVROS_TEXTO,"Livros empilhados no chão e prateleiras desarrumadas: o castigo do Duque. Quando sai da linha, Nicholas arruma a biblioteca."
 CODICE_MESA_DE_XADREZ_TITULO,A mesa de xadrez
 CODICE_MESA_DE_XADREZ_TEXTO,"Pequena, redonda e levemente empoeirada, perto da janela. Duas cadeiras estofadas ficam uma de frente para a outra, alinhadas com o tabuleiro de mármore embutido no centro. O tampo se abre como um pequeno alçapão, onde as peças ficam guardadas."
+OA_SOL_TITULO,Antes que o sol beije o mar
+OA_SOL_DICA_INICIO,Chegue ao mirante antes que o sol beije o mar.
+OA_SOL_DICA_CONTROLES,Shift corre e gasta fôlego. Espaço pula as muretas. O capim alto atrasa.
+OA_SOL_DICA_VENTO,O vento vira e sopra do mar. Atrás das pedras ele não alcança.
+OA_SOL_DICA_POS,O sol se pôs. Olympia ainda espera lá na frente.
+OA_SOL_TRILHA,"Do alto da mureta, uma trilha entre as pedras brancas."
+OA_SOL_FOLEGO,Fôlego
+OA_SOL_SEGUIR,Seguir para Olympia
+OA_SOL_DE_NOVO,Tentar de novo
+OA_SOL_FRASE_SOL,O Sol quase beijava o oceano.
+OA_SOL_FRASE_OLYMPIA,"A majestosa Olympia, berço dos antigos guerreiros de Hélade."
+OA_SOL_FRASE_CASTELO,"O Castelo Olympia, a fortaleza impenetrável do sul."
+CODICE_VISTA_DE_OLYMPIA_TITULO,A vista de Olympia
+CODICE_VISTA_DE_OLYMPIA_TEXTO,"O Sol quase beijava o oceano, e o céu era pintado da cor salmão, com tons de cor-de-rosa e laranja."
+CODICE_TRILHA_PEDRAS_BRANCAS_TITULO,A trilha das pedras brancas
+CODICE_TRILHA_PEDRAS_BRANCAS_TEXTO,"Do alto da mureta, Nicholas viu uma trilha entre as pedras brancas, escondida no capim."

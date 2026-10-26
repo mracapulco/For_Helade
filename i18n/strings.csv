@@ -162,6 +162,10 @@ MAPA_SEM_CENA,"[Provisório] Este lugar ainda não tem cena."
 MAPA_ESTRADA_NOME,Estrada
 MAPA_TRILHA_NOME,Trilha
 MAPA_ACAMPAMENTO_NOME,Acampamento
+MAPA_POUSADA_NOME,Pousada
+MAPA_DESCANSAR,Descansar
+MAPA_MISSAO,Missão
+MAPA_MISSAO_EM_BREVE,"[Provisório] A missão desta parte da história ainda não existe."
 MAPA_PORTO_NOME,Porto
 MAPA_ROTA_OLYMPIA_ATENAS,"[Provisório] Estrada principal, de Olympia a Atenas"
 MAPA_ROTA_OLYMPIA_ATENAS_TRILHA,"[Provisório] Caminho secundário, de Olympia a Atenas"
@@ -179,7 +183,7 @@ MAPA_ROTA_OLYMPIA_FLORESTA,"[Provisório] Rota de barco, de Olympia à Floresta 
 MAPA_ROTA_AGAPE_FLORESTA,"[Provisório] Rota de barco, de Ágape à Floresta das Ninfas"
 ACAMP_SALVO,Progresso salvo.
 ACAMP_BOTAO_MAPA,Voltar ao mapa
-ACAMP_NOME_OA,[Provisório] Acampamento na campina à beira do rio
+ACAMP_NOME_OA,[Provisório] Pousada na estrada de Olympia
 ACAMP_NOME_OT,[Provisório] Acampamento na mata perto das falésias
 ACAMP_NOME_OG,[Provisório] Acampamento nas colinas geladas
 ACAMP_NOME_AG,[Provisório] Acampamento à beira do rio entre os parreirais

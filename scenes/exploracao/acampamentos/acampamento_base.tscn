@@ -77,7 +77,7 @@ z_index = -2
 [node name="Chao" type="TileMapLayer" parent="."]
 z_index = -1
 
-[node name="Cenario" type="Node2D" parent="." node_paths=PackedStringArray("chao", "fundo", "reservados", "saida", "companheiro")]
+[node name="Cenario" type="Node2D" parent="." node_paths=PackedStringArray("chao", "fundo", "reservados", "saida", "companheiro", "viajante", "barraca")]
 y_sort_enabled = true
 script = ExtResource("3_cenario")
 chao = NodePath("../Chao")
@@ -85,6 +85,8 @@ fundo = NodePath("../Fundo")
 reservados = [NodePath("../Fogueira"), NodePath("../Barraca"), NodePath("../Mercador"), NodePath("../Banca"), NodePath("../Companheiro"), NodePath("../Personagem")]
 saida = NodePath("../Saida")
 companheiro = NodePath("../Companheiro")
+viajante = NodePath("../Viajante")
+barraca = NodePath("../Barraca")
 textura_placa = ExtResource("21_placa")
 textura_barco = ExtResource("22_barco")
 
@@ -230,6 +232,25 @@ dialogo = ExtResource("11_dialogo")
 marcador = "viajante"
 
 [node name="AreaDeToque" type="CollisionShape2D" parent="Companheiro/Interagivel"]
+position = Vector2(0, -10)
+shape = SubResource("Toque_figurante")
+
+[node name="Viajante" type="StaticBody2D" parent="." groups=["navegacao_obstaculos"]]
+position = Vector2(-64, 288)
+
+[node name="Visual" type="Sprite2D" parent="Viajante"]
+texture = ExtResource("20_viajante")
+offset = Vector2(0, -21)
+
+[node name="Colisao" type="CollisionShape2D" parent="Viajante"]
+shape = SubResource("Forma_figurante")
+
+[node name="Interagivel" type="Area2D" parent="Viajante"]
+script = ExtResource("10_inter")
+dialogo = ExtResource("11_dialogo")
+marcador = "viajante"
+
+[node name="AreaDeToque" type="CollisionShape2D" parent="Viajante/Interagivel"]
 position = Vector2(0, -10)
 shape = SubResource("Toque_figurante")
 

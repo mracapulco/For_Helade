@@ -324,3 +324,51 @@ func test_mapa_aberto_ja_adulto_mostra_o_adulto() -> void:
 	mapa.trocar_de_cena = false
 	await wait_process_frames(2)
 	assert_eq(mapa.nicholas.sprite_frames, AparenciaNicholas.quadros(Inventario.FaixaEtaria.ADULTO))
+
+
+func test_pousada_pergunta_descansar_ou_missao() -> void:
+	_descobrir_tudo()
+	mapa.colocar_em("oa_acampamento")
+	assert_eq(mapa.nome_local.text, "Pousada")
+	_apertar(&"interagir")
+	assert_true(mapa.escolhendo)
+	assert_false(mapa.botao_entrar.visible)
+	assert_true(mapa.botao_descansar.visible and mapa.botao_missao.visible and mapa.botao_voltar.visible)
+	assert_eq(mapa.cena_pedida, "", "ainda não saiu do mapa")
+
+
+func test_pousada_descansar_abre_o_patio() -> void:
+	_descobrir_tudo()
+	mapa.colocar_em("oa_acampamento")
+	mapa.entrar()
+	_apertar(&"interagir") # Descansar começa selecionado
+	assert_false(mapa.escolhendo)
+	assert_eq(mapa.cena_pedida, mapa.grafo.local("oa_acampamento").cena)
+
+
+func test_pousada_missao_avisa_enquanto_nao_existe() -> void:
+	_descobrir_tudo()
+	mapa.colocar_em("oa_acampamento")
+	mapa.entrar()
+	_apertar(&"mover_tras")
+	assert_eq(get_viewport().gui_get_focus_owner(), mapa.botao_missao)
+	_apertar(&"interagir")
+	if ResourceLoader.exists(mapa.grafo.local("oa_acampamento").cena_missao):
+		assert_eq(mapa.cena_pedida, mapa.grafo.local("oa_acampamento").cena_missao)
+	else:
+		assert_eq(mapa.aviso.text, tr("MAPA_MISSAO_EM_BREVE"))
+		assert_eq(mapa.cena_pedida, "")
+
+
+func test_pousada_esc_fecha_a_escolha() -> void:
+	_descobrir_tudo()
+	mapa.colocar_em("oa_acampamento")
+	mapa.entrar()
+	_apertar(&"ui_cancel")
+	assert_false(mapa.escolhendo)
+	assert_true(mapa.botao_entrar.visible)
+
+
+func test_so_a_pousada_e_desenhada_como_predio() -> void:
+	for id: String in mapa.grafo.locais:
+		assert_eq(mapa.grafo.local(id).construcao, id == "oa_acampamento", id)

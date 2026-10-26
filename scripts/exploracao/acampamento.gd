@@ -4,10 +4,12 @@ extends Node2D
 ## da exploração. A cena base é scenes/exploracao/acampamentos/acampamento_base.tscn;
 ## cada acampamento é uma cena herdada dela que só troca o [member bioma].
 ## - Barraca: abre a lista dos 10 espaços para salvar (fica na mesma etapa da
-##   história).
+##   história). Na pousada, a barraca é o prédio ([member BiomaAcampamento.construcao]).
 ## - Mercador: conversa provisória até existir a loja.
 ## - Companheiro: animal ou viajante, conforme o bioma. O animal faz o seu som
 ##   e um movimento próprio quando o jogador interage ([method reagir]).
+## - Viajante: gente de passagem além do animal, só onde o bioma tem
+##   [member BiomaAcampamento.viajante] (a pousada).
 ## - Fogueira e mercador animados; neve, insetos, pássaros e vaga-lumes vêm do
 ##   [VidaAcampamento], conforme o bioma.
 ## - Saída (placa ou barco) e o botão "Voltar ao mapa": voltam ao mapa de Hélade.
@@ -38,6 +40,7 @@ var trocar_de_cena := true
 @onready var barraca: Interagivel = $Barraca/Interagivel
 @onready var mercador: Interagivel = $Mercador/Interagivel
 @onready var companheiro: Interagivel = $Companheiro/Interagivel
+@onready var viajante: Interagivel = $Viajante/Interagivel
 @onready var saida: Interagivel = $Saida/Interagivel
 @onready var aviso: AvisoItens = $AvisoItens
 @onready var ambiente: CanvasModulate = $Ambiente
@@ -67,6 +70,8 @@ func _ready() -> void:
 	add_child(tela_espacos)
 	tela_espacos.escolhido.connect(salvar_no_espaco)
 	companheiro.interagido.connect(reagir)
+	if bioma == null or bioma.viajante == null:
+		viajante.remove_from_group(Interagivel.GRUPO_INTERAGIVEIS)
 	saida.interagido.connect(voltar_ao_mapa)
 	botao_mapa.pressed.connect(voltar_ao_mapa)
 	botao_mapa.add_to_group(BotoesToque.GRUPO_BLOQUEIA_TOQUE)

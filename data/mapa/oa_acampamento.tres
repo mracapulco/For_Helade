@@ -5,9 +5,11 @@
 [resource]
 script = ExtResource("1_local")
 id = "oa_acampamento"
-chave_nome = "MAPA_ACAMPAMENTO_NOME"
+chave_nome = "MAPA_POUSADA_NOME"
 chave_regiao = "MAPA_ROTA_OLYMPIA_ATENAS"
 posicao = Vector2(566, 930)
 tipo = 2
 vizinhos = Array[String](["oa_estrada_3"])
 cena = "res://scenes/exploracao/acampamentos/oa_acampamento.tscn"
+cena_missao = "res://scenes/capitulo_02/capitulo_02.tscn"
+construcao = true

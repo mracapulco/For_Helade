@@ -7,6 +7,10 @@ extends Node2D
 ## O que ainda não foi descoberto fica sob a névoa: ao chegar num lugar, os
 ## vizinhos dele aparecem. Dia e noite vêm do autoload Mundo.
 ##
+## Onde há missão ([member LocalMapa.cena_missao], como na pousada), entrar
+## pergunta antes: Descansar abre o lugar (salvar, mercador...) e Missão abre a
+## parte da história.
+##
 ## Por enquanto o mapa não é livre: quando a parte da história tem fase
 ## ([FasesHistoria]), Nicholas fica no reino dela e só pode entrar na cidade.
 
@@ -98,6 +102,13 @@ var _quadros_a_pe: SpriteFrames
 var _de_barco := false
 ## Fase da história em andamento ({local, cena}); vazio = mapa livre.
 var fase: Dictionary = {}
+## Escolha de quem entra num lugar com missão (botões na placa, no lugar do Entrar).
+var escolhendo := false
+var botao_descansar: Button
+var botao_missao: Button
+var botao_voltar: Button
+## Última cena pedida ao entrar (os testes olham isto).
+var cena_pedida := ""
 
 
 func _ready() -> void:
@@ -122,6 +133,7 @@ func _ready() -> void:
 	liberar(inicio)
 	caminhos.draw.connect(_desenhar_caminhos)
 	botao_entrar.pressed.connect(entrar)
+	_criar_escolha()
 	botao_periodo.pressed.connect(Mundo.alternar_periodo)
 	placa.add_to_group(BotoesToque.GRUPO_BLOQUEIA_TOQUE)
 	botao_periodo.add_to_group(BotoesToque.GRUPO_BLOQUEIA_TOQUE)
@@ -209,6 +221,9 @@ func _unhandled_input(evento: InputEvent) -> void:
 		elif not preso_na_fase():
 			viajar_para(id)
 		return
+	if escolhendo:
+		_escolher_pelo_teclado(evento)
+		return
 	if evento.is_action_pressed(&"interagir"):
 		get_viewport().set_input_as_handled()
 		entrar()
@@ -258,6 +273,8 @@ func viajar_para(destino: String) -> bool:
 	var trechos := grafo.caminho(local_atual, destino, liberados)
 	if trechos.size() < 2:
 		return false
+	if escolhendo:
+		fechar_escolha()
 	andando = true
 	aviso.text = ""
 	placa.hide()
@@ -282,15 +299,97 @@ func terminar_viagem() -> void:
 
 
 func entrar() -> void:
-	if andando or local_atual.is_empty():
+	if andando or local_atual.is_empty() or escolhendo:
 		return
 	entrada_pedida.emit(local_atual)
-	var cena := cena_ao_entrar(local_atual)
+	if tem_missao(local_atual):
+		abrir_escolha()
+		return
+	_ir_para(cena_ao_entrar(local_atual))
+
+
+func _ir_para(cena: String) -> void:
 	if cena.is_empty():
 		aviso.text = tr("MAPA_SEM_CENA")
 		return
+	cena_pedida = cena
 	if trocar_de_cena:
 		TrocaCena.ir_para(cena)
+
+
+## Lugar onde se pode descansar ou fazer a missão da história.
+func tem_missao(id: String) -> bool:
+	var local := grafo.local(id)
+	return local != null and not local.cena_missao.is_empty() and fase.get("local", "") != id
+
+
+func abrir_escolha() -> void:
+	escolhendo = true
+	aviso.text = ""
+	botao_entrar.hide()
+	for botao: Button in [botao_descansar, botao_missao, botao_voltar]:
+		botao.show()
+	botao_descansar.grab_focus()
+
+
+func fechar_escolha() -> void:
+	escolhendo = false
+	for botao: Button in [botao_descansar, botao_missao, botao_voltar]:
+		botao.hide()
+	botao_entrar.show()
+
+
+## Descansar: abre o lugar (na pousada, o pátio com a cama para salvar).
+func descansar() -> void:
+	fechar_escolha()
+	_ir_para(cena_ao_entrar(local_atual))
+
+
+## Missão: abre a parte da história. Enquanto ela não existe, só avisa.
+func fazer_missao() -> void:
+	var cena := grafo.local(local_atual).cena_missao
+	if not ResourceLoader.exists(cena):
+		aviso.text = tr("MAPA_MISSAO_EM_BREVE")
+		return
+	fechar_escolha()
+	_ir_para(cena)
+
+
+func _criar_escolha() -> void:
+	var coluna := botao_entrar.get_parent()
+	botao_descansar = _novo_botao_da_escolha("MAPA_DESCANSAR", descansar)
+	botao_missao = _novo_botao_da_escolha("MAPA_MISSAO", fazer_missao)
+	botao_voltar = _novo_botao_da_escolha("MENU_VOLTAR", fechar_escolha)
+	for botao: Button in [botao_descansar, botao_missao, botao_voltar]:
+		coluna.add_child(botao)
+
+
+func _novo_botao_da_escolha(chave: String, ao_apertar: Callable) -> Button:
+	var botao := Button.new()
+	botao.text = chave
+	botao.custom_minimum_size = botao_entrar.custom_minimum_size
+	botao.size_flags_horizontal = botao_entrar.size_flags_horizontal
+	botao.theme = botao_entrar.theme
+	botao.hide()
+	botao.pressed.connect(ao_apertar)
+	return botao
+
+
+## Com a escolha aberta: cima/baixo trocam o botão, E/Enter aperta, Esc volta.
+func _escolher_pelo_teclado(evento: InputEvent) -> void:
+	var botoes: Array[Button] = [botao_descansar, botao_missao, botao_voltar]
+	var atual := botoes.find(get_viewport().gui_get_focus_owner())
+	if evento.is_action_pressed(&"ui_cancel"):
+		fechar_escolha()
+	elif evento.is_action_pressed(&"interagir") or evento.is_action_pressed(&"ui_accept"):
+		botoes[maxi(atual, 0)].pressed.emit()
+	elif evento.is_action_pressed(&"mover_frente") or evento.is_action_pressed(&"ui_up"):
+		botoes[wrapi(atual - 1, 0, botoes.size())].grab_focus()
+	elif evento.is_action_pressed(&"mover_tras") or evento.is_action_pressed(&"ui_down"):
+		botoes[wrapi(atual + 1, 0, botoes.size())].grab_focus()
+	else:
+		return
+	get_viewport().set_input_as_handled()
 
 
 ## Cena que abre ao entrar em [param id]: a fase da história, se ela acontece
@@ -432,6 +531,14 @@ func _desenhar_local(local: LocalMapa) -> void:
 		LocalMapa.Tipo.ESTRADA:
 			caminhos.draw_circle(p, RAIO_ETAPA + 1.0, COR_PONTO)
 			caminhos.draw_circle(p, RAIO_ETAPA, contorno)
+		LocalMapa.Tipo.ACAMPAMENTO when local.construcao:
+			# casinha: paredes e telhado
+			caminhos.draw_rect(Rect2(p + Vector2(-6, -3), Vector2(12, 7)), contorno)
+			caminhos.draw_rect(Rect2(p + Vector2(-6, -3), Vector2(12, 7)), COR_PONTO, false, 1.0)
+			var telhado := PackedVector2Array([p + Vector2(0, -10), p + Vector2(8, -3), p + Vector2(-8, -3)])
+			caminhos.draw_colored_polygon(telhado, contorno)
+			caminhos.draw_polyline(telhado + PackedVector2Array([telhado[0]]), COR_PONTO, 1.0)
+			caminhos.draw_rect(Rect2(p + Vector2(-1, 0), Vector2(2, 4)), COR_PONTO)
 		LocalMapa.Tipo.ACAMPAMENTO:
 			var tenda := PackedVector2Array([p + Vector2(0, -8), p + Vector2(7, 3), p + Vector2(-7, 3)])
 			caminhos.draw_colored_polygon(tenda, contorno)

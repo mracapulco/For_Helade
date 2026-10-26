@@ -634,6 +634,11 @@ BIOMAS = {
                    clareira=('areia_sombra', 'rocha', 'areia'), margem=('areia_sombra', 'rocha', 'areia'),
                    agua=('mar', 'mar_fundo', 'espuma'),
                    borda=dict(cores=('rocha', 'rocha_sombra', 'rocha_luz'))),
+    # oa: pousada na estrada Atenas–Olympia (pátio de pedra, campina e rio)
+    'pousada': dict(chao=('grama', 'grama_sombra', 'grama_luz'), riscos='grama_luz', manchas=('ouro_luz',),
+                    clareira=('pedra', 'pedra_sombra', 'pedra_luz'), margem=('areia_sombra', 'terra', 'areia'),
+                    agua=('mar_raso', 'mar', 'espuma'),
+                    borda=dict(cores=('campo', 'campo_sombra', 'campo_quente'), listras=('campo_sombra', 3))),
 }
 
 
@@ -1042,6 +1047,141 @@ def passaro():
     return faixa([_pixels(10, 7, {p: c for p in pts}) for pts in (cima, baixo)])
 
 
+# ---------- pousada da estrada Atenas–Olympia (oa_acampamento) ----------
+# O livro (Cap. 2 da Parte I) só diz "uma simples pousada", "não era grande,
+# era simples, mas bem cuidada". O desenho é inferência.
+
+def pousada():
+    # casa de dois andares vista de frente: pedra embaixo, enxaimel em cima,
+    # telhado de telha, porta no meio com lanterna e a placa pendurada
+    q = Q(120, 100)
+    q.sombra_no_chao(60, 94, 56, 4)
+    # telhado
+    for y in range(10, 33):
+        meia = 38 + (y - 10) * 18 // 22
+        q.linha(y, 60 - meia, 60 + meia, 'telhado')
+        if (y - 10) % 4 == 3:
+            q.linha(y, 60 - meia, 60 + meia, 'telhado_luz' if y < 20 else 'madeira_sombra')
+    q.linha(10, 22, 98, 'telhado_luz')
+    for x in range(6, 115, 6):
+        q.p(x, 32, 'madeira_sombra')
+    # chaminé com fumacinha
+    q.r(88, 2, 95, 14, 'pedra'); q.coluna(88, 2, 14, 'pedra_luz'); q.linha(2, 87, 96, 'pedra_sombra')
+    q.p(91, 0, 'nuvem'); q.p(93, 1, 'azul_luz')
+    # andar de cima: reboco com vigas de madeira
+    q.r(12, 33, 107, 56, 'prata')
+    q.r(12, 33, 15, 56, 'prata_sombra')
+    for x in (12, 36, 60, 84, 106):
+        q.r(x, 33, x + 1, 56, 'madeira')
+    q.linha(33, 12, 107, 'madeira'); q.linha(44, 12, 107, 'madeira_sombra'); q.linha(56, 12, 107, 'madeira')
+    for x0 in (16, 64):  # mãos-francesas em X
+        for i in range(10):
+            q.p(x0 + i * 2, 34 + i, 'madeira'); q.p(x0 + 18 - i * 2, 34 + i, 'madeira')
+    # janelas de cima, com venezianas
+    for x in (42, 88):
+        q.r(x, 37, x + 9, 50, 'noite'); q.r(x + 1, 38, x + 8, 49, 'vela_escura')
+        q.r(x + 2, 39, x + 7, 44, 'vela'); q.coluna(x + 4, 38, 49, 'madeira')
+        q.r(x - 4, 37, x - 1, 50, 'olho_escuro'); q.r(x + 10, 37, x + 13, 50, 'olho_escuro')
+        q.linha(51, x - 1, x + 10, 'madeira_luz')
+    # andar de baixo: pedra em fiadas
+    q.r(10, 57, 109, 92, 'pedra')
+    for y in range(57, 93, 5):
+        q.linha(y, 10, 109, 'pedra_sombra')
+        off = 0 if (y // 5) % 2 else 6
+        for x in range(10 + off, 110, 12):
+            q.coluna(x, y, min(y + 4, 92), 'pedra_sombra')
+            q.p(x + 2, y + 1, 'pedra_luz')
+    q.r(10, 57, 13, 92, 'pedra_sombra')
+    # porta em arco, entreaberta com luz
+    q.r(52, 66, 67, 92, 'madeira')
+    q.elipse(59, 66, 8, 5, 'madeira')
+    q.r(54, 67, 65, 92, 'madeira_sombra')
+    q.r(60, 69, 65, 92, 'vela_escura'); q.r(61, 72, 64, 92, 'vela')
+    q.r(52, 62, 67, 63, 'pedra_luz')
+    q.p(58, 80, 'ouro_luz')
+    q.r(50, 92, 69, 93, 'pedra_luz')                                 # degrau
+    # janelas de baixo, acesas
+    for x in (20, 86):
+        q.r(x, 66, x + 13, 79, 'noite'); q.r(x + 1, 67, x + 12, 78, 'vela')
+        q.coluna(x + 6, 67, 78, 'madeira'); q.linha(72, x + 1, x + 12, 'madeira')
+        q.r(x + 2, 68, x + 4, 70, 'ouro_luz')
+        q.linha(80, x - 1, x + 14, 'pedra_luz')
+    # lanterna ao lado da porta
+    q.r(71, 64, 74, 65, 'madeira'); q.r(73, 66, 76, 72, 'ouro_sombra'); q.r(74, 67, 75, 71, 'vela')
+    # placa pendurada num braço, com uma caneca pintada
+    q.r(32, 58, 47, 59, 'madeira')
+    q.coluna(35, 59, 61, 'pedra_sombra'); q.coluna(44, 59, 61, 'pedra_sombra')
+    q.r(32, 62, 47, 72, 'madeira_luz'); q.linha(72, 32, 47, 'madeira_sombra')
+    q.r(37, 64, 41, 70, 'ouro'); q.r(42, 65, 43, 68, 'ouro'); q.linha(64, 37, 41, 'branco')
+    # banco de madeira encostado na parede
+    q.r(76, 86, 84, 87, 'madeira_luz'); q.coluna(77, 88, 91, 'madeira'); q.coluna(83, 88, 91, 'madeira')
+    return q.contornar()
+
+
+def cerca():
+    # pedaço de cerca de madeira (três postes e duas travessas)
+    q = Q(40, 24)
+    q.sombra_no_chao(20, 21, 18, 2)
+    for x in (3, 19, 35):
+        q.r(x, 4, x + 2, 21, 'madeira'); q.coluna(x, 4, 21, 'madeira_luz')
+        q.p(x + 1, 3, 'madeira_luz')
+    for y in (8, 15):
+        q.r(1, y, 38, y + 1, 'madeira_luz'); q.linha(y + 1, 1, 38, 'madeira')
+    return q.contornar()
+
+
+def barril():
+    q = Q(18, 22)
+    q.sombra_no_chao(9, 19, 7, 2)
+    q.elipse(9, 11, 7, 9, 'madeira')
+    q.r(3, 4, 15, 18, 'madeira')
+    q.coluna(4, 4, 18, 'madeira_luz'); q.coluna(14, 4, 18, 'madeira_sombra')
+    for y in (6, 11, 16):
+        q.linha(y, 2, 16, 'pedra_sombra')
+    q.elipse(9, 3, 6, 2, 'madeira_luz'); q.elipse(9, 3, 4, 1, 'madeira_sombra')
+    return q.contornar()
+
+
+def carroca():
+    # carroça do comboio parada, com fardos de feno e lona
+    q = Q(56, 40)
+    q.sombra_no_chao(28, 36, 26, 3)
+    q.r(4, 20, 46, 28, 'madeira')
+    q.linha(20, 4, 46, 'madeira_luz'); q.linha(28, 4, 46, 'madeira_sombra')
+    for x in (14, 25, 36):
+        q.coluna(x, 21, 27, 'madeira_sombra')
+    q.r(6, 10, 26, 19, 'campo_quente'); q.linha(10, 6, 26, 'ouro_luz')   # feno
+    for x in range(7, 26, 3):
+        q.p(x, 13, 'campo_sombra'); q.p(x + 1, 16, 'campo_sombra')
+    q.r(28, 8, 44, 19, 'prata'); q.linha(8, 28, 44, 'lua')               # lona
+    q.coluna(36, 9, 19, 'prata_sombra')
+    q.r(46, 24, 55, 25, 'madeira')                                        # varal
+    for cx in (12, 38):                                                   # rodas
+        q.elipse(cx, 31, 6, 6, 'madeira_sombra'); q.elipse(cx, 31, 4, 4, 'madeira')
+        q.elipse(cx, 31, 2, 2, 'madeira_sombra'); q.p(cx, 31, 'ouro')
+    return q.contornar()
+
+
+def feno():
+    q = Q(24, 18)
+    q.sombra_no_chao(12, 15, 11, 2)
+    q.r(2, 5, 21, 15, 'campo_quente')
+    q.linha(5, 2, 21, 'ouro_luz'); q.linha(15, 2, 21, 'campo_sombra')
+    for x in (7, 16):
+        q.coluna(x, 5, 15, 'madeira')
+    for x in range(3, 21, 3):
+        q.p(x, 9, 'campo_sombra'); q.p(x + 1, 12, 'ouro')
+    return q.contornar()
+
+
+def lajota():
+    # lajes soltas no chão do pátio (enfeite sem colisão)
+    q = Q(22, 10)
+    for (x0, y0, x1, y1) in ((1, 1, 8, 4), (10, 2, 19, 5), (4, 6, 12, 8)):
+        q.r(x0, y0, x1, y1, 'pedra_luz'); q.linha(y1, x0, x1, 'pedra')
+    return q.im
+
+
 ARTES = {
     'barraca': barraca, 'fogueira': fogueira, 'tronco': tronco, 'banca': banca,
     'placa_saida': placa_saida, 'barco': barco,
@@ -1055,6 +1195,9 @@ ARTES = {
     'tufo': tufo, 'flores': flores, 'juncos': juncos, 'neve_mancha': neve_mancha,
     'geada_tufo': geada_tufo, 'pedrinhas': pedrinhas, 'cogumelos': cogumelos,
     'folhas': folhas, 'conchas': conchas,
+    # pousada da estrada Atenas–Olympia
+    'pousada': pousada, 'cerca': cerca, 'barril': barril, 'carroca': carroca,
+    'feno': feno, 'lajota': lajota,
     # animações, falésias e partículas
     'fogueira_anim': fogueira_anim, 'falesia': falesia, 'falesia_b': falesia_b,
     'floco_neve': floco_neve, 'vagalume': vagalume, 'inseto': inseto, 'passaro': passaro,
@@ -1063,11 +1206,18 @@ ARTES.update({f'mercador_{i}': mercador_de(i) for i in ROUPAS})
 
 if __name__ == '__main__':
     os.makedirs(PASTA, exist_ok=True)
+    # Opcional: só as peças cujo nome contém o filtro (ex.: "pousada").
+    filtro = set(sys.argv[1:])
+    escolher = lambda nome: not filtro or nome in filtro
     for nome, desenhar in ARTES.items():
+        if not escolher(nome):
+            continue
         caminho = f'{PASTA}/{nome}.png'
         desenhar().save(caminho)
         print(caminho)
     for nome, bioma in BIOMAS.items():
+        if not escolher(nome):
+            continue
         caminho = f'{PASTA}/chao_{nome}.png'
         faixa_de_pisos(nome, bioma).save(caminho)
         print(caminho)

@@ -61,6 +61,15 @@ enum Lado {
 @export var companheiro: Texture2D
 ## Marcador (~ nome) em data/dialogos/acampamentos/acampamento.dialogue.
 @export var marcador_companheiro := "viajante"
+## Um viajante a mais, além do [member companheiro] (quando o companheiro é um
+## animal e o lugar também tem gente de passagem). Vazio = não aparece.
+@export var viajante: Texture2D
+@export var marcador_viajante := "viajante"
+
+@export_group("Construção")
+## Prédio no lugar da barraca (a pousada da estrada Atenas–Olympia). Vazio =
+## barraca. Interagir na porta abre os espaços para salvar, como na barraca.
+@export var construcao: Texture2D
 
 
 func tem_agua(lado: Lado) -> bool:

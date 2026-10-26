@@ -1,0 +1,73 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/estrada_oa/por_do_sol/fase_por_do_sol.gd" id="1_fase"]
+[ext_resource type="Script" path="res://scripts/exploracao/personagem_exploracao.gd" id="2_pers"]
+[ext_resource type="SpriteFrames" path="res://assets/art/personagens/nicholas/nicholas_exploracao.tres" id="3_nicholas"]
+[ext_resource type="Script" path="res://scripts/exploracao/animacao_personagem.gd" id="4_anim"]
+[ext_resource type="Script" path="res://scripts/exploracao/camera_exploracao.gd" id="5_camera"]
+[ext_resource type="PackedScene" path="res://scenes/ui/botoes_toque.tscn" id="6_botoes"]
+[ext_resource type="PackedScene" path="res://scenes/ui/tela_bolsa.tscn" id="7_bolsa"]
+[ext_resource type="PackedScene" path="res://scenes/ui/aviso_itens.tscn" id="8_aviso"]
+[ext_resource type="Script" path="res://scripts/ui/barra_rapida.gd" id="9_barra"]
+[ext_resource type="PackedScene" path="res://scenes/ui/tela_codice.tscn" id="10_codice"]
+
+[sub_resource type="CircleShape2D" id="Forma_personagem"]
+radius = 7.0
+
+[node name="PorDoSol" type="Node2D"]
+texture_filter = 1
+y_sort_enabled = true
+script = ExtResource("1_fase")
+
+[node name="Ambiente" type="CanvasModulate" parent="."]
+
+[node name="Fundo" type="TileMapLayer" parent="."]
+z_index = -2
+
+[node name="Chao" type="TileMapLayer" parent="."]
+z_index = -1
+
+[node name="Sombras" type="Node2D" parent="."]
+z_index = -1
+
+[node name="Objetos" type="Node2D" parent="."]
+y_sort_enabled = true
+
+[node name="Personagem" type="CharacterBody2D" parent="."]
+motion_mode = 1
+script = ExtResource("2_pers")
+
+[node name="Sombra" type="Polygon2D" parent="Personagem"]
+color = Color(0, 0, 0, 0.35)
+polygon = PackedVector2Array(10, 0, 9.6593, 1.2941, 8.6603, 2.5, 7.0711, 3.5355, 5, 4.3301, 2.5882, 4.8296, 0, 5, -2.5882, 4.8296, -5, 4.3301, -7.0711, 3.5355, -8.6603, 2.5, -9.6593, 1.2941, -10, 0, -9.6593, -1.2941, -8.6603, -2.5, -7.0711, -3.5355, -5, -4.3301, -2.5882, -4.8296, -0, -5, 2.5882, -4.8296, 5, -4.3301, 7.0711, -3.5355, 8.6603, -2.5, 9.6593, -1.2941)
+
+[node name="Corpo" type="Node2D" parent="Personagem"]
+
+[node name="Visual" type="AnimatedSprite2D" parent="Personagem/Corpo"]
+sprite_frames = ExtResource("3_nicholas")
+animation = &"parado_frente"
+offset = Vector2(0, -22)
+script = ExtResource("4_anim")
+nicholas_pela_idade = true
+
+[node name="Colisao" type="CollisionShape2D" parent="Personagem"]
+shape = SubResource("Forma_personagem")
+
+[node name="Camera" type="Camera2D" parent="Personagem"]
+script = ExtResource("5_camera")
+
+[node name="Agente" type="NavigationAgent2D" parent="Personagem"]
+path_desired_distance = 4.0
+target_desired_distance = 4.0
+radius = 7.0
+
+[node name="BotoesToque" parent="." instance=ExtResource("6_botoes")]
+
+[node name="TelaBolsa" parent="." instance=ExtResource("7_bolsa")]
+
+[node name="AvisoItens" parent="." instance=ExtResource("8_aviso")]
+
+[node name="BarraRapida" type="CanvasLayer" parent="."]
+script = ExtResource("9_barra")
+
+[node name="TelaCodice" parent="." instance=ExtResource("10_codice")]

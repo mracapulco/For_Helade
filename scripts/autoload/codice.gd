@@ -28,6 +28,9 @@ const ENTRADAS := {
 	# Biblioteca do Castelo Olympia (sala de desafio, P5; V1 P1 c05).
 	"pilhas_de_livros": TIPO_OLHAR,
 	"mesa_de_xadrez": TIPO_OLHAR,
+	# Estrada Atenas–Olympia, o planalto (fase "Antes que o sol beije o mar").
+	"vista_de_olympia": TIPO_OLHAR,
+	"trilha_pedras_brancas": TIPO_OLHAR,
 }
 
 ## Ids já anotados, na ordem em que foram anotados.

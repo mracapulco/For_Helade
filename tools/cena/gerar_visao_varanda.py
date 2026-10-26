@@ -33,6 +33,7 @@ TEXTO_SOLTO = "res://scripts/prologo/texto_solto.gd"
 TREMOR = "res://scripts/capitulo_01/tremor_do_sonho.gdshader"
 VINHETA = "res://assets/shaders/prologo/vinheta.gdshader"
 CEU = "res://assets/shaders/prologo/ceu_noite.gdshader"
+SHADER_GAROTA = "res://assets/shaders/capitulo_01/garota_visao.gdshader"
 GAROTA = "res://assets/art/capitulo_01/visao/"
 
 MUNDO = "Mundo"
@@ -80,13 +81,17 @@ def haste(c: Cena, nome, pai, pos, raio, altura, mat, rot=(0, 0, 0), raio_baixo=
 def garota(c: Cena, pai) -> None:
     """Ophelia adulta, de costas (malhas de tools/arte/gerar_garota_visao.py): pele cor de
     caramelo, veludo vermelho de ombros nus, pérolas e cabelo escuro cacheado (V2 c01, c04)."""
-    pele = material(c, (0.56, 0.37, 0.25), 0.6)
-    veludo = c.s("StandardMaterial3D", albedo_color=cor(0.42, 0.035, 0.05), roughness=num(0.95),
-                 rim_enabled="true", rim=num(0.55), rim_tint=num(0.15))
-    perola = c.s("StandardMaterial3D", albedo_color=cor(0.94, 0.91, 0.86), roughness=num(0.22),
-                 metallic_specular=num(0.8))
-    cabelo = c.s("StandardMaterial3D", albedo_color=cor(0.06, 0.04, 0.035), roughness=num(0.38),
-                 cull_mode="2", rim_enabled="true", rim=num(0.35), rim_tint=num(0.6))
+    # Material com movimento (assets/shaders/capitulo_01/garota_visao.gdshader):
+    # cabeça, respiração e mãos se mexem de leve (Rafael, 26/10/2026).
+    def mat(albedo, rugosidade, especular=0.5, borda=0.0, tom_borda=0.5):
+        return c.s("ShaderMaterial", shader=c.e("Shader", SHADER_GAROTA), **{
+            "shader_parameter/albedo": f"Color({num(albedo[0])}, {num(albedo[1])}, {num(albedo[2])}, 1)",
+            "shader_parameter/rugosidade": num(rugosidade), "shader_parameter/especular": num(especular),
+            "shader_parameter/borda": num(borda), "shader_parameter/tom_borda": num(tom_borda)})
+    pele = mat((0.56, 0.37, 0.25), 0.6)
+    veludo = mat((0.42, 0.035, 0.05), 0.95, borda=0.55, tom_borda=0.15)
+    perola = mat((0.94, 0.91, 0.86), 0.22, especular=0.8)
+    cabelo = mat((0.06, 0.04, 0.035), 0.38, borda=0.35, tom_borda=0.6)
     g = c.no("Garota", "Node3D", pai, transform=transform((0, 0, 3.9)))
     for nome, mat in (("vestido", veludo), ("pele", pele), ("perolas", perola), ("cabelo", cabelo)):
         mesh = c.e("ArrayMesh", f"{GAROTA}garota_{nome}.obj")
@@ -180,10 +185,14 @@ def montar() -> Cena:
     c.no("Cenario", "Node3D", VIEW)
 
     ceu_mat = c.s("ShaderMaterial", shader=c.e("Shader", CEU), **{
-        "shader_parameter/quantidade_estrelas": "1.0",
+        # um pouco menos de estrelas, a lua à frente, à direita da garota, e
+        # duas estrelas cadentes de vez em quando (Rafael, 26/10/2026)
+        "shader_parameter/quantidade_estrelas": "0.8",
         "shader_parameter/brilho_estrelas": "3.2",
-        # a lua fica atrás da câmera: o céu é só escuridão e luzes distantes
-        "shader_parameter/direcao_lua": "Vector3(0.1, 0.6, -0.8)",
+        "shader_parameter/direcao_lua": "Vector3(0.3, 0.16, 0.94)",
+        "shader_parameter/raio_lua_graus": "2.2",
+        "shader_parameter/cadentes": "2",
+        "shader_parameter/centro_cadentes": "Vector3(0.0, 0.0, 1.0)",
     })
     ceu = c.s("Sky", sky_material=ceu_mat)
     ambiente = c.s("Environment", background_mode="2", sky=ceu, ambient_light_source="2",

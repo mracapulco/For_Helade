@@ -275,6 +275,7 @@ func subir_a_escadaria() -> void:
 	# A narração vai no texto de cima, não na caixa (Rafael, 25/10/2026).
 	await _frases("frases_doze")
 	await _falar_travado("conversa_fim")
+	await fim_da_conversa()
 	await fim_do_capitulo()
 
 
@@ -302,11 +303,28 @@ func montar_antessala() -> void:
 	_virar(objetos["apollon"], jogador.position)
 
 
+## O último momento do livro: Nicholas vai para a porta, de costas para o
+## pai; o silêncio dura um pouco demais, ele olha por cima do ombro e o
+## Duque sorri antes do "Naturalmente" (Rafael, 26/10/2026).
+func fim_da_conversa() -> void:
+	var apollon: Node2D = objetos["apollon"]
+	var porta := sala.centro(Vector2i(1, 5))
+	jogador.direcao_olhar = (porta - jogador.position).normalized()
+	await _frases("frases_silencio")
+	jogador.direcao_olhar = (apollon.position - jogador.position).normalized()
+	await _frases("frases_sorriso")
+	await _falar_travado("naturalmente")
+
+
 ## Fim do capítulo: salva a etapa seguinte e abre o mapa, com Nicholas em
 ## Atenas.
 func fim_do_capitulo() -> void:
 	_mudar(ETAPA_DEPOIS)
 	await _escurecer()
+	# Em Atenas, onde a história parou, mesmo que o mapa ainda não a
+	# conhecesse (ex.: cena rodada direto no editor); senão o mapa abria no
+	# ponto inicial (Rafael, 26/10/2026).
+	Mundo.descobrir(LOCAL_NO_MAPA)
 	Mundo.local_no_mapa = LOCAL_NO_MAPA
 	cena_pedida = MAPA
 	if trocar_de_cena:

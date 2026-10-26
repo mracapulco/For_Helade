@@ -28,10 +28,15 @@ Poucos guardas. Poucos demais para alguém como uma princesa. [ID:CAP1_111]
 $> Codice.anotar("poucos_guardas")
 => END
 
+~ anuncio
+
+## Ophelia aparece no portal e o guarda anuncia os irmãos (Rafael, 26/10/2026).
+Guarda: [#retrato=neutro] Anunciando os filhos do Duque de Olympia, Jovem Mestre Nicholas e Lady Althea! [ID:CAP1_112]
+=> END
+
 ~ apresentacao
 
-## Os guardas anunciam os irmãos; Ophelia os recebe.
-Guarda: [#retrato=neutro] Anunciando os filhos do Duque de Olympia, Jovem Mestre Nicholas e Lady Althea! [ID:CAP1_112]
+## Ophelia chega até eles e os recebe.
 Nicholas: [#retrato=neutro] É uma honra conhecê-la, Princesa Ophelia. [ID:CAP1_113]
 Althea: [#retrato=neutro] P-prazer… Princesa. [ID:CAP1_114]
 Ophelia: [#retrato=neutro] A honra é minha, filhos de Olympia. Fico feliz de estar aos seus cuidados. [ID:CAP1_115]
@@ -63,12 +68,6 @@ Nicholas: [#retrato=neutro] Se quiser, Thea. [ID:CAP1_125]
 
 ## Os guardas recuam para o anexo.
 Nenhum guarda as seguiu. Pelo contrário, recuaram, em silêncio, para o anexo. [ID:CAP1_126]
-=> END
-
-~ ajuda_a_subir
-
-## Nicholas ajuda as duas a subir na carruagem.
-Ophelia: [#retrato=neutro] Obrigada. [ID:CAP1_127]
 => END
 
 ~ frases_anexo_vazio

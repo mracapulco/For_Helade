@@ -61,6 +61,7 @@ func montar_restaurante() -> void:
 	_objeto("cadeira_nicholas", "restaurante/cadeira_frente", CADEIRA_NICHOLAS)
 	_objeto("cadeira_ophelia", "restaurante/cadeira_frente", CADEIRA_OPHELIA)
 	_objeto("cadeira_althea", "restaurante/cadeira_costas", CADEIRA_ALTHEA)
+	_decorar_salao()
 	_pessoa("ophelia", QUADROS_OPHELIA, Vector2i(4, 2))
 	_pessoa("althea", QUADROS_ALTHEA, Vector2i(3, 2))
 	_pessoa("garcom", QUADROS_GARCOM, CASA_GARCOM)
@@ -73,6 +74,20 @@ func montar_restaurante() -> void:
 	_ao_interagir("armario", pegar_colher_limpa)
 	_ao_interagir("ophelia_mesa", entregar_colher)
 	_mudar("restaurante")
+
+
+## O resto do salão (o livro só fala da mesa deles): duas mesas postas e
+## vazias, o aparador com as jarras e dois vasos. Nada nas casas da cena.
+func _decorar_salao() -> void:
+	_objeto("mesa_canto", "restaurante/mesa_canto", Vector2i(2, 1))
+	_objeto("cadeira_canto_1", "restaurante/cadeira_frente", Vector2i(1, 1))
+	_objeto("cadeira_canto_2", "restaurante/cadeira_frente", Vector2i(3, 1))
+	_objeto("mesa_salao", "restaurante/mesa_canto", Vector2i(6, 5))
+	_objeto("cadeira_salao_1", "restaurante/cadeira_frente", Vector2i(7, 5))
+	_objeto("cadeira_salao_2", "restaurante/cadeira_costas", Vector2i(6, 6))
+	_objeto("aparador", "restaurante/aparador_dir", Vector2i(1, 3), false, PE_CAIXA)
+	_objeto("vaso_fundo", "rua/vaso_flor", Vector2i(7, 1))
+	_objeto("vaso_frente", "rua/vaso_flor", Vector2i(1, 6))
 
 
 # --- 1. a mesa -------------------------------------------------------------

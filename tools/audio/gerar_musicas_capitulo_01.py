@@ -101,21 +101,25 @@ def sonho(rng):
 
 
 def madrugada(rng):
-    """54 bpm, 12 compassos de quase nada: o silêncio da mansão antes do amanhecer.
-    O chamado na harpa, devagar, e um colchão de Ré menor e Si bemol bem baixo."""
-    lp = Loop(54, 4, 12, rng)
-    acs = [(0, 0, 8, T, 'm'), (2, 0, 8, T - 4, 'M'), (4, 0, 8, T, 'm'), (6, 0, 8, T + 3, 'M'),
-           (8, 0, 8, T - 4, 'M'), (10, 0, 8, T, 'm')]
-    for (c, b, d, r, tp) in acs:
+    """58 bpm, 12 compassos: a mansão antes do amanhecer, calma mas presente
+    (Rafael, 26/10/2026: no quarto e no corredor "ainda não temos uma trilha").
+    Dois compassos de colchão, o tema inteiro na harpa sobre um arpejo lento e
+    o baixo, a flauta grave ecoando a segunda frase, e dois compassos de volta."""
+    lp = Loop(58, 4, 12, rng)
+    intro = [(0, 0, 4, T, 'm'), (1, 0, 4, T - 4, 'M')]
+    volta = [(10, 0, 4, T - 4, 'M'), (11, 0, 4, T, 'm')]
+    tudo = intro + [(c + 2, b, d, r, tp) for (c, b, d, r, tp) in tema.acordes()] + volta
+    for (c, b, d, r, tp) in tudo:
         ns = tema.notas_acorde(r, tp, T - 12)
-        lp.por(pad([hz(n) for n in ns], d * lp.spb + 3.0, 3.0, 4.0, 4, 6, 2.4, rng), lp.t(c, b), 0.16)
-        lp.por(pincado(hz(tema.notas_acorde(r, tp, T - 26)[0]), 4.0, 0.15, 2.5, 0.25, rng=rng),
-               lp.t(c, b), 0.16)
+        lp.por(pad([hz(n) for n in ns], d * lp.spb + 2.0, 2.0, 2.5, 4, 6, 2.4, rng), lp.t(c, b), 0.14)
+    arpejo_harpa(lp, tudo, 0, 1.0, 0.12, rng, brilho=0.25, padrao=[0, 2, 1, 3])
+    baixo(lp, tudo, 0, 0.16, rng, batidas=(0,))
     harpa = lambda f, d: pincado(f, 4.0, 0.3, 2.2, 0.25, rng=rng)
-    tocar(lp, [(1, b, d, m) for (c, b, d, m) in tema.melodia() if c == 0], 0, harpa, 0.24, 0.03)
-    tocar(lp, [(5, b, d, m) for (c, b, d, m) in tema.melodia() if c == 4], 0, harpa, 0.22, 0.03)
-    tocar(lp, [(9, 0, 3, T + 7), (9, 3, 1, T + 12), (10, 0, 4, T + 14)], 0, harpa, 0.18, 0.03)
-    return lp.fechar(resposta_reverb(3.5, 1.3, 3200), 0.75)
+    fl = lambda f, d: flauta(f, d, rng, 0.004, 0.06)
+    tocar(lp, tema.melodia(), 2, harpa, 0.34, 0.03)
+    tocar(lp, [n for n in tema.melodia(oitava=-1) if n[0] >= 4], 2, fl, 0.14, 0.015, extra=0.1)
+    tocar(lp, chamado_maior(0), 0, harpa, 0.2, 0.03)
+    return lp.fechar(resposta_reverb(3.0, 1.2, 3600), 0.6)
 
 
 def cortejo(rng):

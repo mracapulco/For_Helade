@@ -41,13 +41,18 @@ const CASAS_GUARDAS: Array[Vector2i] = [Vector2i(10, 7), Vector2i(6, 1), Vector2
 const LINHA_POSTOS := 8
 ## A esta distância (em casas) da fonte, ele chegou nela.
 const PERTO_DA_FONTE := 2
-## Althea e Ophelia esperam ao lado da carruagem.
-const CASAS_EMBARQUE: Array[Vector2i] = [Vector2i(6, 12), Vector2i(8, 12)]
+## Althea e Ophelia esperam lado a lado, à direita da carruagem (do lado
+## esquerdo, Althea ficava escondida atrás dela; Rafael, 26/10/2026), uma
+## linha para dentro do pátio: em (8, 12) e (9, 12) apareciam por cima dos
+## cavalos.
+const CASAS_EMBARQUE: Array[Vector2i] = [Vector2i(9, 11), Vector2i(8, 11)]
 ## Onde cada um senta no banco da carruagem, ao longo dela (em casas, de trás
 ## para a frente): Althea, Ophelia e, por último, Nicholas.
 const BANCO := {"althea": -0.9, "ophelia": 0.0, "nicholas": 0.9}
 ## Virado para o anexo por este tempo, conta como o último olhar.
 const TEMPO_OLHANDO := 0.5
+## Althea caminhando até a fonte (px/s).
+const PASSO_DE_ALTHEA := 30.0
 
 var fonte_vista := false
 var guardas_vistos := false
@@ -69,12 +74,14 @@ func id_da_cena() -> String:
 
 func comecar() -> void:
 	montar_patio()
+	# Althea já sai andando para a fonte assim que a cena abre, durante as
+	# primeiras frases, e fala no caminho (Rafael, 26/10/2026).
+	althea_corre_para_a_fonte()
 	await _clarear()
 	await _frases("frases_palacio_chegada")
 	await _falar_travado("fonte")
 	_mudar("patio")
 	_travar(false)
-	await althea_corre_para_a_fonte()
 
 
 func montar_patio() -> void:
@@ -83,7 +90,8 @@ func montar_patio() -> void:
 		["estandarte_imperial_esq", Vector2i(6, 0)], ["portal_palacio_esq", Vector2i(7, 0)],
 		["estandarte_imperial_esq", Vector2i(8, 0)], ["janela_alta_esq", Vector2i(10, 0)],
 		["janela_alta_esq", Vector2i(12, 0)], ["portal_anexo_dir", CASA_ANEXO - Vector2i(1, 0)]])
-	_objeto("fonte", "palacio/fonte", CASA_FONTE, true, 14.0)
+	# A fonte não é interativa: chegar perto dela já basta (Rafael, 26/10/2026).
+	_objeto("fonte", "palacio/fonte", CASA_FONTE, false, 14.0)
 	for x in [1, 3, 5, 9, 11, 13]:
 		_objeto("coluna_%d" % x, "margem/coluna", Vector2i(x, 1))
 	for casa: Vector2i in [Vector2i(3, 4), Vector2i(3, 8), Vector2i(11, 4), Vector2i(11, 8)]:
@@ -100,7 +108,6 @@ func montar_patio() -> void:
 	_ponto("anexo", CASA_ANEXO)
 	_entrar(CASA_JOGADOR)
 	jogador.direcao_olhar = (sala.centro(CASA_FONTE) - jogador.position).normalized()
-	_ao_interagir("fonte", ver_fonte)
 	_ao_interagir("carruagem", embarcar)
 	_ao_interagir("anexo", olhar_anexo)
 	_ativar(objetos["carruagem"], false)
@@ -135,7 +142,11 @@ func _physics_process(delta: float) -> void:
 ## "Nick… olha isso…": ela corre na frente, pelo caminho de mármore.
 func althea_corre_para_a_fonte() -> void:
 	var althea: Node2D = objetos["althea"]
-	await _caminhar(althea, [sala.centro(Vector2i(7, 10)), sala.centro(CASA_ALTHEA_FONTE)], 0.7)
+	# Andando (não correndo), para ainda estar a caminho nas primeiras frases.
+	var meio := sala.centro(Vector2i(7, 10))
+	await _caminhar(althea, [meio], althea.position.distance_to(meio) / PASSO_DE_ALTHEA)
+	await _caminhar(althea, [sala.centro(CASA_ALTHEA_FONTE)],
+		meio.distance_to(sala.centro(CASA_ALTHEA_FONTE)) / PASSO_DE_ALTHEA)
 	_virar(althea, sala.centro(CASA_FONTE))
 
 
@@ -149,12 +160,11 @@ func olhar_guardas() -> void:
 	_frases_dos_guardas = false
 
 
-## Chegando à fonte (ou E nela), a Princesa aparece.
+## Chegando à fonte, a Princesa aparece.
 func ver_fonte() -> void:
 	if etapa != "patio" or fonte_vista:
 		return
 	fonte_vista = true
-	_ativar(objetos["fonte"], false)
 	_travar(true)
 	if not guardas_vistos:
 		await olhar_guardas()
@@ -170,6 +180,8 @@ func chegada_de_ophelia() -> void:
 	_travar(true)
 	var ophelia := _pessoa("ophelia", QUADROS_OPHELIA, CASA_PORTAL)
 	await _aparecer(ophelia)
+	# O guarda anuncia os irmãos assim que ela aparece no portal.
+	await _falar_travado("anuncio")
 	var destino := _casa_livre_perto(_casa_de(jogador), Vector2i(7, 3))
 	# Pelo lado da fonte, sem passar por cima dela.
 	var lado := 8 if destino.x > CASA_FONTE.x else 6
@@ -231,7 +243,7 @@ func embarcar() -> void:
 		return
 	_ativar(objetos["carruagem"], false)
 	_travar(true)
-	await _falar_travado("ajuda_a_subir")
+	# (O "Obrigada." de Ophelia saiu a pedido do Rafael, 26/10/2026.)
 	# As duas somem do lado da carruagem e aparecem sentadas lado a lado.
 	_sumir(objetos["ophelia"])
 	await _sumir(objetos["althea"])

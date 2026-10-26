@@ -26,6 +26,10 @@ const BARRAMENTO := &"Efeitos"
 const SILENCIO_DB := -60.0
 ## O tic-tac do sonho (tic_tac.wav): o "tic" está em 0 s e o "tac" a 1,3 s.
 const POSICAO_TAC := 1.3
+## Olhar com o mouse na varanda: radianos por pixel (bem menos que no prólogo)
+## e até onde dá para virar (x = para cima e para baixo, y = para os lados).
+const SENSIBILIDADE_MOUSE := 0.0008
+const LIMITE_OLHAR := Vector2(0.18, 0.35)
 
 ## Multiplica todos os tempos (os testes usam valores pequenos). 0 ou menos:
 ## a visão passa sem texto e quase sem espera.
@@ -44,6 +48,14 @@ var _queda: AudioStreamPlayer
 var _fonte_texto := 0
 var _camera_inicio := Vector3.ZERO
 var _material_tremor: ShaderMaterial
+## Giro da câmera sem o mouse (os tweens da cena mexem aqui).
+var _rotacao_base := Vector3.ZERO
+## O quanto o mouse virou a câmera (x = para cima, y = para os lados), em radianos.
+var _olhar := Vector2.ZERO
+## Na varanda: o mouse vira a câmera devagar.
+var _olhando := false
+var _modo_mouse_antes := Input.MOUSE_MODE_VISIBLE
+var _mouse_preso := false
 
 
 ## Toca a visão por cima de [param pai] e volta quando ela termina (a cena é
@@ -61,6 +73,39 @@ func _ready() -> void:
 	_executar()
 
 
+## Na varanda o jogador pode olhar em volta com o mouse, bem devagar e só um
+## pouco (Rafael, 26/10/2026).
+func _input(evento: InputEvent) -> void:
+	if not _olhando or not evento is InputEventMouseMotion:
+		return
+	if not _mouse_preso:
+		_prender_mouse()
+	var sensibilidade := SENSIBILIDADE_MOUSE * Configuracoes.sensibilidade_mouse
+	_olhar.y = clampf(_olhar.y - evento.relative.x * sensibilidade, -LIMITE_OLHAR.y, LIMITE_OLHAR.y)
+	_olhar.x = clampf(_olhar.x - evento.relative.y * sensibilidade, -LIMITE_OLHAR.x, LIMITE_OLHAR.x)
+
+
+func _process(_delta: float) -> void:
+	if _olhando:
+		_camera.rotation = _rotacao_base + Vector3(_olhar.x, _olhar.y, 0.0)
+
+
+func _prender_mouse() -> void:
+	_modo_mouse_antes = Input.mouse_mode
+	_mouse_preso = true
+	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+
+
+func _soltar_mouse() -> void:
+	if _mouse_preso:
+		_mouse_preso = false
+		Input.mouse_mode = _modo_mouse_antes
+
+
+func _exit_tree() -> void:
+	_soltar_mouse()
+
+
 func _executar() -> void:
 	await _cascos_e_escuro()
 	await _varanda()
@@ -72,6 +117,7 @@ func _executar() -> void:
 
 func _preparar() -> void:
 	_camera_inicio = _camera.position
+	_rotacao_base = _camera.rotation
 	_material_tremor = _tremor.material as ShaderMaterial
 	_escuro.color.a = 0.0
 	_fonte_texto = _texto.get_theme_font_size("font_size")
@@ -120,23 +166,15 @@ func _cascos_e_escuro() -> void:
 	await _dizer(_frase(frases, 1))                 # Tic.
 	_tween_escuro(0.7, _t(1.2))
 	await _dizer(_frase(frases, 2))                 # E, de repente, as vozes se afastaram.
-	# Um lampejo da varanda entre dois apagões (sem texto).
-	_mundo.visible = true
-	_piscar()
+	# Sem o lampejo da varanda aqui (Rafael, 26/10/2026: a piscada no início
+	# incomodava): ela só aparece quando o escuro se abre.
+	_escuro.color.a = 1.0
 	await _esperar(1.0)
 	_tween_volume(_cascos, SILENCIO_DB, _t(0.5))
 	_golpe_do_relogio(POSICAO_TAC, 1.2)
 	await _dizer(_frase(frases, 3))                 # Tac.
 	_cascos.stop()
 	_tremor.visible = false
-
-
-func _piscar() -> void:
-	var pisca := create_tween()
-	pisca.tween_property(_escuro, "color:a", 0.0, _t(0.12))
-	pisca.tween_property(_escuro, "color:a", 1.0, _t(0.14))
-	pisca.tween_property(_escuro, "color:a", 0.25, _t(0.16))
-	pisca.tween_property(_escuro, "color:a", 1.0, _t(0.3))
 
 
 ## Toca um pedaço do tic-tac e o apaga antes de o próximo golpe chegar.
@@ -153,17 +191,20 @@ func _golpe_do_relogio(desde: float, duracao: float) -> void:
 
 func _varanda() -> void:
 	var frases := await _frases("frases_visao")
+	_mundo.visible = true
+	_olhando = true
 	_vento.play()
 	_tween_volume(_vento, -20.0, _t(3.0))
 	# Aproximação lenta e uma leve virada: Nicholas não anda, só olha.
 	var movimento := create_tween().set_parallel().set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	movimento.tween_property(_camera, "position:z", _camera_inicio.z + 1.1, _t(15.0))
 	# Relativo ao giro do .tscn (a câmera olha para +z: 180°), senão ela vira
-	# para a parede de trás e a garota some.
-	var giro := _camera.rotation.y
-	movimento.tween_property(_camera, "rotation:y", giro + deg_to_rad(-3.0), _t(15.0)).from(giro + deg_to_rad(3.5))
+	# para a parede de trás e a garota some. O giro vai na base; o mouse soma
+	# um pouco por cima ([method _input]).
+	var giro := _rotacao_base.y
+	movimento.tween_property(self, "_rotacao_base:y", giro + deg_to_rad(-3.0), _t(15.0)).from(giro + deg_to_rad(3.5))
 	# Começa olhando um pouco para baixo (o banco de pedra no centro) e ergue os olhos para ela.
-	movimento.tween_property(_camera, "rotation:x", _camera.rotation.x + deg_to_rad(5.0), _t(15.0))
+	movimento.tween_property(self, "_rotacao_base:x", _rotacao_base.x + deg_to_rad(5.0), _t(15.0))
 	_tween_escuro(0.0, _t(2.5))
 
 	await _esperar(0.6)
@@ -183,6 +224,8 @@ func _varanda() -> void:
 
 func _retorno() -> void:
 	var frases := await _frases("frases_retorno")
+	_olhando = false
+	_soltar_mouse()
 	# Queda: a câmera despenca, inclina, e tudo apaga de uma vez.
 	_queda.play()
 	var cai := create_tween().set_parallel().set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_IN)

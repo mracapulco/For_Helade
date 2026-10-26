@@ -281,6 +281,21 @@ func test_cortejo_espera_nicholas_olhar_as_duas_extremidades() -> void:
 	await _esperar_etapa("quarto_althea")
 
 
+## Virar uma vez para cada lado basta, com qualquer tecla para aquele lado
+## (antes só a diagonal exata contava e parecia preciso olhar duas vezes).
+func test_virar_uma_vez_para_cada_lado_basta() -> void:
+	await _ate_o_corredor()
+	_interagir("porta_althea")
+	await _esperar_etapa("esperando")
+	capitulo.jogador.direcao_olhar = Vector2.LEFT
+	await wait_physics_frames(30)
+	assert_true(capitulo.extremidades_vistas.has("extremidade_esq"), "a seta para a esquerda conta")
+	capitulo.jogador.direcao_olhar = Vector2.RIGHT
+	await wait_physics_frames(30)
+	assert_true(capitulo.extremidades_vistas.has("extremidade_dir"), "a seta para a direita conta")
+	await _esperar_etapa("quarto_althea")
+
+
 func test_althea_so_acorda_no_segundo_toque() -> void:
 	await _ate_o_corredor()
 	await _esperar_o_cortejo()
@@ -377,6 +392,14 @@ func test_o_duque_entra_e_depois_a_carruagem() -> void:
 	assert_true(na_carruagem.get("sentado", false), "Nicholas fica sentado")
 
 
+func test_o_duque_fala_de_frente_para_a_camera() -> void:
+	await _ate_o_corredor()
+	await _esperar_o_cortejo()
+	await _acordar_e_entregar()
+	var casa: Vector2i = capitulo.casa_do_duque()
+	assert_lt(capitulo.sala.centro(casa).y, capitulo.jogador.position.y, "o duque fica acima de Nicholas na tela")
+
+
 func test_moveis_do_quarto_nao_fecham_casas_do_corredor() -> void:
 	# Antes, a navegação do corredor contava os móveis do quarto que ainda
 	# não tinha saído da árvore: a casa (4, 1) ficava fechada.
@@ -465,3 +488,40 @@ func test_com_o_duque_althea_segura_a_espada_e_a_aperta_no_peito() -> void:
 	linha.static_id = "CAP1_070"
 	capitulo._ao_ver_fala_do_duque(linha)
 	assert_string_starts_with(visual.animation, "abraca_espada_", "\"P-parem de brigar...\"")
+
+
+## A espada: Althea golpeia de uma casa acima e ao lado de Nicholas na tela,
+## nunca bem em cima (o desenho golpearia para o lado, contra a parede).
+func test_althea_golpeia_na_direcao_de_nicholas() -> void:
+	await _ate_o_corredor()
+	await _esperar_o_cortejo()
+	_interagir("cama_althea")
+	_interagir("cama_althea")
+	await _esperar_etapa("embrulho")
+	for casa: Vector2i in [Vector2i(2, 3), Vector2i(1, 4), Vector2i(3, 3), Vector2i(4, 2)]:
+		capitulo.jogador.position = capitulo.sala.centro(casa)
+		await capitulo._althea_de_frente()
+		var ate_ela: Vector2 = capitulo.objetos["althea"].position - capitulo.jogador.position
+		assert_true(absf(ate_ela.x) > 8.0, "ao lado dele na tela (%s)" % casa)
+		assert_true(ate_ela.y <= 1.0, "não abaixo dele (%s)" % casa)
+
+
+## Até a escolha, Althea vai atrás de Nicholas golpeando quando ele se afasta.
+func test_althea_segue_nicholas_golpeando() -> void:
+	await _ate_o_corredor()
+	await _esperar_o_cortejo()
+	_interagir("cama_althea")
+	_interagir("cama_althea")
+	await _esperar_etapa("embrulho")
+	capitulo.jogador.position = capitulo.sala.centro(Vector2i(2, 3))
+	await capitulo._althea_de_frente()
+	capitulo.escala_tempo = 1.0
+	capitulo._golpeando = true
+	capitulo._golpe_de_althea(0)
+	capitulo.jogador.position = capitulo.sala.centro(Vector2i(4, 2))
+	await wait_seconds(3.0)
+	capitulo._golpeando = false
+	capitulo.escala_tempo = 0.0
+	var althea: Node2D = capitulo.objetos["althea"]
+	assert_almost_eq(althea.position.distance_to(capitulo.jogador.position), 0.0,
+		capitulo.DISTANCIA_DO_GOLPE, "ela foi atrás dele")

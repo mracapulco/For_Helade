@@ -31,6 +31,18 @@ var _cenas: TrilhaDasCenas
 func _ready() -> void:
 	_cenas = TrilhaDasCenas.carregar()
 	get_tree().node_added.connect(_ao_entrar)
+	# Rodando uma cena direto no editor (F6), ela entra na árvore e começa
+	# antes deste _ready, e o node_added não a pega: segue a que já está lá.
+	_seguir_a_cena_atual.call_deferred()
+
+
+func _seguir_a_cena_atual() -> void:
+	var cena := get_tree().current_scene
+	if cena and cena.get_parent() == get_tree().root and not cena.scene_file_path.is_empty():
+		observar(cena)
+		# A etapa em que ela já está (o etapa_mudou dela veio antes de nós).
+		if "etapa" in cena:
+			na_etapa(cena.scene_file_path, str(cena.etapa))
 
 
 ## Troca para a música em [param caminho] com fade. Se ela já está tocando,

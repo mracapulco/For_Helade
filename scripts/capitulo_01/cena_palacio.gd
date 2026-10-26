@@ -90,7 +90,8 @@ func montar_patio() -> void:
 		["estandarte_imperial_esq", Vector2i(6, 0)], ["portal_palacio_esq", Vector2i(7, 0)],
 		["estandarte_imperial_esq", Vector2i(8, 0)], ["janela_alta_esq", Vector2i(10, 0)],
 		["janela_alta_esq", Vector2i(12, 0)], ["portal_anexo_dir", CASA_ANEXO - Vector2i(1, 0)]])
-	_objeto("fonte", "palacio/fonte", CASA_FONTE, true, 14.0)
+	# A fonte não é interativa: chegar perto dela já basta (Rafael, 26/10/2026).
+	_objeto("fonte", "palacio/fonte", CASA_FONTE, false, 14.0)
 	for x in [1, 3, 5, 9, 11, 13]:
 		_objeto("coluna_%d" % x, "margem/coluna", Vector2i(x, 1))
 	for casa: Vector2i in [Vector2i(3, 4), Vector2i(3, 8), Vector2i(11, 4), Vector2i(11, 8)]:
@@ -107,7 +108,6 @@ func montar_patio() -> void:
 	_ponto("anexo", CASA_ANEXO)
 	_entrar(CASA_JOGADOR)
 	jogador.direcao_olhar = (sala.centro(CASA_FONTE) - jogador.position).normalized()
-	_ao_interagir("fonte", ver_fonte)
 	_ao_interagir("carruagem", embarcar)
 	_ao_interagir("anexo", olhar_anexo)
 	_ativar(objetos["carruagem"], false)
@@ -160,12 +160,11 @@ func olhar_guardas() -> void:
 	_frases_dos_guardas = false
 
 
-## Chegando à fonte (ou E nela), a Princesa aparece.
+## Chegando à fonte, a Princesa aparece.
 func ver_fonte() -> void:
 	if etapa != "patio" or fonte_vista:
 		return
 	fonte_vista = true
-	_ativar(objetos["fonte"], false)
 	_travar(true)
 	if not guardas_vistos:
 		await olhar_guardas()
@@ -181,6 +180,8 @@ func chegada_de_ophelia() -> void:
 	_travar(true)
 	var ophelia := _pessoa("ophelia", QUADROS_OPHELIA, CASA_PORTAL)
 	await _aparecer(ophelia)
+	# O guarda anuncia os irmãos assim que ela aparece no portal.
+	await _falar_travado("anuncio")
 	var destino := _casa_livre_perto(_casa_de(jogador), Vector2i(7, 3))
 	# Pelo lado da fonte, sem passar por cima dela.
 	var lado := 8 if destino.x > CASA_FONTE.x else 6

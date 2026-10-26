@@ -267,3 +267,14 @@ CODICE_PILHAS_DE_LIVROS_TITULO,Pilhas de livros
 CODICE_PILHAS_DE_LIVROS_TEXTO,"Livros empilhados no chão e prateleiras desarrumadas: o castigo do Duque. Quando sai da linha, Nicholas arruma a biblioteca."
 CODICE_MESA_DE_XADREZ_TITULO,A mesa de xadrez
 CODICE_MESA_DE_XADREZ_TEXTO,"Pequena, redonda e levemente empoeirada, perto da janela. Duas cadeiras estofadas ficam uma de frente para a outra, alinhadas com o tabuleiro de mármore embutido no centro. O tampo se abre como um pequeno alçapão, onde as peças ficam guardadas."
+EOA3_INTRO_1,Um trecho da estrada desabou na encosta.
+EOA3_INTRO_2,As carroças pesadas não passam.
+EOA3_DICA_AGARRAR,"Segure o clique esquerdo perto de uma peça para agarrá-la. Ande para ela para empurrar, para trás para puxar."
+EOA3_DICA_BARRIL,Barris não se puxam: empurrados rolam até bater em algo.
+EOA3_DICA_TORA,Toras só andam no sentido do comprimento.
+EOA3_DICA_PEDRAS,"Pedras rolam da encosta! Olhe a sombra no chão e esquive com Espaço."
+EOA3_DICA_FIM,Dois buracos seguidos: o barril rola por cima de uma ponte.
+EOA3_BOTAO_RECOMECAR,Recomeçar trecho (R)
+EOA3_CARROCEIRO_1,"Com essa carga não passo, jovem senhor. Se der um jeito na estrada, eu sigo atrás."
+EOA3_CARROCEIRO_FIM,"Passou! Quem diria, jovem senhor."
+EOA3_FIM_1,A carroça passou por cima da estrada que ele refez.

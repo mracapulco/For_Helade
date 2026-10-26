@@ -881,6 +881,19 @@ func arrumar_as_caixas() -> void:
 	_travar(false)
 
 
+## Casa livre ao lado de Nicholas, a mais alta na tela: virada para ele,
+## Ophelia fica de frente para a câmera (Rafael, 26/10/2026). Fora as caixas.
+func casa_de_ophelia_com_a_criatura() -> Vector2i:
+	var dele := _casa_de(jogador)
+	var caixas: Array[Vector2i] = []
+	for dx in range(-1, 2):
+		for dy in range(-1, 2):
+			var c := dele + Vector2i(dx, dy)
+			if blocos and blocos.bloco_em(c) != "":
+				caixas.append(c)
+	return _casa_livre_perto(dele, dele + Vector2i(-3, -3), caixas)
+
+
 ## Ophelia se levanta e vem até ele com a criatura longa, entre cobra e enguia:
 ## a escolha de tom e o pedido dela ("sem títulos").
 func ophelia_traz_a_criatura() -> void:
@@ -892,7 +905,7 @@ func ophelia_traz_a_criatura() -> void:
 	criatura.position = Vector2(0, -12)
 	criatura.scale = Vector2(0.5, 0.5)
 	ophelia.add_child(criatura)
-	var casa := _casa_livre_perto(_casa_de(jogador), _casa_de(ophelia))
+	var casa := casa_de_ophelia_com_a_criatura()
 	await _caminhar(ophelia, [sala.centro(casa)], 0.8)
 	_virar(ophelia, jogador.position)
 	jogador.direcao_olhar = (ophelia.position - jogador.position).normalized()

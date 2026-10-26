@@ -16,6 +16,8 @@ extends CenaCapitulo01
 ##    "volta" (a volta à mansão; sem cena ainda: volta ao menu).
 ## Textos: data/dialogos/capitulo_01/passeio.dialogue.
 
+## Thea puxa a frente, um pouco mais rápida que Nicholas (45), sem disparar.
+const VELOCIDADE_ALTHEA := 60.0
 const ROTEIRO := preload("res://data/dialogos/capitulo_01/passeio.dialogue")
 const LARGURA_RUA := 20
 const PROFUNDIDADE_RUA := 8
@@ -131,7 +133,9 @@ func althea_vai_na_frente() -> void:
 		return
 	var porta: Vector2i = LOJAS[loja][0]
 	var casa := _casa_livre_perto(porta + Vector2i(1, 1), _casa_de(objetos["althea"]))
-	await _caminhar(objetos["althea"], [sala.centro(casa)], 0.5)
+	var destino := sala.centro(casa)
+	var tempo := maxf(0.4, objetos["althea"].position.distance_to(destino) / VELOCIDADE_ALTHEA)
+	await _caminhar(objetos["althea"], [destino], tempo)
 	_virar(objetos["althea"], sala.centro(porta))
 
 

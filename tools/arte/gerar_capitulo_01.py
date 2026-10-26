@@ -1840,6 +1840,50 @@ def mesa_redonda():
     return q.contornar()
 
 
+def mesa_canto():
+    """Outra mesa do salão (inferência: o livro só fala da mesa deles; o resto
+    do restaurante fica implícito), posta para dois e ainda vazia: toalha,
+    dois pratos, uma vela e um vasinho de flores. pe = 3."""
+    q = Q(60, 44)
+    q.sombra_no_chao(30, 40, 22, 3)
+    q.r(28, 22, 31, 38, 'madeira'); q.coluna(28, 22, 38, 'madeira_sombra')
+    q.r(21, 38, 38, 40, 'madeira_sombra'); q.linha(38, 21, 38, 'madeira')
+    q.elipse(30, 22, 26, 11, 'prata_sombra')
+    q.elipse(30, 18, 26, 11, 'branco')
+    q.elipse(30, 18, 22, 8, 'perola')
+    for x in range(8, 53, 3):
+        q.p(x, 28 if abs(x - 30) < 14 else 27, 'prata')
+    for x, y in ((18, 20), (42, 20)):                        # dois lugares
+        q.elipse(x, y, 5, 2, 'prata'); q.elipse(x, y, 4, 1, 'branco')
+        q.p(x - 7, y, 'ferro_luz'); q.p(x + 7, y, 'ferro_luz')
+    q.r(27, 9, 29, 16, 'vela'); q.r(27, 9, 27, 16, 'ouro_luz'); q.p(28, 7, 'ouro_luz'); q.p(28, 8, 'vela')
+    q.r(32, 12, 35, 16, 'vidro'); q.linha(12, 32, 35, 'prata')  # vasinho
+    for x, y, c in ((32, 10, 'flor'), (34, 9, 'flor2'), (35, 11, 'folha_luz'), (33, 11, 'folha')):
+        q.p(x, y, c)
+    return q.contornar()
+
+
+def aparador_dir():
+    """Aparador encostado na parede da coluna x = 0, com jarras de água e de
+    suco e travessinhas (as mesmas coisas que o livro põe na mesa deles; o
+    aparador em si é inferência). pe = PE_CAIXA."""
+    a0, a1, b0, b1, h = -0.5, -0.15, -0.45, 0.45, 22
+    q, _, lado = caixa_iso(a0, a1, b0, b1, h, 'madeira', 'madeira_sombra', 'madeira_luz')
+    for s0, s1 in ((0.08, 0.46), (0.54, 0.92)):            # duas portinhas
+        _riscar(lado, s0, s1, 0.15, 0.15, 'madeira_luz'); _riscar(lado, s0, s1, 0.8, 0.8, 'madeira_luz')
+        _riscar(lado, s0, s0, 0.15, 0.8, 'madeira_luz'); _riscar(lado, s1, s1, 0.15, 0.8, 'madeira_luz')
+    _riscar(lado, 0.0, 1.0, 0.96, 0.96, 'ouro_sombra')
+    lado(0.44, 0.48, 'ouro'); lado(0.56, 0.48, 'ouro')
+    topo = lambda b: tuple(int(round(v)) for v in _tela((a0 + a1) / 2, b, h, h + 17))
+    x, y = topo(-0.25)                                      # jarra de água
+    q.r(x - 2, y - 9, x + 1, y, 'vidro'); q.coluna(x - 2, y - 9, y, 'prata'); q.p(x + 2, y - 7, 'prata')
+    x, y = topo(0.0)                                        # jarra de suco
+    q.r(x - 2, y - 9, x + 1, y, 'ouro_luz'); q.coluna(x - 2, y - 9, y, 'ouro'); q.p(x + 2, y - 7, 'prata')
+    x, y = topo(0.27)                                       # travessinha de salada
+    q.elipse(x, y - 1, 4, 1, 'branco'); q.elipse(x, y - 2, 3, 1, 'folha_luz'); q.p(x, y - 2, 'cura')
+    return q.contornar()
+
+
 def cadeira(de_costas):
     """Cadeira de madeira com assento estofado. de_costas: vista pelo encosto
     (a cadeira do lado de cá da mesa); senão, de frente. pe = 3."""
@@ -2024,6 +2068,8 @@ ARTES = {
     'restaurante/cadeira_frente.png': lambda: cadeira(False),
     'restaurante/cadeira_costas.png': lambda: cadeira(True),
     'restaurante/armario_louca.png': armario_louca,
+    'restaurante/mesa_canto.png': mesa_canto,
+    'restaurante/aparador_dir.png': aparador_dir,
 }
 
 # --- montagem das salas da rodada 1 (as mesmas posições servem de receita para
@@ -2076,9 +2122,13 @@ CENAS = {
                   ('janela_carruagem_esq', (5, 0)), ('arandela_esq', (6, 0)), ('arandela_dir', (0, 3))],
         objetos=[('restaurante/armario_louca', (6, 1)), ('restaurante/mesa_redonda', (4, 4)),
                  ('restaurante/cadeira_frente', (3, 4)), ('restaurante/cadeira_frente', (4, 3)),
-                 ('restaurante/cadeira_costas', (5, 4))]),
+                 ('restaurante/cadeira_costas', (5, 4)),
+                 ('restaurante/mesa_canto', (2, 1)), ('restaurante/cadeira_frente', (1, 1)), ('restaurante/cadeira_frente', (3, 1)),
+                 ('restaurante/mesa_canto', (6, 5)), ('restaurante/cadeira_frente', (7, 5)), ('restaurante/cadeira_costas', (6, 6)),
+                 ('restaurante/aparador_dir', (1, 3)), ('rua/vaso_flor', (7, 1)), ('rua/vaso_flor', (1, 6))]),
 }
-PE_CAIXAS = ('loja/prateleira_baixa_esq', 'loja/prateleira_baixa_dir', 'loja/balcao_loja', 'restaurante/armario_louca')
+PE_CAIXAS = ('loja/prateleira_baixa_esq', 'loja/prateleira_baixa_dir', 'loja/balcao_loja', 'restaurante/armario_louca',
+             'restaurante/aparador_dir')
 
 
 def _quadro_piso(piso_, x, y, largura, profundidade):

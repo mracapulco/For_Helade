@@ -281,6 +281,21 @@ func test_cortejo_espera_nicholas_olhar_as_duas_extremidades() -> void:
 	await _esperar_etapa("quarto_althea")
 
 
+## Virar uma vez para cada lado basta, com qualquer tecla para aquele lado
+## (antes só a diagonal exata contava e parecia preciso olhar duas vezes).
+func test_virar_uma_vez_para_cada_lado_basta() -> void:
+	await _ate_o_corredor()
+	_interagir("porta_althea")
+	await _esperar_etapa("esperando")
+	capitulo.jogador.direcao_olhar = Vector2.LEFT
+	await wait_physics_frames(30)
+	assert_true(capitulo.extremidades_vistas.has("extremidade_esq"), "a seta para a esquerda conta")
+	capitulo.jogador.direcao_olhar = Vector2.RIGHT
+	await wait_physics_frames(30)
+	assert_true(capitulo.extremidades_vistas.has("extremidade_dir"), "a seta para a direita conta")
+	await _esperar_etapa("quarto_althea")
+
+
 func test_althea_so_acorda_no_segundo_toque() -> void:
 	await _ate_o_corredor()
 	await _esperar_o_cortejo()
@@ -375,6 +390,14 @@ func test_o_duque_entra_e_depois_a_carruagem() -> void:
 	assert_false(na_carruagem.get("apollon", true), "o duque já partiu")
 	assert_true(na_carruagem.get("carro", false), "a carruagem na rua")
 	assert_true(na_carruagem.get("sentado", false), "Nicholas fica sentado")
+
+
+func test_o_duque_fala_de_frente_para_a_camera() -> void:
+	await _ate_o_corredor()
+	await _esperar_o_cortejo()
+	await _acordar_e_entregar()
+	var casa: Vector2i = capitulo.casa_do_duque()
+	assert_lt(capitulo.sala.centro(casa).y, capitulo.jogador.position.y, "o duque fica acima de Nicholas na tela")
 
 
 func test_moveis_do_quarto_nao_fecham_casas_do_corredor() -> void:

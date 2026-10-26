@@ -41,8 +41,9 @@ const CASAS_GUARDAS: Array[Vector2i] = [Vector2i(10, 7), Vector2i(6, 1), Vector2
 const LINHA_POSTOS := 8
 ## A esta distância (em casas) da fonte, ele chegou nela.
 const PERTO_DA_FONTE := 2
-## Althea e Ophelia esperam ao lado da carruagem.
-const CASAS_EMBARQUE: Array[Vector2i] = [Vector2i(6, 12), Vector2i(8, 12)]
+## Althea e Ophelia esperam lado a lado, à direita da carruagem (do lado
+## esquerdo, Althea ficava escondida atrás dela; Rafael, 26/10/2026).
+const CASAS_EMBARQUE: Array[Vector2i] = [Vector2i(9, 12), Vector2i(8, 12)]
 ## Onde cada um senta no banco da carruagem, ao longo dela (em casas, de trás
 ## para a frente): Althea, Ophelia e, por último, Nicholas.
 const BANCO := {"althea": -0.9, "ophelia": 0.0, "nicholas": 0.9}
@@ -71,10 +72,12 @@ func comecar() -> void:
 	montar_patio()
 	await _clarear()
 	await _frases("frases_palacio_chegada")
+	# Althea já sai andando para a fonte e, no caminho, fala (Rafael, 26/10/2026).
+	althea_corre_para_a_fonte()
+	await _esperar(0.6)
 	await _falar_travado("fonte")
 	_mudar("patio")
 	_travar(false)
-	await althea_corre_para_a_fonte()
 
 
 func montar_patio() -> void:
@@ -231,7 +234,7 @@ func embarcar() -> void:
 		return
 	_ativar(objetos["carruagem"], false)
 	_travar(true)
-	await _falar_travado("ajuda_a_subir")
+	# (O "Obrigada." de Ophelia saiu a pedido do Rafael, 26/10/2026.)
 	# As duas somem do lado da carruagem e aparecem sentadas lado a lado.
 	_sumir(objetos["ophelia"])
 	await _sumir(objetos["althea"])

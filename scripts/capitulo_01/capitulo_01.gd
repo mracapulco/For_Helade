@@ -86,8 +86,12 @@ const EXTREMIDADES := {"extremidade_esq": Vector2i(1, 1), "extremidade_dir": Vec
 const PORTA_ALTHEA_CHAO := Vector2i(5, 1)
 ## Para onde ele olha (na tela) quando vira para cada extremidade.
 const RUMO_EXTREMIDADES := {"extremidade_esq": Vector2(-2, -1), "extremidade_dir": Vector2(2, 1)}
-## Quanto tempo virado para uma extremidade conta como olhar para ela.
-const TEMPO_OLHANDO := 0.5
+## Quanto tempo virado para uma extremidade conta como olhar para ela (uma vez
+## basta; Rafael, 26/10/2026: precisava olhar duas vezes para cada lado).
+const TEMPO_OLHANDO := 0.25
+## Quão perto do rumo da extremidade ele precisa estar virado (produto escalar):
+## para a esquerda, na diagonal ou na linha do corredor, tudo conta.
+const MIRA_EXTREMIDADE := 0.7
 
 ## Multiplica os tempos (os testes usam 0: tudo acontece na hora).
 @export var escala_tempo := 1.0
@@ -111,6 +115,8 @@ var viu_espelho := false
 var vestido := false
 ## Extremidades do corredor para onde Nicholas já olhou, esperando o cortejo.
 var extremidades_vistas: Array[String] = []
+## Althea segue golpeando o ar enquanto isto estiver ligado (até a escolha).
+var _golpeando := false
 ## Onde fica o Corpo de Nicholas (x) antes do passo para o lado da espada.
 var _corpo_x := 0.0
 ## Onde fica o desenho de Nicholas sentado (para ele se inclinar e voltar).
@@ -402,7 +408,7 @@ func _physics_process(delta: float) -> void:
 		if extremidades_vistas.has(nome):
 			continue
 		var rumo: Vector2 = RUMO_EXTREMIDADES[nome].normalized()
-		if jogador.direcao_olhar.normalized().dot(rumo) < 0.95:
+		if jogador.direcao_olhar.normalized().dot(rumo) < MIRA_EXTREMIDADE:
 			_tempo_olhando[nome] = 0.0
 			continue
 		_tempo_olhando[nome] = _tempo_olhando.get(nome, 0.0) + delta
@@ -454,6 +460,8 @@ func olhar_extremidade(nome: String) -> void:
 	_mudar("cortejo")
 	_travar(true)
 	await _frases("frases_nada")
+	# "Bati o pé no chão." (Rafael, 26/10/2026: faltava a animação).
+	_bater_o_pe()
 	await _frases("frases_cortejo_chega")
 	# Se ele ficou longe, volta para a porta de Althea (num piscar de olhos)
 	# antes de o cortejo chegar.
@@ -546,14 +554,22 @@ func entregar_embrulho() -> void:
 	_ativar(objetos["embrulho"], false)
 	_corpo_x = jogador.get_node("Corpo").position.x
 	await _falar_travado("espada")
-	# A narração vai no alto, entre as partes da conversa.
+	# Althea vai para o lado de cima de Nicholas: golpeia virada para a câmera
+	# (Rafael, 26/10/2026: de costas não dava para ver).
+	await _althea_de_frente()
+	# A narração vai no alto, entre as partes da conversa. Ela golpeia sem
+	# parar até o jogador escolher.
+	_golpeando = true
 	_reagir_na_espada("CAP1_051")
 	await _frases("frases_espada")
-	match await _falar_e_escolher("espada_escolha", true):
+	var escolha := await _falar_e_escolher("espada_escolha", true)
+	_golpeando = false
+	match escolha:
 		"escolheu_rendicao":
-			# Sem frase (CAP1_099 saiu, Rafael 21/10/2026): só a pose de rendição.
+			# Sem frase (CAP1_099 saiu, Rafael 21/10/2026): ele ergue as mãos e
+			# ela comemora a vitória com pulinhos.
 			_reagir_na_espada("rendicao")
-			await _esperar(1.2)
+			await _vitoria_de_althea()
 		"escolheu_desvio":
 			_reagir_na_espada("CAP1_100")
 			await _frases("frases_desvio")
@@ -582,22 +598,24 @@ func _reagir_na_espada(id: String) -> void:
 		"rendicao":
 			_pose_de_nicholas(&"rendicao")
 		"CAP1_100":
-			_golpe_de_althea()
-			# o passo é para o lado contrário ao dela
-			var lado := 1.0 if jogador.position.x >= objetos["althea"].position.x else -1.0
-			_mover_suave(jogador.get_node("Corpo"), "position:x", _corpo_x + lado * 6.0)
+			_golpe_de_althea(2)
+			_esquivas_de_nicholas(2)
 
 
 ## Althea golpeia algumas vezes na direção de Nicholas, com um avanço curto
 ## a cada golpe: o desenho do golpe tem só 3 quadros (0,25 s) e, sozinho,
 ## passava despercebido enquanto a frase aparecia no alto.
+## Com [member _golpeando] ligado, segue golpeando até ele desligar (a escolha).
 func _golpe_de_althea(vezes := 3) -> void:
 	var althea: Node2D = objetos.get("althea")
 	if althea == null:
 		return
 	var visual: AnimatedSprite2D = althea.get_node("Visual")
 	var etapa_do_golpe := etapa
-	for i in vezes:
+	var sem_fim := _golpeando
+	var i := 0
+	while i < vezes or (sem_fim and _golpeando):
+		i += 1
 		if not is_instance_valid(visual) or etapa != etapa_do_golpe:
 			return
 		visual.play(&"golpe_frente")
@@ -614,6 +632,87 @@ func _golpe_de_althea(vezes := 3) -> void:
 		await _esperar(0.35)
 	if is_instance_valid(visual) and etapa == etapa_do_golpe:
 		visual.play("parado_%s" % visual.animation.get_slice("_", 1))
+
+
+## Impaciente na porta: ergue o pé e o bate no assoalho, com o baque e um
+## tremor curto da câmera.
+func _bater_o_pe() -> void:
+	if escala_tempo <= 0.0:
+		return
+	_descruzar_os_bracos()
+	var corpo: Node2D = jogador.get_node("Corpo")
+	var visual: AnimatedSprite2D = corpo.get_node("Visual")
+	visual.set_process(false)
+	visual.play("parado_frente")
+	await _esperar(0.35)
+	var y := corpo.position.y
+	var batida := create_tween()
+	batida.tween_property(corpo, "position:y", y - 4.0, 0.18).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_SINE)
+	batida.tween_property(corpo, "position:y", y + 1.0, 0.05).set_ease(Tween.EASE_IN)
+	batida.tween_property(corpo, "position:y", y, 0.08)
+	await get_tree().create_timer(0.23).timeout
+	var som := AudioStreamPlayer.new()
+	som.stream = load("res://assets/audio/sfx/prologo/aterrissagem_madeira.ogg")
+	som.bus = &"Efeitos"
+	som.volume_db = 2.0
+	add_child(som)
+	som.play()
+	som.finished.connect(som.queue_free)
+	var camera := get_viewport().get_camera_2d()
+	if camera and camera.has_method("tremer"):
+		camera.tremer(1.5, 0.15)
+	await batida.finished
+	visual.set_process(true)
+
+
+## Antes dos golpes, Althea vai para a casa ao lado de Nicholas que fica
+## acima dele na tela: virada para ele, ela fica de frente para a câmera.
+func _althea_de_frente() -> void:
+	var althea: Node2D = objetos.get("althea")
+	if althea == null:
+		return
+	var dele := _casa_de(jogador)
+	var ocupadas: Array[Vector2i] = [Vector2i(1, 3), Vector2i(3, 1), Vector2i(1, 1), Vector2i(2, 2)]
+	for passo: Vector2i in [Vector2i(-1, -1), Vector2i(0, -1), Vector2i(-1, 0)]:
+		var casa := dele + passo
+		if casa.x < 1 or casa.y < 1 or ocupadas.has(casa):
+			continue
+		if _casa_de(althea) != casa:
+			await _caminhar(althea, sala.centro(casa), 0.5 * maxf(escala_tempo, 0.01))
+		break
+	_virar(althea, jogador.position)
+	jogador.direcao_olhar = (althea.position - jogador.position).normalized()
+
+
+## Rendição: Nicholas de mãos para cima e Althea dá dois pulinhos de vitória.
+func _vitoria_de_althea() -> void:
+	var althea: Node2D = objetos.get("althea")
+	if althea == null or escala_tempo <= 0.0:
+		return
+	var visual: AnimatedSprite2D = althea.get_node("Visual")
+	visual.play("parado_%s" % visual.animation.get_slice("_", 1))
+	for i in 2:
+		var pulo := create_tween()
+		pulo.tween_property(visual, "offset:y", -30.0, 0.14).set_ease(Tween.EASE_OUT)
+		pulo.tween_property(visual, "offset:y", -22.0, 0.14).set_ease(Tween.EASE_IN)
+		await pulo.finished
+		await _esperar(0.12)
+	await _esperar(0.5)
+
+
+## Desvio: a cada golpe dela, Nicholas salta para um lado e depois para o outro.
+func _esquivas_de_nicholas(vezes: int) -> void:
+	var corpo: Node2D = jogador.get_node("Corpo")
+	for i in vezes:
+		if escala_tempo <= 0.0:
+			corpo.position.x = _corpo_x
+			return
+		var lado := 1.0 if i % 2 == 0 else -1.0
+		var passo := create_tween()
+		passo.tween_property(corpo, "position:x", _corpo_x + lado * 7.0, 0.12)
+		passo.parallel().tween_property(corpo, "position:y", corpo.position.y - 3.0, 0.06)
+		passo.tween_property(corpo, "position:y", corpo.position.y, 0.06)
+		await _esperar(0.6)
 
 
 ## Na porta de Althea: braços cruzados enquanto espera; ao se mexer (andar
@@ -895,6 +994,12 @@ func sentar_a_mesa() -> void:
 
 # --- 5. o duque ------------------------------------------------------------
 
+## Casa livre ao lado de Nicholas, a mais alta na tela (o duque olha para baixo).
+func casa_do_duque() -> Vector2i:
+	var dele := _casa_de(jogador)
+	return _casa_livre_perto(dele, dele + Vector2i(-3, -3))
+
+
 func chegada_do_duque() -> void:
 	_mudar("duque")
 	# Apollon entra pela porta e vai até Nicholas.
@@ -902,7 +1007,9 @@ func chegada_do_duque() -> void:
 	objetos["apollon"] = apollon
 	apollon.modulate.a = 0.0
 	await create_tween().tween_property(apollon, "modulate:a", 1.0, maxf(0.4 * escala_tempo, 0.01)).finished
-	await _caminhar(apollon, sala.centro(_casa_livre_perto(_casa_de(jogador), Vector2i(5, 1))), 1.4)
+	# Fica na casa livre acima de Nicholas na tela: virado para ele, o duque
+	# fica de frente para a câmera (Rafael, 26/10/2026: de costas não se via o rosto).
+	await _caminhar(apollon, sala.centro(casa_do_duque()), 1.4)
 	_virar(apollon, jogador.position)
 	_pose_de_althea(&"espada_colo")
 	DialogueManager.got_dialogue.connect(_ao_ver_fala_do_duque)

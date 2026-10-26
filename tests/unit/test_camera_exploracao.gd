@@ -24,7 +24,8 @@ func test_sala_de_teste_limita_a_camera_ao_chao() -> void:
 	var limites := CameraExploracao.limites_do_mapa(chao)
 	assert_gt(limites.size.x * camera.zoom.x, 1280.0, "a sala deve ser mais larga que a tela")
 	assert_eq(camera.limit_left, floori(limites.position.x))
-	assert_eq(camera.limit_bottom, ceili(limites.end.y))
+	# Na altura a sala pode caber na tela: aí os limites se alargam por igual.
+	assert_true(camera.limit_bottom >= ceili(limites.end.y), "o chão todo fica dentro dos limites")
 
 
 func test_exploracao_usa_pixel_art_ampliado() -> void:
@@ -45,3 +46,21 @@ func test_personagens_e_objetos_tem_no_visual() -> void:
 			assert_not_null(visual.texture, caminho)
 		elif visual is AnimatedSprite2D:
 			assert_not_null(visual.sprite_frames, caminho)
+
+
+## Numa sala menor que a tela a câmera fica parada no meio dela (antes ela
+## balançava de borda a borda com o adiantamento: enjoo no restaurante).
+func test_sala_menor_que_a_tela_deixa_a_camera_parada_no_meio() -> void:
+	var dono := CharacterBody2D.new()
+	var camera := CameraExploracao.new()
+	dono.add_child(camera)
+	add_child_autofree(dono)
+	var tela := get_viewport().get_visible_rect().size / camera.zoom
+	var sala := Rect2(Vector2(100, 50), tela * 0.5)
+	camera.aplicar_limites(sala)
+	assert_true(camera.parada_x and camera.parada_y)
+	assert_almost_eq(float(camera.limit_right - camera.limit_left), tela.x, 1.0, "limites do tamanho da tela")
+	assert_almost_eq((camera.limit_left + camera.limit_right) / 2.0, sala.get_center().x, 1.0, "sala no meio")
+	dono.velocity = Vector2(100, 0)
+	await wait_frames(10)
+	assert_eq(camera.offset, Vector2.ZERO, "sem adiantamento numa sala que cabe na tela")

@@ -38,6 +38,16 @@ func test_prologo_so_a_narracao_do_nicholas() -> void:
 	assert_eq(falas[0].texto, "Esta é a memória mais vívida que tenho da minha infância.")
 
 
+func test_prologo_narrado_pelo_nicholas_crianca() -> void:
+	# Rafael (25/10/2026): no prólogo ele tem 5 anos, então a narração usa a
+	# voz de criança, a mesma do Capítulo 01.
+	var falas := GeradorVozes.falas_do_roteiro(load(PROLOGO), GeradorVozes.ler_vozes())
+	var narracao := falas.filter(func(f: Dictionary) -> bool: return f.voz != "parteira" and not f.voz.begins_with("sussurro"))
+	assert_eq(narracao.size(), 20)
+	for fala in narracao:
+		assert_eq(fala.voz, "nicholas_crianca", fala.id)
+
+
 func test_emocao_vai_na_frente_do_texto() -> void:
 	var direcao := GeradorVozes.ler_direcao()
 	assert_eq(direcao.get("PROLOGO_008"), "[whispers] [shocked]")

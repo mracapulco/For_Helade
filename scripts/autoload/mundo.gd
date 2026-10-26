@@ -14,6 +14,9 @@ var noite := false
 var descobertos: Dictionary = {}
 ## Onde Nicholas está no mapa; vazio = ainda não entrou no mapa.
 var local_no_mapa := ""
+## Fases de exploração já vencidas (id -> true): na segunda vez, a fase vira
+## atalho (ex.: "estrada_desabou", a estrada já refeita).
+var feitos: Dictionary = {}
 
 
 func definir_noite(valor: bool) -> void:
@@ -40,14 +43,25 @@ func foi_descoberto(id: String) -> bool:
 	return descobertos.has(id)
 
 
+## Anota que a fase [param id] foi vencida.
+func marcar_feito(id: String) -> void:
+	feitos[id] = true
+
+
+func foi_feito(id: String) -> bool:
+	return feitos.has(id)
+
+
 func limpar() -> void:
 	noite = false
 	descobertos.clear()
 	local_no_mapa = ""
+	feitos.clear()
 
 
 func para_dados() -> Dictionary:
-	return {"noite": noite, "descobertos": descobertos.keys(), "local_no_mapa": local_no_mapa}
+	return {"noite": noite, "descobertos": descobertos.keys(), "local_no_mapa": local_no_mapa,
+		"feitos": feitos.keys()}
 
 
 func de_dados(dados: Dictionary) -> void:
@@ -56,3 +70,5 @@ func de_dados(dados: Dictionary) -> void:
 	for id: String in dados.get("descobertos", []):
 		descobertos[id] = true
 	local_no_mapa = dados.get("local_no_mapa", "")
+	for id: String in dados.get("feitos", []):
+		feitos[id] = true

@@ -1,0 +1,79 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/estrada_oa/estrada_desabou/estrada_desabou.gd" id="1_fase"]
+[ext_resource type="Script" path="res://scripts/prologo/texto_solto.gd" id="2_texto"]
+[ext_resource type="PackedScene" path="res://scenes/ui/botoes_toque.tscn" id="3_botoes"]
+[ext_resource type="PackedScene" path="res://scenes/ui/aviso_itens.tscn" id="4_aviso"]
+[ext_resource type="PackedScene" path="res://scenes/ui/tela_bolsa.tscn" id="5_bolsa"]
+[ext_resource type="Script" path="res://scripts/ui/barra_rapida.gd" id="6_barra"]
+[ext_resource type="PackedScene" path="res://scenes/ui/tela_codice.tscn" id="7_codice"]
+
+[node name="EstradaDesabou" type="Node2D"]
+texture_filter = 1
+script = ExtResource("1_fase")
+
+[node name="Fundo" type="CanvasLayer" parent="."]
+layer = -10
+
+[node name="Cor" type="ColorRect" parent="Fundo"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+color = Color(0.13, 0.09, 0.11, 1)
+
+[node name="BotoesToque" parent="." instance=ExtResource("3_botoes")]
+
+[node name="TelaBolsa" parent="." instance=ExtResource("5_bolsa")]
+
+[node name="AvisoItens" parent="." instance=ExtResource("4_aviso")]
+
+[node name="BarraRapida" type="CanvasLayer" parent="."]
+script = ExtResource("6_barra")
+
+[node name="Interface" type="CanvasLayer" parent="."]
+layer = 5
+
+[node name="Botoes" type="VBoxContainer" parent="Interface"]
+offset_left = 32.0
+offset_top = 32.0
+offset_right = 272.0
+offset_bottom = 192.0
+theme_override_constants/separation = 12
+
+[node name="BotaoMapa" type="Button" parent="Interface/Botoes"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(240, 72)
+layout_mode = 2
+focus_mode = 0
+text = "ACAMP_BOTAO_MAPA"
+
+[node name="BotaoRecomecar" type="Button" parent="Interface/Botoes"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(240, 72)
+layout_mode = 2
+focus_mode = 0
+text = "EOA3_BOTAO_RECOMECAR"
+
+[node name="Frases" type="CanvasLayer" parent="."]
+layer = 20
+
+[node name="Texto" type="Label" parent="Frases"]
+unique_name_in_owner = true
+anchors_preset = -1
+anchor_top = 0.08
+anchor_right = 1.0
+anchor_bottom = 0.3
+offset_left = 80.0
+offset_right = -80.0
+mouse_filter = 2
+theme_override_font_sizes/font_size = 30
+theme_override_colors/font_color = Color(0.97, 0.92, 0.8, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.85)
+theme_override_constants/outline_size = 10
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+script = ExtResource("2_texto")
+
+[node name="TelaCodice" parent="." instance=ExtResource("7_codice")]

@@ -316,6 +316,8 @@ func test_visao_da_varanda_leva_as_butiques() -> void:
 func test_volta_olhar_da_danica_perguntas_e_mapa() -> void:
 	var etapa_antes := Progresso.etapa
 	var local_antes := Mundo.local_no_mapa
+	var descobertos_antes := Mundo.descobertos.duplicate()
+	Mundo.descobertos.erase("atenas")
 	await _abrir("res://scenes/capitulo_01/cena_volta.tscn", "seguir")
 	var volta := cena as CenaVolta
 	assert_false(cena.objetos.has("apollon") and cena.objetos["apollon"].visible, "o Duque entrou")
@@ -333,6 +335,9 @@ func test_volta_olhar_da_danica_perguntas_e_mapa() -> void:
 	assert_eq(cena.etapa, CenaVolta.ETAPA_DEPOIS)
 	assert_eq(cena.cena_pedida, CenaVolta.MAPA)
 	assert_eq(Mundo.local_no_mapa, "atenas")
+	assert_true(Mundo.foi_descoberto("atenas"), "o mapa abre em Atenas mesmo sem tê-la visto antes")
 	assert_true(preload("res://scripts/systems/fases_historia.gd").da_etapa(CenaVolta.ETAPA_DEPOIS).is_empty(), "o mapa fica livre")
 	Progresso.etapa = etapa_antes
 	Mundo.local_no_mapa = local_antes
+	Mundo.descobertos.clear()
+	Mundo.descobertos.merge(descobertos_antes)

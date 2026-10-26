@@ -321,6 +321,10 @@ func fim_da_conversa() -> void:
 func fim_do_capitulo() -> void:
 	_mudar(ETAPA_DEPOIS)
 	await _escurecer()
+	# Em Atenas, onde a história parou, mesmo que o mapa ainda não a
+	# conhecesse (ex.: cena rodada direto no editor); senão o mapa abria no
+	# ponto inicial (Rafael, 26/10/2026).
+	Mundo.descobrir(LOCAL_NO_MAPA)
 	Mundo.local_no_mapa = LOCAL_NO_MAPA
 	cena_pedida = MAPA
 	if trocar_de_cena:

@@ -42,8 +42,10 @@ const LINHA_POSTOS := 8
 ## A esta distância (em casas) da fonte, ele chegou nela.
 const PERTO_DA_FONTE := 2
 ## Althea e Ophelia esperam lado a lado, à direita da carruagem (do lado
-## esquerdo, Althea ficava escondida atrás dela; Rafael, 26/10/2026).
-const CASAS_EMBARQUE: Array[Vector2i] = [Vector2i(9, 12), Vector2i(8, 12)]
+## esquerdo, Althea ficava escondida atrás dela; Rafael, 26/10/2026), uma
+## linha para dentro do pátio: em (8, 12) e (9, 12) apareciam por cima dos
+## cavalos.
+const CASAS_EMBARQUE: Array[Vector2i] = [Vector2i(9, 11), Vector2i(8, 11)]
 ## Onde cada um senta no banco da carruagem, ao longo dela (em casas, de trás
 ## para a frente): Althea, Ophelia e, por último, Nicholas.
 const BANCO := {"althea": -0.9, "ophelia": 0.0, "nicholas": 0.9}

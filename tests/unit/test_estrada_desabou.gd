@@ -276,3 +276,29 @@ func test_mundo_guarda_as_fases_feitas() -> void:
 	assert_true(Mundo.foi_feito("estrada_desabou"))
 	Mundo.de_dados({"noite": noite, "descobertos": descobertos.keys(), "local_no_mapa": local})
 	assert_false(Mundo.foi_feito("estrada_desabou"), "jogo salvo antigo, sem fases feitas")
+
+
+func test_agarrar_e_puxar_pelo_controle() -> void:
+	await _abrir()
+	fase.jogador.position = fase.sala.centro(Vector2i(5, 3))
+	fase.jogador.direcao_olhar = (fase.sala.centro(Vector2i(5, 4)) - fase.jogador.position).normalized()
+	Input.action_press("golpear")
+	await wait_physics_frames(2)
+	assert_ne(fase.segurando, "", "segurar o clique agarra")
+	assert_true(fase.jogador.em_dialogo, "segurando, as teclas não andam")
+	# A caixa está para baixo e à esquerda na tela: para cima e à direita puxa.
+	# Com o tempo de verdade, um toque nas teclas puxa uma casa só.
+	fase.escala_tempo = 1.0
+	Input.action_press("mover_frente")
+	Input.action_press("mover_direita")
+	await wait_physics_frames(2)
+	Input.action_release("mover_frente")
+	Input.action_release("mover_direita")
+	await wait_seconds(FaseEstradaDesabou.TEMPO_ARRASTAR + 0.15)
+	assert_ne(fase.obra.peca_em(Vector2i(5, 3)), "")
+	assert_eq(fase.nos_pecas[fase.obra.peca_em(Vector2i(5, 3))].position, fase.sala.centro(Vector2i(5, 3)))
+	assert_eq(fase.casa_do_jogador(), Vector2i(5, 2))
+	Input.action_release("golpear")
+	await wait_physics_frames(1)
+	assert_eq(fase.segurando, "")
+	assert_false(fase.jogador.em_dialogo)

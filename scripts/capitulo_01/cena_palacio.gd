@@ -51,6 +51,8 @@ const CASAS_EMBARQUE: Array[Vector2i] = [Vector2i(9, 11), Vector2i(8, 11)]
 const BANCO := {"althea": -0.9, "ophelia": 0.0, "nicholas": 0.9}
 ## Virado para o anexo por este tempo, conta como o último olhar.
 const TEMPO_OLHANDO := 0.5
+## Althea caminhando até a fonte (px/s).
+const PASSO_DE_ALTHEA := 30.0
 
 var fonte_vista := false
 var guardas_vistos := false
@@ -72,11 +74,11 @@ func id_da_cena() -> String:
 
 func comecar() -> void:
 	montar_patio()
+	# Althea já sai andando para a fonte assim que a cena abre, durante as
+	# primeiras frases, e fala no caminho (Rafael, 26/10/2026).
+	althea_corre_para_a_fonte()
 	await _clarear()
 	await _frases("frases_palacio_chegada")
-	# Althea já sai andando para a fonte e, no caminho, fala (Rafael, 26/10/2026).
-	althea_corre_para_a_fonte()
-	await _esperar(0.6)
 	await _falar_travado("fonte")
 	_mudar("patio")
 	_travar(false)
@@ -140,7 +142,11 @@ func _physics_process(delta: float) -> void:
 ## "Nick… olha isso…": ela corre na frente, pelo caminho de mármore.
 func althea_corre_para_a_fonte() -> void:
 	var althea: Node2D = objetos["althea"]
-	await _caminhar(althea, [sala.centro(Vector2i(7, 10)), sala.centro(CASA_ALTHEA_FONTE)], 0.7)
+	# Andando (não correndo), para ainda estar a caminho nas primeiras frases.
+	var meio := sala.centro(Vector2i(7, 10))
+	await _caminhar(althea, [meio], althea.position.distance_to(meio) / PASSO_DE_ALTHEA)
+	await _caminhar(althea, [sala.centro(CASA_ALTHEA_FONTE)],
+		meio.distance_to(sala.centro(CASA_ALTHEA_FONTE)) / PASSO_DE_ALTHEA)
 	_virar(althea, sala.centro(CASA_FONTE))
 
 

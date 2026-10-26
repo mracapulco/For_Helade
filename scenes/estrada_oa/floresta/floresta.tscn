@@ -1,0 +1,288 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/estrada_oa/floresta/floresta.gd" id="1_fase"]
+[ext_resource type="Script" path="res://scripts/estrada_oa/floresta/clareira_floresta.gd" id="2_clareira"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholders/acampamento/chao_mata_escura.png" id="3_pisos"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholders/acampamento/arvore_escura.png" id="4_arvore"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholders/acampamento/pinheiro.png" id="5_pinheiro"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholders/estrada_oa/floresta/arvore_marcada.png" id="6_marcada"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholders/acampamento/folhas.png" id="7_folhas"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholders/acampamento/cogumelos.png" id="8_cogumelos"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholders/acampamento/tufo.png" id="9_tufo"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholders/acampamento/toco.png" id="10_toco"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholders/acampamento/rocha.png" id="11_rocha"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholders/acampamento/tronco.png" id="12_tronco"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholders/acampamento/rochedo.png" id="13_rochedo"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholders/acampamento/flores.png" id="14_flores"]
+[ext_resource type="Script" path="res://scripts/exploracao/marcador_destino.gd" id="15_marc"]
+[ext_resource type="Script" path="res://scripts/exploracao/personagem_exploracao.gd" id="16_pers"]
+[ext_resource type="SpriteFrames" path="res://assets/art/personagens/nicholas/nicholas_exploracao.tres" id="17_nicholas"]
+[ext_resource type="Script" path="res://scripts/exploracao/animacao_personagem.gd" id="18_anim"]
+[ext_resource type="Script" path="res://scripts/exploracao/camada_equipamento.gd" id="19_camada"]
+[ext_resource type="Script" path="res://scripts/exploracao/item_na_mao.gd" id="20_item_mao"]
+[ext_resource type="Resource" path="res://assets/art/personagens/nicholas/nicholas_maos.tres" id="21_maos"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholders/itens/rastro_golpe.png" id="22_rastro"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholders/combate/flecha.png" id="23_flecha"]
+[ext_resource type="Script" path="res://scripts/systems/vida.gd" id="24_vida"]
+[ext_resource type="Script" path="res://scripts/systems/efeitos_temporarios.gd" id="25_efeitos"]
+[ext_resource type="Script" path="res://scripts/exploracao/reacao_golpe.gd" id="26_reacao"]
+[ext_resource type="Script" path="res://scripts/exploracao/camera_exploracao.gd" id="27_camera"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholders/estrada_oa/floresta/folha_voando.png" id="28_folha"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/estrada_oa/floresta/melodia_floresta.wav" id="29_melodia"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/estrada_oa/floresta/melodia_eco.wav" id="30_eco"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/estrada_oa/floresta/sopro_floresta.wav" id="31_sopro"]
+[ext_resource type="PackedScene" path="res://scenes/ui/botoes_toque.tscn" id="32_botoes"]
+[ext_resource type="PackedScene" path="res://scenes/ui/tela_bolsa.tscn" id="33_bolsa"]
+[ext_resource type="PackedScene" path="res://scenes/ui/aviso_itens.tscn" id="34_aviso"]
+[ext_resource type="Script" path="res://scripts/ui/barra_rapida.gd" id="35_barra"]
+[ext_resource type="Script" path="res://scripts/ui/hud_vida.gd" id="36_hud_vida"]
+[ext_resource type="PackedScene" path="res://scenes/ui/tela_codice.tscn" id="37_codice"]
+[ext_resource type="Script" path="res://scripts/prologo/texto_solto.gd" id="38_texto"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholders/exploracao/bau_fechado.png" id="39_bau"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholders/exploracao/bau_aberto.png" id="40_bau_aberto"]
+[ext_resource type="Texture2D" path="res://assets/art/placeholders/acampamento/placa_saida.png" id="41_placa"]
+
+[sub_resource type="CircleShape2D" id="Forma_personagem"]
+radius = 7.0
+
+[sub_resource type="Curve" id="Curva_folhas"]
+_data = [Vector2(0, 0), 0.0, 4.0, 0, 0, Vector2(0.2, 1), 0.0, 0.0, 0, 0, Vector2(0.8, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), -4.0, 0.0, 0, 0]
+point_count = 4
+
+[node name="Floresta" type="Node2D" node_paths=PackedStringArray("clareira", "personagem", "som_certo", "som_eco", "som_sopro", "folhas", "texto", "cortina", "botao_mapa", "titulo", "interface")]
+texture_filter = 1
+y_sort_enabled = true
+script = ExtResource("1_fase")
+clareira = NodePath("Clareira")
+personagem = NodePath("Personagem")
+som_certo = NodePath("SomCerto")
+som_eco = NodePath("SomEco")
+som_sopro = NodePath("SomSopro")
+folhas = NodePath("Personagem/Folhas")
+texto = NodePath("Frases/Texto")
+cortina = NodePath("Troca/Cortina")
+botao_mapa = NodePath("Interface/BotaoMapa")
+titulo = NodePath("Interface/FundoTitulo/Titulo")
+interface = NodePath("Interface")
+textura_bau = ExtResource("39_bau")
+textura_bau_aberto = ExtResource("40_bau_aberto")
+textura_placa = ExtResource("41_placa")
+
+[node name="Ambiente" type="CanvasModulate" parent="."]
+color = Color(0.66, 0.76, 0.7, 1)
+
+[node name="Fundo" type="TileMapLayer" parent="."]
+z_index = -2
+
+[node name="Chao" type="TileMapLayer" parent="."]
+z_index = -1
+
+[node name="Clareira" type="Node2D" parent="." node_paths=PackedStringArray("chao", "fundo")]
+y_sort_enabled = true
+script = ExtResource("2_clareira")
+chao = NodePath("../Chao")
+fundo = NodePath("../Fundo")
+pisos = ExtResource("3_pisos")
+arvores = Array[Texture2D]([ExtResource("4_arvore"), ExtResource("4_arvore"), ExtResource("4_arvore"), ExtResource("5_pinheiro")])
+arvore_marcada = ExtResource("6_marcada")
+enfeites = Array[Texture2D]([ExtResource("7_folhas"), ExtResource("7_folhas"), ExtResource("8_cogumelos"), ExtResource("9_tufo")])
+marcos = Array[Texture2D]([ExtResource("10_toco"), ExtResource("11_rocha"), ExtResource("12_tronco"), ExtResource("13_rochedo"), ExtResource("8_cogumelos"), ExtResource("14_flores")])
+
+[node name="MarcadorDestino" type="Node2D" parent="." node_paths=PackedStringArray("personagem")]
+z_index = -1
+script = ExtResource("15_marc")
+personagem = NodePath("../Personagem")
+
+[node name="Personagem" type="CharacterBody2D" parent="." node_paths=PackedStringArray("grade", "vida", "efeitos")]
+position = Vector2(0, 192)
+motion_mode = 1
+script = ExtResource("16_pers")
+grade = NodePath("../Chao")
+vida = NodePath("Vida")
+efeitos = NodePath("Efeitos")
+
+[node name="Sombra" type="Polygon2D" parent="Personagem"]
+color = Color(0, 0, 0, 0.35)
+polygon = PackedVector2Array(10, 0, 9.6593, 1.2941, 8.6603, 2.5, 7.0711, 3.5355, 5, 4.3301, 2.5882, 4.8296, 0, 5, -2.5882, 4.8296, -5, 4.3301, -7.0711, 3.5355, -8.6603, 2.5, -9.6593, 1.2941, -10, 0, -9.6593, -1.2941, -8.6603, -2.5, -7.0711, -3.5355, -5, -4.3301, -2.5882, -4.8296, -0, -5, 2.5882, -4.8296, 5, -4.3301, 7.0711, -3.5355, 8.6603, -2.5, 9.6593, -1.2941)
+
+[node name="Corpo" type="Node2D" parent="Personagem"]
+
+[node name="Visual" type="AnimatedSprite2D" parent="Personagem/Corpo"]
+sprite_frames = ExtResource("17_nicholas")
+animation = &"parado_frente"
+offset = Vector2(0, -22)
+script = ExtResource("18_anim")
+nicholas_pela_idade = true
+
+[node name="CamadaArmadura" type="AnimatedSprite2D" parent="Personagem/Corpo/Visual"]
+script = ExtResource("19_camada")
+nicholas_pela_idade = true
+
+[node name="CamadaElmo" type="AnimatedSprite2D" parent="Personagem/Corpo/Visual"]
+script = ExtResource("19_camada")
+encaixe = 5
+nicholas_pela_idade = true
+
+[node name="ItemNaMao" type="Sprite2D" parent="Personagem/Corpo/Visual" node_paths=PackedStringArray("rastro", "flecha")]
+centered = false
+script = ExtResource("20_item_mao")
+maos = ExtResource("21_maos")
+maos_pela_idade = true
+rastro = NodePath("../Rastro")
+flecha = NodePath("../Flecha")
+
+[node name="Rastro" type="Sprite2D" parent="Personagem/Corpo/Visual"]
+visible = false
+texture = ExtResource("22_rastro")
+centered = false
+
+[node name="ProtecaoNaMao" type="Sprite2D" parent="Personagem/Corpo/Visual"]
+centered = false
+script = ExtResource("20_item_mao")
+maos = ExtResource("21_maos")
+maos_pela_idade = true
+encaixe = 4
+mao_de_tras = true
+
+[node name="Flecha" type="Sprite2D" parent="Personagem/Corpo/Visual"]
+visible = false
+texture = ExtResource("23_flecha")
+centered = false
+
+[node name="Vida" type="Node" parent="Personagem"]
+script = ExtResource("24_vida")
+maxima = 40
+id_inventario = "nicholas"
+
+[node name="Efeitos" type="Node" parent="Personagem" node_paths=PackedStringArray("vida")]
+script = ExtResource("25_efeitos")
+vida = NodePath("../Vida")
+
+[node name="ReacaoAoGolpe" type="Node2D" parent="Personagem" node_paths=PackedStringArray("visual", "vida")]
+script = ExtResource("26_reacao")
+visual = NodePath("../Corpo/Visual")
+vida = NodePath("../Vida")
+
+[node name="Colisao" type="CollisionShape2D" parent="Personagem"]
+shape = SubResource("Forma_personagem")
+
+[node name="Camera" type="Camera2D" parent="Personagem" node_paths=PackedStringArray("mapa")]
+process_callback = 0
+script = ExtResource("27_camera")
+mapa = NodePath("../../Chao")
+
+[node name="Agente" type="NavigationAgent2D" parent="Personagem"]
+path_desired_distance = 4.0
+target_desired_distance = 4.0
+radius = 7.0
+
+[node name="Folhas" type="CPUParticles2D" parent="Personagem"]
+z_index = 20
+amount = 22
+lifetime = 3.2
+preprocess = 2.0
+local_coords = false
+texture = ExtResource("28_folha")
+emission_shape = 3
+emission_rect_extents = Vector2(260, 150)
+direction = Vector2(1, 0)
+spread = 12.0
+gravity = Vector2(0, 0)
+initial_velocity_min = 30.0
+initial_velocity_max = 55.0
+angular_velocity_min = -180.0
+angular_velocity_max = 180.0
+scale_amount_curve = SubResource("Curva_folhas")
+
+[node name="SomCerto" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("29_melodia")
+volume_db = -2.0
+max_distance = 900.0
+attenuation = 1.6
+bus = &"Efeitos"
+
+[node name="SomEco" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("30_eco")
+volume_db = -4.0
+max_distance = 900.0
+attenuation = 1.6
+bus = &"Efeitos"
+
+[node name="SomSopro" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("31_sopro")
+volume_db = -6.0
+bus = &"Efeitos"
+
+[node name="BotoesToque" parent="." instance=ExtResource("32_botoes")]
+
+[node name="TelaBolsa" parent="." instance=ExtResource("33_bolsa")]
+
+[node name="AvisoItens" parent="." instance=ExtResource("34_aviso")]
+
+[node name="BarraRapida" type="CanvasLayer" parent="."]
+script = ExtResource("35_barra")
+
+[node name="HudVida" type="CanvasLayer" parent="." node_paths=PackedStringArray("vida", "efeitos")]
+script = ExtResource("36_hud_vida")
+vida = NodePath("../Personagem/Vida")
+efeitos = NodePath("../Personagem/Efeitos")
+
+[node name="Interface" type="CanvasLayer" parent="."]
+layer = 5
+
+[node name="BotaoMapa" type="Button" parent="Interface"]
+custom_minimum_size = Vector2(240, 72)
+offset_left = 32.0
+offset_top = 88.0
+offset_right = 272.0
+offset_bottom = 160.0
+focus_mode = 0
+text = "ACAMP_BOTAO_MAPA"
+
+[node name="FundoTitulo" type="PanelContainer" parent="Interface"]
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 32.0
+offset_top = -76.0
+offset_right = 72.0
+offset_bottom = -32.0
+grow_vertical = 0
+mouse_filter = 2
+
+[node name="Titulo" type="Label" parent="Interface/FundoTitulo"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "FLORESTA_TITULO"
+
+[node name="Frases" type="CanvasLayer" parent="."]
+layer = 20
+
+[node name="Texto" type="Label" parent="Frases"]
+anchors_preset = -1
+anchor_top = 0.12
+anchor_right = 1.0
+anchor_bottom = 0.32
+offset_left = 80.0
+offset_right = -80.0
+mouse_filter = 2
+theme_override_font_sizes/font_size = 30
+theme_override_colors/font_color = Color(0.97, 0.92, 0.8, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.85)
+theme_override_constants/outline_size = 10
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+script = ExtResource("38_texto")
+
+[node name="Troca" type="CanvasLayer" parent="."]
+layer = 30
+
+[node name="Cortina" type="ColorRect" parent="Troca"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+color = Color(0, 0, 0, 0)
+
+[node name="TelaCodice" parent="." instance=ExtResource("37_codice")]

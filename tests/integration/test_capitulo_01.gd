@@ -504,3 +504,24 @@ func test_althea_golpeia_na_direcao_de_nicholas() -> void:
 		var ate_ela: Vector2 = capitulo.objetos["althea"].position - capitulo.jogador.position
 		assert_true(absf(ate_ela.x) > 8.0, "ao lado dele na tela (%s)" % casa)
 		assert_true(ate_ela.y <= 1.0, "não abaixo dele (%s)" % casa)
+
+
+## Até a escolha, Althea vai atrás de Nicholas golpeando quando ele se afasta.
+func test_althea_segue_nicholas_golpeando() -> void:
+	await _ate_o_corredor()
+	await _esperar_o_cortejo()
+	_interagir("cama_althea")
+	_interagir("cama_althea")
+	await _esperar_etapa("embrulho")
+	capitulo.jogador.position = capitulo.sala.centro(Vector2i(2, 3))
+	await capitulo._althea_de_frente()
+	capitulo.escala_tempo = 1.0
+	capitulo._golpeando = true
+	capitulo._golpe_de_althea(0)
+	capitulo.jogador.position = capitulo.sala.centro(Vector2i(4, 2))
+	await wait_seconds(3.0)
+	capitulo._golpeando = false
+	capitulo.escala_tempo = 0.0
+	var althea: Node2D = capitulo.objetos["althea"]
+	assert_almost_eq(althea.position.distance_to(capitulo.jogador.position), 0.0,
+		capitulo.DISTANCIA_DO_GOLPE, "ela foi atrás dele")

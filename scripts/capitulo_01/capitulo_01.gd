@@ -56,6 +56,10 @@ const TIC_TAC := preload("res://assets/audio/sfx/capitulo_01/tic_tac.wav")
 const VELOCIDADE_NO_SONHO := 26.0
 ## Quanto a garota leva para ir até a porta (um pouco mais rápida que ele).
 const TEMPO_DA_GAROTA := 5.0
+## Na espada: Althea anda atrás de Nicholas (px/s) quando ele passa desta
+## distância dela (px), e só então golpeia de novo.
+const VELOCIDADE_DE_ALTHEA := 70.0
+const DISTANCIA_DO_GOLPE := 40.0
 ## Móveis em caixa isométrica (armário, baú): o centro da casa fica a esta
 ## altura da base da imagem (tools/arte/gerar_capitulo_01.py, PE_CAIXA).
 const PE_CAIXA := 17.0
@@ -571,11 +575,19 @@ func entregar_embrulho() -> void:
 	await _althea_de_frente()
 	# A narração vai no alto, entre as partes da conversa. Ela golpeia sem
 	# parar até o jogador escolher.
+	# Nicholas fica livre (WASD) e ela vai atrás dele golpeando até a escolha
+	# (Rafael, 26/10/2026); as opções se escolhem com as setas e o Enter.
 	_golpeando = true
+	_travar(false)
 	_reagir_na_espada("CAP1_051")
 	await _frases("frases_espada")
-	var escolha := await _falar_e_escolher("espada_escolha", true)
+	_soltar_nicholas_na_escolha.call_deferred()
+	var escolha := await _falar_e_escolher("espada_escolha", false)
 	_golpeando = false
+	_travar(true)
+	if mostrar_dialogos:    # o fim da caixa solta o jogador 0,2 s depois
+		await get_tree().create_timer(0.25).timeout
+		_travar(true)
 	match escolha:
 		"escolheu_rendicao":
 			# Sem frase (CAP1_099 saiu, Rafael 21/10/2026): ele ergue as mãos e
@@ -598,6 +610,14 @@ func entregar_embrulho() -> void:
 	_virar(althea, sala.centro(Vector2i(4, 4)))
 	_ativar(althea, true)
 	_mudar("a_mesa")
+
+
+## A caixa de escolha trava o jogador ao abrir; na espada ele continua
+## andando com WASD (as setas e o Enter ficam para as opções).
+func _soltar_nicholas_na_escolha() -> void:
+	await get_tree().process_frame
+	if _golpeando:
+		jogador.em_dialogo = false
 
 
 ## Com a espada de madeira: Althea golpeia o ar na direção de Nicholas
@@ -630,6 +650,13 @@ func _golpe_de_althea(vezes := 3) -> void:
 		i += 1
 		if not is_instance_valid(visual) or etapa != etapa_do_golpe:
 			return
+		# Se ele se afastou, ela vai atrás antes de golpear de novo (Rafael,
+		# 26/10/2026: "deve seguir o nicholas tentando atacar ele").
+		if sem_fim and althea.position.distance_to(jogador.position) > DISTANCIA_DO_GOLPE:
+			visual.play("parado_%s" % visual.animation.get_slice("_", 1))
+			await _althea_de_frente(false)
+			if not is_instance_valid(visual) or etapa != etapa_do_golpe:
+				return
 		visual.play(&"golpe_frente")
 		_virar(althea, jogador.position)
 		visual.frame = 0
@@ -680,7 +707,7 @@ func _bater_o_pe() -> void:
 
 ## Antes dos golpes, Althea vai para a casa ao lado de Nicholas que fica
 ## acima dele na tela: virada para ele, ela fica de frente para a câmera.
-func _althea_de_frente() -> void:
+func _althea_de_frente(virar_nicholas := true) -> void:
 	var althea: Node2D = objetos.get("althea")
 	if althea == null:
 		return
@@ -695,10 +722,12 @@ func _althea_de_frente() -> void:
 		if casa.x < 1 or casa.y < 1 or casa.x > 6 or casa.y > 5 or ocupadas.has(casa):
 			continue
 		if _casa_de(althea) != casa:
-			await _caminhar(althea, sala.centro(casa), 0.5 * maxf(escala_tempo, 0.01))
+			var tempo := althea.position.distance_to(sala.centro(casa)) / VELOCIDADE_DE_ALTHEA
+			await _caminhar(althea, sala.centro(casa), maxf(tempo, 0.25) * maxf(escala_tempo, 0.01))
 		break
 	_virar(althea, jogador.position)
-	jogador.direcao_olhar = (althea.position - jogador.position).normalized()
+	if virar_nicholas:
+		jogador.direcao_olhar = (althea.position - jogador.position).normalized()
 
 
 ## Rendição: Nicholas de mãos para cima e Althea dá dois pulinhos de vitória.

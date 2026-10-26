@@ -65,7 +65,7 @@ Apollon: [#retrato=neutro] Você está à frente de outras crianças da sua idad
 $> Codice.anotar("elogio_do_duque")
 - [Perguntar por quê] [ID:CAP1_OPC_DUQUE_POR_QUE]
 	Nicholas: [#retrato=neutro] Por quê? [ID:CAP1_259]
-- [Encará-lo em silêncio] [ID:CAP1_OPC_DUQUE_ENCARAR]
+- [Encará-lo em silêncio] [ID:CAP1_OPC_DUQUE_SILENCIO]
 	$> Relacoes.ajustar("apollon", -1)
 Apollon: [#retrato=neutro] O Imperador Varsélios tomou uma decisão controversa. Neste Ciclo, os Abençoados não receberão a mesma educação. As meninas ficarão em desvantagem. [ID:CAP1_260]
 $> Codice.anotar("decisao_do_imperador")
